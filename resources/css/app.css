@@ -2,8 +2,62 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+
+@font-face {
+    font-family: 'JetBrains Sans';
+    font-weight: 300 800;
+    font-display: swap;
+    src: url('/fonts/JetBrainsSans[wght].woff2') format('woff2');
+}
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'JetBrains Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-safehouse-page: #050505;
+    --color-safehouse-text: #e8e8ec;
+    --color-safehouse-muted: #a1a1aa;
+    --color-safehouse-primary: #dc2626;
+    --color-safehouse-primary-hover: #b91c1c;
+    --color-safehouse-danger: #ef4444;
+    --color-safehouse-success: #65a30d;
+    --color-safehouse-warning: #d97706;
+    --color-safehouse-link: #f87171;
+    --color-safehouse-link-hover: #ef4444;
+    --color-safehouse-modal: #1c1c21;
+}
+
+:root {
+    --safehouse-glass-bg: rgb(20 20 26 / 42%);
+    --safehouse-glass-border: rgb(255 255 255 / 12%);
+    --safehouse-light-bg: #dfe1e6;
+    --safehouse-light-surface: #fcfdfe;
+    --safehouse-light-text: #18181b;
+    --safehouse-light-muted: #52525b;
+    --safehouse-light-primary: #ef4444;
+}
+
+@layer base {
+    body {
+        @apply bg-safehouse-page text-safehouse-text font-sans antialiased;
+    }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    html::before {
+        display: none;
+    }
+}
+
+@layer components {
+    .safehouse-glass {
+        background-color: var(--safehouse-glass-bg);
+        border: 1px solid var(--safehouse-glass-border);
+        backdrop-filter: blur(12px);
+    }
+
+    .safehouse-btn-primary {
+        @apply inline-flex items-center justify-center rounded-md bg-safehouse-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-safehouse-primary-hover;
+    }
 }
