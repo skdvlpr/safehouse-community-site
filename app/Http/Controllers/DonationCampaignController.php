@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\DonationCampaign;
+use App\Services\Payments\StripePaymentService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -21,27 +23,40 @@ class DonationCampaignController extends Controller
         ]);
     }
 
-    public function show(string $donationCampaign): View
+    public function show(string $locale, string $campaignSlug): View
     {
-        $campaign = DonationCampaign::query()->where('slug', $donationCampaign)->firstOrFail();
+        $campaign = DonationCampaign::query()->where('slug', $campaignSlug)->firstOrFail();
         abort_unless($campaign->is_active, 404);
 
-        return view('donations.show', ['campaign' => $campaign]);
+        return view('donations.show', [
+            'campaign' => $campaign,
+            'stripeMock' => StripePaymentService::mockModeEnabled(),
+        ]);
     }
 
-    public function privacy(string $donationCampaign): View
+    public function privacy(string $locale, string $campaignSlug): View
     {
-        $campaign = DonationCampaign::query()->where('slug', $donationCampaign)->firstOrFail();
+        $campaign = DonationCampaign::query()->where('slug', $campaignSlug)->firstOrFail();
         abort_unless($campaign->is_active, 404);
 
         return view('donations.privacy', ['campaign' => $campaign]);
     }
 
-    public function thankYou(string $donationCampaign): View
+    public function thankYou(Request $request, string $locale, string $campaignSlug): View|RedirectResponse
     {
-        $campaign = DonationCampaign::query()->where('slug', $donationCampaign)->firstOrFail();
+        $campaign = DonationCampaign::query()->where('slug', $campaignSlug)->firstOrFail();
         abort_unless($campaign->is_active, 404);
 
-        return view('donations.thank-you', ['campaign' => $campaign]);
+        $paymentIntentId = (string) $request->query('payment_intent', '');
+        if ($paymentIntentId === '') {
+            return redirect()
+                ->route('donations.show', ['locale' => $locale, 'campaignSlug' => $campaignSlug])
+                ->with('donation_notice', __('Completa il pagamento dalla pagina della raccolta.'));
+        }
+
+        return view('donations.thank-you', [
+            'campaign' => $campaign,
+            'paymentIntentId' => $paymentIntentId,
+        ]);
     }
 }

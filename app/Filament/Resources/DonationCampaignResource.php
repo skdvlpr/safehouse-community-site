@@ -75,7 +75,8 @@ class DonationCampaignResource extends Resource
             TextInput::make('min_amount_cents')->numeric()->default(50)->required(),
             TextInput::make('currency')->default('EUR')->maxLength(3)->required(),
             TextInput::make('espocrm_finanziamento_name')
-                ->label('EspoCRM Finanziamento name override')
+                ->label('EspoCRM Finanziamento name')
+                ->helperText('Filled automatically when the campaign is saved. Override only if the CRM name must differ from the campaign title.')
                 ->maxLength(255),
             Toggle::make('is_active')->default(true),
             TextInput::make('sort_order')->numeric()->default(0),

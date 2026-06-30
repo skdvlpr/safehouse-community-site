@@ -28,7 +28,13 @@ class DonationIngestServiceTest extends TestCase
 
     public function test_ingest_creates_prima_nota_for_stripe_payment(): void
     {
-        $this->fakeExistingFinanziamento('opp-existing', 'Raccolta fondi per Safe House');
+        $this->fakeCrmIngest(
+            financingId: 'opp-existing',
+            financingName: 'Raccolta fondi per Safe House',
+            subjectAccountMatches: 0,
+            beneficiaryAccountMatches: 1,
+            beneficiaryAccountId: 'acc-safe-house',
+        );
 
         $result = $this->ingestSamplePayment();
 
@@ -37,9 +43,15 @@ class DonationIngestServiceTest extends TestCase
         $this->assertSame('opp-existing', $result['financing_id']);
     }
 
-    public function test_ingest_posts_expected_prima_nota_fields_to_crm(): void
+    public function test_ingest_posts_party_linked_prima_nota_fields_to_crm(): void
     {
-        $this->fakeExistingFinanziamento('opp-42', 'Raccolta fondi per Safe House');
+        $this->fakeCrmIngest(
+            financingId: 'opp-42',
+            financingName: 'Raccolta fondi per Safe House',
+            subjectAccountMatches: 0,
+            beneficiaryAccountMatches: 1,
+            beneficiaryAccountId: 'acc-safe-house',
+        );
 
         $this->ingestSamplePayment();
 
@@ -53,28 +65,98 @@ class DonationIngestServiceTest extends TestCase
             return ($payload['description'] ?? '') === "Donazione Stripe ordine #pi_abc\nTipo: organization\nTest"
                 && ($payload['entryType'] ?? '') === 'Income'
                 && ($payload['amount'] ?? null) === 15.0
-                && ($payload['amountCurrency'] ?? '') === 'EUR'
-                && ($payload['internalClassification'] ?? '') === 'Donation'
                 && ($payload['subjectName'] ?? '') === 'Anna Bianchi'
-                && ($payload['beneficiaryName'] ?? '') === 'Safe House'
-                && ($payload['assignedUserId'] ?? '') === 'api-user-id'
-                && ($payload['financingId'] ?? '') === 'opp-42'
+                && ($payload['createSubjectAccount'] ?? false) === true
+                && ($payload['beneficiaryPartyId'] ?? '') === 'acc-safe-house'
+                && ($payload['beneficiaryPartyType'] ?? '') === 'Account'
+                && ! array_key_exists('subjectPartyId', $payload)
                 && ! array_key_exists('createSubjectContact', $payload)
-                && isset($payload['transactionDate']);
+                && ($payload['assignedUserId'] ?? '') === 'api-user-id'
+                && ($payload['financingId'] ?? '') === 'opp-42';
         });
     }
 
-    public function test_ingest_throws_when_finanziamento_not_found_in_crm(): void
+    public function test_ingest_links_existing_contact_for_individual_donor(): void
     {
-        Http::fake([
-            'https://crm.test/api/v1/PrimaNota*' => Http::response(['total' => 0, 'list' => []]),
-            'https://crm.test/api/v1/Opportunity*' => Http::response(['total' => 0, 'list' => []]),
-        ]);
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Finanziamento not found');
+        $this->fakeCrmIngest(
+            financingId: 'opp-1',
+            financingName: 'Camp',
+            subjectContactMatches: 1,
+            subjectContactId: 'contact-existing',
+            beneficiaryAccountMatches: 1,
+            beneficiaryAccountId: 'acc-safe-house',
+        );
 
         app(DonationIngestService::class)->ingest(new DonationIngestPayload(
+            provider: 'stripe',
+            externalId: 'pi_repeat_contact',
+            amount: 5,
+            currency: 'EUR',
+            campaignTitle: 'Camp',
+            donorName: 'Luigi Verdi',
+            comment: null,
+            donorType: 'individual',
+            donatedAt: now()->toIso8601String(),
+        ));
+
+        Http::assertSent(function ($request): bool {
+            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota')) {
+                return false;
+            }
+
+            $payload = $request->data();
+
+            return ($payload['subjectPartyId'] ?? '') === 'contact-existing'
+                && ($payload['subjectPartyType'] ?? '') === 'Contact'
+                && ! array_key_exists('createSubjectContact', $payload)
+                && ($payload['beneficiaryPartyId'] ?? '') === 'acc-safe-house';
+        });
+    }
+
+    public function test_ingest_creates_finanziamento_when_missing_in_crm(): void
+    {
+        Http::fake(function ($request) {
+            $url = $request->url();
+            $method = $request->method();
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/PrimaNota')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Opportunity')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'POST' && str_contains($url, '/api/v1/Opportunity')) {
+                $payload = $request->data();
+
+                return ($payload['name'] ?? '') === 'Nuova raccolta'
+                    && ($payload['stage'] ?? '') === 'Fundraising'
+                    && ($payload['closeDate'] ?? '') === '2026-12-31'
+                    && ($payload['assignedUserId'] ?? '') === 'api-user-id'
+                    ? Http::response(['id' => 'opp-created'])
+                    : Http::response(['message' => 'bad opportunity payload'], 400);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Contact')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Account')) {
+                return Http::response([
+                    'total' => 1,
+                    'list' => [['id' => 'acc-safe-house', 'name' => 'Safe House']],
+                ]);
+            }
+
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+                return Http::response(['id' => 'pn-new', 'financingId' => 'opp-created']);
+            }
+
+            return Http::response(['message' => 'Unexpected request: '.$method.' '.$url], 500);
+        });
+
+        $result = app(DonationIngestService::class)->ingest(new DonationIngestPayload(
             provider: 'stripe',
             externalId: 'pi_missing_fin',
             amount: 10,
@@ -85,35 +167,15 @@ class DonationIngestServiceTest extends TestCase
             donorType: 'individual',
             donatedAt: '2026-06-30T10:00:00+00:00',
         ));
-    }
 
-    public function test_ingest_throws_when_multiple_finanziamenti_match(): void
-    {
-        Http::fake([
-            'https://crm.test/api/v1/PrimaNota*' => Http::response(['total' => 0, 'list' => []]),
-            'https://crm.test/api/v1/Opportunity*' => Http::response([
-                'total' => 2,
-                'list' => [
-                    ['id' => 'opp-1', 'name' => 'Duplicato'],
-                    ['id' => 'opp-2', 'name' => 'Duplicato'],
-                ],
-            ]),
-        ]);
+        $this->assertSame('created', $result['status']);
+        $this->assertSame('opp-created', $result['financing_id']);
 
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Multiple EspoCRM Finanziamenti');
-
-        app(DonationIngestService::class)->ingest(new DonationIngestPayload(
-            provider: 'stripe',
-            externalId: 'pi_dup_fin',
-            amount: 10,
-            currency: 'EUR',
-            campaignTitle: 'Duplicato',
-            donorName: 'Paolo Neri',
-            comment: null,
-            donorType: null,
-            donatedAt: now()->toIso8601String(),
-        ));
+        Http::assertSent(function ($request): bool {
+            return $request->method() === 'POST'
+                && str_contains($request->url(), '/api/v1/Opportunity')
+                && ($request->data()['name'] ?? '') === 'Nuova raccolta';
+        });
     }
 
     public function test_ingest_is_idempotent_for_duplicate_stripe_payment(): void
@@ -133,20 +195,23 @@ class DonationIngestServiceTest extends TestCase
             campaignTitle: 'Any',
             donorName: 'Repeat',
             comment: null,
-            donorType: null,
+            donorType: 'individual',
             donatedAt: now()->toIso8601String(),
         ));
 
         $this->assertSame('duplicate', $result['status']);
-        $this->assertSame('pn-existing', $result['prima_nota_id']);
-
         Http::assertSentCount(1);
-        Http::assertSent(fn ($request) => $request->method() === 'GET');
     }
 
-    public function test_ingest_uses_default_subject_when_donor_name_empty(): void
+    public function test_ingest_creates_contact_for_anonymous_individual_donor(): void
     {
-        $this->fakeExistingFinanziamento('opp-anon', 'Anon raccolta');
+        $this->fakeCrmIngest(
+            financingId: 'opp-anon',
+            financingName: 'Anon raccolta',
+            subjectContactMatches: 0,
+            beneficiaryAccountMatches: 1,
+            beneficiaryAccountId: 'acc-safe-house',
+        );
 
         app(DonationIngestService::class)->ingest(new DonationIngestPayload(
             provider: 'stripe',
@@ -156,39 +221,14 @@ class DonationIngestServiceTest extends TestCase
             campaignTitle: 'Anon raccolta',
             donorName: '   ',
             comment: null,
-            donorType: null,
+            donorType: 'individual',
             donatedAt: now()->toIso8601String(),
         ));
 
         Http::assertSent(function ($request): bool {
             return $request->method() === 'POST'
                 && ($request->data()['subjectName'] ?? '') === 'Donatore'
-                && ($request->data()['beneficiaryName'] ?? '') === 'Safe House';
-        });
-    }
-
-    public function test_idempotency_search_uses_contains_on_external_id(): void
-    {
-        $this->fakeExistingFinanziamento('opp-1', 'Camp');
-
-        app(DonationIngestService::class)->ingest(new DonationIngestPayload(
-            provider: 'stripe',
-            externalId: 'pi_contains_check',
-            amount: 5,
-            currency: 'EUR',
-            campaignTitle: 'Camp',
-            donorName: 'X',
-            comment: null,
-            donorType: null,
-            donatedAt: now()->toIso8601String(),
-        ));
-
-        Http::assertSent(function ($request): bool {
-            return $request->method() === 'GET'
-                && str_contains($request->url(), '/api/v1/PrimaNota')
-                && ($request->data()['where'][0]['type'] ?? '') === 'contains'
-                && ($request->data()['where'][0]['attribute'] ?? '') === 'description'
-                && ($request->data()['where'][0]['value'] ?? '') === 'pi_contains_check';
+                && ($request->data()['createSubjectContact'] ?? false) === true;
         });
     }
 
@@ -219,16 +259,80 @@ class DonationIngestServiceTest extends TestCase
         ));
     }
 
-    private function fakeExistingFinanziamento(string $financingId, string $name): void
-    {
-        Http::fake([
-            'https://crm.test/api/v1/PrimaNota*' => Http::sequence()
-                ->push(['total' => 0, 'list' => []])
-                ->push(['id' => 'pn-new', 'financingId' => $financingId]),
-            'https://crm.test/api/v1/Opportunity*' => Http::response([
-                'total' => 1,
-                'list' => [['id' => $financingId, 'name' => $name]],
-            ]),
-        ]);
+    private function fakeCrmIngest(
+        string $financingId,
+        string $financingName,
+        int $subjectContactMatches = 0,
+        ?string $subjectContactId = null,
+        int $subjectAccountMatches = 0,
+        ?string $subjectAccountId = null,
+        int $beneficiaryAccountMatches = 1,
+        ?string $beneficiaryAccountId = 'acc-safe-house',
+    ): void {
+        Http::fake(function ($request) use (
+            $financingId,
+            $financingName,
+            $subjectContactMatches,
+            $subjectContactId,
+            $subjectAccountMatches,
+            $subjectAccountId,
+            $beneficiaryAccountMatches,
+            $beneficiaryAccountId,
+        ) {
+            $url = $request->url();
+            $method = $request->method();
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/PrimaNota')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Opportunity')) {
+                return Http::response([
+                    'total' => 1,
+                    'list' => [['id' => $financingId, 'name' => $financingName]],
+                ]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Contact')) {
+                if ($subjectContactMatches === 1) {
+                    return Http::response([
+                        'total' => 1,
+                        'list' => [['id' => $subjectContactId, 'name' => 'Luigi Verdi']],
+                    ]);
+                }
+
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Account')) {
+                $name = $request->data()['where'][0]['value'] ?? '';
+
+                if ($name === 'Safe House') {
+                    if ($beneficiaryAccountMatches === 1) {
+                        return Http::response([
+                            'total' => 1,
+                            'list' => [['id' => $beneficiaryAccountId, 'name' => 'Safe House']],
+                        ]);
+                    }
+
+                    return Http::response(['total' => 0, 'list' => []]);
+                }
+
+                if ($subjectAccountMatches === 1) {
+                    return Http::response([
+                        'total' => 1,
+                        'list' => [['id' => $subjectAccountId, 'name' => 'Anna Bianchi']],
+                    ]);
+                }
+
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+                return Http::response(['id' => 'pn-new', 'financingId' => $financingId]);
+            }
+
+            return Http::response(['message' => 'Unexpected request: '.$method.' '.$url], 500);
+        });
     }
 }

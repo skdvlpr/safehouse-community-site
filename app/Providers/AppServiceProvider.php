@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Services\EspoCrm\EspoCrmClient;
+use App\Services\EspoCrm\EspoCrmFinanziamentoService;
+use App\Services\Payments\MockStripePaymentService;
 use App\Services\Payments\StripePaymentService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -18,7 +20,14 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(EspoCrmClient::class, fn () => EspoCrmClient::fromConfig());
-        $this->app->singleton(StripePaymentService::class, fn () => StripePaymentService::fromConfig());
+        $this->app->singleton(EspoCrmFinanziamentoService::class, fn () => new EspoCrmFinanziamentoService(app(EspoCrmClient::class)));
+        $this->app->singleton(StripePaymentService::class, function (): StripePaymentService {
+            if (StripePaymentService::mockModeEnabled()) {
+                return MockStripePaymentService::make();
+            }
+
+            return StripePaymentService::fromConfig();
+        });
     }
 
     /**

@@ -3,10 +3,13 @@
 namespace App\Filament\Resources\DonationCampaignResource\Pages;
 
 use App\Filament\Resources\DonationCampaignResource;
+use App\Filament\Resources\DonationCampaignResource\Concerns\SyncsDonationCampaignFinanziamento;
 use Filament\Resources\Pages\EditRecord;
 
 class EditDonationCampaign extends EditRecord
 {
+    use SyncsDonationCampaignFinanziamento;
+
     protected static string $resource = DonationCampaignResource::class;
 
     protected function mutateFormDataBeforeSave(array $data): array
@@ -22,5 +25,12 @@ class EditDonationCampaign extends EditRecord
         }
 
         return $data;
+    }
+
+    protected function afterSave(): void
+    {
+        if ($this->record->wasChanged(['title', 'espocrm_finanziamento_name', 'slug'])) {
+            $this->syncFinanziamentoToEspo($this->getRecord());
+        }
     }
 }

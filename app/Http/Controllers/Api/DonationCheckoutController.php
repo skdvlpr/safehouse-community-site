@@ -40,7 +40,11 @@ class DonationCheckoutController extends Controller
         return response()->json([
             'client_secret' => $result['client_secret'],
             'payment_intent_id' => $result['payment_intent_id'],
-            'publishable_key' => config('stripe.key'),
+            'publishable_key' => config('stripe.key') ?: config('stripe.mock_publishable_key'),
+            'mock' => StripePaymentService::mockModeEnabled(),
+            'complete_url' => StripePaymentService::mockModeEnabled()
+                ? route('api.donations.mock.complete', ['paymentIntent' => $result['payment_intent_id']])
+                : null,
         ]);
     }
 }

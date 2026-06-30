@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTransferObjects\DonationIngestPayload;
-use App\Models\DonationCampaign;
+use App\Services\Donations\DonationIngestPayloadMapper;
 use App\Services\Donations\DonationIngestService;
 use App\Services\Payments\StripePaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use RuntimeException;
-use Stripe\PaymentIntent;
 
 class StripeWebhookController extends Controller
 {
     public function __construct(
         private readonly StripePaymentService $stripePaymentService,
         private readonly DonationIngestService $donationIngestService,
+        private readonly DonationIngestPayloadMapper $payloadMapper,
     ) {}
 
     public function __invoke(Request $request): Response
@@ -37,7 +36,7 @@ class StripeWebhookController extends Controller
         }
 
         try {
-            $this->donationIngestService->ingest($this->payloadFromIntent($intent));
+            $this->donationIngestService->ingest($this->payloadMapper->fromPaymentIntent($intent));
         } catch (RuntimeException $exception) {
             report($exception);
 
@@ -45,32 +44,5 @@ class StripeWebhookController extends Controller
         }
 
         return response('OK', 200);
-    }
-
-    private function payloadFromIntent(PaymentIntent $intent): DonationIngestPayload
-    {
-        $metadata = $intent->metadata->toArray();
-        $campaignTitle = (string) ($metadata['campaign_title'] ?? 'Donazioni online');
-
-        if (isset($metadata['campaign_id'])) {
-            $campaign = DonationCampaign::query()->find($metadata['campaign_id']);
-            if ($campaign !== null) {
-                $campaignTitle = $campaign->finanziamentoTitle();
-            }
-        }
-
-        $amount = ($intent->amount_received ?? $intent->amount) / 100;
-
-        return new DonationIngestPayload(
-            provider: 'stripe',
-            externalId: $intent->id,
-            amount: (float) $amount,
-            currency: strtoupper((string) $intent->currency),
-            campaignTitle: $campaignTitle,
-            donorName: (string) ($metadata['donor_name'] ?? ''),
-            comment: isset($metadata['comment']) ? (string) $metadata['comment'] : null,
-            donorType: isset($metadata['donor_type']) ? (string) $metadata['donor_type'] : null,
-            donatedAt: now()->toIso8601String(),
-        );
     }
 }

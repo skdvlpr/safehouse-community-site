@@ -25,6 +25,7 @@ return [
         'internal_classification' => 'Donation',
         'default_subject_name' => env('ESPOCRM_PRIMA_NOTA_DEFAULT_SUBJECT', 'Donatore'),
         'default_beneficiary_name' => env('ESPOCRM_PRIMA_NOTA_DEFAULT_BENEFICIARY', 'Safe House'),
+        'beneficiary_party_entity' => 'Account',
     ],
 
 ];

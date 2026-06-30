@@ -28,6 +28,17 @@ class StripePaymentService
     /**
      * @return array{client_secret: string, payment_intent_id: string}
      */
+    public static function mockModeEnabled(): bool
+    {
+        $configured = config('stripe.mock');
+        if ($configured !== null && $configured !== '') {
+            return filter_var($configured, FILTER_VALIDATE_BOOL);
+        }
+
+        return app()->environment('local')
+            && (string) config('stripe.secret') === '';
+    }
+
     public function createDonationIntent(
         DonationCampaign $campaign,
         int $amountCents,
@@ -39,21 +50,22 @@ class StripePaymentService
             throw new RuntimeException('Stripe client is not configured.');
         }
 
-        if ($amountCents < $campaign->min_amount_cents) {
-            throw new RuntimeException('Amount is below the campaign minimum.');
-        }
-
-        if (! $campaign->allow_custom_amount && ! in_array($amountCents, $campaign->presetAmountCents(), true)) {
-            throw new RuntimeException('Custom amounts are not allowed for this campaign.');
-        }
+        $this->assertDonationIntentAllowed($campaign, $amountCents);
 
         try {
-            $intent = $this->client->paymentIntents->create([
+            $payload = [
                 'amount' => $amountCents,
                 'currency' => strtolower($campaign->currency),
                 'automatic_payment_methods' => ['enabled' => true],
                 'metadata' => $this->metadata($campaign, $donorName, $donorType, $comment),
-            ]);
+            ];
+
+            $descriptor = trim((string) config('stripe.statement_descriptor', ''));
+            if ($descriptor !== '') {
+                $payload['statement_descriptor'] = mb_substr($descriptor, 0, 22);
+            }
+
+            $intent = $this->client->paymentIntents->create($payload);
         } catch (ApiErrorException $exception) {
             throw new RuntimeException('Stripe payment intent failed: '.$exception->getMessage(), 0, $exception);
         }
@@ -83,10 +95,21 @@ class StripePaymentService
         return \Stripe\Webhook::constructEvent($payload, $signature, $secret);
     }
 
+    protected function assertDonationIntentAllowed(DonationCampaign $campaign, int $amountCents): void
+    {
+        if ($amountCents < $campaign->min_amount_cents) {
+            throw new RuntimeException('Amount is below the campaign minimum.');
+        }
+
+        if (! $campaign->allow_custom_amount && ! in_array($amountCents, $campaign->presetAmountCents(), true)) {
+            throw new RuntimeException('Custom amounts are not allowed for this campaign.');
+        }
+    }
+
     /**
      * @return array<string, string>
      */
-    private function metadata(
+    protected function metadata(
         DonationCampaign $campaign,
         string $donorName,
         string $donorType,

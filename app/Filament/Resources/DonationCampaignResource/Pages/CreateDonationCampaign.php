@@ -3,15 +3,23 @@
 namespace App\Filament\Resources\DonationCampaignResource\Pages;
 
 use App\Filament\Resources\DonationCampaignResource;
+use App\Filament\Resources\DonationCampaignResource\Concerns\SyncsDonationCampaignFinanziamento;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateDonationCampaign extends CreateRecord
 {
+    use SyncsDonationCampaignFinanziamento;
+
     protected static string $resource = DonationCampaignResource::class;
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         return $this->cleanTranslatable($data);
+    }
+
+    protected function afterCreate(): void
+    {
+        $this->syncFinanziamentoToEspo($this->getRecord());
     }
 
     private function cleanTranslatable(array $data): array

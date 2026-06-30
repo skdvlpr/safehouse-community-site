@@ -8,7 +8,7 @@
 
     <div class="space-y-4">
         @forelse ($campaigns as $campaign)
-            <a href="{{ route('donations.show', ['locale' => app()->getLocale(), 'donationCampaign' => $campaign->slug]) }}"
+            <a href="{{ route('donations.show', ['locale' => app()->getLocale(), 'campaignSlug' => $campaign->slug]) }}"
                class="block rounded-xl border border-white/10 bg-safehouse-modal p-6 transition hover:border-safehouse-primary">
                 <h2 class="text-xl font-medium">{{ $campaign->getTranslation('title', app()->getLocale(), false) ?: $campaign->getTranslation('title', 'it') }}</h2>
                 @if ($campaign->getTranslation('description', app()->getLocale(), false))

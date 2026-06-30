@@ -397,6 +397,8 @@ Update CSP in **one place** (`deploy/Caddyfile.example`) when `/donazioni` ships
 
 **Local webhook:** `stripe listen --forward-to https://safehouse-community-site.ddev.site/api/webhooks/stripe`
 
+**Verify keys & account:** `php artisan stripe:verify` — see `docs/STRIPE-SETUP.md`
+
 ### 8.3 Campaign CMS (`donation_campaigns` table)
 
 Config only — not payment history: slug, translatable title/description/privacy/form_notice, preset amounts (cents), allow custom amount, min amount, currency, Espo finanziamento name override, active flag.
@@ -408,11 +410,14 @@ Each successful payment → one **PrimaNota** linked to existing **Opportunity**
 | Site / Stripe | CRM API field | Example |
 |---------------|---------------|---------|
 | Donor name (form) | `subjectName` (Soggetto pagamento) | `Mario Rossi` |
-| Config default | `beneficiaryName` (Beneficiario) | `Safe House` |
+| Donor type (form) | `subjectParty` link | `individual` → **Contact**; `organization` → **Account** |
+| Repeat donor | lookup by exact `name` | link `subjectPartyId` + `subjectPartyType` |
+| New donor | CRM hook create flags | `createSubjectContact` or `createSubjectAccount` |
+| Config default | `beneficiaryParty` link | **Account** named `Safe House` (lookup or `createBeneficiaryAccount`) |
 | Campaign `finanziamentoTitle()` | Opportunity `name` lookup → `financingId` | must exist in CRM |
 | PaymentIntent id | `description` idempotency (`contains`) | `Donazione Stripe ordine #pi_…` |
 
-**Do not** send combined `"Payer - Beneficiary"` in `subjectName`. **Do not** auto-create Opportunity — missing/duplicate names → log + 502.
+**Do not** send combined `"Payer - Beneficiary"` in `subjectName`. **Do not** auto-create Opportunity. **Always** link subject + beneficiary parties (Contact/Account) — no text-only Prima Nota rows.
 
 **Env:** `ESPOCRM_*` including `ESPOCRM_ASSIGNED_USER_ID` from `GET /api/v1/App/user`.
 

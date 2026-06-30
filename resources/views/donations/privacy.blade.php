@@ -21,6 +21,6 @@
         @endif
     </div>
 
-    <a href="{{ route('donations.show', ['locale' => $locale, 'donationCampaign' => $campaign->slug]) }}"
+    <a href="{{ route('donations.show', ['locale' => $locale, 'campaignSlug' => $campaign->slug]) }}"
        class="mt-6 inline-block text-safehouse-primary underline">{{ __('Torna alla raccolta') }}</a>
 @endsection

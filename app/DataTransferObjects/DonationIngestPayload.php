@@ -75,4 +75,14 @@ readonly class DonationIngestPayload
     {
         return (string) config('espocrm.prima_nota.default_beneficiary_name', 'Safe House');
     }
+
+    public function isOrganization(): bool
+    {
+        return $this->donorType === 'organization';
+    }
+
+    public function subjectPartyEntityType(): string
+    {
+        return $this->isOrganization() ? 'Account' : 'Contact';
+    }
 }

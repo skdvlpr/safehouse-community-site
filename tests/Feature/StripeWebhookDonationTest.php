@@ -45,7 +45,7 @@ class StripeWebhookDonationTest extends TestCase
             ],
         ]);
 
-        $this->fakeCrmForSuccessfulIngest('opp-webhook', 'pn-webhook');
+        $this->fakeCrmForSuccessfulIngest('opp-webhook', 'pn-webhook', subjectContactMatches: 0, beneficiaryAccountId: 'acc-safe-house');
         $this->mockStripeWebhook($intent);
 
         $this->postStripeWebhook('{"id":"evt_test"}', 'sig_test')
@@ -65,9 +65,11 @@ class StripeWebhookDonationTest extends TestCase
                 && ($payload['amountCurrency'] ?? '') === 'EUR'
                 && ($payload['internalClassification'] ?? '') === 'Donation'
                 && ($payload['subjectName'] ?? '') === 'Luigi Verdi'
-                && ($payload['beneficiaryName'] ?? '') === 'Safe House'
+                && ($payload['createSubjectContact'] ?? false) === true
+                && ($payload['beneficiaryPartyId'] ?? '') === 'acc-safe-house'
+                && ($payload['beneficiaryPartyType'] ?? '') === 'Account'
                 && ($payload['financingId'] ?? '') === 'opp-webhook'
-                && ! array_key_exists('createSubjectContact', $payload);
+                && ! array_key_exists('createSubjectAccount', $payload);
         });
     }
 
@@ -85,15 +87,38 @@ class StripeWebhookDonationTest extends TestCase
             ],
         ]);
 
-        Http::fake([
-            'https://crm.test/api/v1/PrimaNota*' => Http::sequence()
-                ->push(['total' => 0, 'list' => []])
-                ->push(['id' => 'pn-1']),
-            'https://crm.test/api/v1/Opportunity*' => Http::response([
-                'total' => 1,
-                'list' => [['id' => 'opp-custom', 'name' => 'CRM Custom Finanziamento']],
-            ]),
-        ]);
+        Http::fake(function ($request) {
+            $url = $request->url();
+            $method = $request->method();
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/PrimaNota')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Opportunity')) {
+                return Http::response([
+                    'total' => 1,
+                    'list' => [['id' => 'opp-custom', 'name' => 'CRM Custom Finanziamento']],
+                ]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Contact')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Account')) {
+                return Http::response([
+                    'total' => 1,
+                    'list' => [['id' => 'acc-safe-house', 'name' => 'Safe House']],
+                ]);
+            }
+
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+                return Http::response(['id' => 'pn-1']);
+            }
+
+            return Http::response(['message' => 'Unexpected'], 500);
+        });
 
         $this->mockStripeWebhook($intent);
 
@@ -175,17 +200,58 @@ class StripeWebhookDonationTest extends TestCase
         ], $overrides));
     }
 
-    private function fakeCrmForSuccessfulIngest(string $financingId, string $primaNotaId): void
-    {
-        Http::fake([
-            'https://crm.test/api/v1/PrimaNota*' => Http::sequence()
-                ->push(['total' => 0, 'list' => []])
-                ->push(['id' => $primaNotaId, 'financingId' => $financingId]),
-            'https://crm.test/api/v1/Opportunity*' => Http::response([
-                'total' => 1,
-                'list' => [['id' => $financingId, 'name' => 'Raccolta Safe House 2026']],
-            ]),
-        ]);
+    private function fakeCrmForSuccessfulIngest(
+        string $financingId,
+        string $primaNotaId,
+        int $subjectContactMatches = 0,
+        ?string $subjectContactId = null,
+        string $beneficiaryAccountId = 'acc-safe-house',
+    ): void {
+        Http::fake(function ($request) use (
+            $financingId,
+            $primaNotaId,
+            $subjectContactMatches,
+            $subjectContactId,
+            $beneficiaryAccountId,
+        ) {
+            $url = $request->url();
+            $method = $request->method();
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/PrimaNota')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Opportunity')) {
+                return Http::response([
+                    'total' => 1,
+                    'list' => [['id' => $financingId, 'name' => 'Raccolta Safe House 2026']],
+                ]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Contact')) {
+                if ($subjectContactMatches === 1) {
+                    return Http::response([
+                        'total' => 1,
+                        'list' => [['id' => $subjectContactId, 'name' => 'Luigi Verdi']],
+                    ]);
+                }
+
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Account')) {
+                return Http::response([
+                    'total' => 1,
+                    'list' => [['id' => $beneficiaryAccountId, 'name' => 'Safe House']],
+                ]);
+            }
+
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+                return Http::response(['id' => $primaNotaId, 'financingId' => $financingId]);
+            }
+
+            return Http::response(['message' => 'Unexpected'], 500);
+        });
     }
 
     private function mockStripeWebhook(PaymentIntent $intent): void

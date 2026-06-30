@@ -10,6 +10,10 @@
 @section('title', $title)
 
 @section('content')
+    @if (session('donation_notice'))
+        <p class="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">{{ session('donation_notice') }}</p>
+    @endif
+
     <h1 class="mb-2 text-3xl font-semibold">{{ $title }}</h1>
     @if ($campaign->getTranslation('description', $locale, false))
         <div class="prose prose-invert mb-6 max-w-none text-safehouse-muted">{!! nl2br(e($campaign->getTranslation('description', $locale))) !!}</div>
@@ -64,10 +68,19 @@
 
         <p class="text-xs text-safehouse-muted">
             {{ __('I dati della carta non vengono mai memorizzati sui nostri server: il pagamento è gestito da Stripe.') }}
-            <a href="{{ route('donations.privacy', ['locale' => $locale, 'donationCampaign' => $campaign->slug]) }}" class="text-safehouse-primary underline">{{ __('Informativa privacy pagamenti') }}</a>
+            <a href="{{ route('donations.privacy', ['locale' => $locale, 'campaignSlug' => $campaign->slug]) }}" class="text-safehouse-primary underline">{{ __('Informativa privacy pagamenti') }}</a>
         </p>
 
+        @if ($stripeMock)
+            <p class="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
+                {{ __('Modalità locale: pagamento simulato senza Stripe. La donazione verrà registrata in EspoCRM come in produzione.') }}
+            </p>
+        @endif
+
         <div id="payment-element" class="hidden rounded-lg border border-white/10 p-4"></div>
+        <div id="mock-payment-panel" @class(['hidden' => ! $stripeMock, 'rounded-lg border border-dashed border-amber-500/40 p-4 text-sm text-safehouse-muted'])>
+            {{ __('Dopo aver compilato il modulo, usa il pulsante sotto per simulare un pagamento riuscito.') }}
+        </div>
         <p id="payment-errors" class="hidden text-sm text-red-400"></p>
 
         <button type="submit" id="submit-button"
@@ -78,18 +91,23 @@
 @endsection
 
 @push('scripts')
+@if (! $stripeMock)
 <script src="https://js.stripe.com/v3/"></script>
+@endif
 <script>
 (() => {
     const form = document.getElementById('donation-form');
     const submitButton = document.getElementById('submit-button');
     const paymentElementContainer = document.getElementById('payment-element');
+    const mockPaymentPanel = document.getElementById('mock-payment-panel');
     const errorEl = document.getElementById('payment-errors');
     const intentUrl = @json(route('api.donations.intents.store', ['donationCampaign' => $campaign->slug]));
-    const thankYouUrl = @json(route('donations.thank-you', ['locale' => $locale, 'donationCampaign' => $campaign->slug]));
+    const thankYouUrl = @json(route('donations.thank-you', ['locale' => $locale, 'campaignSlug' => $campaign->slug]));
+    const stripeMock = @json($stripeMock);
     let stripe = null;
     let elements = null;
     let clientSecret = null;
+    let completeUrl = null;
     let selectedCents = null;
 
     document.querySelectorAll('.preset-btn').forEach((btn) => {
@@ -125,7 +143,7 @@
             return;
         }
 
-        if (!clientSecret) {
+        if (!clientSecret && !completeUrl) {
             const response = await fetch(intentUrl, {
                 method: 'POST',
                 headers: {
@@ -148,6 +166,14 @@
                 return;
             }
 
+            if (data.mock && data.complete_url) {
+                completeUrl = data.complete_url;
+                mockPaymentPanel?.classList.remove('hidden');
+                submitButton.textContent = @json(__('Simula pagamento riuscito'));
+                submitButton.disabled = false;
+                return;
+            }
+
             stripe = Stripe(data.publishable_key);
             clientSecret = data.client_secret;
             elements = stripe.elements({ clientSecret });
@@ -156,6 +182,25 @@
             paymentElementContainer.classList.remove('hidden');
             submitButton.textContent = @json(__('Paga ora'));
             submitButton.disabled = false;
+            return;
+        }
+
+        if (stripeMock && completeUrl) {
+            const completeResponse = await fetch(completeUrl, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value,
+                },
+            });
+            const completeData = await completeResponse.json();
+            if (!completeResponse.ok) {
+                showError(completeData.message || @json(__('Registrazione donazione non riuscita.')));
+                submitButton.disabled = false;
+                return;
+            }
+
+            window.location.href = thankYouUrl + '?payment_intent=' + encodeURIComponent(completeData.payment_intent_id ?? '');
             return;
         }
 
