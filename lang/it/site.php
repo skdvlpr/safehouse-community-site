@@ -3,7 +3,13 @@
 return [
     'nav' => [
         'home' => 'Home',
+        'about' => 'Chi siamo',
+        'services' => 'Servizi',
+        'news' => 'Notizie',
         'donations' => 'Donazioni',
+        'contact' => 'Contatti',
+        'privacy' => 'Privacy',
+        'cookie' => 'Cookie',
         'donate' => 'Dona ora',
         'menu' => 'Menu',
     ],
@@ -23,5 +29,16 @@ return [
             'hours' => 'Ore di formazione',
             'projects' => 'Progetti attivi',
         ],
+    ],
+    'pages' => [
+        'about_values_heading' => 'I nostri valori',
+        'legal_lead' => 'Informativa legale — testo da approvare con il consulente.',
+        'contact_form_heading' => 'Scrivici',
+        'contact_form_placeholder' => 'Il modulo di contatto sarà collegato nel task P4 (form + rate limit).',
+        'news_title' => 'Notizie',
+        'news_lead' => 'Aggiornamenti dall\'associazione e dal territorio.',
+        'news_empty' => 'Nessuna notizia pubblicata al momento.',
+        'news_back' => 'Tutte le notizie',
+        'news_index_cta' => 'Vai alle notizie →',
     ],
 ];

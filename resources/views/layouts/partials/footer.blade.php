@@ -1,4 +1,6 @@
 @php
+    use App\Support\Navigation;
+
     $locale = app()->getLocale();
     $footerItems = config('navigation.footer', []);
 @endphp
@@ -13,7 +15,7 @@
 
             <nav class="flex flex-wrap gap-x-6 gap-y-2 text-sm" aria-label="Footer">
                 @foreach ($footerItems as $item)
-                    <a href="{{ route($item['route'], ['locale' => $locale]) }}"
+                    <a href="{{ Navigation::url($item, $locale) }}"
                        class="text-safehouse-muted transition hover:text-safehouse-link">
                         {{ __($item['label']) }}
                     </a>

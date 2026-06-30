@@ -6,7 +6,9 @@ use App\Filament\Resources\PageResource\Pages;
 use App\Models\Page;
 use BackedEnum;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -59,6 +61,26 @@ class PageResource extends Resource
 
         return $schema
             ->schema([
+                TextInput::make('key')
+                    ->label('Stable key')
+                    ->helperText('Used for navigation links, e.g. about, services, contact.')
+                    ->maxLength(64)
+                    ->alphaDash()
+                    ->unique(ignoreRecord: true),
+
+                Select::make('template')
+                    ->label('Page template')
+                    ->options(collect(config('page_templates', []))->mapWithKeys(
+                        fn (array $template, string $key): array => [$key => $template['label'] ?? $key]
+                    )->all())
+                    ->default('default')
+                    ->required()
+                    ->helperText('Controls the public Blade layout for this page.'),
+
+                Toggle::make('is_published')
+                    ->label('Published')
+                    ->default(true),
+
                 Tabs::make('Translations')
                     ->tabs($tabs)
                     ->columnSpanFull()
@@ -70,6 +92,19 @@ class PageResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('key')
+                    ->label('Key')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('template')
+                    ->label('Template')
+                    ->badge(),
+
+                Tables\Columns\IconColumn::make('is_published')
+                    ->label('Published')
+                    ->boolean(),
+
                 Tables\Columns\TextColumn::make('title')
                     ->label('Title')
                     ->searchable()

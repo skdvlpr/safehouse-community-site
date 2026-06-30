@@ -453,13 +453,32 @@ Each successful payment → one **PrimaNota** linked to existing **Opportunity**
 | SiteSetting | Key-value settings (optional) |
 | User | Admin users only |
 
-### Editor
+### Page
 
 - Translatable fields: tabs per locale (IT / RU / EN).
 - Rich text: sanitized HTML server-side before save.
 - Media: `spatie/laravel-medialibrary`, private disk, signed URLs.
 
-### Filament theme
+### Page templates (CMS → public layout)
+
+Editors **must** pick a template when creating a page in Filament. Templates map to Blade views under `resources/views/pages/templates/` (config: `config/page_templates.php`).
+
+| Template key | Use case |
+|--------------|----------|
+| `default` | Simple static page (title + body) |
+| `about` | About / mission + values block (`meta.values`, `meta.closing`) |
+| `services` | Service card grid (`meta.services[]`) |
+| `article` | Long-form editorial layout |
+| `news_index` | Static intro linking to `/notizie` |
+| `landing` | Wide hero landing |
+| `legal` | Privacy, cookie, policy pages |
+| `contact` | Contact details + form placeholder (form in P4) |
+
+**Stable `key`** on each page (e.g. `about`, `services`) powers navigation via `config/navigation.php` → `Navigation::url()`.
+
+**Future tasks:** Filament template preview, structured meta editor per template, ArticleResource with `article` template parity, volunteer landing template.
+
+### Editor
 
 Align Filament panel colors with Aurora tokens (dark sidebar, red primary).
 

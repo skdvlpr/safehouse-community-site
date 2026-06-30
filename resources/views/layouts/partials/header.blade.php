@@ -1,4 +1,6 @@
 @php
+    use App\Support\Navigation;
+
     $locale = app()->getLocale();
     $navItems = config('navigation.header', []);
 @endphp
@@ -10,9 +12,10 @@
         <nav class="hidden items-center gap-6 md:flex" aria-label="{{ __('site.nav.menu') }}">
             @foreach ($navItems as $item)
                 @php
-                    $isActive = request()->routeIs($item['route'].($item['route'] === 'home' ? '' : '*'));
+                    $isActive = Navigation::isActive($item, $locale);
+                    $href = Navigation::url($item, $locale);
                 @endphp
-                <a href="{{ route($item['route'], ['locale' => $locale]) }}"
+                <a href="{{ $href }}"
                    @class([
                        'text-sm font-medium transition',
                        'text-safehouse-primary' => $isActive,
@@ -37,7 +40,7 @@
                 </summary>
                 <div class="absolute right-0 z-50 mt-2 min-w-40 rounded-lg border border-white/10 bg-safehouse-modal p-2 shadow-lg">
                     @foreach ($navItems as $item)
-                        <a href="{{ route($item['route'], ['locale' => $locale]) }}"
+                        <a href="{{ Navigation::url($item, $locale) }}"
                            class="block rounded-md px-3 py-2 text-sm text-safehouse-muted hover:bg-white/5 hover:text-safehouse-text">
                             {{ __($item['label']) }}
                         </a>

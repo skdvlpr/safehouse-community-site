@@ -25,8 +25,23 @@ class Page extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'key',
         'title',
         'slug',
         'body',
+        'template',
+        'is_published',
+        'meta',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_published' => 'boolean',
+            'meta' => 'array',
+        ];
+    }
 }

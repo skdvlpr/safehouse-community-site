@@ -72,4 +72,24 @@
     .safehouse-btn-primary {
         @apply inline-flex items-center justify-center rounded-md bg-safehouse-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-safehouse-primary-hover;
     }
+
+    .safehouse-prose {
+        @apply text-safehouse-text leading-relaxed;
+
+        & :where(p) {
+            @apply mb-4 last:mb-0;
+        }
+
+        & :where(h2, h3) {
+            @apply mb-3 mt-6 font-semibold text-safehouse-text first:mt-0;
+        }
+
+        & :where(a) {
+            @apply text-safehouse-link underline-offset-2 hover:text-safehouse-link-hover hover:underline;
+        }
+
+        & :where(ul) {
+            @apply mb-4 list-disc space-y-1 ps-5;
+        }
+    }
 }

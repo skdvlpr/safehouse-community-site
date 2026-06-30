@@ -22,8 +22,9 @@ Living document. **Auto** writes before Power switch; **Power** writes before re
 | P1-T01 … P1-T12 | Done | Phase P1 complete (P1-T10 cancelled) |
 | P2-T01 … P2-T04 | **Testing** | Power Sprint 1 — see QA below |
 | **P3-T01** | **Testing** | `resources/css/app.css` Aurora tokens + JetBrains Sans |
-| **P3-T02** | **Testing** | `layouts/app`, header/footer, locale switcher, horizontal logo |
-| **P3-T03** | **Testing** | `HomeController`, `pages/home`, `bg.svg` polygon background |
+| **P3-T02** | **Done** | `7526926` — layout, header/footer, horizontal logo |
+| **P3-T03** | **Done** | `7526926` — HomeController, polygon `bg.svg`, stats shell |
+| **P3-T04** | **Testing** | CMS pages + template system (`PageService`, seeded chi-siamo/servizi/contatti/legal) |
 | **Donations (Stripe)** | **Done (code)** | Filament campaigns + Stripe Payment Element → EspoCRM |
 
 ---
@@ -109,27 +110,33 @@ Run `ddev npm install && ddev npm run build` if styles not updating.
 
 ## Files touched (recent — Auto)
 
-- Donations pivot: `DonationCampaign*`, `StripePaymentService`, `DonationIngestService`, `StripeWebhookController`, donation views
-- Removed: Donorbox controllers/requests/middleware
-- `resources/css/app.css` — Safehouse Aurora `@theme` + CSS variables
-- `tests/Feature/DonationCampaignRoutesTest.php`, `DonationIngestServiceTest.php`
+- P3 layout: `layouts/app`, `HomeController`, `config/navigation.php`, `public/images/bg.svg`
+- CMS pages: `PageService`, `PageController`, `config/page_templates.php`, `PageSeeder`, template Blade views
+- `/notizie` — `ArticleController` (list + show shell)
+- Donations pivot: `DonationCampaign*`, `StripePaymentService`, `DonationIngestService`
 
 ---
 
 ## Verification run
 
 ```bash
-ddev exec php artisan test                    # 68 passed
-ddev exec php artisan route:list --path=donazioni
-ddev npm install && ddev npm run build        # if frontend assets stale
+ddev exec php artisan migrate --seed   # seeds chi-siamo, servizi, contatti, legal pages
+ddev exec php artisan test             # 96 passed
+ddev npm run build
 ```
 
 ---
 
-## Git status
+## CMS page templates (roadmap)
 
-| Branch | `main` — ahead of origin |
-|--------|---------------------------|
+Filament **Page** resource: editor picks template → public site renders matching Blade.
+
+| Template | Status |
+|----------|--------|
+| default, about, services, legal, contact, landing, article, news_index | **Shipped** |
+| Filament meta editor per template (structured fields) | **Next** |
+| ArticleResource + news template parity | **Next** |
+| Template preview in CMS | Backlog |
 
 ---
 
@@ -137,16 +144,15 @@ ddev npm install && ddev npm run build        # if frontend assets stale
 
 | Field | Value |
 |-------|-------|
-| **Notion task** | P3-T04+ (content pages: chi-siamo, servizi) or user QA on P3-T02/T03 |
-| **Prerequisite** | User confirms `/it` home + polygon BG visually |
-| **After P2 QA** | Mark P2-T01…T04 Done in Notion |
+| **Notion task** | P4 contact/volunteer forms OR Filament ArticleResource |
+| **Prerequisite** | User QA on `/it/chi-siamo`, `/it/servizi`, nav links |
 | **Production** | Stripe live keys, webhook endpoint, CSP for `js.stripe.com` |
 
 ---
 
 ## Notes for user
 
-1. Confirm **P2 CMS** manual QA → reply «P2 ок» to mark Done.
-2. Confirm **P3-T01** tokens visually → reply «го» for P3-T02.
-3. Test donations flow with Stripe test keys + `stripe listen` (see QA above).
-4. Commit when ready (`git status` shows uncommitted changes).
+1. Run `ddev exec php artisan migrate --seed` to load CMS pages (chi-siamo, servizi, …).
+2. CMS → Content → Pages — pick **template** when creating new pages.
+3. Confirm **P2 CMS** manual QA → reply «P2 ок».
+4. Test donations flow with Stripe test keys + `stripe listen`.

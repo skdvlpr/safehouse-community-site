@@ -18,6 +18,9 @@ class PageFactory extends Factory
     public function definition(): array
     {
         return [
+            'key' => fake()->unique()->slug(2),
+            'template' => 'default',
+            'is_published' => true,
             'title' => [
                 'it' => fake()->sentence(3),
                 'en' => fake()->sentence(3),
