@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             PageSeeder::class,
+            ArticleSeeder::class,
         ]);
 
         if (! User::query()->where('email', 'test@example.com')->exists()) {

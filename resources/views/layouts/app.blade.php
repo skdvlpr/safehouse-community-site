@@ -10,7 +10,7 @@
     @stack('head')
 </head>
 <body class="flex min-h-screen flex-col bg-safehouse-page text-safehouse-text antialiased">
-    @if (request()->routeIs('pages.preview') || ($isPreview ?? false))
+    @if (request()->routeIs('pages.preview', 'articles.preview') || ($isPreview ?? false))
         @include('layouts.partials.preview-banner')
     @endif
 

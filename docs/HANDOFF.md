@@ -137,7 +137,7 @@ Filament **Page** resource: editor picks template → public site renders matchi
 |----------|--------|
 | default, about, services, legal, contact, landing, article, news_index | **Shipped** |
 | Filament meta editor per template (structured fields) | **Next** |
-| ArticleResource + news template parity | **Next** |
+| ArticleResource + news template parity | **Shipped** — CMS News + categories, `/notizie` seeded |
 | Template preview in CMS | **Shipped** — signed preview URL, IT/RU/EN, drafts OK |
 
 ---
@@ -146,7 +146,8 @@ Filament **Page** resource: editor picks template → public site renders matchi
 
 | Field | Value |
 |-------|-------|
-| **Notion task** | P4 contact/volunteer forms OR Filament ArticleResource |
+| **Notion task** | P4 contact/volunteer forms |
+| **Just shipped** | Filament ArticleResource + categories + article preview |
 | **Prerequisite** | User QA on `/it/chi-siamo`, `/it/servizi`, nav links |
 | **Production** | Stripe live keys, webhook endpoint, CSP for `js.stripe.com` |
 

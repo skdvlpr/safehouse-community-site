@@ -22,6 +22,10 @@ Route::prefix('{locale}')
         Route::get('/notizie', [ArticleController::class, 'index'])->name('articles.index');
         Route::get('/notizie/{articleSlug}', [ArticleController::class, 'show'])->name('articles.show');
 
+        Route::get('/_preview/articles/{article}', [ArticleController::class, 'preview'])
+            ->middleware('signed')
+            ->name('articles.preview');
+
         Route::get('/_preview/pages/{page}', [PageController::class, 'preview'])
             ->middleware('signed')
             ->name('pages.preview');
