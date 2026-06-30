@@ -1,0 +1,28 @@
+# Append to /etc/caddy/Caddyfile on the CRM VPS (77.81.234.138).
+# Requires DNS @ → this server for a public Let's Encrypt cert.
+# Before DNS propagates, test with: curl -k -H "Host: safehouse.community" https://77.81.234.138/
+
+safehouse.community, www.safehouse.community {
+    root * /var/www/safehouse-community-site/public
+    encode zstd gzip
+
+    @blocked_cms {
+        path /cms-safehouse*
+        not remote_ip 127.0.0.1 ::1
+        # Add office/VPN IPs here, e.g.:
+        # not remote_ip 203.0.113.10
+    }
+    respond @blocked_cms 403
+
+    php_fastcgi unix//run/php/php8.3-fpm.sock
+    try_files {path} {path}/ /index.php?{query}
+    file_server
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
+        Referrer-Policy strict-origin-when-cross-origin
+        Content-Security-Policy "default-src 'self'; script-src 'self' https://js.stripe.com; frame-src 'self' https://js.stripe.com https://hooks.stripe.com; connect-src 'self' https://api.stripe.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:"
+    }
+}

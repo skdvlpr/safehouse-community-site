@@ -10,30 +10,31 @@ class ArticleSeeder extends Seeder
 {
     public function run(): void
     {
-        if (Article::query()->exists()) {
-            return;
-        }
+        $category = ArticleCategory::query()->updateOrCreate(
+            ['slug->it' => 'comunita'],
+            [
+                'name' => [
+                    'it' => 'Comunità',
+                    'en' => 'Community',
+                    'ru' => 'Сообщество',
+                ],
+                'slug' => [
+                    'it' => 'comunita',
+                    'en' => 'community',
+                    'ru' => 'soobshchestvo',
+                ],
+                'description' => [
+                    'it' => 'Notizie dall\'associazione e dal territorio.',
+                    'en' => 'News from the association and the community.',
+                    'ru' => 'Новости ассоциации и сообщества.',
+                ],
+            ],
+        );
 
-        $category = ArticleCategory::query()->create([
-            'name' => [
-                'it' => 'Comunità',
-                'en' => 'Community',
-                'ru' => 'Сообщество',
-            ],
-            'slug' => [
-                'it' => 'comunita',
-                'en' => 'community',
-                'ru' => 'soobshchestvo',
-            ],
-            'description' => [
-                'it' => 'Notizie dall\'associazione e dal territorio.',
-                'en' => 'News from the association and the community.',
-                'ru' => 'Новости ассоциации и сообщества.',
-            ],
-        ]);
-
-        Article::query()->create([
-            'article_category_id' => $category->id,
+        Article::query()->updateOrCreate(
+            ['slug->it' => 'benvenuti-safe-house'],
+            [
+                'article_category_id' => $category->id,
             'title' => [
                 'it' => 'Benvenuti in Safe House Community',
                 'en' => 'Welcome to Safe House Community',
@@ -55,7 +56,8 @@ class ArticleSeeder extends Seeder
                 'ru' => '<p>Safe House ETS — безопасный дом среди людей, на улицах и в сообществах.</p><p>Следите за новостями о проектах, волонтёрстве и инициативах.</p>',
             ],
             'is_published' => true,
-            'published_at' => now()->subDays(3),
-        ]);
+                'published_at' => now()->subDays(3),
+            ],
+        );
     }
 }

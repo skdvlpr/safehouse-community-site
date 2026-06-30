@@ -13,7 +13,7 @@
         <p class="mb-8 max-w-2xl text-lg text-safehouse-muted md:text-xl">
             {{ __('site.home.lead') }}
         </p>
-        <div class="flex flex-wrap gap-3">
+        <div class="flex flex-wrap items-center gap-3">
             <a href="{{ route('donations.index', ['locale' => app()->getLocale()]) }}" class="safehouse-btn-primary">
                 {{ __('site.home.cta_donate') }}
             </a>
