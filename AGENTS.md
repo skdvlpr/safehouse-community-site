@@ -478,7 +478,7 @@ Editors **must** pick a template when creating a page in Filament. Templates map
 
 **Future tasks:** Filament template preview, structured meta editor per template, ArticleResource with `article` template parity, volunteer landing template.
 
-### Editor
+### Filament theme
 
 Align Filament panel colors with Aurora tokens (dark sidebar, red primary).
 
