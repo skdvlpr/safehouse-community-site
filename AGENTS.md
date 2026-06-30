@@ -421,10 +421,10 @@ Each successful payment → one **PrimaNota** linked to existing **Opportunity**
 | Repeat donor | lookup by exact `name` | link `subjectPartyId` + `subjectPartyType` |
 | New donor | CRM hook create flags | `createSubjectContact` or `createSubjectAccount` |
 | Config default | `beneficiaryParty` link | **Account** named `Safe House` (lookup or `createBeneficiaryAccount`) |
-| Campaign `finanziamentoTitle()` | Opportunity `name` lookup → `financingId` | must exist in CRM |
+| Campaign `finanziamentoTitle()` | Opportunity `name` lookup → `financingId` | auto-created with `amount` + `amountCurrency` if missing |
 | PaymentIntent id | `description` idempotency (`contains`) | `Donazione Stripe ordine #pi_…` |
 
-**Do not** send combined `"Payer - Beneficiary"` in `subjectName`. **Do not** auto-create Opportunity. **Always** link subject + beneficiary parties (Contact/Account) — no text-only Prima Nota rows.
+**PrimaNota split fields:** `subjectName` + `subjectParty` (Soggetto pagamento) and `beneficiaryName` + `beneficiaryParty` (Beneficiario) — always send both name and party link/create flags when applicable. **Do not** combine payer and beneficiary in one text field.
 
 **Env:** `ESPOCRM_*` including `ESPOCRM_ASSIGNED_USER_ID` from `GET /api/v1/App/user`.
 
@@ -474,12 +474,12 @@ Editors **must** pick a template when creating a page in Filament. Templates map
 |--------------|----------|
 | `default` | Simple static page (title + body) |
 | `about` | About — split hero + section band + intro / values / closing (`meta.tagline`, `meta.values`, `meta.closing`) |
-| `services` | Service card grid (`meta.services[]`) — **Filament repeater: P3-T07** |
+| `services` | Service card grid (`meta.services[]`) — Filament repeater shipped (P3-T07) |
 | `article` | Long-form editorial layout |
 | `news_index` | Static intro linking to `/notizie` |
 | `landing` | Wide hero landing |
 | `legal` | Privacy, cookie, policy pages |
-| `contact` | Contact details + form placeholder (form in P4) |
+| `contact` | Contact details + live form (P4) |
 
 **Stable `key`** on each page (e.g. `about`, `services`) powers navigation via `config/navigation.php` → `Navigation::url()`.
 

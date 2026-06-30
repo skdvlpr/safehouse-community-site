@@ -17,6 +17,9 @@ return [
         'default_stage' => env('ESPOCRM_FINANZIAMENTO_STAGE', 'Fundraising'),
         'default_close_date' => env('ESPOCRM_FINANZIAMENTO_CLOSE_DATE', '2026-12-31'),
         'default_probability' => (int) env('ESPOCRM_FINANZIAMENTO_PROBABILITY', 60),
+        // Espo Opportunity.amount is required on create (campaign goal placeholder).
+        'default_amount' => (float) env('ESPOCRM_FINANZIAMENTO_DEFAULT_AMOUNT', 0),
+        'default_currency' => env('ESPOCRM_FINANZIAMENTO_DEFAULT_CURRENCY', 'EUR'),
     ],
 
     'prima_nota' => [
@@ -26,6 +29,8 @@ return [
         'default_subject_name' => env('ESPOCRM_PRIMA_NOTA_DEFAULT_SUBJECT', 'Donatore'),
         'default_beneficiary_name' => env('ESPOCRM_PRIMA_NOTA_DEFAULT_BENEFICIARY', 'Safe House'),
         'beneficiary_party_entity' => 'Account',
+        // Pin canonical NGO account — skips name lookup (recommended in production).
+        'beneficiary_account_id' => env('ESPOCRM_BENEFICIARY_ACCOUNT_ID'),
     ],
 
 ];

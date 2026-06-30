@@ -19,6 +19,8 @@ class EspoCrmFinanziamentoServiceTest extends TestCase
         config()->set('espocrm.finanziamento.default_stage', 'Fundraising');
         config()->set('espocrm.finanziamento.default_close_date', '2026-12-31');
         config()->set('espocrm.finanziamento.default_probability', 60);
+        config()->set('espocrm.finanziamento.default_amount', 0);
+        config()->set('espocrm.finanziamento.default_currency', 'EUR');
     }
 
     public function test_ensure_exists_returns_existing_opportunity_id(): void
@@ -59,6 +61,8 @@ class EspoCrmFinanziamentoServiceTest extends TestCase
                 && ($request->data()['name'] ?? '') === 'Nuova campagna'
                 && ($request->data()['stage'] ?? '') === 'Fundraising'
                 && ($request->data()['closeDate'] ?? '') === '2026-12-31'
+                && ($request->data()['amount'] ?? null) === 0.0
+                && ($request->data()['amountCurrency'] ?? '') === 'EUR'
                 && ($request->data()['assignedUserId'] ?? '') === 'api-user-id';
         });
     }

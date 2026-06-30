@@ -43,4 +43,23 @@ class PageCarouselTest extends TestCase
         $this->assertSame('page-carousels/hero.jpg', $normalized['carousel'][0]['path']);
         $this->assertSame(['it' => 'Hero'], $normalized['carousel'][0]['alt']);
     }
+
+    public function test_normalize_meta_strips_empty_service_cards(): void
+    {
+        $normalized = PageCarousel::normalizeMeta([
+            'services' => [
+                ['title' => ['it' => ''], 'body' => ['it' => '']],
+                [
+                    'title' => ['it' => 'Card IT', 'en' => 'Card EN'],
+                    'body' => ['it' => 'Body IT'],
+                    'stats' => ['it' => '', 'en' => '500+ meals'],
+                ],
+            ],
+        ]);
+
+        $this->assertCount(1, $normalized['services']);
+        $this->assertSame(['it' => 'Card IT', 'en' => 'Card EN'], $normalized['services'][0]['title']);
+        $this->assertSame(['it' => 'Body IT'], $normalized['services'][0]['body']);
+        $this->assertSame(['en' => '500+ meals'], $normalized['services'][0]['stats']);
+    }
 }

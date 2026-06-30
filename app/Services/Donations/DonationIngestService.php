@@ -31,7 +31,11 @@ class DonationIngestService
             ];
         }
 
-        $financingId = $this->finanziamentoService->ensureExists($payload->campaignTitle);
+        $financingId = $this->finanziamentoService->ensureExists(
+            $payload->campaignTitle,
+            amount: (float) config('espocrm.finanziamento.default_amount', 0),
+            currency: $payload->currency,
+        );
 
         $createPayload = array_merge(
             [

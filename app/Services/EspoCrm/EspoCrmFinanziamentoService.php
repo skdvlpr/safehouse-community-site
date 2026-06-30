@@ -14,8 +14,11 @@ class EspoCrmFinanziamentoService
     /**
      * Find Opportunity by exact name, or create it for a donation campaign.
      */
-    public function ensureExists(string $name): string
-    {
+    public function ensureExists(
+        string $name,
+        ?float $amount = null,
+        ?string $currency = null,
+    ): string {
         $name = trim($name);
         if ($name === '') {
             throw new RuntimeException('Finanziamento name is empty.');
@@ -26,7 +29,7 @@ class EspoCrmFinanziamentoService
             return $existingId;
         }
 
-        $createdId = $this->create($name);
+        $createdId = $this->create($name, $amount, $currency);
 
         Log::info('EspoCRM Finanziamento created for donation campaign.', [
             'name' => $name,
@@ -75,7 +78,7 @@ class EspoCrmFinanziamentoService
         return is_string($existingId) && $existingId !== '' ? $existingId : null;
     }
 
-    private function create(string $name): string
+    private function create(string $name, ?float $amount = null, ?string $currency = null): string
     {
         $entity = (string) config('espocrm.finanziamento.entity');
 
@@ -84,6 +87,8 @@ class EspoCrmFinanziamentoService
             'stage' => (string) config('espocrm.finanziamento.default_stage'),
             'closeDate' => (string) config('espocrm.finanziamento.default_close_date'),
             'probability' => (int) config('espocrm.finanziamento.default_probability'),
+            'amount' => $amount ?? (float) config('espocrm.finanziamento.default_amount', 0),
+            'amountCurrency' => $currency ?? (string) config('espocrm.finanziamento.default_currency', 'EUR'),
         ];
 
         $assignedUserId = (string) config('espocrm.assigned_user_id', '');

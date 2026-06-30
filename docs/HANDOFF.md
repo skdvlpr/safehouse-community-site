@@ -160,15 +160,17 @@ Config seed: `config/page_template_fields.php` (block map per template — exten
 
 Replace contact template placeholder; rate limits + Espo optional ingest.
 
+**Shipped:** live contact form (`POST /{locale}/contact`), honeypot, GDPR checkbox, `ContactSubmissionService`, rate limit `contact` (5/hour).
+
 ---
 
 ## Next for Auto (immediate)
 
 | Field | Value |
 |-------|-------|
-| **Notion task** | **P3-T07** — Filament `services` card repeater + **P4** contact form |
-| **Just shipped** | P3-T05/T06 — about hero, block layout, per-block CMS fields |
-| **Prerequisite** | User QA on `/it/chi-siamo` (title, 3 text blocks in CMS, layout) |
+| **Notion task** | **P4 volunteer form** (contact form done) |
+| **Just shipped** | P3-T07 services repeater in Filament; P4 contact form + storage |
+| **Prerequisite** | User QA on `/it/contatti` (submit form, rate limit, CMS services cards) |
 | **Production** | Stripe live keys, webhook endpoint, CSP for `js.stripe.com` |
 
 ---

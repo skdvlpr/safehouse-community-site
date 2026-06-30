@@ -101,8 +101,68 @@ class PageCarousel
         }
 
         $meta['carousel'] = array_values($normalized);
+        $meta['services'] = self::normalizeServiceCards($meta['services'] ?? []);
 
         return $meta;
+    }
+
+    /**
+     * @param  mixed  $cards
+     * @return list<array{title: array<string, string>, body: array<string, string>, stats: array<string, string>}>
+     */
+    private static function normalizeServiceCards(mixed $cards): array
+    {
+        if (! is_array($cards)) {
+            return [];
+        }
+
+        $locales = config('locales.available', ['it', 'ru', 'en']);
+        $normalized = [];
+
+        foreach ($cards as $card) {
+            if (! is_array($card)) {
+                continue;
+            }
+
+            $title = self::normalizeTranslatableField($card['title'] ?? null, $locales);
+            $body = self::normalizeTranslatableField($card['body'] ?? null, $locales);
+            $stats = self::normalizeTranslatableField($card['stats'] ?? null, $locales);
+
+            if ($title === [] && $body === [] && $stats === []) {
+                continue;
+            }
+
+            $normalized[] = [
+                'title' => $title,
+                'body' => $body,
+                'stats' => $stats,
+            ];
+        }
+
+        return array_values($normalized);
+    }
+
+    /**
+     * @param  list<string>  $locales
+     * @return array<string, string>
+     */
+    private static function normalizeTranslatableField(mixed $value, array $locales): array
+    {
+        if (! is_array($value)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($locales as $locale) {
+            $localized = $value[$locale] ?? null;
+
+            if (is_string($localized) && $localized !== '') {
+                $normalized[$locale] = $localized;
+            }
+        }
+
+        return $normalized;
     }
 
     private static function normalizePath(mixed $path): ?string

@@ -175,9 +175,9 @@ class PageSeeder extends Seeder
                     'ru' => 'kontakty',
                 ],
                 'body' => [
-                    'it' => '<p>Per informazioni sui nostri servizi, volontariato o collaborazioni, scrivici. Il modulo di contatto sarà disponibile a breve.</p><p><strong>Email:</strong> info@safehouse.community</p>',
-                    'en' => '<p>For questions about our services, volunteering, or partnerships, get in touch. The contact form will be available soon.</p><p><strong>Email:</strong> info@safehouse.community</p>',
-                    'ru' => '<p>По вопросам услуг, волонтёрства или сотрудничества — напишите нам. Форма связи скоро будет доступна.</p><p><strong>Email:</strong> info@safehouse.community</p>',
+                    'it' => '<p>Per informazioni sui nostri servizi, volontariato o collaborazioni, scrivici usando il modulo in questa pagina.</p><p><strong>Email:</strong> info@safehouse.community</p>',
+                    'en' => '<p>For questions about our services, volunteering, or partnerships, get in touch using the form on this page.</p><p><strong>Email:</strong> info@safehouse.community</p>',
+                    'ru' => '<p>По вопросам услуг, волонтёрства или сотрудничества — напишите через форму на этой странице.</p><p><strong>Email:</strong> info@safehouse.community</p>',
                 ],
             ],
         );

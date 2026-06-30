@@ -67,6 +67,7 @@ class DonationIngestServiceTest extends TestCase
                 && ($payload['amount'] ?? null) === 15.0
                 && ($payload['subjectName'] ?? '') === 'Anna Bianchi'
                 && ($payload['createSubjectAccount'] ?? false) === true
+                && ($payload['beneficiaryName'] ?? '') === 'Safe House'
                 && ($payload['beneficiaryPartyId'] ?? '') === 'acc-safe-house'
                 && ($payload['beneficiaryPartyType'] ?? '') === 'Account'
                 && ! array_key_exists('subjectPartyId', $payload)
@@ -108,7 +109,9 @@ class DonationIngestServiceTest extends TestCase
 
             return ($payload['subjectPartyId'] ?? '') === 'contact-existing'
                 && ($payload['subjectPartyType'] ?? '') === 'Contact'
+                && ($payload['subjectName'] ?? '') === 'Luigi Verdi'
                 && ! array_key_exists('createSubjectContact', $payload)
+                && ($payload['beneficiaryName'] ?? '') === 'Safe House'
                 && ($payload['beneficiaryPartyId'] ?? '') === 'acc-safe-house';
         });
     }
@@ -133,6 +136,8 @@ class DonationIngestServiceTest extends TestCase
                 return ($payload['name'] ?? '') === 'Nuova raccolta'
                     && ($payload['stage'] ?? '') === 'Fundraising'
                     && ($payload['closeDate'] ?? '') === '2026-12-31'
+                    && ($payload['amount'] ?? null) === 0.0
+                    && ($payload['amountCurrency'] ?? '') === 'EUR'
                     && ($payload['assignedUserId'] ?? '') === 'api-user-id'
                     ? Http::response(['id' => 'opp-created'])
                     : Http::response(['message' => 'bad opportunity payload'], 400);

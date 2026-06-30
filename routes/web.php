@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\ContactSubmissionController;
 use App\Http\Controllers\DonationCampaignController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
@@ -29,6 +30,10 @@ Route::prefix('{locale}')
         Route::get('/_preview/pages/{page}', [PageController::class, 'preview'])
             ->middleware('signed')
             ->name('pages.preview');
+
+        Route::post('/contact', [ContactSubmissionController::class, 'store'])
+            ->middleware('throttle:contact')
+            ->name('contact.store');
 
         Route::get('/{pageSlug}', [PageController::class, 'show'])->name('pages.show');
     });
