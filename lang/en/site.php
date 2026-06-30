@@ -51,6 +51,7 @@ return [
         'news_back' => 'All news',
         'news_index_cta' => 'Go to news',
         'news_index_hint' => 'Dynamic list of articles published in CMS.',
+        'preview_banner' => 'CMS preview — this page may be an unpublished draft.',
         'templates' => [
             'default' => 'Simple page',
             'about' => 'About',

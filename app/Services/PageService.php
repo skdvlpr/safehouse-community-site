@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\Article;
 use App\Models\Page;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 
 class PageService
 {
@@ -73,6 +75,71 @@ class PageService
         }
 
         return route('pages.show', ['locale' => $locale, 'pageSlug' => $slug]);
+    }
+
+    public function previewUrl(Page $page, string $locale, ?\DateTimeInterface $expiresAt = null): ?string
+    {
+        if (! $this->hasSlugForLocale($page, $locale)) {
+            return null;
+        }
+
+        $expiresAt ??= now()->addHours(2);
+
+        return URL::temporarySignedRoute(
+            'pages.preview',
+            $expiresAt,
+            [
+                'locale' => $locale,
+                'page' => $page->getKey(),
+            ]
+        );
+    }
+
+    public function hasPreviewableSlug(Page $page, ?string $locale = null): bool
+    {
+        if ($locale !== null) {
+            return $this->hasSlugForLocale($page, $locale);
+        }
+
+        foreach (config('locales.available', ['it']) as $available) {
+            if ($this->hasSlugForLocale($page, $available)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function hasSlugForLocale(Page $page, string $locale): bool
+    {
+        $slug = $page->getTranslation('slug', $locale, false);
+
+        return is_string($slug) && $slug !== '';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function viewData(Page $page, string $locale, bool $preview = false): array
+    {
+        $data = [
+            'page' => $page,
+            'locale' => $locale,
+            'title' => $page->getTranslation('title', $locale),
+            'body' => $page->getTranslation('body', $locale),
+            'isPreview' => $preview,
+        ];
+
+        if ($page->template === 'news_index') {
+            $data['recentArticles'] = Article::query()
+                ->where('is_published', true)
+                ->whereNotNull('published_at')
+                ->orderByDesc('published_at')
+                ->limit(3)
+                ->get();
+        }
+
+        return $data;
     }
 
     public function templateView(Page $page): string

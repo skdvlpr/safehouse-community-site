@@ -89,6 +89,7 @@ Before marking any P2 task **Testing**:
 - [ ] Roles seeded; admin user can log in
 - [ ] Page resource uses translatable fields (spatie/laravel-translatable) for IT/RU/EN
 - [ ] No secrets in committed files
+- [ ] Migrations applied: `ddev exec php artisan migrate` (or `--seed` if seeders changed) — **agent runs before handoff**
 - [ ] `php artisan test` passes (or new tests for Filament smoke where feasible)
 - [ ] Notion task has User QA checklist
 

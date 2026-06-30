@@ -10,6 +10,10 @@
     @stack('head')
 </head>
 <body class="flex min-h-screen flex-col bg-safehouse-page text-safehouse-text antialiased">
+    @if (request()->routeIs('pages.preview') || ($isPreview ?? false))
+        @include('layouts.partials.preview-banner')
+    @endif
+
     @include('layouts.partials.header')
 
     <main class="@yield('main_class', 'mx-auto w-full max-w-6xl flex-1 px-4 py-10')">

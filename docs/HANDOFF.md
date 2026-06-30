@@ -119,9 +119,11 @@ Run `ddev npm install && ddev npm run build` if styles not updating.
 
 ## Verification run
 
+**Agents run this block themselves** after schema/seeder changes — not delegated to the user.
+
 ```bash
-ddev exec php artisan migrate --seed   # seeds chi-siamo, servizi, contatti, legal pages
-ddev exec php artisan test             # 96 passed
+ddev exec php artisan migrate --seed
+ddev exec php artisan test
 ddev npm run build
 ```
 
@@ -136,7 +138,7 @@ Filament **Page** resource: editor picks template → public site renders matchi
 | default, about, services, legal, contact, landing, article, news_index | **Shipped** |
 | Filament meta editor per template (structured fields) | **Next** |
 | ArticleResource + news template parity | **Next** |
-| Template preview in CMS | Backlog |
+| Template preview in CMS | **Shipped** — signed preview URL, IT/RU/EN, drafts OK |
 
 ---
 
@@ -152,7 +154,8 @@ Filament **Page** resource: editor picks template → public site renders matchi
 
 ## Notes for user
 
-1. Run `ddev exec php artisan migrate --seed` to load CMS pages (chi-siamo, servizi, …).
-2. CMS → Content → Pages — pick **template** when creating new pages.
-3. Confirm **P2 CMS** manual QA → reply «P2 ок».
-4. Test donations flow with Stripe test keys + `stripe listen`.
+1. CMS → Content → Pages — pick **template** when creating new pages.
+2. Confirm **P2 CMS** manual QA → reply «P2 ок».
+3. Test donations flow with Stripe test keys + `stripe listen`.
+
+(Migrations/seeds: **Auto agent runs `migrate --seed` automatically** — you should not need to.)

@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Article;
+use App\Models\Page;
 use App\Services\PageService;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class PageController extends Controller
@@ -18,22 +19,21 @@ class PageController extends Controller
 
         $page = $this->pages->findPublishedBySlug($locale, $pageSlug);
 
-        $data = [
-            'page' => $page,
-            'locale' => $locale,
-            'title' => $page->getTranslation('title', $locale),
-            'body' => $page->getTranslation('body', $locale),
-        ];
+        return view(
+            $this->pages->templateView($page),
+            $this->pages->viewData($page, $locale),
+        );
+    }
 
-        if ($page->template === 'news_index') {
-            $data['recentArticles'] = Article::query()
-                ->where('is_published', true)
-                ->whereNotNull('published_at')
-                ->orderByDesc('published_at')
-                ->limit(3)
-                ->get();
-        }
+    public function preview(string $locale, Page $page): Response
+    {
+        abort_unless($this->pages->hasSlugForLocale($page, $locale), 404);
 
-        return view($this->pages->templateView($page), $data);
+        return response()
+            ->view(
+                $this->pages->templateView($page),
+                $this->pages->viewData($page, $locale, preview: true),
+            )
+            ->header('X-Robots-Tag', 'noindex, nofollow');
     }
 }

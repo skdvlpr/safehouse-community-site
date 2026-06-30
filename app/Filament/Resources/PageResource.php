@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\PageResource\Actions\PreviewPageAction;
 use App\Filament\Resources\PageResource\Pages;
 use App\Models\Page;
-use App\Services\PageService;
 use BackedEnum;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -138,12 +138,7 @@ class PageResource extends Resource
                 //
             ])
             ->actions([
-                \Filament\Actions\Action::make('preview')
-                    ->label('Preview')
-                    ->icon('heroicon-o-eye')
-                    ->url(fn (Page $record): ?string => app(PageService::class)->publicUrl($record, 'it'))
-                    ->openUrlInNewTab()
-                    ->visible(fn (Page $record): bool => $record->is_published && app(PageService::class)->publicUrl($record, 'it') !== null),
+                PreviewPageAction::make(),
                 \Filament\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -172,7 +167,7 @@ class PageResource extends Resource
     public static function templateHelperText(?string $template): string
     {
         if ($template === null || $template === '') {
-            return 'Each template has a distinct public layout — use Preview on the list after saving.';
+            return 'Each template has a distinct public layout — save the page, then use Preview (IT/RU/EN).';
         }
 
         $description = (string) config("page_templates.{$template}.description", '');

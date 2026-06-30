@@ -14,12 +14,17 @@ Before implementing **any** task, the executor MUST:
 2. Fetch the current **Notion project page** and **target task page** from the canonical trackers (URLs below).
 3. Read referenced files from the repository — never assume content from memory or old plans.
 4. Implement **exactly one** Notion task per user request (one problem per step).
-5. Run automated verification defined in the task → move status to **Testing**.
-6. Post a **User QA checklist** in the task body; **never** move **Testing → Done** without explicit user confirmation.
-7. **Notion progress log (mandatory, proactive):** After every implementation step, testing milestone, or planning decision — **without waiting for the user to remind you** — append executor notes to the **task page** and, when relevant, the **project page** in Notion. Never overwrite prior logs. Update task status (`In progress` → `Testing` → `Done`). Logs must be **handoff-ready**: current state, files changed, verification performed, blockers, exact next steps.
-8. **Git push:** only when the user explicitly asks. Local commits: ask if unclear.
-9. Do **not** mark tasks Done in the archived Gomercato tracker — it is read-only history.
-10. **DDEV:** `ddev start` on the existing project is fine. **Never** without explicit user approval: `ddev stop`, `ddev poweroff`, `ddev delete`, creating a **new** DDEV project/config, or adding extra services/containers (e.g. new `ddev add-on`, new service in `config.yaml`).
+5. **Database migrations (agent runs — do not ask the user):** After creating or changing anything under `database/migrations/` or `database/seeders/`, the executor MUST run migrations in DDEV before tests or declaring work complete:
+   - Schema only: `ddev exec php artisan migrate`
+   - Seeders touched or task needs CMS/RBAC seed data: `ddev exec php artisan migrate --seed`
+   - If unsure whether seeders changed, run `migrate --seed` (idempotent for `updateOrCreate` seeds).
+   - Run migrate again after pulling commits that add migrations, before `php artisan test`.
+6. Run automated verification defined in the task → move status to **Testing**.
+7. Post a **User QA checklist** in the task body; **never** move **Testing → Done** without explicit user confirmation.
+8. **Notion progress log (mandatory, proactive):** After every implementation step, testing milestone, or planning decision — **without waiting for the user to remind you** — append executor notes to the **task page** and, when relevant, the **project page** in Notion. Never overwrite prior logs. Update task status (`In progress` → `Testing` → `Done`). Logs must be **handoff-ready**: current state, files changed, verification performed, blockers, exact next steps.
+9. **Git push:** only when the user explicitly asks. Local commits: ask if unclear.
+10. Do **not** mark tasks Done in the archived Gomercato tracker — it is read-only history.
+11. **DDEV:** `ddev start` on the existing project is fine. **Never** without explicit user approval: `ddev stop`, `ddev poweroff`, `ddev delete`, creating a **new** DDEV project/config, or adding extra services/containers (e.g. new `ddev add-on`, new service in `config.yaml`).
 
 ### Notion logging (when Notion MCP is available)
 
@@ -68,8 +73,10 @@ ddev start
 # → https://safehouse-community-site.ddev.site
 ddev composer install
 ddev npm install && ddev npm run build
-ddev exec php artisan migrate
+ddev exec php artisan migrate --seed   # agents run automatically after migration/seeder changes
 ```
+
+**Agent rule:** Never finish a task that touched `database/migrations/` or `database/seeders/` without running `ddev exec php artisan migrate` (or `migrate --seed`) in the same session. Do not ask the user to run migrations unless DDEV is down.
 
 PHP **8.3**, MariaDB **11.8**, webserver **nginx-fpm** (DDEV).
 
@@ -503,14 +510,16 @@ Align Filament panel colors with Aurora tokens (dark sidebar, red primary).
 ### Per-task workflow
 
 1. Implement single task scope only.
-2. Run automated tests / commands listed in task.
-3. Set Notion status → **Testing**.
-4. Append **User QA checklist** to task (English).
-5. Wait for user “OK” → **Done**.
+2. If migrations or seeders changed → `ddev exec php artisan migrate` or `migrate --seed` (agent runs; see protocol step 5).
+3. Run automated tests / commands listed in task.
+4. Set Notion status → **Testing**.
+5. Append **User QA checklist** to task (English).
+6. Wait for user “OK” → **Done**.
 
 ### Automated baseline (every PR)
 
 ```bash
+ddev exec php artisan migrate --seed
 ddev exec ./vendor/bin/pint --test
 ddev exec php artisan test
 ddev composer audit

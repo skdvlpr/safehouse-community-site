@@ -51,6 +51,7 @@ return [
         'news_back' => 'Tutte le notizie',
         'news_index_cta' => 'Vai alle notizie',
         'news_index_hint' => 'Elenco dinamico degli articoli pubblicati in CMS.',
+        'preview_banner' => 'Anteprima CMS — questa pagina può essere una bozza non pubblicata.',
         'templates' => [
             'default' => 'Pagina semplice',
             'about' => 'Chi siamo',

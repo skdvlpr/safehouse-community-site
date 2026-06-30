@@ -37,8 +37,10 @@ ddev composer install
 ddev npm install
 ddev npm run build
 ddev artisan key:generate   # first time only, if APP_KEY is empty
-ddev artisan migrate
+ddev artisan migrate --seed
 ```
+
+**Cursor agents** run `migrate` / `migrate --seed` automatically after migration or seeder changes (see [`AGENTS.md`](AGENTS.md)).
 
 Open the site:
 
