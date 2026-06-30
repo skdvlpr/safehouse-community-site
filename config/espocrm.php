@@ -1,0 +1,30 @@
+<?php
+
+return [
+
+    'base_url' => env('ESPOCRM_BASE_URL', 'https://nonprofit-espocrm.ddev.site'),
+
+    'api_key' => env('ESPOCRM_API_KEY'),
+
+    /*
+     * API user id from GET /api/v1/App/user — used as assignedUserId on PrimaNota POST.
+     * See nonprofit-espocrm/docs/integrations/DONATION-SITE-CRM-API.md (local file).
+     */
+    'assigned_user_id' => env('ESPOCRM_ASSIGNED_USER_ID'),
+
+    'finanziamento' => [
+        'entity' => 'Opportunity',
+        'default_stage' => env('ESPOCRM_FINANZIAMENTO_STAGE', 'Fundraising'),
+        'default_close_date' => env('ESPOCRM_FINANZIAMENTO_CLOSE_DATE', '2026-12-31'),
+        'default_probability' => (int) env('ESPOCRM_FINANZIAMENTO_PROBABILITY', 60),
+    ],
+
+    'prima_nota' => [
+        'entity' => 'PrimaNota',
+        'entry_type' => 'Income',
+        'internal_classification' => 'Donation',
+        'default_subject_name' => env('ESPOCRM_PRIMA_NOTA_DEFAULT_SUBJECT', 'Donatore'),
+        'default_beneficiary_name' => env('ESPOCRM_PRIMA_NOTA_DEFAULT_BENEFICIARY', 'Safe House'),
+    ],
+
+];

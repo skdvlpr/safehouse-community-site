@@ -1,0 +1,81 @@
+<?php
+
+namespace App\Services\EspoCrm;
+
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Http;
+use RuntimeException;
+
+class EspoCrmClient
+{
+    public function __construct(
+        private readonly string $baseUrl,
+        private readonly string $apiKey,
+    ) {}
+
+    public static function fromConfig(): self
+    {
+        $baseUrl = (string) config('espocrm.base_url');
+        $apiKey = (string) config('espocrm.api_key');
+
+        if ($baseUrl === '' || $apiKey === '') {
+            throw new RuntimeException('EspoCRM base URL and API key must be configured.');
+        }
+
+        return new self($baseUrl, $apiKey);
+    }
+
+    /**
+     * @param  array<string, mixed>  $query
+     * @return array<string, mixed>
+     */
+    public function search(string $entityType, array $query = []): array
+    {
+        return $this->request('get', $entityType, $query);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    public function create(string $entityType, array $payload): array
+    {
+        return $this->request('post', $entityType, $payload);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function request(string $method, string $entityType, array $payload = []): array
+    {
+        $url = rtrim($this->baseUrl, '/').'/api/v1/'.$entityType;
+
+        $response = Http::withHeaders([
+            'X-Api-Key' => $this->apiKey,
+            'Accept' => 'application/json',
+        ])
+            ->acceptJson()
+            ->asJson()
+            ->timeout(15)
+            ->{$method}($url, $payload);
+
+        try {
+            $response->throw();
+        } catch (RequestException $exception) {
+            $reason = $response->header('X-Status-Reason');
+            $body = $response->json() ?? $response->body();
+
+            throw new RuntimeException(
+                'EspoCRM API error'.($reason ? " ({$reason})" : '').': '.json_encode($body),
+                $response->status(),
+                $exception,
+            );
+        }
+
+        /** @var array<string, mixed> $json */
+        $json = $response->json() ?? [];
+
+        return $json;
+    }
+}

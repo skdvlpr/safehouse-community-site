@@ -85,7 +85,7 @@ PHP **8.3**, MariaDB **11.8**, webserver **nginx-fpm** (DDEV).
 | Admin CMS | **Filament v4** | Panel path `/cms-safehouse` |
 | Public UI | Blade + Tailwind + Vite | Align with Aurora design tokens |
 | I18n | `spatie/laravel-translatable` + `/{locale}/` routes | Locales: `it`, `ru`, `en` |
-| Donations | **Donorbox embed only** — no payment DB on this app | See Section 8; records live in **CRM** via Donorbox API/webhooks |
+| Donations | **Stripe Payment Element** + Filament campaigns → **EspoCRM** | See Section 8; no local payment DB |
 | Media | `spatie/laravel-medialibrary` | Private disk + signed URLs in prod |
 | RBAC | `spatie/laravel-permission` | CMS roles only |
 | SEO | `spatie/laravel-sitemap` | Post-MVP |
@@ -98,7 +98,7 @@ PHP **8.3**, MariaDB **11.8**, webserver **nginx-fpm** (DDEV).
 ### Explicitly OUT of MVP scope
 
 - Mobile app, e-commerce shop
-- PayPal (after Stripe + Donorbox stable)
+- PayPal (after Stripe donations stable)
 - Laravel Octane / Horizon / Telescope in production
 - Public user accounts / comments
 - EspoCRM bi-directional sync (future epic)
@@ -247,13 +247,17 @@ Route::prefix('{locale}')
 /{locale}/notizie                    → News list
 /{locale}/notizie/{slug}             → Article
 /{locale}/volontariato               → Volunteer form
-/{locale}/donazioni                  → Donations page (Donorbox embed only)
+/{locale}/donazioni                  → Campaign list
+/{locale}/donazioni/{slug}           → Donation form (Stripe Payment Element)
+/{locale}/donazioni/{slug}/privacy   → Campaign privacy notice
+/{locale}/donazioni/{slug}/grazie    → Thank-you page
 /{locale}/contatti                   → Contact
 /{locale}/privacy                    → Privacy policy
 /{locale}/cookie                     → Cookie policy
 
 /cms-safehouse                       → Filament CMS (IP allowlist in Caddy)
-/webhooks/stripe                     → Stripe webhook (CSRF-exempt, signed)
+/api/donations/intents/{slug}        → Create Stripe PaymentIntent
+/api/webhooks/stripe                 → Stripe webhook (CSRF-exempt, signed)
 ```
 
 Admin path is **`/cms-safehouse`** — never `/admin`. Env: `FILAMENT_PATH=cms-safehouse`.
@@ -332,20 +336,20 @@ Full checklist: archived Notion page [02 · Security Checklist](https://app.noti
 
 **Never set CSP in PHP** — breaks nonce strategy and duplicates headers.
 
-### CSP notes for Donorbox
+### CSP notes for Stripe donations
 
-Donorbox widget loads external scripts from `donorbox.org`. Production CSP (in Caddy) must allow:
+Stripe Payment Element loads from `js.stripe.com`. Production CSP (in Caddy) must allow:
 
-- `script-src` — `https://donorbox.org`
-- `frame-src` — Donorbox iframe origins per their docs
-- `connect-src` — Donorbox API endpoints (widget only)
+- `script-src` — `https://js.stripe.com`
+- `frame-src` — `https://js.stripe.com`, `https://hooks.stripe.com`
+- `connect-src` — `https://api.stripe.com`
 
-Update CSP in **one place** (`deploy/Caddyfile.example`) when integrating donations. Test with [securityheaders.com](https://securityheaders.com).
+Update CSP in **one place** (`deploy/Caddyfile.example`) when `/donazioni` ships to production. Test with [securityheaders.com](https://securityheaders.com).
 
 ### PII & forms
 
 - Store `ip_hash` and `user_agent_hash` (SHA-256) on **volunteer/contact** submissions — never raw IP/UA in DB.
-- **Donations:** no payment rows on this app. Donorbox holds checkout; **EspoCRM** is the system of record via Donorbox API + webhooks (implemented in CRM stack, not here).
+- **Donations:** no payment rows on this app. Stripe checkout → webhook `payment_intent.succeeded` → EspoCRM **PrimaNota** linked to **Finanziamento** (`Opportunity`). Card data processed by Stripe only.
 - Webhooks that persist payments belong on the CRM/integration layer — verify signatures; idempotent handlers.
 
 ### Rate limits (AppServiceProvider)
@@ -355,6 +359,7 @@ Update CSP in **one place** (`deploy/Caddyfile.example`) when integrating donati
 | `api` | 60/min per IP |
 | `contact` | 5/hour per IP |
 | `volunteers` | 3/hour per IP |
+| `donations` | 30/hour per IP |
 
 ### Admin
 
@@ -367,50 +372,67 @@ Update CSP in **one place** (`deploy/Caddyfile.example`) when integrating donati
 
 ## SECTION 8 — DONATIONS
 
-**Architectural decision (2026-06-29, stakeholder):** the public website does **not** store donation/payment history. There is no `donations` table, no `Donation` model, no Stripe checkout on this app. **EspoCRM** is the system of record; ingest via **Donorbox API + webhooks** (CRM/integration project).
+**Architectural decision (2026-06-30):** built-in fundraising on the public site via **Stripe Payment Element** + **Filament campaign CMS**. Payment records live in **EspoCRM** (`PrimaNota` + `Finanziamento`); **no** local payment history table. Card data never touches this app (PCI SAQ A via Stripe.js).
 
-This site only hosts the Donorbox embed and informational copy.
+**Donorbox:** removed — paid API/webhooks not needed.
 
-### 8.1 Donorbox embed (only channel on public site)
+### 8.1 Flow
 
-**Platform:** [Donorbox](https://donorbox.org/)
+1. Editor creates **Donation Campaign** in Filament (`DonationCampaignResource`).
+2. Public pages: `/{locale}/donazioni`, `/{locale}/donazioni/{slug}`, privacy at `.../privacy`.
+3. Donor submits form → `POST /api/donations/intents/{slug}` creates Stripe **PaymentIntent** (metadata: donor name/type, comment, campaign).
+4. Browser confirms payment via Stripe.js Payment Element.
+5. Stripe webhook `payment_intent.succeeded` → `DonationIngestService` → EspoCRM **PrimaNota** linked to **Finanziamento**.
 
-**Campaign:** `raccolta-dei-fondi-per-safe-house`
+### 8.2 Stripe (standard account — no paid add-ons)
 
-**Embed code (canonical):**
+| Feature | Available on minimal Stripe account |
+|---------|-----------------------------------|
+| PaymentIntents + Payment Element | yes |
+| Cards (EUR min €0.50) | yes |
+| Webhooks | yes, free |
+| Connect / Billing | not required for MVP |
 
-```html
-<script type="module" src="https://donorbox.org/widgets.js" async></script>
-<dbox-widget
-  campaign="raccolta-dei-fondi-per-safe-house"
-  type="donation_form"
-  enable-auto-scroll="true"
-></dbox-widget>
-```
+**Env:** `STRIPE_KEY`, `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET` (see `.env.example`).
 
-**Laravel integration rules:**
+**Local webhook:** `stripe listen --forward-to https://safehouse-community-site.ddev.site/api/webhooks/stripe`
 
-1. Create Blade component `x-donorbox-widget` — props: `campaign` (default above), `type`, `enableAutoScroll`.
-2. Load `widgets.js` **once** per page (use `@push('scripts')` + `@once`).
-3. Page: `/{locale}/donazioni` — Italian primary copy; link to Donorbox campaign.
-4. **Do not** persist payment/donor data in this app's database.
-5. GDPR: Donorbox loads third-party scripts — cookie consent must gate loading until marketing/analytics consent (or dedicated “payment providers” consent tier — confirm with stakeholder).
-6. CSP: allow Donorbox domains (Section 7).
+### 8.3 Campaign CMS (`donation_campaigns` table)
 
-### 8.2 Out of scope on public website
+Config only — not payment history: slug, translatable title/description/privacy/form_notice, preset amounts (cents), allow custom amount, min amount, currency, Espo finanziamento name override, active flag.
 
-| Item | Where instead |
-|------|----------------|
-| `donations` DB table | **Removed** — was P1-T10, cancelled |
-| Stripe PaymentIntents checkout | Cancelled (P5-T01) |
-| Stripe webhook → local DB | Cancelled (P5-T02) |
-| Donorbox webhook → payment records | **EspoCRM** integration |
+### 8.4 EspoCRM mapping (Prima Nota split fields — 2026-06)
 
-### Task split (remaining)
+Each successful payment → one **PrimaNota** linked to existing **Opportunity** (`financingId`) by campaign name.
 
-- **P5-T03** — Donorbox Blade component + `/donazioni` page section
+| Site / Stripe | CRM API field | Example |
+|---------------|---------------|---------|
+| Donor name (form) | `subjectName` (Soggetto pagamento) | `Mario Rossi` |
+| Config default | `beneficiaryName` (Beneficiario) | `Safe House` |
+| Campaign `finanziamentoTitle()` | Opportunity `name` lookup → `financingId` | must exist in CRM |
+| PaymentIntent id | `description` idempotency (`contains`) | `Donazione Stripe ordine #pi_…` |
 
-Implement **one task per step**. Payment ingestion tasks belong in the **CRM** tracker, not this repo.
+**Do not** send combined `"Payer - Beneficiary"` in `subjectName`. **Do not** auto-create Opportunity — missing/duplicate names → log + 502.
+
+**Env:** `ESPOCRM_*` including `ESPOCRM_ASSIGNED_USER_ID` from `GET /api/v1/App/user`.
+
+**Local spec:** `nonprofit-espocrm/docs/integrations/DONATION-SITE-CRM-API.md` (gitignored in CRM repo).
+
+### 8.5 Privacy / data minimization
+
+- Form shows notice: card data processed by Stripe, not stored on site.
+- Per-campaign privacy page (`privacy_notice` translatable field).
+- Stored in CRM: name, amount, currency, comment, donor type — **not** card numbers.
+
+### 8.6 Out of scope
+
+| Item | Status |
+|------|--------|
+| Local `donations` payment table | removed |
+| Donorbox embed/ingest | removed |
+| Recurring subscriptions | future |
+
+**Implementation:** `StripePaymentService`, `DonationIngestService`, `DonationCampaignResource`, `StripeWebhookController`.
 
 ---
 
@@ -497,7 +519,7 @@ ddev composer audit
 | **P2** | Filament CMS + RBAC + media |
 | **P3** | Aurora-themed frontend (layout, home, pages) |
 | **P4** | Volunteer + contact forms |
-| **P5** | Donorbox embed page only (no local payment DB) |
+| **P5** | Native Stripe donations + EspoCRM ingest (no local payment DB) |
 | **P6** | GDPR banner, CI, Caddy template, deploy |
 
 Pick the lowest-numbered `Not started` task unless user reprioritizes.
@@ -544,9 +566,9 @@ Child pages in archive still useful as reference:
 - **One task = one problem** — no drive-by refactors
 - **Laravel 13** — non-negotiable
 - **Locales:** `it`, `ru`, `en` — `it` default
-- **Donations:** Donorbox embed only — payment data in **EspoCRM** (Donorbox API/webhooks), not this app
+- **Donations:** Stripe Payment Element + Filament campaigns → EspoCRM PrimaNota/Finanziamento — no local payment DB
 - **Design:** match CRM Safehouse Aurora — assets from `nonprofit-espocrm`
-- **CSP:** Caddy only; include Donorbox when `/donazioni` ships
+- **CSP:** Caddy only; include Stripe domains when `/donazioni` ships
 - **CMS path:** `/cms-safehouse`
 - **Testing:** auto tests → Testing → user QA → Done
 - **Notion:** English tasks/logs; Russian chat with user
@@ -616,13 +638,39 @@ If Power runs out of tokens: HANDOFF lists **Gemini** for P2-T05/T06 or **Auto**
 - **Power switch:** after P1-T12 Done → Power Sprint 1 (P2-T01…T04 Filament CMS).
 - **Next:** P0-T06 rate limiters.
 
-### 2026-06-29 — Donations: no local DB (stakeholder decision)
+### 2026-06-30 — Donations: Prima Nota split fields (CRM API live)
 
 **Agent:** Cursor Auto
 
-- **Removed** `donations` table, `Donation` model, factory, tests, and `donations` rate limiter.
-- Migration `2026_06_29_000006_drop_donations_table` drops table on environments that had P1-T10.
-- **Cancelled:** P1-T10, P5-T01 (Stripe checkout), P5-T02 (Stripe webhook on public site).
-- **System of record:** EspoCRM via Donorbox API + webhooks — not this Laravel app.
-- **Remaining:** P5-T03 Donorbox embed on `/{locale}/donazioni` only.
-- Updated AGENTS.md Section 8, rate limits, architecture tree.
+- **Updated** `DonationIngestService` for new Espo API: `subjectName` + `beneficiaryName`, no `createSubjectContact`.
+- **Description:** `Donazione Stripe ordine #pi_…`; idempotency via `contains` on payment intent id.
+- **Finanziamento:** lookup only — no auto-create; error on 0 or >1 matches.
+- **Config:** `ESPOCRM_ASSIGNED_USER_ID`, `ESPOCRM_PRIMA_NOTA_DEFAULT_BENEFICIARY`.
+- **Spec ref:** `nonprofit-espocrm/docs/integrations/DONATION-SITE-CRM-API.md` (local).
+- **Tests:** 68 passed.
+
+### 2026-06-30 — Donations: native Stripe (Donorbox removed)
+
+**Agent:** Cursor Auto
+
+- **Decision:** replace Donorbox with built-in Stripe Payment Element + Filament campaign CMS.
+- **Removed:** Donorbox ingest API, CORS middleware, Donorbox env vars.
+- **Added:** `DonationCampaign` model + Filament resource, public donation pages, `StripePaymentService`, webhook → `DonationIngestService` → EspoCRM (`[Stripe:pi_...]` idempotency).
+- **No** local payment history table; card data never stored on site.
+- **Tests:** 52 passed.
+
+### 2026-06-29 — Donations: EspoCRM ingest via Donorbox tracking (revised)
+
+**Agent:** Cursor Auto
+
+- **Revised** stakeholder decision: Donorbox paid API/webhooks not available — use **After donation tracking code** → `POST /api/donations/donorbox`.
+- **Spike verified** on `nonprofit-espocrm` DDEV: find/create `Opportunity` (Finanziamento), create `PrimaNota` with `financingId`, idempotency via `[Donorbox:{id}]` description prefix.
+- **Implemented:** `DonationIngestService`, `EspoCrmClient`, `DonorboxDonationController`, rate limiter `donations`, CORS for Donorbox origins.
+- **Still no** local `donations` table on public site.
+- **Remaining:** P5-T03 embed page + Donorbox campaign tracking script; production secrets/ACL.
+
+### 2026-06-29 — Donations: no local DB (superseded)
+
+**Agent:** Cursor Auto
+
+- Initial decision to rely on Donorbox API/webhooks only — superseded by ingest API approach above.

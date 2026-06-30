@@ -29,9 +29,11 @@ You are **not** the default executor. Do not start work unless the user pasted t
 | P2-T04 | Filament Page resource | CRUD for `Page` model, translatable IT/RU/EN tabs |
 
 **Stretch (only if tokens remain):** P2-T05 Article resources.  
-**Out of sprint:** P2-T06 media, P3+ frontend, P5-T03 Donorbox embed only (no local payment DB), P6 deploy/Caddy.
+**Out of sprint:** P2-T06 media, P3+ frontend, P6 deploy/Caddy (CSP for Stripe).
 
-**Cancelled on public site:** P1-T10, P5-T01, P5-T02 — payment records live in EspoCRM via Donorbox API/webhooks.
+**Cancelled on public site:** P1-T10, P5-T01, P5-T02 — no local payment DB; ingest via EspoCRM REST from Stripe webhook.
+
+**P5 (done in Auto):** native Stripe donations — Filament `DonationCampaignResource`, Payment Element, webhook → EspoCRM.
 
 ### Notion links
 
@@ -145,4 +147,4 @@ User communicates in Russian; docs/Notion in English.
 
 ## Power Sprint 2 (future — not active)
 
-Reserved for: P2-T05/T06 completion, or production **Caddyfile** + CSP with Donorbox/Stripe domains (P6-T03). Auto will update this section when Sprint 2 opens.
+Reserved for: P2-T05/T06 completion, or production **Caddyfile** + CSP with Stripe domains (P6-T03). Auto will update this section when Sprint 2 opens.
