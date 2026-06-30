@@ -47,6 +47,26 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p "${DEPLOY_SSH_PORT:-22}" "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
 
+      - name: Preflight deploy path
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_SSH_PORT: ${{ secrets.DEPLOY_SSH_PORT }}
+        run: |
+          set -euo pipefail
+          ssh -p "${DEPLOY_SSH_PORT:-22}" -i ~/.ssh/deploy_key \
+            "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "test -d '${DEPLOY_PATH}' && test -w '${DEPLOY_PATH}'" \
+          || {
+            echo "::error::Deploy path is missing or not writable: ${DEPLOY_PATH}"
+            echo "Run on the server (as root):"
+            echo "  sudo mkdir -p ${DEPLOY_PATH}"
+            echo "  sudo chown -R ${DEPLOY_USER}:${DEPLOY_USER} ${DEPLOY_PATH}"
+            echo "See deploy/DEPLOY.md for the full one-time setup."
+            exit 1
+          }
+
       - name: Rsync to server
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
