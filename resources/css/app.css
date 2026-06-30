@@ -107,6 +107,10 @@
         @apply inline-flex items-center justify-center rounded-md bg-safehouse-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-safehouse-primary-hover;
     }
 
+    .safehouse-btn-secondary {
+        @apply inline-flex items-center justify-center rounded-md border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-safehouse-text transition-colors hover:border-safehouse-primary/50 hover:bg-white/10;
+    }
+
     .safehouse-prose {
         @apply text-safehouse-text leading-relaxed;
 

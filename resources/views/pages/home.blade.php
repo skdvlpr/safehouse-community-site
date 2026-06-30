@@ -17,6 +17,9 @@
             <a href="{{ route('donations.index', ['locale' => app()->getLocale()]) }}" class="safehouse-btn-primary">
                 {{ __('site.home.cta_donate') }}
             </a>
+            <a href="{{ route('volunteers.show', ['locale' => app()->getLocale()]) }}" class="safehouse-btn-secondary">
+                {{ __('site.home.cta_volunteer') }}
+            </a>
         </div>
     </section>
 

@@ -162,16 +162,18 @@ Replace contact template placeholder; rate limits + Espo optional ingest.
 
 **Shipped:** live contact form (`POST /{locale}/contact`), honeypot, GDPR checkbox, `ContactSubmissionService`, rate limit `contact` (5/hour).
 
+**Shipped:** volunteer form at `/{locale}/volontariato` — `VolunteerService`, honeypot, GDPR, rate limit `volunteers` (3/hour).
+
 ---
 
 ## Next for Auto (immediate)
 
 | Field | Value |
 |-------|-------|
-| **Notion task** | **P4 volunteer form** (contact form done) |
-| **Just shipped** | P3-T07 services repeater in Filament; P4 contact form + storage |
-| **Prerequisite** | User QA on `/it/contatti` (submit form, rate limit, CMS services cards) |
-| **Production** | Stripe live keys, webhook endpoint, CSP for `js.stripe.com` |
+| **Notion task** | **P6** GDPR banner / CI / deploy prep |
+| **Just shipped** | P4 volunteer form; Espo donation ingest fixes |
+| **Prerequisite** | User QA on `/it/volontariato` and donation mock flow |
+| **Production** | Stripe live keys, webhook endpoint, CSP for `js.stripe.com`, `ESPOCRM_BENEFICIARY_ACCOUNT_ID` |
 
 ---
 

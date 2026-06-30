@@ -5,6 +5,7 @@ use App\Http\Controllers\ContactSubmissionController;
 use App\Http\Controllers\DonationCampaignController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\VolunteerController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->to('/'.config('locales.default')));
@@ -34,6 +35,11 @@ Route::prefix('{locale}')
         Route::post('/contact', [ContactSubmissionController::class, 'store'])
             ->middleware('throttle:contact')
             ->name('contact.store');
+
+        Route::get('/volontariato', [VolunteerController::class, 'show'])->name('volunteers.show');
+        Route::post('/volontariato', [VolunteerController::class, 'store'])
+            ->middleware('throttle:volunteers')
+            ->name('volunteers.store');
 
         Route::get('/{pageSlug}', [PageController::class, 'show'])->name('pages.show');
     });
