@@ -22,6 +22,8 @@ Living document. **Auto** writes before Power switch; **Power** writes before re
 | P1-T01 … P1-T12 | Done | Phase P1 complete (P1-T10 cancelled) |
 | P2-T01 … P2-T04 | **Testing** | Power Sprint 1 — see QA below |
 | **P3-T01** | **Testing** | `resources/css/app.css` Aurora tokens + JetBrains Sans |
+| **P3-T02** | **Testing** | `layouts/app`, header/footer, locale switcher, horizontal logo |
+| **P3-T03** | **Testing** | `HomeController`, `pages/home`, `bg.svg` polygon background |
 | **Donations (Stripe)** | **Done (code)** | Filament campaigns + Stripe Payment Element → EspoCRM |
 
 ---
@@ -135,8 +137,8 @@ ddev npm install && ddev npm run build        # if frontend assets stale
 
 | Field | Value |
 |-------|-------|
-| **Notion task** | P3-T02 — Base layout (header/footer/locale switcher) |
-| **Prerequisite** | P3-T01 user QA OK |
+| **Notion task** | P3-T04+ (content pages: chi-siamo, servizi) or user QA on P3-T02/T03 |
+| **Prerequisite** | User confirms `/it` home + polygon BG visually |
 | **After P2 QA** | Mark P2-T01…T04 Done in Notion |
 | **Production** | Stripe live keys, webhook endpoint, CSP for `js.stripe.com` |
 

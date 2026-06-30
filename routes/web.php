@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DonationCampaignController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->to('/'.config('locales.default')));
@@ -9,7 +10,7 @@ Route::prefix('{locale}')
     ->where(['locale' => implode('|', config('locales.available'))])
     ->middleware('setlocale')
     ->group(function (): void {
-        Route::get('/', fn () => view('welcome'))->name('home');
+        Route::get('/', [HomeController::class, 'index'])->name('home');
 
         Route::get('/donazioni', [DonationCampaignController::class, 'index'])->name('donations.index');
         Route::get('/donazioni/{campaignSlug}/privacy', [DonationCampaignController::class, 'privacy'])->name('donations.privacy');

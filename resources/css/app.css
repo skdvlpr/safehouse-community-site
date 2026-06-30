@@ -39,6 +39,18 @@
 }
 
 @layer base {
+    html::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background:
+            linear-gradient(rgb(0 0 0 / 48%), rgb(0 0 0 / 55%)),
+            url('/images/bg.svg') center / cover no-repeat;
+        background-color: #050505;
+    }
+
     body {
         @apply bg-safehouse-page text-safehouse-text font-sans antialiased;
     }
