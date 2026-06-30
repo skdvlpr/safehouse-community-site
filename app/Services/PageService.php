@@ -56,6 +56,25 @@ class PageService
         return route('pages.show', ['locale' => $locale, 'pageSlug' => $slug]);
     }
 
+    public function publicUrl(Page $page, ?string $locale = 'it'): ?string
+    {
+        if (! $page->is_published) {
+            return null;
+        }
+
+        $slug = $page->getTranslation('slug', $locale, false);
+
+        if ($slug === '' || $slug === null) {
+            $slug = $page->getTranslation('slug', 'it', false);
+        }
+
+        if ($slug === '' || $slug === null) {
+            return null;
+        }
+
+        return route('pages.show', ['locale' => $locale, 'pageSlug' => $slug]);
+    }
+
     public function templateView(Page $page): string
     {
         $template = $page->template ?: 'default';

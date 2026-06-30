@@ -1,7 +1,4 @@
 @php
-    $locale = app()->getLocale();
-    $title = $page->getTranslation('title', $locale);
-    $body = $page->getTranslation('body', $locale);
     $pages = app(\App\Services\PageService::class);
     $values = $pages->localizedMeta($page->meta, 'values', $locale);
     $closing = $pages->localizedMeta($page->meta, 'closing', $locale);
@@ -12,26 +9,32 @@
 @section('title', $title)
 
 @section('content')
-    @include('pages.partials.page-header', ['title' => $title])
+    <x-page-template-shell :page="$page">
+        @include('pages.partials.template-eyebrow', ['label' => __('site.pages.templates.about')])
 
-    <article class="safehouse-glass safehouse-prose mb-8 rounded-2xl p-8 md:p-10">
-        {!! $body !!}
-    </article>
+        @include('pages.partials.page-header', ['title' => $title])
 
-    @if ($values)
-        <section class="safehouse-glass rounded-2xl p-8 md:p-10" aria-labelledby="about-values-heading">
-            <h2 id="about-values-heading" class="mb-4 text-xl font-semibold text-safehouse-primary md:text-2xl">
-                {{ __('site.pages.about_values_heading') }}
-            </h2>
-            <div class="safehouse-prose text-safehouse-muted">
-                {!! nl2br(e($values)) !!}
-            </div>
-        </section>
-    @endif
+        <div class="grid gap-8 lg:grid-cols-5">
+            <article class="template-about-intro safehouse-glass safehouse-prose lg:col-span-3">
+                {!! $body !!}
+            </article>
 
-    @if ($closing)
-        <p class="mt-8 text-center text-lg font-medium text-safehouse-text md:text-xl">
-            {{ $closing }}
-        </p>
-    @endif
+            @if ($values)
+                <section class="template-about-values lg:col-span-2" aria-labelledby="about-values-heading">
+                    <h2 id="about-values-heading" class="mb-4 text-lg font-semibold text-safehouse-primary">
+                        {{ __('site.pages.about_values_heading') }}
+                    </h2>
+                    <div class="safehouse-prose text-sm text-safehouse-muted">
+                        {!! nl2br(e($values)) !!}
+                    </div>
+                </section>
+            @endif
+        </div>
+
+        @if ($closing)
+            <blockquote class="template-about-closing">
+                {{ $closing }}
+            </blockquote>
+        @endif
+    </x-page-template-shell>
 @endsection

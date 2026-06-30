@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PageResource\Pages;
 use App\Models\Page;
+use App\Services\PageService;
 use BackedEnum;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -75,7 +76,8 @@ class PageResource extends Resource
                     )->all())
                     ->default('default')
                     ->required()
-                    ->helperText('Controls the public Blade layout for this page.'),
+                    ->live()
+                    ->helperText(fn (?string $state): string => static::templateHelperText($state)),
 
                 Toggle::make('is_published')
                     ->label('Published')
@@ -136,6 +138,12 @@ class PageResource extends Resource
                 //
             ])
             ->actions([
+                \Filament\Actions\Action::make('preview')
+                    ->label('Preview')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn (Page $record): ?string => app(PageService::class)->publicUrl($record, 'it'))
+                    ->openUrlInNewTab()
+                    ->visible(fn (Page $record): bool => $record->is_published && app(PageService::class)->publicUrl($record, 'it') !== null),
                 \Filament\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -159,5 +167,31 @@ class PageResource extends Resource
             'create' => Pages\CreatePage::route('/create'),
             'edit' => Pages\EditPage::route('/{record}/edit'),
         ];
+    }
+
+    public static function templateHelperText(?string $template): string
+    {
+        if ($template === null || $template === '') {
+            return 'Each template has a distinct public layout — use Preview on the list after saving.';
+        }
+
+        $description = (string) config("page_templates.{$template}.description", '');
+        $layout = match ($template) {
+            'about' => 'Layout: 2 columns + values panel + quote.',
+            'services' => 'Layout: red banner + numbered cards.',
+            'article' => 'Layout: narrow column + drop cap.',
+            'landing' => 'Layout: full hero + CTA buttons.',
+            'legal' => 'Layout: monospace legal document.',
+            'contact' => 'Layout: info + form mockup.',
+            'news_index' => 'Layout: intro + news CTA card.',
+            default => 'Layout: title + single panel.',
+        };
+
+        $exampleKey = config("page_templates.{$template}.example_key");
+        $example = is_string($exampleKey) && $exampleKey !== ''
+            ? " Live example: page key «{$exampleKey}»."
+            : '';
+
+        return trim("{$description} {$layout}{$example}");
     }
 }

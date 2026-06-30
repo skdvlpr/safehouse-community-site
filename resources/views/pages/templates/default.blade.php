@@ -1,17 +1,16 @@
-@php
-    $locale = app()->getLocale();
-    $title = $page->getTranslation('title', $locale);
-    $body = $page->getTranslation('body', $locale);
-@endphp
 
 @extends('layouts.app')
 
 @section('title', $title)
 
 @section('content')
-    @include('pages.partials.page-header', ['title' => $title])
+    <x-page-template-shell :page="$page">
+        @include('pages.partials.template-eyebrow', ['label' => __('site.pages.templates.default')])
 
-    <article class="safehouse-glass safehouse-prose rounded-2xl p-8 md:p-10">
-        {!! $body !!}
-    </article>
+        @include('pages.partials.page-header', ['title' => $title])
+
+        <article class="template-default-panel safehouse-glass safehouse-prose">
+            {!! $body !!}
+        </article>
+    </x-page-template-shell>
 @endsection

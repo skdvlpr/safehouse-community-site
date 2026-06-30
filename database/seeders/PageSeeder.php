@@ -204,5 +204,74 @@ class PageSeeder extends Seeder
                 ],
             ],
         );
+
+        Page::query()->updateOrCreate(
+            ['key' => 'demo-landing'],
+            [
+                'template' => 'landing',
+                'is_published' => true,
+                'title' => [
+                    'it' => 'Esempio landing',
+                    'en' => 'Landing example',
+                    'ru' => 'Пример лендинга',
+                ],
+                'slug' => [
+                    'it' => 'esempio-landing',
+                    'en' => 'landing-example',
+                    'ru' => 'primer-landing',
+                ],
+                'body' => [
+                    'it' => '<p>Template landing: hero a tutta larghezza, gradiente rosso e pulsanti CTA. Usa per campagne o pagine promozionali.</p>',
+                    'en' => '<p>Landing template: full-width hero, red gradient, and CTA buttons for campaigns.</p>',
+                    'ru' => '<p>Шаблон лендинга: широкий hero, градиент и CTA-кнопки.</p>',
+                ],
+            ],
+        );
+
+        Page::query()->updateOrCreate(
+            ['key' => 'demo-article'],
+            [
+                'template' => 'article',
+                'is_published' => true,
+                'title' => [
+                    'it' => 'Esempio articolo',
+                    'en' => 'Article example',
+                    'ru' => 'Пример статьи',
+                ],
+                'slug' => [
+                    'it' => 'esempio-articolo',
+                    'en' => 'article-example',
+                    'ru' => 'primer-statya',
+                ],
+                'body' => [
+                    'it' => '<p>Template articolo: colonna stretta, capolettera rossa e meta data di aggiornamento. Ideale per approfondimenti e rassegne stampa.</p><p>Il secondo paragrafo mantiene la tipografia da lettura lunga.</p>',
+                    'en' => '<p>Article template: narrow column, red drop cap, and updated date meta for long reads.</p><p>Second paragraph keeps editorial typography.</p>',
+                    'ru' => '<p>Шаблон статьи: узкая колонка, буквица и дата обновления.</p><p>Второй абзац для длинного чтения.</p>',
+                ],
+            ],
+        );
+
+        Page::query()->updateOrCreate(
+            ['key' => 'demo-news'],
+            [
+                'template' => 'news_index',
+                'is_published' => true,
+                'title' => [
+                    'it' => 'Hub notizie',
+                    'en' => 'News hub',
+                    'ru' => 'Хаб новостей',
+                ],
+                'slug' => [
+                    'it' => 'hub-notizie',
+                    'en' => 'news-hub',
+                    'ru' => 'hab-novostey',
+                ],
+                'body' => [
+                    'it' => '<p>Template news index: testo introduttivo e card CTA verso l\'elenco dinamico /notizie.</p>',
+                    'en' => '<p>News index template: intro copy and CTA card to the dynamic /notizie list.</p>',
+                    'ru' => '<p>Шаблон хаба новостей: вступление и CTA на /notizie.</p>',
+                ],
+            ],
+        );
     }
 }

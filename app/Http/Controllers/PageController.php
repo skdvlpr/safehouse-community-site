@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Services\PageService;
 use Illuminate\View\View;
 
@@ -17,8 +18,22 @@ class PageController extends Controller
 
         $page = $this->pages->findPublishedBySlug($locale, $pageSlug);
 
-        return view($this->pages->templateView($page), [
+        $data = [
             'page' => $page,
-        ]);
+            'locale' => $locale,
+            'title' => $page->getTranslation('title', $locale),
+            'body' => $page->getTranslation('body', $locale),
+        ];
+
+        if ($page->template === 'news_index') {
+            $data['recentArticles'] = Article::query()
+                ->where('is_published', true)
+                ->whereNotNull('published_at')
+                ->orderByDesc('published_at')
+                ->limit(3)
+                ->get();
+        }
+
+        return view($this->pages->templateView($page), $data);
     }
 }
