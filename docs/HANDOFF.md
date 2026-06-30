@@ -136,9 +136,29 @@ Filament **Page** resource: editor picks template → public site renders matchi
 | Template | Status |
 |----------|--------|
 | default, about, services, legal, contact, landing, article, news_index | **Shipped** |
-| Filament meta editor per template (structured fields) | **Next** |
-| ArticleResource + news template parity | **Shipped** — CMS News + categories, `/notizie` seeded |
+| Hero carousel (`meta.carousel`) on any template | **Shipped** |
+| **P3-T05** — Prominent titles + about layout (split hero, section band, block spacing) | **Shipped** |
+| **P3-T06** — Structured Filament fields per template (`about`: tagline, intro, values, closing) | **Shipped** (about); services repeater **next** |
 | Template preview in CMS | **Shipped** — signed preview URL, IT/RU/EN, drafts OK |
+| ArticleResource + news | **Shipped** |
+
+### P3c — Schematic page block composer (planned)
+
+**Goal:** Edit and create page layouts by arranging blocks — **not** Elementor-style WYSIWYG on the live page.
+
+| Piece | Description |
+|-------|-------------|
+| Block registry | `heading`, `rich_text`, `image`, `carousel`, `columns`, `callout`, `section_band` |
+| Template definition | Ordered slots + layout hints (e.g. 7/5 grid, full-width) stored in config/DB |
+| Filament UI | Schematic canvas: labeled rectangles, drag-and-drop reorder, per-block field forms |
+| Page content | Each block instance editable separately (fixes “3 blocks on site, 1 field in CMS”) |
+| Migration | Current Blade templates become **presets** loaded into the composer |
+
+Config seed: `config/page_template_fields.php` (block map per template — extend for composer).
+
+### P4 — Contact + volunteer forms (next implementation phase)
+
+Replace contact template placeholder; rate limits + Espo optional ingest.
 
 ---
 
@@ -146,9 +166,9 @@ Filament **Page** resource: editor picks template → public site renders matchi
 
 | Field | Value |
 |-------|-------|
-| **Notion task** | P4 contact/volunteer forms |
-| **Just shipped** | Filament ArticleResource + categories + article preview |
-| **Prerequisite** | User QA on `/it/chi-siamo`, `/it/servizi`, nav links |
+| **Notion task** | **P3-T07** — Filament `services` card repeater + **P4** contact form |
+| **Just shipped** | P3-T05/T06 — about hero, block layout, per-block CMS fields |
+| **Prerequisite** | User QA on `/it/chi-siamo` (title, 3 text blocks in CMS, layout) |
 | **Production** | Stripe live keys, webhook endpoint, CSP for `js.stripe.com` |
 
 ---

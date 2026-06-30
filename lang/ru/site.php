@@ -52,6 +52,10 @@ return [
         'news_index_cta' => 'К новостям',
         'news_index_hint' => 'Динамический список статей из CMS.',
         'preview_banner' => 'Предпросмотр CMS — страница может быть неопубликованной черновиком.',
+        'carousel_label' => 'Галерея изображений',
+        'carousel_prev' => 'Предыдущее изображение',
+        'carousel_next' => 'Следующее изображение',
+        'carousel_go_to' => 'Перейти к изображению :number',
         'templates' => [
             'default' => 'Простая страница',
             'about' => 'О нас',

@@ -14,7 +14,8 @@ class SiteLayoutTest extends TestCase
     {
         $this->get('/it')
             ->assertOk()
-            ->assertSee('images/logo-horizontal.svg', false)
+            ->assertSee('images/logo.png', false)
+            ->assertSee('Safe House', false)
             ->assertSee('/en', false)
             ->assertSee('/ru', false)
             ->assertSee(__('site.nav.donations', [], 'it'), false);
@@ -29,7 +30,8 @@ class SiteLayoutTest extends TestCase
 
         $this->get('/it/donazioni/layout-test')
             ->assertOk()
-            ->assertSee('images/logo-horizontal.svg', false)
+            ->assertSee('images/logo.png', false)
+            ->assertSee('Safe House', false)
             ->assertSee(__('site.footer.tagline', [], 'it'), false);
     }
 

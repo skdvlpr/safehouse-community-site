@@ -52,6 +52,10 @@ return [
         'news_index_cta' => 'Go to news',
         'news_index_hint' => 'Dynamic list of articles published in CMS.',
         'preview_banner' => 'CMS preview — this page may be an unpublished draft.',
+        'carousel_label' => 'Image gallery',
+        'carousel_prev' => 'Previous image',
+        'carousel_next' => 'Next image',
+        'carousel_go_to' => 'Go to image :number',
         'templates' => [
             'default' => 'Simple page',
             'about' => 'About',

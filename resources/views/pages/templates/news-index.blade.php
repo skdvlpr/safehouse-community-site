@@ -7,7 +7,7 @@
     <x-page-template-shell :page="$page">
         @include('pages.partials.template-eyebrow', ['label' => __('site.pages.templates.news_index')])
 
-        @include('pages.partials.page-header', ['title' => $title, 'lead' => __('site.pages.news_lead')])
+        @include('pages.partials.page-header', ['title' => $title, 'lead' => __('site.pages.news_lead'), 'page' => $page])
 
         <div class="safehouse-glass safehouse-prose mb-8 rounded-2xl p-8 md:p-10">
             {!! $body !!}

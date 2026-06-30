@@ -4,13 +4,19 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PageResource\Actions\PreviewPageAction;
 use App\Filament\Resources\PageResource\Pages;
+use App\Filament\Resources\PageResource\Support\PageTemplateFormFields;
 use App\Models\Page;
 use BackedEnum;
-use Filament\Forms\Components\RichEditor;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
@@ -41,23 +47,15 @@ class PageResource extends Resource
 
         foreach ($locales as $locale) {
             $tabs[] = Tab::make($localeLabels[$locale] ?? strtoupper($locale))
-                ->schema([
-                    TextInput::make("title.{$locale}")
-                        ->label('Title')
-                        ->required($locale === 'it')
-                        ->maxLength(255),
+                ->schema(PageTemplateFormFields::fieldsForLocale($locale, $locale === 'it'));
+        }
 
-                    TextInput::make("slug.{$locale}")
-                        ->label('Slug')
-                        ->required($locale === 'it')
-                        ->maxLength(255)
-                        ->alphaDash(),
+        $carouselAltFields = [];
 
-                    RichEditor::make("body.{$locale}")
-                        ->label('Body')
-                        ->required($locale === 'it')
-                        ->columnSpanFull(),
-                ]);
+        foreach ($locales as $locale) {
+            $carouselAltFields[] = TextInput::make("alt.{$locale}")
+                ->label('Alt text ('.strtoupper($locale).')')
+                ->maxLength(255);
         }
 
         return $schema
@@ -82,6 +80,34 @@ class PageResource extends Resource
                 Toggle::make('is_published')
                     ->label('Published')
                     ->default(true),
+
+                Section::make('Hero carousel')
+                    ->description('Optional photo gallery at the top of any page template (WordPress-style featured gallery). Shown only when at least one image is uploaded.')
+                    ->schema([
+                        Repeater::make('meta.carousel')
+                            ->label('Slides')
+                            ->maxItems((int) config('page_carousel.max_slides', 12))
+                            ->reorderable()
+                            ->collapsible()
+                            ->itemLabel(fn (array $state): string => is_string($state['path'] ?? null) && $state['path'] !== ''
+                                ? basename($state['path'])
+                                : 'New slide')
+                            ->schema([
+                                FileUpload::make('path')
+                                    ->label('Image')
+                                    ->image()
+                                    ->disk((string) config('page_carousel.disk', 'public'))
+                                    ->directory((string) config('page_carousel.directory', 'page-carousels'))
+                                    ->required()
+                                    ->maxSize(5120)
+                                    ->columnSpanFull(),
+
+                                ...$carouselAltFields,
+                            ])
+                            ->columnSpanFull(),
+                    ])
+                    ->columnSpanFull()
+                    ->collapsed(),
 
                 Tabs::make('Translations')
                     ->tabs($tabs)
@@ -139,11 +165,11 @@ class PageResource extends Resource
             ])
             ->actions([
                 PreviewPageAction::make(),
-                \Filament\Actions\EditAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

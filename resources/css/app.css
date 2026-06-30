@@ -26,6 +26,8 @@
     --color-safehouse-link: #f87171;
     --color-safehouse-link-hover: #ef4444;
     --color-safehouse-modal: #1c1c21;
+
+    --max-width-site-content: 90rem;
 }
 
 :root {
@@ -63,6 +65,38 @@
 }
 
 @layer components {
+    .site-content {
+        @apply mx-auto w-full max-w-site-content px-4;
+    }
+
+    .brand-wordmark {
+        @apply font-semibold tracking-tight text-safehouse-text;
+    }
+
+    .brand-wordmark--header {
+        @apply text-lg font-semibold whitespace-nowrap sm:text-xl;
+    }
+
+    .brand-wordmark--footer {
+        @apply text-lg font-semibold whitespace-nowrap sm:text-xl lg:text-2xl;
+    }
+
+    .brand-emblem {
+        @apply h-10 w-10 object-cover object-[left_center] sm:h-11 sm:w-11 lg:h-12 lg:w-12;
+    }
+
+    .footer-bar {
+        @apply flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between;
+    }
+
+    .footer-nav {
+        @apply flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-sm lg:ml-auto lg:flex-nowrap;
+    }
+
+    .footer-nav__link {
+        @apply whitespace-nowrap text-safehouse-muted transition hover:text-safehouse-link;
+    }
+
     .safehouse-glass {
         background-color: var(--safehouse-glass-bg);
         border: 1px solid var(--safehouse-glass-border);
@@ -97,20 +131,64 @@
         @apply mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-safehouse-primary;
     }
 
+    .page-title {
+        @apply text-3xl font-bold tracking-tight text-safehouse-text md:text-4xl lg:text-5xl;
+    }
+
+    .page-title__lead {
+        @apply mt-3 max-w-3xl text-lg text-safehouse-muted;
+    }
+
+    .page-hero__headline {
+        @apply mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:gap-10;
+    }
+
+    .page-hero__title {
+        @apply text-4xl font-bold leading-[1.05] tracking-tight text-safehouse-text md:text-5xl lg:text-6xl xl:text-7xl;
+    }
+
+    .page-hero__divider {
+        @apply hidden w-px shrink-0 self-stretch bg-white/25 lg:block;
+    }
+
+    .page-hero__tagline {
+        @apply max-w-md text-lg font-semibold leading-snug text-safehouse-text md:text-xl lg:pb-2;
+    }
+
+    .page-section-band {
+        @apply -mx-4 mb-10 bg-safehouse-primary px-6 py-3 text-sm font-bold uppercase tracking-[0.18em] text-white md:mx-0 md:rounded-lg md:px-8 md:py-4 md:text-base;
+    }
+
     .template-page--default .template-default-panel {
-        @apply max-w-4xl rounded-2xl p-8 md:p-10;
+        @apply w-full rounded-2xl p-8 md:p-10;
     }
 
     .template-page--about .template-about-intro {
-        @apply rounded-2xl border-l-4 border-safehouse-primary p-8 md:p-10;
+        @apply rounded-2xl border border-white/10 p-8 md:p-10 lg:col-span-7;
+    }
+
+    .template-about-grid {
+        @apply grid gap-8 lg:grid-cols-12 lg:gap-10;
     }
 
     .template-page--about .template-about-values {
-        @apply rounded-2xl border border-safehouse-primary/35 bg-safehouse-primary/10 p-8 md:p-10;
+        @apply rounded-2xl border border-safehouse-primary/40 bg-safehouse-primary/10 p-8 md:p-10 lg:col-span-5;
+    }
+
+    .template-about-values__heading {
+        @apply mb-5 text-xl font-bold text-safehouse-primary md:text-2xl;
+    }
+
+    .template-about-values__body {
+        @apply text-sm leading-7 text-safehouse-muted md:text-base md:leading-8;
     }
 
     .template-page--about .template-about-closing {
-        @apply relative mt-10 border-l-4 border-safehouse-primary/70 py-2 ps-6 text-lg font-medium italic text-safehouse-text md:text-xl;
+        @apply mt-12 rounded-2xl border-l-4 border-safehouse-primary p-8 text-lg font-medium leading-relaxed text-safehouse-text md:mt-14 md:p-10 md:text-xl md:leading-relaxed;
+    }
+
+    .template-page--about .template-about-closing p {
+        @apply m-0;
     }
 
     .template-page--services .template-services-banner {
@@ -193,5 +271,49 @@
 
     .template-page--news-index .template-news-preview__card {
         @apply rounded-xl border border-white/10 bg-black/25 p-4 text-sm text-safehouse-muted;
+    }
+
+    .page-carousel {
+        @apply w-full;
+    }
+
+    .page-carousel__stage {
+        @apply relative overflow-hidden rounded-2xl border border-white/10 bg-black/30;
+    }
+
+    .page-carousel__viewport {
+        @apply aspect-[16/9] w-full bg-black/40;
+    }
+
+    .page-carousel__image {
+        @apply h-full w-full object-cover;
+    }
+
+    .page-carousel__nav {
+        @apply absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/55 text-2xl leading-none text-white transition hover:border-safehouse-primary/60 hover:bg-black/75;
+    }
+
+    .page-carousel__nav--prev {
+        @apply left-3;
+    }
+
+    .page-carousel__nav--next {
+        @apply right-3;
+    }
+
+    .page-carousel__thumbs {
+        @apply mt-3 flex gap-2 overflow-x-auto pb-1;
+    }
+
+    .page-carousel__thumb {
+        @apply shrink-0 overflow-hidden rounded-lg border-2 border-transparent opacity-70 transition hover:opacity-100;
+    }
+
+    .page-carousel__thumb.is-active {
+        @apply border-safehouse-primary opacity-100;
+    }
+
+    .page-carousel__thumb-image {
+        @apply h-16 w-24 object-cover md:h-20 md:w-28;
     }
 }

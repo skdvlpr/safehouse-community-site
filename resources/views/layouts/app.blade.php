@@ -16,7 +16,7 @@
 
     @include('layouts.partials.header')
 
-    <main class="@yield('main_class', 'mx-auto w-full max-w-6xl flex-1 px-4 py-10')">
+    <main class="@yield('main_class', 'site-content flex-1 py-10')">
         @yield('content')
     </main>
 

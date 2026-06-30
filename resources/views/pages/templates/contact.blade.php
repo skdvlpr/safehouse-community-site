@@ -7,7 +7,7 @@
     <x-page-template-shell :page="$page">
         @include('pages.partials.template-eyebrow', ['label' => __('site.pages.templates.contact')])
 
-        @include('pages.partials.page-header', ['title' => $title, 'lead' => __('site.pages.contact_lead')])
+        @include('pages.partials.page-header', ['title' => $title, 'lead' => __('site.pages.contact_lead'), 'page' => $page])
 
         <div class="grid gap-8 lg:grid-cols-2">
             <article class="template-contact-info safehouse-glass safehouse-prose">

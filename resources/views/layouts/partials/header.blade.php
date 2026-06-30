@@ -6,8 +6,12 @@
 @endphp
 
 <header class="sticky top-0 z-50 border-b border-white/10 bg-safehouse-page/90 backdrop-blur-md">
-    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
-        @include('layouts.partials.brand-mark', ['locale' => $locale])
+    <div class="site-content flex items-center justify-between gap-4 py-4">
+        @include('layouts.partials.brand-mark', [
+            'locale' => $locale,
+            'showWordmark' => true,
+            'wordmarkClass' => 'brand-wordmark--header',
+        ])
 
         <nav class="hidden items-center gap-6 md:flex" aria-label="{{ __('site.nav.menu') }}">
             @foreach ($navItems as $item)

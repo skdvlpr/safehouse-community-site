@@ -20,6 +20,8 @@
 
             <h1 class="mb-8 text-3xl font-semibold leading-tight tracking-tight md:text-4xl">{{ $title }}</h1>
 
+            @include('pages.partials.page-carousel', ['page' => $page])
+
             <article class="template-article-body safehouse-glass safehouse-prose">
                 {!! $body !!}
             </article>

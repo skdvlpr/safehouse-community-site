@@ -22,8 +22,13 @@ class CmsPagesTest extends TestCase
         $this->get('/it/chi-siamo')
             ->assertOk()
             ->assertSee('data-page-template="about"', false)
+            ->assertSee('page-hero__title', false)
+            ->assertSee('Comunità di accoglienza e solidarietà sul territorio', false)
+            ->assertSee('page-section-band', false)
+            ->assertSee('data-page-carousel', false)
             ->assertSee(__('site.pages.about_values_heading', [], 'it'), false)
-            ->assertSee('disobbedienza civile', false);
+            ->assertSee('disobbedienza civile', false)
+            ->assertSee('casa sicura che si muove', false);
     }
 
     public function test_services_page_renders_numbered_cards(): void
@@ -77,5 +82,12 @@ class CmsPagesTest extends TestCase
     public function test_donations_route_is_not_handled_by_cms_catch_all(): void
     {
         $this->get('/it/donazioni')->assertOk();
+    }
+
+    public function test_page_without_carousel_omits_gallery_markup(): void
+    {
+        $this->get('/it/privacy')
+            ->assertOk()
+            ->assertDontSee('data-page-carousel', false);
     }
 }

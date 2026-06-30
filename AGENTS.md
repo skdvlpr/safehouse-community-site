@@ -473,8 +473,8 @@ Editors **must** pick a template when creating a page in Filament. Templates map
 | Template key | Use case |
 |--------------|----------|
 | `default` | Simple static page (title + body) |
-| `about` | About / mission + values block (`meta.values`, `meta.closing`) |
-| `services` | Service card grid (`meta.services[]`) |
+| `about` | About — split hero + section band + intro / values / closing (`meta.tagline`, `meta.values`, `meta.closing`) |
+| `services` | Service card grid (`meta.services[]`) — **Filament repeater: P3-T07** |
 | `article` | Long-form editorial layout |
 | `news_index` | Static intro linking to `/notizie` |
 | `landing` | Wide hero landing |
@@ -483,7 +483,11 @@ Editors **must** pick a template when creating a page in Filament. Templates map
 
 **Stable `key`** on each page (e.g. `about`, `services`) powers navigation via `config/navigation.php` → `Navigation::url()`.
 
-**Future tasks:** Filament template preview, structured meta editor per template, ArticleResource with `article` template parity, volunteer landing template.
+**Structured fields (P3-T06):** `config/page_template_fields.php` + `PageTemplateFormFields` — per-template blocks in Filament translation tabs (about shipped).
+
+**P3c — Block composer (future):** Schematic drag-and-drop layout editor in Filament (block rectangles, not live-page WYSIWYG). Registry: heading, rich_text, image, carousel, columns, section_band. Existing templates become presets.
+
+**Shipped:** template preview (signed URL), hero carousel, ArticleResource.
 
 ### Filament theme
 
@@ -550,7 +554,9 @@ ddev composer audit
 | **P0** | Git, AGENTS.md, README, security middleware, rate limits, session |
 | **P1** | i18n routing, DB schema, translatable models |
 | **P2** | Filament CMS + RBAC + media |
-| **P3** | Aurora-themed frontend (layout, home, pages) |
+| **P3** | Aurora-themed frontend (layout, home, pages, hero carousel) |
+| **P3b** | Per-template structured CMS fields (`about` done; `services` next) |
+| **P3c** | Schematic page block composer (drag-and-drop layout, not Elementor) |
 | **P4** | Volunteer + contact forms |
 | **P5** | Native Stripe donations + EspoCRM ingest (no local payment DB) |
 | **P6** | GDPR banner, CI, Caddy template, deploy |

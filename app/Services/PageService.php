@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Article;
 use App\Models\Page;
+use App\Support\PageCarousel;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
@@ -128,6 +129,7 @@ class PageService
             'title' => $page->getTranslation('title', $locale),
             'body' => $page->getTranslation('body', $locale),
             'isPreview' => $preview,
+            'carouselSlides' => PageCarousel::slides($page->meta, $locale),
         ];
 
         if ($page->template === 'news_index') {
@@ -217,9 +219,6 @@ class PageService
         return $resolved;
     }
 
-    /**
-     * @param  mixed  $value
-     */
     private function pickLocalized(mixed $value, string $locale): ?string
     {
         if (is_string($value)) {

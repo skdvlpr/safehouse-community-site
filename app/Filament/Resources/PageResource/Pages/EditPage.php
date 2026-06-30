@@ -2,13 +2,16 @@
 
 namespace App\Filament\Resources\PageResource\Pages;
 
-use App\Filament\Resources\PageResource\Actions\PreviewPageAction;
 use App\Filament\Resources\PageResource;
+use App\Filament\Resources\PageResource\Actions\PreviewPageAction;
+use App\Filament\Resources\PageResource\Concerns\NormalizesPageCarouselMeta;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
 class EditPage extends EditRecord
 {
+    use NormalizesPageCarouselMeta;
+
     protected static string $resource = PageResource::class;
 
     protected function getHeaderActions(): array
@@ -24,7 +27,7 @@ class EditPage extends EditRecord
      */
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        return $this->restructureTranslatableData($data);
+        return $this->normalizePageMeta($this->restructureTranslatableData($data));
     }
 
     private function restructureTranslatableData(array $data): array

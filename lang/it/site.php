@@ -52,6 +52,10 @@ return [
         'news_index_cta' => 'Vai alle notizie',
         'news_index_hint' => 'Elenco dinamico degli articoli pubblicati in CMS.',
         'preview_banner' => 'Anteprima CMS — questa pagina può essere una bozza non pubblicata.',
+        'carousel_label' => 'Galleria immagini',
+        'carousel_prev' => 'Immagine precedente',
+        'carousel_next' => 'Immagine successiva',
+        'carousel_go_to' => 'Vai all\'immagine :number',
         'templates' => [
             'default' => 'Pagina semplice',
             'about' => 'Chi siamo',

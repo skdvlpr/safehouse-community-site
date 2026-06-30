@@ -14,10 +14,13 @@
         @if ($body)
             <div class="template-services-banner safehouse-prose">
                 <h1 class="mb-3 text-3xl font-semibold tracking-tight md:text-4xl">{{ $title }}</h1>
+
+                @include('pages.partials.page-carousel', ['page' => $page])
+
                 {!! $body !!}
             </div>
         @else
-            @include('pages.partials.page-header', ['title' => $title])
+            @include('pages.partials.page-header', ['title' => $title, 'page' => $page])
         @endif
 
         <div class="grid gap-6 md:grid-cols-2">

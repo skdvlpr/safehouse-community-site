@@ -3,10 +3,13 @@
 namespace App\Filament\Resources\PageResource\Pages;
 
 use App\Filament\Resources\PageResource;
+use App\Filament\Resources\PageResource\Concerns\NormalizesPageCarouselMeta;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreatePage extends CreateRecord
 {
+    use NormalizesPageCarouselMeta;
+
     protected static string $resource = PageResource::class;
 
     /**
@@ -14,7 +17,7 @@ class CreatePage extends CreateRecord
      */
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        return $this->restructureTranslatableData($data);
+        return $this->normalizePageMeta($this->restructureTranslatableData($data));
     }
 
     private function restructureTranslatableData(array $data): array

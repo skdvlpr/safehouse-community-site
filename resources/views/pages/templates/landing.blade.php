@@ -6,13 +6,15 @@
 @section('main_class', 'flex-1 w-full px-4 py-6 md:py-10')
 
 @section('content')
-    <x-page-template-shell :page="$page" class="mx-auto max-w-6xl">
+    <x-page-template-shell :page="$page">
         <section class="template-landing-hero">
             @include('pages.partials.template-eyebrow', ['label' => __('site.pages.templates.landing')])
 
             <h1 class="relative mb-6 max-w-4xl text-4xl font-semibold tracking-tight md:text-5xl lg:text-6xl">
                 {{ $title }}
             </h1>
+
+            @include('pages.partials.page-carousel', ['page' => $page])
 
             <div class="safehouse-prose relative max-w-2xl text-lg text-safehouse-muted md:text-xl">
                 {!! $body !!}
