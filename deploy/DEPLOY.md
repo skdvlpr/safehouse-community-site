@@ -71,11 +71,14 @@ export DEPLOY_HOST=77.81.234.138
 
 Enter SSH password when prompted (or use your SSH key).
 
-## Content without demo images
+## Carousel on production
 
-- CMS pages + articles are seeded on each deploy (`PageSeeder`, `ArticleSeeder`).
-- Demo carousel JPGs are **excluded** from rsync (`deploy/rsync-excludes.txt`).
-- Static logo ships in `public/images/logo.png`.
+- **Hero carousel is enabled** on all page templates (Filament → Pages → Hero carousel).
+- **Local demo JPGs** (`public/images/carousel-demo/`) are **not** rsync'd to the server.
+- **Production seed** does not reference those demo paths (`SEED_DEMO_CAROUSEL=false`).
+- Upload real slides in CMS — files land in `storage/app/public/page-carousels/` and persist across deploys.
+
+## Content sync
 
 ## After deploy
 

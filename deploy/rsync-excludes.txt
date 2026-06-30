@@ -35,5 +35,5 @@
 .DS_Store
 Thumbs.db
 
-# Demo carousel images — CMS text ships via seeders; upload images in Filament later.
+# Local DDEV demo JPGs only — production carousel uses CMS uploads in storage/page-carousels/.
 /public/images/carousel-demo/

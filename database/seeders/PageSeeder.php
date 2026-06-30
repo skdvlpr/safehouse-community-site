@@ -9,6 +9,8 @@ class PageSeeder extends Seeder
 {
     public function run(): void
     {
+        $existingAbout = Page::query()->where('key', 'about')->first();
+
         Page::query()->updateOrCreate(
             ['key' => 'about'],
             [
@@ -29,41 +31,7 @@ class PageSeeder extends Seeder
                     'en' => '<p>Safe House ETS is a non-profit association committed to protecting human rights and providing concrete support to people experiencing social, economic, and housing vulnerability.</p><p>We work every day to build paths of inclusion, autonomy, and protection — combining humanitarian assistance, legal advocacy, digital support, and social reintegration.</p>',
                     'ru' => '<p>Safe House ETS — некоммерческая ассоциация, которая защищает права человека и оказывает практическую поддержку людям в уязвимом положении.</p><p>Мы строим пути включения, автономии и защиты — от экстренной помощи до долгосрочного сопровождения.</p>',
                 ],
-                'meta' => [
-                    'carousel' => [
-                        [
-                            'path' => 'images/carousel-demo/slide-1.jpg',
-                            'alt' => [
-                                'it' => 'Volontari Safe House — momento di convivialità',
-                                'en' => 'Safe House volunteers — community moment',
-                                'ru' => 'Волонтёры Safe House — общий момент',
-                            ],
-                        ],
-                        [
-                            'path' => 'images/carousel-demo/slide-2.jpg',
-                            'alt' => [
-                                'it' => 'Gruppo Safe House — comunità sul territorio',
-                                'en' => 'Safe House group — community on the ground',
-                                'ru' => 'Группа Safe House — сообщество',
-                            ],
-                        ],
-                    ],
-                    'tagline' => [
-                        'it' => 'Comunità di accoglienza e solidarietà sul territorio',
-                        'en' => 'A community of welcome and solidarity on the ground',
-                        'ru' => 'Сообщество гостеприимства и солидарности',
-                    ],
-                    'values' => [
-                        'it' => "Safe House ETS crede che i diritti umani siano universali e debbano essere garantiti a ogni persona, senza distinzioni. Lottiamo ogni giorno contro le discriminazioni, l'emarginazione e tutte le forme di esclusione sociale. Scegliamo di stare accanto a chi vive situazioni di vulnerabilità, povertà o assenza di tutele, trasformando la solidarietà in azioni concrete.\n\nIl nostro valore più forte è la disobbedienza civile e sociale: non accettiamo l'indifferenza davanti alle ingiustizie e ci impegniamo a dare voce a chi non viene ascoltato. Crediamo nella presenza sul territorio, nell'ascolto e nell'intervento immediato. Per noi, essere in prima linea significa assumersi la responsabilità di costruire comunità più giuste, inclusive e umane.\n\nIl nostro obiettivo è diventare un punto di riferimento per chi ha bisogno di aiuto, tutela e dignità, mettendo sempre al centro le persone e i loro diritti.",
-                        'en' => "We believe human rights are universal and must be guaranteed to every person without distinction. We stand beside those facing vulnerability and poverty, turning solidarity into concrete action.\n\nCivil and social disobedience against indifference is our strongest value. We listen, act on the ground, and build fairer, more inclusive communities.",
-                        'ru' => "Мы верим, что права человека универсальны. Мы рядом с теми, кто в уязвимости, превращая солидарность в конкретные действия.\n\nГражданское неповиновение безразличию — наш главный принцип. Мы на месте, слушаем и действуем.",
-                    ],
-                    'closing' => [
-                        'it' => 'Safe House ETS è una casa sicura che si muove tra le persone, nelle strade e nelle comunità, trasformando solidarietà, diritti e inclusione in azioni concrete ogni giorno.',
-                        'en' => 'Safe House ETS is a safe home that moves among people, in the streets and communities — turning solidarity, rights, and inclusion into daily action.',
-                        'ru' => 'Safe House ETS — безопасный дом среди людей, на улицах и в сообществах, где солидарность становится делом каждый день.',
-                    ],
-                ],
+                'meta' => $this->aboutMeta(is_array($existingAbout?->meta) ? $existingAbout->meta : null),
             ],
         );
 
@@ -296,5 +264,72 @@ class PageSeeder extends Seeder
                 ],
             ],
         );
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $existingMeta
+     * @return array<string, mixed>
+     */
+    private function aboutMeta(?array $existingMeta): array
+    {
+        $meta = [
+            'tagline' => [
+                'it' => 'Comunità di accoglienza e solidarietà sul territorio',
+                'en' => 'A community of welcome and solidarity on the ground',
+                'ru' => 'Сообщество гостеприимства и солидарности',
+            ],
+            'values' => [
+                'it' => "Safe House ETS crede che i diritti umani siano universali e debbano essere garantiti a ogni persona, senza distinzioni. Lottiamo ogni giorno contro le discriminazioni, l'emarginazione e tutte le forme di esclusione sociale. Scegliamo di stare accanto a chi vive situazioni di vulnerabilità, povertà o assenza di tutele, trasformando la solidarietà in azioni concrete.\n\nIl nostro valore più forte è la disobbedienza civile e sociale: non accettiamo l'indifferenza davanti alle ingiustizie e ci impegniamo a dare voce a chi non viene ascoltato. Crediamo nella presenza sul territorio, nell'ascolto e nell'intervento immediato. Per noi, essere in prima linea significa assumersi la responsabilità di costruire comunità più giuste, inclusive e umane.\n\nIl nostro obiettivo è diventare un punto di riferimento per chi ha bisogno di aiuto, tutela e dignità, mettendo sempre al centro le persone e i loro diritti.",
+                'en' => "We believe human rights are universal and must be guaranteed to every person without distinction. We stand beside those facing vulnerability and poverty, turning solidarity into concrete action.\n\nCivil and social disobedience against indifference is our strongest value. We listen, act on the ground, and build fairer, more inclusive communities.",
+                'ru' => "Мы верим, что права человека универсальны. Мы рядом с теми, кто в уязвимости, превращая солидарность в конкретные действия.\n\nГражданское неповиновение безразличию — наш главный принцип. Мы на месте, слушаем и действуем.",
+            ],
+            'closing' => [
+                'it' => 'Safe House ETS è una casa sicura che si muove tra le persone, nelle strade e nelle comunità, trasformando solidarietà, diritti e inclusione in azioni concrete ogni giorno.',
+                'en' => 'Safe House ETS is a safe home that moves among people, in the streets and communities — turning solidarity, rights, and inclusion into daily action.',
+                'ru' => 'Safe House ETS — безопасный дом среди людей, на улицах и в сообществах, где солидарность становится делом каждый день.',
+            ],
+        ];
+
+        if ($this->shouldSeedDemoCarousel()) {
+            $meta['carousel'] = self::demoCarouselSlides();
+        } elseif (is_array($existingMeta['carousel'] ?? null) && $existingMeta['carousel'] !== []) {
+            $meta['carousel'] = $existingMeta['carousel'];
+        }
+
+        return $meta;
+    }
+
+    private function shouldSeedDemoCarousel(): bool
+    {
+        if (env('SEED_DEMO_CAROUSEL') !== null) {
+            return filter_var(env('SEED_DEMO_CAROUSEL'), FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return app()->environment(['local', 'testing']);
+    }
+
+    /**
+     * @return list<array{path: string, alt: array<string, string>}>
+     */
+    private static function demoCarouselSlides(): array
+    {
+        return [
+            [
+                'path' => 'images/carousel-demo/slide-1.jpg',
+                'alt' => [
+                    'it' => 'Volontari Safe House — momento di convivialità',
+                    'en' => 'Safe House volunteers — community moment',
+                    'ru' => 'Волонтёры Safe House — общий момент',
+                ],
+            ],
+            [
+                'path' => 'images/carousel-demo/slide-2.jpg',
+                'alt' => [
+                    'it' => 'Gruppo Safe House — comunità sul territorio',
+                    'en' => 'Safe House group — community on the ground',
+                    'ru' => 'Группа Safe House — сообщество',
+                ],
+            ],
+        ];
     }
 }
