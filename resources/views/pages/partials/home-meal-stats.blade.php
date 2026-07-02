@@ -4,10 +4,14 @@
         [
             'title' => __('site.home.stats.meal_count_title'),
             'panel' => $mealStats->mealCount,
+            'metric' => \App\DataTransferObjects\HomeMealStatsSnapshot::MEAL_COUNT_PRIMARY,
+            'label' => __('site.home.stats.metrics.totalMeals'),
         ],
         [
             'title' => __('site.home.stats.network_meal_count_title'),
             'panel' => $mealStats->network,
+            'metric' => \App\DataTransferObjects\HomeMealStatsSnapshot::NETWORK_PRIMARY,
+            'label' => __('site.home.stats.metrics.portionCount'),
         ],
     ];
 
@@ -23,6 +27,7 @@
         @php
             /** @var \App\DataTransferObjects\HomeMealStatsPanel $panel */
             $panel = $panelConfig['panel'];
+            $metricKey = $panelConfig['metric'];
         @endphp
 
         <section class="home-meal-stats__panel safehouse-glass" aria-label="{{ $panelConfig['title'] }}">
@@ -37,6 +42,10 @@
                             default => $panel->today,
                         };
                         $range = $mealStats->formatPeriodRange($period->from, $period->to);
+                        $rawValue = $period->value($metricKey);
+                        $displayValue = is_int($rawValue)
+                            ? $mealStats->formatCount($rawValue)
+                            : $mealStats->formatMetric($metricKey, $rawValue);
                     @endphp
 
                     <div class="home-meal-stats__period">
@@ -46,18 +55,8 @@
                             <p class="home-meal-stats__period-range">{{ $range }}</p>
                         @endif
 
-                        <div class="home-meal-stats__metrics">
-                            @foreach ($panel->metricList as $metricKey)
-                                <div class="home-meal-stats__metric">
-                                    <span class="home-meal-stats__metric-value">
-                                        {{ $mealStats->formatMetric($metricKey, $period->value($metricKey)) }}
-                                    </span>
-                                    <span class="home-meal-stats__metric-label">
-                                        {{ $mealStats->metricLabel($metricKey) }}
-                                    </span>
-                                </div>
-                            @endforeach
-                        </div>
+                        <p class="home-meal-stats__value">{{ $displayValue }}</p>
+                        <p class="home-meal-stats__value-label">{{ $panelConfig['label'] }}</p>
                     </div>
                 @endforeach
             </div>

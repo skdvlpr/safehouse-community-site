@@ -803,7 +803,7 @@
     }
 
     .home-meal-stats__period {
-        @apply bg-safehouse-page/70 px-5 py-4 md:px-6 md:py-5;
+        @apply bg-safehouse-page/70 px-5 py-6 text-center md:px-6 md:py-8;
     }
 
     .home-meal-stats__period-title {
@@ -814,20 +814,12 @@
         @apply mt-0.5 text-xs leading-snug text-safehouse-muted;
     }
 
-    .home-meal-stats__metrics {
-        @apply mt-4 flex flex-col gap-2;
+    .home-meal-stats__value {
+        @apply mt-5 text-4xl font-semibold tabular-nums tracking-tight text-safehouse-primary md:text-5xl;
     }
 
-    .home-meal-stats__metric {
-        @apply flex flex-wrap items-baseline gap-x-2 gap-y-0.5;
-    }
-
-    .home-meal-stats__metric-value {
-        @apply text-base font-semibold tabular-nums text-safehouse-primary md:text-lg;
-    }
-
-    .home-meal-stats__metric-label {
-        @apply text-sm text-safehouse-muted;
+    .home-meal-stats__value-label {
+        @apply mt-2 text-sm font-medium text-safehouse-muted;
     }
 
     .news-feed__cover {

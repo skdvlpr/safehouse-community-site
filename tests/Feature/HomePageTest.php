@@ -23,8 +23,10 @@ class HomePageTest extends TestCase
             ->assertSee('Il nostro impatto', false)
             ->assertSee('Conteggio pasti', false)
             ->assertSee('Conteggio pasti per Rete', false)
-            ->assertSee('Adulti', false)
-            ->assertSee('Anno', false);
+            ->assertSee('Totale Pasti', false)
+            ->assertSee('Anno', false)
+            ->assertDontSee('Adulti', false)
+            ->assertDontSee('Costo Totale Cibo', false);
     }
 
     public function test_home_meal_stats_use_crm_summary(): void
@@ -64,10 +66,12 @@ class HomePageTest extends TestCase
         $this->get('/it')
             ->assertOk()
             ->assertSee('955', false)
-            ->assertSee('Adulti', false)
-            ->assertSee('€1,432.50', false)
-            ->assertSee('2194', false)
-            ->assertSee('2026-01-01 – 2026-12-31', false);
+            ->assertSee('2.194', false)
+            ->assertSee('Totale Pasti', false)
+            ->assertSee('N° pasti', false)
+            ->assertSee('2026-01-01 – 2026-12-31', false)
+            ->assertDontSee('Adulti', false)
+            ->assertDontSee('€1,432.50', false);
     }
 
     public function test_home_meal_stats_fall_back_when_crm_unavailable(): void
@@ -84,7 +88,7 @@ class HomePageTest extends TestCase
         $this->get('/it')
             ->assertOk()
             ->assertSee('Conteggio pasti', false)
-            ->assertSee('Adulti', false)
+            ->assertSee('Totale Pasti', false)
             ->assertSee('0', false);
     }
 }

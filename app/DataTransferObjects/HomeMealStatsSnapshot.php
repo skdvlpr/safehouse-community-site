@@ -10,6 +10,10 @@ readonly class HomeMealStatsSnapshot
   /** @var list<string> */
     public const NETWORK_METRICS = ['portionCount'];
 
+    public const MEAL_COUNT_PRIMARY = 'totalMeals';
+
+    public const NETWORK_PRIMARY = 'portionCount';
+
     public function __construct(
         public HomeMealStatsPanel $mealCount,
         public HomeMealStatsPanel $network,
@@ -68,6 +72,15 @@ readonly class HomeMealStatsSnapshot
         }
 
         return "{$from} – {$to}";
+    }
+
+    public function formatCount(?int $value): string
+    {
+        if ($value === null) {
+            return '0';
+        }
+
+        return number_format($value, 0, ',', '.');
     }
 
     public function formatMetric(string $metricKey, int|float|null $value): string
