@@ -26,7 +26,9 @@ class HomePageTest extends TestCase
             ->assertSee('Totale Pasti', false)
             ->assertSee('Anno', false)
             ->assertDontSee('Adulti', false)
-            ->assertDontSee('Costo Totale Cibo', false);
+            ->assertDontSee('Costo Totale Cibo', false)
+            ->assertSee('favicon.svg', false)
+            ->assertSee('apple-touch-icon.png', false);
     }
 
     public function test_home_meal_stats_use_crm_summary(): void

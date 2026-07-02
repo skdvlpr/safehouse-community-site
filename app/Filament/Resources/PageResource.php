@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PageResource\Actions\PreviewPageAction;
 use App\Filament\Resources\PageResource\Pages;
 use App\Filament\Resources\PageResource\Support\PageTemplateFormFields;
+use App\Filament\Support\CmsLocaleTabs;
 use App\Models\Page;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -30,23 +31,36 @@ class PageResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Content';
-
     protected static ?int $navigationSort = 1;
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('cms.nav.groups.content');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('cms.nav.pages');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('cms.models.page');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('cms.models.pages');
+    }
 
     public static function form(Schema $schema): Schema
     {
         $locales = config('locales.available', ['it', 'ru', 'en']);
-        $localeLabels = [
-            'it' => '🇮🇹 Italiano',
-            'ru' => '🇷🇺 Русский',
-            'en' => '🇬🇧 English',
-        ];
 
         $tabs = [];
 
         foreach ($locales as $locale) {
-            $tabs[] = Tab::make($localeLabels[$locale] ?? strtoupper($locale))
+            $tabs[] = Tab::make(CmsLocaleTabs::label($locale))
                 ->schema(PageTemplateFormFields::fieldsForLocale($locale, $locale === 'it'));
         }
 
@@ -54,23 +68,23 @@ class PageResource extends Resource
 
         foreach ($locales as $locale) {
             $carouselAltFields[] = TextInput::make("alt.{$locale}")
-                ->label('Alt text ('.strtoupper($locale).')')
+                ->label(__('cms.fields.alt_text', ['locale' => strtoupper($locale)]))
                 ->maxLength(255);
         }
 
         return $schema
             ->schema([
                 TextInput::make('key')
-                    ->label('Stable key')
-                    ->helperText('Used for direct navigation links (about, services, contact). Pages without these keys appear automatically under “Altre Pagine” in the site menu when published.')
+                    ->label(__('cms.fields.key'))
+                    ->helperText(__('cms.helpers.stable_key'))
                     ->maxLength(64)
                     ->alphaDash()
                     ->unique(ignoreRecord: true),
 
                 Select::make('template')
-                    ->label('Page template')
+                    ->label(__('cms.fields.template'))
                     ->options(collect(config('page_templates', []))->mapWithKeys(
-                        fn (array $template, string $key): array => [$key => $template['label'] ?? $key]
+                        fn (array $template, string $key): array => [$key => __("cms.templates.{$key}.label")]
                     )->all())
                     ->default('default')
                     ->required()
@@ -78,23 +92,23 @@ class PageResource extends Resource
                     ->helperText(fn (?string $state): string => static::templateHelperText($state)),
 
                 Toggle::make('is_published')
-                    ->label('Published')
+                    ->label(__('cms.fields.published'))
                     ->default(true),
 
-                Section::make('Hero carousel')
-                    ->description('Optional photo gallery at the top of any page template (WordPress-style featured gallery). Shown only when at least one image is uploaded.')
+                Section::make(__('cms.sections.hero_carousel'))
+                    ->description(__('cms.helpers.hero_carousel'))
                     ->schema([
                         Repeater::make('meta.carousel')
-                            ->label('Slides')
+                            ->label(__('cms.fields.slides'))
                             ->maxItems((int) config('page_carousel.max_slides', 12))
                             ->reorderable()
                             ->collapsible()
                             ->itemLabel(fn (array $state): string => is_string($state['path'] ?? null) && $state['path'] !== ''
                                 ? basename($state['path'])
-                                : 'New slide')
+                                : __('cms.items.new_slide'))
                             ->schema([
                                 FileUpload::make('path')
-                                    ->label('Image')
+                                    ->label(__('cms.fields.image'))
                                     ->image()
                                     ->imagePreviewHeight('150')
                                     ->panelAspectRatio('16:9')
@@ -114,7 +128,7 @@ class PageResource extends Resource
 
                 PageTemplateFormFields::serviceCardsSection(),
 
-                Tabs::make('Translations')
+                Tabs::make(__('cms.sections.translations'))
                     ->tabs($tabs)
                     ->columnSpanFull()
                     ->persistTabInQueryString(),
@@ -126,20 +140,20 @@ class PageResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('key')
-                    ->label('Key')
+                    ->label(__('cms.fields.key'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('template')
-                    ->label('Template')
+                    ->label(__('cms.fields.template'))
                     ->badge(),
 
                 Tables\Columns\IconColumn::make('is_published')
-                    ->label('Published')
+                    ->label(__('cms.fields.published'))
                     ->boolean(),
 
                 Tables\Columns\TextColumn::make('title')
-                    ->label('Title')
+                    ->label(__('cms.fields.title'))
                     ->searchable()
                     ->sortable()
                     ->formatStateUsing(function ($state) {
@@ -151,7 +165,7 @@ class PageResource extends Resource
                     }),
 
                 Tables\Columns\TextColumn::make('slug')
-                    ->label('Slug')
+                    ->label(__('cms.fields.slug'))
                     ->formatStateUsing(function ($state) {
                         if (is_array($state)) {
                             return $state['it'] ?? array_values($state)[0] ?? '';
@@ -161,7 +175,7 @@ class PageResource extends Resource
                     }),
 
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Updated')
+                    ->label(__('cms.fields.updated'))
                     ->dateTime()
                     ->sortable(),
             ])
@@ -198,23 +212,15 @@ class PageResource extends Resource
     public static function templateHelperText(?string $template): string
     {
         if ($template === null || $template === '') {
-            return 'Each template has a distinct public layout — save the page, then use Preview (IT/RU/EN).';
+            return __('cms.templates.fallback');
         }
 
-        $description = (string) config("page_templates.{$template}.description", '');
-        $layout = match ($template) {
-            'about' => 'Layout: 2 columns + values panel + quote.',
-            'services' => 'Layout: red banner + numbered cards.',
-            'article' => 'Layout: narrow column + drop cap.',
-            'landing' => 'Layout: full hero + CTA buttons.',
-            'legal' => 'Layout: monospace legal document.',
-            'contact' => 'Layout: info + form mockup.',
-            default => 'Layout: title + single panel.',
-        };
+        $description = __('cms.templates.'.$template.'.description');
+        $layout = __('cms.templates.'.$template.'.layout');
 
         $exampleKey = config("page_templates.{$template}.example_key");
         $example = is_string($exampleKey) && $exampleKey !== ''
-            ? " Live example: page key «{$exampleKey}»."
+            ? __('cms.templates.example', ['key' => $exampleKey])
             : '';
 
         return trim("{$description} {$layout}{$example}");

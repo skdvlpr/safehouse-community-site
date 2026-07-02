@@ -12,7 +12,7 @@ class ContactSubmissionService
      */
     public function store(array $data, Request $request): ContactSubmission
     {
-        return ContactSubmission::query()->create([
+        $submission = ContactSubmission::query()->create([
             'name' => $data['name'],
             'email' => $data['email'],
             'message' => $data['message'],
@@ -21,6 +21,10 @@ class ContactSubmissionService
             'user_agent_hash' => self::hashUserAgent($request->userAgent()),
             'gdpr_consent_at' => now(),
         ]);
+
+        app(ContactSubmissionNotifier::class)->notify($submission);
+
+        return $submission;
     }
 
     public static function hashIp(?string $ip): ?string

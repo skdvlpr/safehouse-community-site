@@ -47,11 +47,10 @@ php artisan migrate --force --no-interaction
 
 php artisan optimize:clear --no-interaction
 
+# Only ensure RBAC roles exist. Never re-seed CMS content here — PageSeeder,
+# DeployArticleSeeder, DonationCampaignSeeder and DeploySiteContentSeeder use
+# updateOrCreate/updateMany and would wipe production edits on every deploy.
 php artisan db:seed --class=RoleSeeder --force --no-interaction
-php artisan db:seed --class=PageSeeder --force --no-interaction
-php artisan db:seed --class=DeployArticleSeeder --force --no-interaction
-php artisan db:seed --class=DonationCampaignSeeder --force --no-interaction
-php artisan db:seed --class=DeploySiteContentSeeder --force --no-interaction
 
 php artisan permission:cache-reset --no-interaction 2>/dev/null || true
 

@@ -14,12 +14,12 @@ class PreviewArticleAction
     public static function make(): Action
     {
         return Action::make('preview')
-            ->label('Preview')
+            ->label(__('cms.actions.preview'))
             ->icon('heroicon-o-eye')
             ->color('gray')
             ->form([
                 Select::make('locale')
-                    ->label('Language')
+                    ->label(__('cms.fields.language'))
                     ->options(
                         collect(config('locales.available', ['it']))
                             ->mapWithKeys(fn (string $locale): array => [
@@ -30,15 +30,15 @@ class PreviewArticleAction
                     ->default('it')
                     ->required(),
             ])
-            ->modalSubmitActionLabel('Open preview')
-            ->modalDescription('Opens the saved article in a new tab. Unsaved edits are not included — save first.')
+            ->modalSubmitActionLabel(__('cms.actions.open_preview'))
+            ->modalDescription(__('cms.preview.article_description'))
             ->action(function (array $data, Article $record, Action $action): void {
                 $url = app(ArticleService::class)->previewUrl($record, $data['locale']);
 
                 if ($url === null) {
                     Notification::make()
-                        ->title('Preview unavailable')
-                        ->body('Add a slug for the selected language first.')
+                        ->title(__('cms.preview.unavailable'))
+                        ->body(__('cms.preview.add_slug'))
                         ->danger()
                         ->send();
 

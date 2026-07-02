@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ArticleCategoryResource\Pages;
+use App\Filament\Support\CmsLocaleTabs;
 use App\Models\ArticleCategory;
 use BackedEnum;
 use Filament\Forms\Components\Textarea;
@@ -21,46 +22,57 @@ class ArticleCategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-tag';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Content';
-
-    protected static ?string $navigationLabel = 'News categories';
-
     protected static ?int $navigationSort = 2;
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('cms.nav.groups.content');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('cms.nav.news_categories');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('cms.models.article_category');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('cms.models.article_categories');
+    }
 
     public static function form(Schema $schema): Schema
     {
         $locales = config('locales.available', ['it', 'ru', 'en']);
-        $localeLabels = [
-            'it' => '🇮🇹 Italiano',
-            'ru' => '🇷🇺 Русский',
-            'en' => '🇬🇧 English',
-        ];
 
         $tabs = [];
 
         foreach ($locales as $locale) {
-            $tabs[] = Tab::make($localeLabels[$locale] ?? strtoupper($locale))
+            $tabs[] = Tab::make(CmsLocaleTabs::label($locale))
                 ->schema([
                     TextInput::make("name.{$locale}")
-                        ->label('Name')
+                        ->label(__('cms.fields.name'))
                         ->required($locale === 'it')
                         ->maxLength(255),
 
                     TextInput::make("slug.{$locale}")
-                        ->label('Slug')
+                        ->label(__('cms.fields.slug'))
                         ->required($locale === 'it')
                         ->maxLength(255)
                         ->alphaDash(),
 
                     Textarea::make("description.{$locale}")
-                        ->label('Description')
+                        ->label(__('cms.fields.description'))
                         ->rows(3)
                         ->columnSpanFull(),
                 ]);
         }
 
         return $schema->schema([
-            Tabs::make('Translations')->tabs($tabs)->columnSpanFull(),
+            Tabs::make(__('cms.sections.translations'))->tabs($tabs)->columnSpanFull(),
         ]);
     }
 
@@ -69,7 +81,7 @@ class ArticleCategoryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Name')
+                    ->label(__('cms.fields.name'))
                     ->searchable()
                     ->formatStateUsing(function ($state) {
                         if (is_array($state)) {
@@ -80,7 +92,7 @@ class ArticleCategoryResource extends Resource
                     }),
 
                 Tables\Columns\TextColumn::make('slug')
-                    ->label('Slug')
+                    ->label(__('cms.fields.slug'))
                     ->formatStateUsing(function ($state) {
                         if (is_array($state)) {
                             return $state['it'] ?? array_values($state)[0] ?? '';
@@ -91,7 +103,7 @@ class ArticleCategoryResource extends Resource
 
                 Tables\Columns\TextColumn::make('articles_count')
                     ->counts('articles')
-                    ->label('Articles'),
+                    ->label(__('cms.models.articles')),
             ])
             ->actions([
                 \Filament\Actions\EditAction::make(),

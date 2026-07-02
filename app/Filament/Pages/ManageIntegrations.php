@@ -10,7 +10,6 @@ use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
-use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -23,18 +22,27 @@ class ManageIntegrations extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedKey;
 
-    protected static ?string $navigationLabel = 'Integrations';
-
-    protected static string|UnitEnum|null $navigationGroup = 'Settings';
-
     protected static ?int $navigationSort = 99;
-
-    protected static ?string $title = 'Integrations';
 
     /**
      * @var array<string, mixed>|null
      */
     public ?array $data = [];
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('cms.nav.groups.settings');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('cms.nav.integrations');
+    }
+
+    public function getTitle(): string
+    {
+        return __('cms.nav.integrations');
+    }
 
     public static function canAccess(): bool
     {
@@ -63,7 +71,7 @@ class ManageIntegrations extends Page
             ->footer([
                 Actions::make([
                     Action::make('save')
-                        ->label('Save settings')
+                        ->label(__('cms.actions.save_settings'))
                         ->submit('save')
                         ->keyBindings(['mod+s']),
                 ]),
@@ -81,67 +89,118 @@ class ManageIntegrations extends Page
     {
         return $schema->components([
             Tabs::make('IntegrationTabs')->tabs([
-                Tab::make('Stripe')->schema([
-                    Section::make('Stripe payments')->schema([
+                Tab::make(__('cms.integrations.stripe'))->schema([
+                    Section::make(__('cms.sections.stripe_payments'))->schema([
                         \Filament\Forms\Components\TextInput::make('stripe.key')
-                            ->label('Publishable key')
-                            ->helperText('pk_test_… for testing, pk_live_… for production.')
+                            ->label(__('cms.fields.publishable_key'))
+                            ->helperText(__('cms.helpers.stripe_publishable'))
                             ->maxLength(255),
                         \Filament\Forms\Components\TextInput::make('stripe.secret')
-                            ->label('Secret key')
+                            ->label(__('cms.fields.secret_key'))
                             ->password()
                             ->revealable()
-                            ->helperText('Stored encrypted. Leave blank to keep the current value unchanged on save.')
+                            ->helperText(__('cms.helpers.stripe_secret'))
                             ->dehydrated(fn (?string $state): bool => filled($state)),
                         \Filament\Forms\Components\TextInput::make('stripe.webhook_secret')
-                            ->label('Webhook signing secret')
+                            ->label(__('cms.fields.webhook_secret'))
                             ->password()
                             ->revealable()
-                            ->helperText('whsec_… from Stripe Dashboard or stripe listen.')
+                            ->helperText(__('cms.helpers.stripe_webhook'))
                             ->dehydrated(fn (?string $state): bool => filled($state)),
                         \Filament\Forms\Components\TextInput::make('stripe.currency')
-                            ->label('Default currency')
+                            ->label(__('cms.fields.default_currency'))
                             ->default('EUR')
                             ->maxLength(3),
                         \Filament\Forms\Components\TextInput::make('stripe.statement_descriptor')
-                            ->label('Statement descriptor suffix')
-                            ->helperText('Appended on donor card statements (max 22 chars). Stripe uses statement_descriptor_suffix on PaymentIntents.')
+                            ->label(__('cms.fields.statement_descriptor'))
+                            ->helperText(__('cms.helpers.stripe_descriptor'))
                             ->maxLength(22),
                         \Filament\Forms\Components\TextInput::make('stripe.account_id')
-                            ->label('Account id (reference)')
+                            ->label(__('cms.fields.account_id'))
                             ->placeholder('acct_…')
-                            ->helperText('Optional. Shown in Dashboard URL; verified by php artisan stripe:verify.')
+                            ->helperText(__('cms.helpers.stripe_account_id'))
                             ->maxLength(255),
                         \Filament\Forms\Components\TextInput::make('stripe.account_name')
-                            ->label('Account name (reference)')
+                            ->label(__('cms.fields.account_name'))
                             ->placeholder('Safe House Donorbox')
-                            ->helperText('Optional label for your team — not sent to Stripe API.')
+                            ->helperText(__('cms.helpers.stripe_account_name'))
                             ->maxLength(255),
                     ]),
                 ]),
-                Tab::make('EspoCRM')->schema([
-                    Section::make('CRM API')->schema([
+                Tab::make(__('cms.integrations.espocrm'))->schema([
+                    Section::make(__('cms.sections.crm_api'))->schema([
                         \Filament\Forms\Components\TextInput::make('espocrm.base_url')
-                            ->label('Base URL')
+                            ->label(__('cms.fields.base_url'))
                             ->url()
                             ->placeholder('https://crm.safehouse.community'),
                         \Filament\Forms\Components\TextInput::make('espocrm.api_key')
-                            ->label('API key')
+                            ->label(__('cms.fields.api_key'))
                             ->password()
                             ->revealable()
                             ->dehydrated(fn (?string $state): bool => filled($state)),
                         \Filament\Forms\Components\TextInput::make('espocrm.assigned_user_id')
-                            ->label('Assigned user id')
-                            ->helperText('CRM user id for Prima Nota ownership. Can differ from the API key user. Verify with php artisan espo:verify.'),
+                            ->label(__('cms.fields.assigned_user_id'))
+                            ->helperText(__('cms.helpers.espocrm_assigned_user')),
                     ]),
-                    Section::make('Prima Nota defaults')->schema([
+                    Section::make(__('cms.sections.prima_nota_defaults'))->schema([
                         \Filament\Forms\Components\TextInput::make('espocrm.prima_nota.default_beneficiary_name')
-                            ->label('Beneficiary name')
-                            ->helperText('Account name lookup in CRM, e.g. Safe House.')
+                            ->label(__('cms.fields.beneficiary_name'))
+                            ->helperText(__('cms.helpers.beneficiary_name'))
                             ->maxLength(255),
                         \Filament\Forms\Components\TextInput::make('espocrm.prima_nota.default_subject_name')
-                            ->label('Default payer name')
-                            ->helperText('Fallback when donor name is empty.')
+                            ->label(__('cms.fields.default_payer_name'))
+                            ->helperText(__('cms.helpers.default_payer_name'))
+                            ->maxLength(255),
+                    ]),
+                ]),
+                Tab::make(__('cms.integrations.mail'))->schema([
+                    Section::make(__('cms.sections.smtp'))->schema([
+                        \Filament\Forms\Components\TextInput::make('mail.host')
+                            ->label(__('cms.fields.smtp_host'))
+                            ->placeholder('smtp.example.com')
+                            ->helperText(__('cms.helpers.smtp_host'))
+                            ->maxLength(255),
+                        \Filament\Forms\Components\TextInput::make('mail.port')
+                            ->label(__('cms.fields.smtp_port'))
+                            ->numeric()
+                            ->default(587)
+                            ->helperText(__('cms.helpers.smtp_port')),
+                        \Filament\Forms\Components\Select::make('mail.encryption')
+                            ->label(__('cms.fields.smtp_encryption'))
+                            ->options([
+                                'tls' => 'TLS (STARTTLS, porta 587)',
+                                'ssl' => 'SSL (SMTPS, porta 465)',
+                                'none' => __('cms.fields.smtp_encryption_none'),
+                            ])
+                            ->default('tls'),
+                        \Filament\Forms\Components\TextInput::make('mail.username')
+                            ->label(__('cms.fields.smtp_username'))
+                            ->maxLength(255),
+                        \Filament\Forms\Components\TextInput::make('mail.password')
+                            ->label(__('cms.fields.smtp_password'))
+                            ->password()
+                            ->revealable()
+                            ->helperText(__('cms.helpers.smtp_password'))
+                            ->dehydrated(fn (?string $state): bool => filled($state)),
+                    ]),
+                    Section::make(__('cms.sections.mail_sender'))->schema([
+                        \Filament\Forms\Components\TextInput::make('mail.from_address')
+                            ->label(__('cms.fields.from_address'))
+                            ->email()
+                            ->placeholder('noreply@safehouse.community')
+                            ->helperText(__('cms.helpers.from_address'))
+                            ->maxLength(255),
+                        \Filament\Forms\Components\TextInput::make('mail.from_name')
+                            ->label(__('cms.fields.from_name'))
+                            ->placeholder('Safe House')
+                            ->maxLength(255),
+                    ]),
+                    Section::make(__('cms.sections.contact_notifications'))->schema([
+                        \Filament\Forms\Components\TextInput::make('contact.notification_email')
+                            ->label(__('cms.fields.contact_notification_email'))
+                            ->email()
+                            ->placeholder('info@safehouse.community')
+                            ->helperText(__('cms.helpers.contact_notification_email'))
                             ->maxLength(255),
                     ]),
                 ]),
@@ -155,13 +214,13 @@ class ManageIntegrations extends Page
         $this->form->fill($settings->nestedFormValues());
 
         Notification::make()
-            ->title('Integration settings saved')
+            ->title(__('cms.notifications.integrations_saved'))
             ->success()
             ->send();
     }
 
     public function getSubheading(): string|Htmlable|null
     {
-        return 'Values saved here override .env on the server. Secrets are encrypted in the database.';
+        return __('cms.helpers.integrations_subheading');
     }
 }

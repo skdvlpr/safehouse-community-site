@@ -78,17 +78,29 @@ Enter SSH password when prompted (or use your SSH key).
 - **Production seed** does not reference those demo paths (`SEED_DEMO_CAROUSEL=false`).
 - Upload real slides in CMS — files land in `storage/app/public/page-carousels/` and persist across deploys.
 
-## Content sync
+## CMS content and deploy
 
-Deploy seeds (idempotent, safe to re-run):
+**Deploy does not touch CMS content.** `post-deploy.sh` runs migrations and `RoleSeeder` only.
 
-| Seeder | Content |
-|--------|---------|
-| `PageSeeder` | Core pages (about, services, privacy, …) |
-| `DeployArticleSeeder` | Articles from `database/seeders/data/deploy-articles.php` |
-| `DonationCampaignSeeder` | Demo donation campaigns |
+Content seeders (`PageSeeder`, `DeployArticleSeeder`, `DonationCampaignSeeder`, `DeploySiteContentSeeder`) use `updateOrCreate` / `updateMany` and **must not** run on every deploy — they would recreate deleted donation campaigns, reset page copy, overwrite articles, and reset the site tagline.
 
-Re-export articles from local CMS before deploy:
+Edit content in production CMS (`/cms-safehouse`). Changes persist across deploys.
+
+### First install on an empty database
+
+After migrations, run once on the server:
+
+```bash
+cd /var/www/safehouse-community-site
+php artisan db:bootstrap-production
+php artisan make:filament-user
+```
+
+This adds core pages, demo campaigns, articles, and the default tagline **only when those tables/settings are still empty**.
+
+### Export articles for local dev / git (optional)
+
+To refresh the local deploy export file from CMS:
 
 ```bash
 ddev exec php artisan site:export-deploy-data

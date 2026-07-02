@@ -84,6 +84,54 @@ return [
             'encrypted' => false,
             'config' => 'espocrm.prima_nota.default_subject_name',
         ],
+        'mail.host' => [
+            'label' => 'SMTP host',
+            'group' => 'mail',
+            'encrypted' => false,
+            'config' => 'mail_settings.host',
+        ],
+        'mail.port' => [
+            'label' => 'SMTP port',
+            'group' => 'mail',
+            'encrypted' => false,
+            'config' => 'mail_settings.port',
+        ],
+        'mail.encryption' => [
+            'label' => 'SMTP encryption',
+            'group' => 'mail',
+            'encrypted' => false,
+            'config' => 'mail_settings.encryption',
+        ],
+        'mail.username' => [
+            'label' => 'SMTP username',
+            'group' => 'mail',
+            'encrypted' => false,
+            'config' => 'mail_settings.username',
+        ],
+        'mail.password' => [
+            'label' => 'SMTP password',
+            'group' => 'mail',
+            'encrypted' => true,
+            'config' => 'mail_settings.password',
+        ],
+        'mail.from_address' => [
+            'label' => 'From email address',
+            'group' => 'mail',
+            'encrypted' => false,
+            'config' => 'mail_settings.from_address',
+        ],
+        'mail.from_name' => [
+            'label' => 'From name',
+            'group' => 'mail',
+            'encrypted' => false,
+            'config' => 'mail_settings.from_name',
+        ],
+        'contact.notification_email' => [
+            'label' => 'Contact form recipient',
+            'group' => 'mail',
+            'encrypted' => false,
+            'config' => 'mail_settings.contact_to',
+        ],
     ],
 
 ];

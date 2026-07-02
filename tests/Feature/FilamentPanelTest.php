@@ -14,6 +14,8 @@ class FilamentPanelTest extends TestCase
     {
         $response = $this->get('/cms-safehouse/login');
         $response->assertStatus(200);
+        $response->assertSee('favicon.svg', false);
+        $response->assertSee('Accedi', false);
     }
 
     public function test_admin_path_returns_404(): void

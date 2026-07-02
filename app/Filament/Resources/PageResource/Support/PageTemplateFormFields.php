@@ -20,12 +20,12 @@ class PageTemplateFormFields
         $fields = [];
 
         $fields[] = TextInput::make("title.{$locale}")
-            ->label('Title')
+            ->label(__('cms.fields.title'))
             ->required($isPrimaryLocale)
             ->maxLength(255);
 
         $fields[] = TextInput::make("slug.{$locale}")
-            ->label('Slug')
+            ->label(__('cms.fields.slug'))
             ->required(fn (Get $get): bool => $isPrimaryLocale && $get('template') !== 'home')
             ->maxLength(255)
             ->alphaDash()
@@ -39,60 +39,60 @@ class PageTemplateFormFields
             ->columnSpanFull();
 
         $fields[] = TextInput::make("meta.section_label.{$locale}")
-            ->label('Section label (red)')
-            ->helperText('Small red label or banner text for this page. Leave empty for the default.')
+            ->label(__('cms.fields.section_label'))
+            ->helperText(__('cms.helpers.section_label'))
             ->maxLength(80)
             ->columnSpanFull();
 
         $fields[] = TextInput::make("meta.eyebrow.{$locale}")
-            ->label('Hero eyebrow')
-            ->helperText('Small red line above the main title.')
+            ->label(__('cms.fields.hero_eyebrow'))
+            ->helperText(__('cms.helpers.hero_eyebrow'))
             ->maxLength(255)
             ->visible(fn (Get $get): bool => in_array($get('template'), ['home', 'landing'], true))
             ->columnSpanFull();
 
         $fields[] = TextInput::make("meta.tagline.{$locale}")
-            ->label('Hero tagline')
-            ->helperText('Short line displayed beside the large title.')
+            ->label(__('cms.fields.hero_tagline'))
+            ->helperText(__('cms.helpers.hero_tagline'))
             ->maxLength(255)
             ->visible(fn (Get $get): bool => $get('template') === 'about')
             ->columnSpanFull();
 
         $fields[] = Textarea::make("meta.values.{$locale}")
-            ->label('Our values')
-            ->helperText('Right column — highlighted values panel.')
+            ->label(__('cms.fields.our_values'))
+            ->helperText(__('cms.helpers.our_values'))
             ->rows(8)
             ->visible(fn (Get $get): bool => $get('template') === 'about')
             ->columnSpanFull();
 
         $fields[] = Textarea::make("meta.closing.{$locale}")
-            ->label('Closing statement')
-            ->helperText('Full-width quote at the bottom of the page.')
+            ->label(__('cms.fields.closing_statement'))
+            ->helperText(__('cms.helpers.closing_statement'))
             ->rows(4)
             ->visible(fn (Get $get): bool => $get('template') === 'about')
             ->columnSpanFull();
 
         $fields[] = TextInput::make("meta.stats_heading.{$locale}")
-            ->label('Stats section title')
-            ->helperText('Meal counters are loaded from EspoCRM. Customize the section title here.')
+            ->label(__('cms.fields.stats_section_title'))
+            ->helperText(__('cms.helpers.stats_section_title'))
             ->maxLength(255)
             ->visible(fn (Get $get): bool => $get('template') === 'home')
             ->columnSpanFull();
 
         $fields[] = TextInput::make("meta.stats_lead.{$locale}")
-            ->label('Stats section intro')
-            ->helperText('Short line below the stats heading.')
+            ->label(__('cms.fields.stats_section_intro'))
+            ->helperText(__('cms.helpers.stats_section_intro'))
             ->visible(fn (Get $get): bool => $get('template') === 'home')
             ->columnSpanFull();
 
         $fields[] = TextInput::make("meta.cta_donate.{$locale}")
-            ->label('Donate button label')
+            ->label(__('cms.fields.donate_button'))
             ->maxLength(120)
             ->visible(fn (Get $get): bool => $get('template') === 'home')
             ->columnSpanFull();
 
         $fields[] = TextInput::make("meta.cta_volunteer.{$locale}")
-            ->label('Volunteer button label')
+            ->label(__('cms.fields.volunteer_button'))
             ->maxLength(120)
             ->visible(fn (Get $get): bool => $get('template') === 'home')
             ->columnSpanFull();
@@ -106,24 +106,22 @@ class PageTemplateFormFields
         $statFields = [];
 
         foreach ($locales as $locale) {
-            $label = strtoupper($locale);
-
             $statFields[] = TextInput::make("label.{$locale}")
-                ->label("Label ({$label})")
+                ->label(__('cms.fields.label_locale', ['locale' => strtoupper($locale)]))
                 ->maxLength(255);
         }
 
         $statFields[] = TextInput::make('value')
-            ->label('Value')
-            ->helperText('Number or placeholder, e.g. 1.000+ or —')
+            ->label(__('cms.fields.value'))
+            ->helperText(__('cms.helpers.stat_value'))
             ->maxLength(32);
 
-        return Section::make('Home stats')
-            ->description('Impact cards below the hero.')
+        return Section::make(__('cms.sections.home_stats'))
+            ->description(__('cms.helpers.home_stats'))
             ->visible(fn (Get $get): bool => $get('template') === 'home')
             ->schema([
                 Repeater::make('meta.stats')
-                    ->label('Stats')
+                    ->label(__('cms.fields.stats'))
                     ->reorderable()
                     ->collapsible()
                     ->itemLabel(function (array $state): string {
@@ -135,7 +133,7 @@ class PageTemplateFormFields
                             }
                         }
 
-                        return (string) ($state['value'] ?? 'New stat');
+                        return __('cms.items.new_stat');
                     })
                     ->schema($statFields)
                     ->columnSpanFull(),
@@ -152,25 +150,25 @@ class PageTemplateFormFields
             $label = strtoupper($locale);
 
             $cardFields[] = TextInput::make("title.{$locale}")
-                ->label("Title ({$label})")
+                ->label(__('cms.fields.title_locale', ['locale' => $label]))
                 ->maxLength(255);
 
             $cardFields[] = Textarea::make("body.{$locale}")
-                ->label("Body ({$label})")
+                ->label(__('cms.fields.body_locale', ['locale' => $label]))
                 ->rows(4);
 
             $cardFields[] = TextInput::make("stats.{$locale}")
-                ->label("Stats line ({$label})")
-                ->helperText('Optional footer line, e.g. "1,000+ hot meals · volunteers".')
+                ->label(__('cms.fields.stats_locale', ['locale' => $label]))
+                ->helperText(__('cms.helpers.stats_line'))
                 ->maxLength(255);
         }
 
-        return Section::make('Service cards')
-            ->description('Numbered cards in the grid below the red intro banner.')
+        return Section::make(__('cms.sections.service_cards'))
+            ->description(__('cms.helpers.service_cards'))
             ->visible(fn (Get $get): bool => $get('template') === 'services')
             ->schema([
                 Repeater::make('meta.services')
-                    ->label('Cards')
+                    ->label(__('cms.fields.cards'))
                     ->reorderable()
                     ->collapsible()
                     ->itemLabel(function (array $state): string {
@@ -182,7 +180,7 @@ class PageTemplateFormFields
                             }
                         }
 
-                        return 'New service card';
+                        return __('cms.items.new_service_card');
                     })
                     ->schema($cardFields)
                     ->columnSpanFull(),
@@ -192,18 +190,20 @@ class PageTemplateFormFields
 
     private static function bodyLabel(?string $template): string
     {
-        return match ($template) {
-            'about' => 'Mission intro',
-            'services' => 'Services intro',
-            default => 'Body',
+        $key = match ($template) {
+            'about' => 'about',
+            'services' => 'services',
+            default => 'default',
         };
+
+        return __('cms.body_labels.'.$key);
     }
 
     private static function bodyHelper(?string $template): ?string
     {
         return match ($template) {
-            'about' => 'Left column — main mission text.',
-            'services' => 'Text in the red banner above the cards.',
+            'about' => __('cms.helpers.about_body'),
+            'services' => __('cms.helpers.services_body'),
             default => null,
         };
     }

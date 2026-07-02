@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Http\Middleware\SetCmsLocale;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -27,7 +28,8 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('cms-safehouse')
             ->path(env('FILAMENT_PATH', 'cms-safehouse'))
-            ->brandName('Safehouse CMS')
+            ->brandName(__('cms.brand'))
+            ->favicon(asset('favicon.svg'))
             ->login()
             ->colors([
                 'primary' => Color::Red,
@@ -45,6 +47,7 @@ class AdminPanelProvider extends PanelProvider
                 AccountWidget::class,
             ])
             ->middleware([
+                SetCmsLocale::class,
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,

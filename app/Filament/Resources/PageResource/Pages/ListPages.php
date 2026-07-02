@@ -55,7 +55,7 @@ class ListPages extends ListRecords
                     ->footer([
                         FormActions::make([
                             Action::make('saveTagline')
-                                ->label('Salva slogan')
+                                ->label(__('cms.actions.save_tagline'))
                                 ->submit('saveTagline')
                                 ->keyBindings(['mod+shift+s']),
                         ]),
@@ -73,7 +73,7 @@ class ListPages extends ListRecords
         $this->siteTaglineForm->fill($content->nestedFormValues());
 
         Notification::make()
-            ->title('Slogan salvato')
+            ->title(__('cms.notifications.tagline_saved'))
             ->success()
             ->send();
     }

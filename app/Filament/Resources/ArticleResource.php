@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ArticleResource\Actions\PreviewArticleAction;
 use App\Filament\Resources\ArticleResource\Pages;
+use App\Filament\Support\CmsLocaleTabs;
 use App\Models\Article;
 use App\Models\ArticleCategory;
 use BackedEnum;
@@ -30,44 +31,55 @@ class ArticleResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-newspaper';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Content';
-
-    protected static ?string $navigationLabel = 'News';
-
     protected static ?int $navigationSort = 3;
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('cms.nav.groups.content');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('cms.nav.news');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('cms.models.article');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('cms.models.articles');
+    }
 
     public static function form(Schema $schema): Schema
     {
         $locales = config('locales.available', ['it', 'ru', 'en']);
-        $localeLabels = [
-            'it' => '🇮🇹 Italiano',
-            'ru' => '🇷🇺 Русский',
-            'en' => '🇬🇧 English',
-        ];
 
         $tabs = [];
 
         foreach ($locales as $locale) {
-            $tabs[] = Tab::make($localeLabels[$locale] ?? strtoupper($locale))
+            $tabs[] = Tab::make(CmsLocaleTabs::label($locale))
                 ->schema([
                     TextInput::make("title.{$locale}")
-                        ->label('Title')
+                        ->label(__('cms.fields.title'))
                         ->required($locale === 'it')
                         ->maxLength(255),
 
                     TextInput::make("slug.{$locale}")
-                        ->label('Slug')
+                        ->label(__('cms.fields.slug'))
                         ->required($locale === 'it')
                         ->maxLength(255)
                         ->alphaDash(),
 
                     Textarea::make("excerpt.{$locale}")
-                        ->label('Excerpt')
+                        ->label(__('cms.fields.excerpt'))
                         ->rows(3)
                         ->columnSpanFull(),
 
                     RichEditor::make("body.{$locale}")
-                        ->label('Body')
+                        ->label(__('cms.fields.body'))
                         ->required($locale === 'it')
                         ->columnSpanFull(),
                 ]);
@@ -77,13 +89,13 @@ class ArticleResource extends Resource
 
         foreach ($locales as $locale) {
             $carouselAltFields[] = TextInput::make("alt.{$locale}")
-                ->label('Alt text ('.strtoupper($locale).')')
+                ->label(__('cms.fields.alt_text', ['locale' => strtoupper($locale)]))
                 ->maxLength(255);
         }
 
         return $schema->schema([
             Select::make('article_category_id')
-                ->label('Category')
+                ->label(__('cms.fields.category'))
                 ->relationship('category', 'name')
                 ->getOptionLabelFromRecordUsing(
                     fn (ArticleCategory $record): string => (string) ($record->getTranslation('name', 'it') ?: $record->getTranslation('name', 'en') ?: '—')
@@ -93,30 +105,30 @@ class ArticleResource extends Resource
                 ->nullable(),
 
             Toggle::make('is_published')
-                ->label('Published')
+                ->label(__('cms.fields.published'))
                 ->default(false)
                 ->live(),
 
             DateTimePicker::make('published_at')
-                ->label('Published at')
+                ->label(__('cms.fields.published_at'))
                 ->seconds(false)
                 ->nullable()
-                ->helperText('Required for the article to appear on /notizie.'),
+                ->helperText(__('cms.helpers.published_at')),
 
-            Section::make('Photo carousel')
-                ->description('Optional gallery shown on the article page and in the news feed.')
+            Section::make(__('cms.sections.photo_carousel'))
+                ->description(__('cms.helpers.article_carousel'))
                 ->schema([
                     Repeater::make('meta.carousel')
-                        ->label('Slides')
+                        ->label(__('cms.fields.slides'))
                         ->maxItems((int) config('page_carousel.max_slides', 12))
                         ->reorderable()
                         ->collapsible()
                         ->itemLabel(fn (array $state): string => is_string($state['path'] ?? null) && $state['path'] !== ''
                             ? basename($state['path'])
-                            : 'New slide')
+                            : __('cms.items.new_slide'))
                         ->schema([
                             FileUpload::make('path')
-                                ->label('Image')
+                                ->label(__('cms.fields.image'))
                                 ->image()
                                 ->imagePreviewHeight('150')
                                 ->panelAspectRatio('16:9')
@@ -134,7 +146,7 @@ class ArticleResource extends Resource
                 ->columnSpanFull()
                 ->collapsed(),
 
-            Tabs::make('Translations')
+            Tabs::make(__('cms.sections.translations'))
                 ->tabs($tabs)
                 ->columnSpanFull(),
         ]);
@@ -145,7 +157,7 @@ class ArticleResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')
-                    ->label('Title')
+                    ->label(__('cms.fields.title'))
                     ->searchable()
                     ->sortable()
                     ->formatStateUsing(function ($state) {
@@ -157,7 +169,7 @@ class ArticleResource extends Resource
                     }),
 
                 Tables\Columns\TextColumn::make('category.name')
-                    ->label('Category')
+                    ->label(__('cms.fields.category'))
                     ->formatStateUsing(function ($state, Article $record) {
                         $category = $record->category;
 
@@ -169,11 +181,11 @@ class ArticleResource extends Resource
                     }),
 
                 Tables\Columns\IconColumn::make('is_published')
-                    ->label('Published')
+                    ->label(__('cms.fields.published'))
                     ->boolean(),
 
                 Tables\Columns\TextColumn::make('published_at')
-                    ->label('Published at')
+                    ->label(__('cms.fields.published_at'))
                     ->dateTime()
                     ->sortable(),
             ])

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Support;
 
+use App\Filament\Support\CmsLocaleTabs;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
@@ -15,28 +16,23 @@ class PrimaryTaglineFormFields
     public static function section(): array
     {
         $locales = config('locales.available', ['it', 'ru', 'en']);
-        $localeLabels = [
-            'it' => '🇮🇹 Italiano',
-            'ru' => '🇷🇺 Русский',
-            'en' => '🇬🇧 English',
-        ];
 
         $tabs = [];
 
         foreach ($locales as $locale) {
-            $tabs[] = Tab::make($localeLabels[$locale] ?? strtoupper($locale))
+            $tabs[] = Tab::make(CmsLocaleTabs::label($locale))
                 ->schema([
                     Textarea::make("content.primary_tagline.{$locale}")
-                        ->label('Slogan principale')
-                        ->helperText('Slogan nel footer e sottotitolo nella home page.')
+                        ->label(__('cms.fields.primary_tagline'))
+                        ->helperText(__('cms.helpers.primary_tagline'))
                         ->rows(2)
                         ->maxLength(500),
                 ]);
         }
 
         return [
-            Section::make('Slogan del sito')
-                ->description('Uno slogan condiviso per footer e hero della home page.')
+            Section::make(__('cms.sections.site_tagline'))
+                ->description(__('cms.helpers.site_tagline'))
                 ->schema([
                     Tabs::make('TaglineLocales')->tabs($tabs),
                 ]),
