@@ -33,7 +33,11 @@ class SiteSetting extends Model
         }
 
         if ($this->is_encrypted) {
-            return Crypt::decryptString($this->value);
+            try {
+                return Crypt::decryptString($this->value);
+            } catch (\Throwable) {
+                return null;
+            }
         }
 
         return $this->value;

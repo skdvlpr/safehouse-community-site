@@ -11,6 +11,8 @@ fi
 
 php artisan migrate --force --no-interaction
 
+php artisan optimize:clear --no-interaction
+
 php artisan db:seed --class=RoleSeeder --force --no-interaction
 php artisan db:seed --class=PageSeeder --force --no-interaction
 php artisan db:seed --class=DeployArticleSeeder --force --no-interaction
@@ -18,12 +20,19 @@ php artisan db:seed --class=DonationCampaignSeeder --force --no-interaction
 php artisan db:seed --class=DeploySiteContentSeeder --force --no-interaction
 php artisan db:seed --class=DeployIntegrationSeeder --force --no-interaction
 
-php artisan cache:clear --no-interaction
+php artisan permission:cache-reset --no-interaction 2>/dev/null || true
 
 php artisan storage:link --force 2>/dev/null || true
 
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+php artisan config:cache --no-interaction
+php artisan route:cache --no-interaction
+php artisan view:clear --no-interaction
+
+# Filament/Livewire: never run view:cache on production (breaks CMS for www-data).
+# Ensure PHP-FPM (www-data) can read/write runtime dirs after CLI deploy.
+if command -v sudo >/dev/null 2>&1; then
+    sudo chown -R "${USER:-deploy}:www-data" storage bootstrap/cache 2>/dev/null || true
+    sudo chmod -R ug+rwx storage bootstrap/cache 2>/dev/null || true
+fi
 
 echo "Deploy post-steps finished."

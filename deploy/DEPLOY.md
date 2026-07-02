@@ -121,6 +121,24 @@ After first deploy:
 
 Deploy seeds already load **test** publishable/secret keys. Only webhook secret must be set manually (it is unique per endpoint).
 
+### CMS returns 500 after deploy
+
+Run on the server (SSH as `deploy`):
+
+```bash
+cd /var/www/safehouse-community-site
+php artisan optimize:clear
+php artisan view:clear
+php artisan config:cache
+php artisan route:cache
+php artisan cms:health
+sudo chown -R deploy:www-data storage bootstrap/cache
+sudo chmod -R ug+rwx storage bootstrap/cache
+sudo systemctl reload php8.3-fpm
+```
+
+Do **not** run `php artisan view:cache` — it breaks Filament/Livewire for PHP-FPM.
+
 ## After deploy
 
 1. Open `https://safehouse.community` (after DNS).
