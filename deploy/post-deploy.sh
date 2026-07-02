@@ -25,7 +25,8 @@ php artisan permission:cache-reset --no-interaction 2>/dev/null || true
 php artisan storage:link --force 2>/dev/null || true
 
 php artisan config:cache --no-interaction
-php artisan route:cache --no-interaction
+php artisan filament:optimize --no-interaction
+php artisan route:clear --no-interaction
 php artisan view:clear --no-interaction
 
 # Filament/Livewire: never run view:cache on production (breaks CMS for www-data).
@@ -33,6 +34,12 @@ php artisan view:clear --no-interaction
 if command -v sudo >/dev/null 2>&1; then
     sudo chown -R "${USER:-deploy}:www-data" storage bootstrap/cache 2>/dev/null || true
     sudo chmod -R ug+rwx storage bootstrap/cache 2>/dev/null || true
+fi
+
+php artisan cms:health --no-interaction || true
+
+if command -v sudo >/dev/null 2>&1; then
+    sudo -u www-data php artisan cms:health --no-interaction || true
 fi
 
 echo "Deploy post-steps finished."

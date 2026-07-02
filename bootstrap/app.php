@@ -29,4 +29,23 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        $exceptions->report(function (\Throwable $exception): void {
+            $request = request();
+
+            if ($request === null || ! $request->is('cms-safehouse*')) {
+                return;
+            }
+
+            $message = sprintf(
+                "[%s] %s\n%s:%d\n%s\n",
+                now()->toDateTimeString(),
+                $exception->getMessage(),
+                $exception->getFile(),
+                $exception->getLine(),
+                $exception->getTraceAsString()
+            );
+
+            @file_put_contents(storage_path('logs/cms-last-error.txt'), $message, LOCK_EX);
+        });
     })->create();

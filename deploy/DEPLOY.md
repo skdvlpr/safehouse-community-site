@@ -123,19 +123,34 @@ Deploy seeds already load **test** publishable/secret keys. Only webhook secret 
 
 ### CMS returns 500 after deploy
 
+`php artisan cms:health` as root/deploy can return **200** while the browser still gets **500** — PHP-FPM runs as `www-data` and needs its own writable caches.
+
 Run on the server (SSH as `deploy`):
 
 ```bash
 cd /var/www/safehouse-community-site
 php artisan optimize:clear
-php artisan view:clear
+php artisan filament:optimize
+php artisan route:clear
 php artisan config:cache
-php artisan route:cache
-php artisan cms:health
 sudo chown -R deploy:www-data storage bootstrap/cache
 sudo chmod -R ug+rwx storage bootstrap/cache
+sudo -u www-data php artisan cms:health
 sudo systemctl reload php8.3-fpm
 ```
+
+If `cms:health` still passes but the browser shows 500:
+
+1. Open `https://safehouse.community/cms-safehouse/login` once.
+2. Read the captured exception:
+   ```bash
+   cat storage/logs/cms-last-error.txt
+   tail -80 storage/logs/laravel.log
+   ```
+3. Check PHP-FPM extensions (Filament needs **intl**):
+   ```bash
+   sudo -u www-data php -m | grep intl
+   ```
 
 Do **not** run `php artisan view:cache` — it breaks Filament/Livewire for PHP-FPM.
 
