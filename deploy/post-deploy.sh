@@ -70,6 +70,4 @@ fix_runtime_permissions
 warm_cms_cache
 fix_runtime_permissions
 
-php artisan cms:health --no-interaction || true
-
 echo "Deploy post-steps finished."
