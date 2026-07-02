@@ -62,7 +62,12 @@ class DonationIngestServiceTest extends TestCase
 
             $payload = $request->data();
 
-            return ($payload['description'] ?? '') === "Donazione Stripe ordine #pi_abc\nTipo: organization\nTest"
+            return ($payload['donationPaymentProvider'] ?? '') === 'Stripe'
+                && ($payload['donationPaymentReference'] ?? '') === '#pi_abc'
+                && ($payload['donationDonorCategory'] ?? '') === 'Organization'
+                && ($payload['donationComment'] ?? '') === 'Test'
+                && ! array_key_exists('name', $payload)
+                && ! array_key_exists('description', $payload)
                 && ($payload['entryType'] ?? '') === 'Income'
                 && ($payload['amount'] ?? null) === 15.0
                 && ($payload['subjectName'] ?? '') === 'Anna Bianchi'
@@ -188,7 +193,7 @@ class DonationIngestServiceTest extends TestCase
         Http::fake([
             'https://crm.test/api/v1/PrimaNota*' => Http::response([
                 'total' => 1,
-                'list' => [['id' => 'pn-existing', 'description' => 'Donazione Stripe ordine #pi_dup']],
+                'list' => [['id' => 'pn-existing', 'donationPaymentReference' => '#pi_dup']],
             ]),
         ]);
 

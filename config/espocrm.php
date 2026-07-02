@@ -7,8 +7,7 @@ return [
     'api_key' => env('ESPOCRM_API_KEY'),
 
     /*
-     * API user id from GET /api/v1/App/user — used as assignedUserId on PrimaNota POST.
-     * See nonprofit-espocrm/docs/integrations/DONATION-SITE-CRM-API.md (local file).
+     * EspoCRM User id for assignedUserId on PrimaNota POST.
      */
     'assigned_user_id' => env('ESPOCRM_ASSIGNED_USER_ID'),
 

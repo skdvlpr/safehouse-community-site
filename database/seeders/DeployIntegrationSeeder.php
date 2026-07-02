@@ -9,7 +9,9 @@ class DeployIntegrationSeeder extends Seeder
 {
     public function run(): void
     {
-        $path = database_path('seeders/data/deploy-integrations.php');
+        $path = app()->environment('local')
+            ? database_path('seeders/data/local-integrations.php')
+            : database_path('seeders/data/deploy-integrations.php');
 
         if (! is_file($path)) {
             return;

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\DonationCampaign;
+use App\Services\Donations\LocalStripeDonationSync;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -26,6 +27,12 @@ class DonationShowRouteTest extends TestCase
             'slug' => 'grazie-test',
             'is_active' => true,
         ]);
+
+        $this->mock(LocalStripeDonationSync::class, function ($mock): void {
+            $mock->shouldReceive('ingestSucceededPaymentIntent')
+                ->once()
+                ->with('pi_test_123');
+        });
 
         $this->get('/it/donazioni/grazie-test/grazie?payment_intent=pi_test_123&donor_name=Mario%20Rossi')
             ->assertOk()

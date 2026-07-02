@@ -45,6 +45,34 @@ class EspoCrmClient
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    public function appUser(): array
+    {
+        return $this->request('get', 'App/user');
+    }
+
+    public function apiUserId(): string
+    {
+        $response = $this->appUser();
+        $id = $response['user']['id'] ?? $response['id'] ?? null;
+
+        if (! is_string($id) || $id === '') {
+            throw new RuntimeException('EspoCRM App/user did not return a user id.');
+        }
+
+        return $id;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function userById(string $userId): array
+    {
+        return $this->request('get', 'User/'.$userId);
+    }
+
+    /**
      * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
      */

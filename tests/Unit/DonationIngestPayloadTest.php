@@ -15,7 +15,7 @@ class DonationIngestPayloadTest extends TestCase
         config()->set('espocrm.prima_nota.default_beneficiary_name', 'Safe House');
     }
 
-    public function test_builds_description_with_split_party_fields(): void
+    public function test_builds_donation_fields_for_stripe_payment(): void
     {
         $payload = new DonationIngestPayload(
             provider: 'stripe',
@@ -30,15 +30,17 @@ class DonationIngestPayloadTest extends TestCase
         );
 
         $this->assertSame('pi_test_123', $payload->idempotencySearchValue());
-        $this->assertSame(
-            "Donazione Stripe ordine #pi_test_123\nTipo: individual\nGrazie",
-            $payload->primaNotaDescription(),
-        );
+        $this->assertSame([
+            'donationPaymentProvider' => 'Stripe',
+            'donationPaymentReference' => '#pi_test_123',
+            'donationDonorCategory' => 'Individual',
+            'donationComment' => 'Grazie',
+        ], $payload->primaNotaDonationFields());
         $this->assertSame('Mario Rossi', $payload->subjectName());
         $this->assertSame('Safe House', $payload->beneficiaryName());
     }
 
-    public function test_falls_back_to_configured_default_subject_name(): void
+    public function test_omits_optional_donation_fields_when_missing(): void
     {
         $payload = new DonationIngestPayload(
             provider: 'stripe',
@@ -54,5 +56,9 @@ class DonationIngestPayloadTest extends TestCase
 
         $this->assertSame('Donatore', $payload->subjectName());
         $this->assertSame('Safe House', $payload->beneficiaryName());
+        $this->assertSame([
+            'donationPaymentProvider' => 'Stripe',
+            'donationPaymentReference' => '#pi_anon',
+        ], $payload->primaNotaDonationFields());
     }
 }

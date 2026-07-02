@@ -40,7 +40,6 @@ class DonationIngestService
 
         $createPayload = array_merge(
             [
-                'description' => $payload->primaNotaDescription(),
                 'entryType' => (string) config('espocrm.prima_nota.entry_type'),
                 'amount' => $payload->amount,
                 'amountCurrency' => $payload->currency,
@@ -48,6 +47,7 @@ class DonationIngestService
                 'transactionDate' => Carbon::parse($payload->donatedAt)->toDateString(),
                 'financingId' => $financingId,
             ],
+            $payload->primaNotaDonationFields(),
             $this->partyResolver->resolveSubjectPartyFields($payload),
             $this->partyResolver->resolveBeneficiaryPartyFields($payload),
         );
@@ -76,12 +76,12 @@ class DonationIngestService
     private function findPrimaNotaIdByExternalId(string $externalId): ?string
     {
         $result = $this->client->search((string) config('espocrm.prima_nota.entity'), [
-            'select' => 'id,description',
+            'select' => 'id,donationPaymentReference',
             'maxSize' => 1,
             'where' => [
                 [
                     'type' => 'contains',
-                    'attribute' => 'description',
+                    'attribute' => 'donationPaymentReference',
                     'value' => $externalId,
                 ],
             ],

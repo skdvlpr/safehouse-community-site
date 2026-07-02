@@ -14,6 +14,12 @@ composer_version: "2"
 web_environment: []
 corepack_enable: false
 
+hooks:
+    post-start:
+        - exec: php artisan config:clear
+        - exec: php artisan migrate --force
+        - exec: php artisan db:seed-if-empty
+
 # Key features of DDEV's config.yaml:
 
 # name: <projectname> # Name of the project, automatically provides

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DonationCampaign;
 use App\Services\Donations\CampaignFundraisingProgressService;
+use App\Services\Donations\LocalStripeDonationSync;
 use App\Services\Payments\StripePaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -45,8 +46,12 @@ class DonationCampaignController extends Controller
         return view('donations.privacy', ['campaign' => $campaign]);
     }
 
-    public function thankYou(Request $request, string $locale, string $campaignSlug): View|RedirectResponse
-    {
+    public function thankYou(
+        Request $request,
+        string $locale,
+        string $campaignSlug,
+        LocalStripeDonationSync $localStripeDonationSync,
+    ): View|RedirectResponse {
         $campaign = DonationCampaign::query()->where('slug', $campaignSlug)->firstOrFail();
         abort_unless($campaign->is_active, 404);
 
@@ -56,6 +61,8 @@ class DonationCampaignController extends Controller
                 ->route('donations.show', ['locale' => $locale, 'campaignSlug' => $campaignSlug])
                 ->with('donation_notice', __('Completa il pagamento dalla pagina della raccolta.'));
         }
+
+        $localStripeDonationSync->ingestSucceededPaymentIntent($paymentIntentId);
 
         $donorName = trim((string) $request->query('donor_name', ''));
 

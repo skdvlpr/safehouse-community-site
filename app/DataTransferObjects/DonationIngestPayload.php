@@ -27,7 +27,7 @@ readonly class DonationIngestPayload
     }
 
     /**
-     * Value for GET PrimaNota idempotency search (contains on description).
+     * Value for GET PrimaNota idempotency search (contains on donationPaymentReference).
      */
     public function idempotencySearchValue(): string
     {
@@ -39,25 +39,35 @@ readonly class DonationIngestPayload
         return '#'.$this->externalId;
     }
 
-    public function primaNotaDescription(): string
+    public function donorTypeLabel(): string
     {
-        $lines = [
-            sprintf(
-                'Donazione %s ordine %s',
-                $this->platformLabel(),
-                $this->orderReference(),
-            ),
+        return match ($this->donorType) {
+            'individual' => 'Individual',
+            'organization' => 'Organization',
+            default => '',
+        };
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function primaNotaDonationFields(): array
+    {
+        $fields = [
+            'donationPaymentProvider' => $this->platformLabel(),
+            'donationPaymentReference' => $this->orderReference(),
         ];
 
-        if ($this->donorType !== null && $this->donorType !== '') {
-            $lines[] = 'Tipo: '.$this->donorType;
+        $donorCategory = $this->donorTypeLabel();
+        if ($donorCategory !== '') {
+            $fields['donationDonorCategory'] = $donorCategory;
         }
 
-        if ($this->comment !== null && $this->comment !== '') {
-            $lines[] = $this->comment;
+        if ($this->comment !== null && trim($this->comment) !== '') {
+            $fields['donationComment'] = trim($this->comment);
         }
 
-        return implode("\n", $lines);
+        return $fields;
     }
 
     /** Soggetto pagamento — payer / donor name. */

@@ -132,7 +132,7 @@ class ManageIntegrations extends Page
                             ->dehydrated(fn (?string $state): bool => filled($state)),
                         \Filament\Forms\Components\TextInput::make('espocrm.assigned_user_id')
                             ->label('Assigned user id')
-                            ->helperText('From GET /api/v1/App/user — used on Prima Nota create.'),
+                            ->helperText('CRM user id for Prima Nota ownership. Can differ from the API key user. Verify with php artisan espo:verify.'),
                     ]),
                     Section::make('Prima Nota defaults')->schema([
                         \Filament\Forms\Components\TextInput::make('espocrm.prima_nota.default_beneficiary_name')

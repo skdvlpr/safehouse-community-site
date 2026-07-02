@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
             PageSeeder::class,
             ArticleSeeder::class,
             DonationCampaignSeeder::class,
+            DeploySiteContentSeeder::class,
+            DeployIntegrationSeeder::class,
         ]);
 
         if (! User::query()->where('email', 'test@example.com')->exists()) {

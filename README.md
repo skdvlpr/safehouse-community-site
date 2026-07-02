@@ -40,6 +40,14 @@ ddev artisan key:generate   # first time only, if APP_KEY is empty
 ddev artisan migrate --seed
 ```
 
+If pages or campaigns disappear after a fresh DB volume, run:
+
+```bash
+ddev artisan db:seed-if-empty
+```
+
+(or `ddev artisan db:seed` for a full re-seed).
+
 **Cursor agents** run `migrate` / `migrate --seed` automatically after migration or seeder changes (see [`AGENTS.md`](AGENTS.md)).
 
 Open the site:
@@ -63,6 +71,8 @@ HTTP redirect to HTTPS is handled by DDEV.
 | Pint (style) | `ddev exec ./vendor/bin/pint` |
 | Shell | `ddev ssh` |
 | DB CLI | `ddev mysql` |
+
+**Do not run `php artisan config:cache` in DDEV** — cached config forces tests onto MariaDB and `RefreshDatabase` wipes your local CMS data.
 
 ### Frontend dev (hot reload)
 

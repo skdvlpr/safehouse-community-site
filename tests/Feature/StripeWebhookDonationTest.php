@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\DonationCampaign;
 use App\Services\Payments\StripePaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Mockery;
 use Mockery\MockInterface;
@@ -29,6 +30,8 @@ class StripeWebhookDonationTest extends TestCase
 
     public function test_payment_intent_succeeded_writes_prima_nota_to_crm(): void
     {
+        Carbon::setTestNow('2026-07-02T12:00:00+00:00');
+
         $campaign = DonationCampaign::factory()->create([
             'espocrm_finanziamento_name' => 'Raccolta Safe House 2026',
         ]);
@@ -59,7 +62,11 @@ class StripeWebhookDonationTest extends TestCase
 
             $payload = $request->data();
 
-            return ($payload['description'] ?? '') === "Donazione Stripe ordine #pi_webhook_success\nTipo: individual\nSupporto mensile"
+            return ($payload['donationPaymentReference'] ?? '') === '#pi_webhook_success'
+                && ($payload['donationDonorCategory'] ?? '') === 'Individual'
+                && ($payload['donationComment'] ?? '') === 'Supporto mensile'
+                && ! array_key_exists('name', $payload)
+                && ! array_key_exists('description', $payload)
                 && ($payload['entryType'] ?? '') === 'Income'
                 && ($payload['amount'] ?? null) === 50.0
                 && ($payload['amountCurrency'] ?? '') === 'EUR'

@@ -82,6 +82,25 @@ class StripePaymentService
         ];
     }
 
+    public function retrievePaymentIntent(string $paymentIntentId): PaymentIntent
+    {
+        if ($this->client === null) {
+            throw new RuntimeException('Stripe client is not configured.');
+        }
+
+        try {
+            $intent = $this->client->paymentIntents->retrieve($paymentIntentId);
+        } catch (ApiErrorException $exception) {
+            throw new RuntimeException('Stripe payment intent lookup failed: '.$exception->getMessage(), 0, $exception);
+        }
+
+        if ($intent->status !== 'succeeded') {
+            throw new RuntimeException('Stripe payment intent has not succeeded yet.');
+        }
+
+        return $intent;
+    }
+
     public function constructWebhookEvent(string $payload, ?string $signature): \Stripe\Event
     {
         if ($this->client === null) {

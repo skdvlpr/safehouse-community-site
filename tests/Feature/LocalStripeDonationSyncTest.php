@@ -1,0 +1,119 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\DonationCampaign;
+use App\Services\Donations\LocalStripeDonationSync;
+use App\Services\Payments\StripePaymentService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
+use Mockery;
+use Stripe\PaymentIntent;
+use Tests\TestCase;
+
+class LocalStripeDonationSyncTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config()->set('espocrm.base_url', 'https://crm.test');
+        config()->set('espocrm.api_key', 'test-espo-key');
+        config()->set('espocrm.finanziamento.default_close_date', '2026-12-31');
+        config()->set('espocrm.prima_nota.default_beneficiary_name', 'Safe House');
+        config()->set('stripe.secret', 'sk_test_local');
+        config()->set('stripe.mock', false);
+    }
+
+    public function test_thank_you_page_syncs_succeeded_payment_intent_to_crm_in_local_env(): void
+    {
+        app()->detectEnvironment(fn (): string => 'local');
+
+        $campaign = DonationCampaign::factory()->create([
+            'slug' => 'safe-house',
+            'is_active' => true,
+            'espocrm_finanziamento_name' => 'Donate to Safe House',
+        ]);
+
+        $intent = PaymentIntent::constructFrom([
+            'id' => 'pi_local_thank_you',
+            'object' => 'payment_intent',
+            'status' => 'succeeded',
+            'amount' => 100,
+            'amount_received' => 100,
+            'currency' => 'eur',
+            'metadata' => [
+                'campaign_id' => (string) $campaign->id,
+                'campaign_title' => 'Donate to Safe House',
+                'donor_name' => 'Sem Test',
+                'donor_type' => 'individual',
+            ],
+        ], null);
+
+        $mock = Mockery::mock(StripePaymentService::class);
+        $mock->shouldReceive('mockModeEnabled')->andReturn(false);
+        $mock->shouldReceive('retrievePaymentIntent')
+            ->once()
+            ->with('pi_local_thank_you')
+            ->andReturn($intent);
+        $this->instance(StripePaymentService::class, $mock);
+
+        Http::fake(function ($request) {
+            $url = $request->url();
+            $method = $request->method();
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/PrimaNota')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Opportunity')) {
+                return Http::response([
+                    'total' => 1,
+                    'list' => [['id' => 'opp-local', 'name' => 'Donate to Safe House']],
+                ]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Contact')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Account')) {
+                return Http::response([
+                    'total' => 1,
+                    'list' => [['id' => 'acc-safe-house', 'name' => 'Safe House']],
+                ]);
+            }
+
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+                return Http::response(['id' => 'pn-local-thank-you', 'financingId' => 'opp-local']);
+            }
+
+            return Http::response(['message' => 'Unexpected'], 500);
+        });
+
+        $this->get('/it/donazioni/safe-house/grazie?payment_intent=pi_local_thank_you&donor_name=Sem+Test')
+            ->assertOk()
+            ->assertSee('pi_local_thank_you');
+
+        Http::assertSent(function ($request): bool {
+            return $request->method() === 'POST'
+                && str_contains($request->url(), '/api/v1/PrimaNota')
+                && ($request->data()['donationPaymentReference'] ?? '') === '#pi_local_thank_you';
+        });
+    }
+
+    public function test_sync_service_is_noop_outside_local_environment(): void
+    {
+        app()->detectEnvironment(fn (): string => 'production');
+
+        $mock = Mockery::mock(StripePaymentService::class);
+        $mock->shouldNotReceive('retrievePaymentIntent');
+        $this->instance(StripePaymentService::class, $mock);
+
+        app(LocalStripeDonationSync::class)->ingestSucceededPaymentIntent('pi_ignored');
+
+        $this->assertTrue(true);
+    }
+}
