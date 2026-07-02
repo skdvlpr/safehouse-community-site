@@ -86,11 +86,19 @@
     }
 
     .footer-bar {
-        @apply flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between;
+        @apply flex items-stretch justify-between gap-6 lg:gap-10;
+    }
+
+    .footer-brand {
+        @apply flex min-h-[4.5rem] flex-col justify-between gap-2 sm:min-h-[5rem];
+    }
+
+    .footer-brand__tagline {
+        @apply max-w-xs text-sm leading-snug text-safehouse-muted;
     }
 
     .footer-nav {
-        @apply flex flex-col items-end gap-2 text-sm lg:ml-auto;
+        @apply flex min-h-[4.5rem] flex-col items-end justify-between self-stretch text-sm sm:min-h-[5rem];
     }
 
     .footer-nav__link {
@@ -110,7 +118,7 @@
     }
 
     .nav-dropdown__panel {
-        @apply pointer-events-none invisible absolute top-full left-1/2 z-50 min-w-52 -translate-x-1/2 overflow-hidden rounded-xl border border-white/5 bg-[#080808]/98 opacity-0 shadow-2xl shadow-black/60 backdrop-blur-xl transition-[opacity,visibility] duration-200 ease-out;
+        @apply pointer-events-none invisible absolute top-full left-0 z-50 min-w-full overflow-hidden rounded-b-xl border border-t-0 border-white/5 bg-[#050505]/98 opacity-0 shadow-2xl shadow-black/70 backdrop-blur-xl transition-[opacity,visibility] duration-200 ease-out;
     }
 
     .nav-dropdown__panel::before {

@@ -62,4 +62,11 @@ return [
         'example_key' => 'contact',
     ],
 
+    'home' => [
+        'label' => 'Home page',
+        'description' => 'Public homepage hero, CTAs, and impact stats.',
+        'view' => 'pages.templates.home',
+        'example_key' => 'home',
+    ],
+
 ];

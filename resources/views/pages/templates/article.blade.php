@@ -8,7 +8,11 @@
 @section('content')
     <x-page-template-shell :page="$page">
         <div class="template-article-rail">
-            @include('pages.partials.template-eyebrow', ['label' => __('site.pages.templates.article')])
+            @include('pages.partials.section-label', [
+                'page' => $page,
+                'locale' => $locale,
+                'fallbackKey' => 'site.pages.templates.article',
+            ])
 
             <div class="template-article-meta">
                 <span>{{ __('site.pages.article_label') }}</span>

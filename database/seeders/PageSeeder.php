@@ -9,6 +9,87 @@ class PageSeeder extends Seeder
 {
     public function run(): void
     {
+        Page::query()->updateOrCreate(
+            ['key' => 'home'],
+            [
+                'template' => 'home',
+                'is_published' => true,
+                'title' => [
+                    'it' => 'Safe House Community',
+                    'en' => 'Safe House Community',
+                    'ru' => 'Safe House Community',
+                ],
+                'slug' => [
+                    'it' => 'home',
+                    'en' => 'home',
+                    'ru' => 'home',
+                ],
+                'body' => [
+                    'it' => '<p></p>',
+                    'en' => '<p></p>',
+                    'ru' => '<p></p>',
+                ],
+                'meta' => [
+                    'eyebrow' => [
+                        'it' => 'Comunità di accoglienza',
+                        'en' => 'A welcoming community',
+                        'ru' => 'Сообщество гостеприимства',
+                    ],
+                    'section_label' => [
+                        'it' => 'Il nostro impatto',
+                        'en' => 'Our impact',
+                        'ru' => 'Наш вклад',
+                    ],
+                    'stats_heading' => [
+                        'it' => 'Il nostro impatto',
+                        'en' => 'Our impact',
+                        'ru' => 'Наш вклад',
+                    ],
+                    'stats_lead' => [
+                        'it' => 'Dati aggiornati — collegamento al CRM in arrivo.',
+                        'en' => 'Updated figures — CRM integration coming soon.',
+                        'ru' => 'Актуальные данные — интеграция с CRM скоро.',
+                    ],
+                    'cta_donate' => [
+                        'it' => 'Sostieni una raccolta',
+                        'en' => 'Support a campaign',
+                        'ru' => 'Поддержать сбор',
+                    ],
+                    'cta_volunteer' => [
+                        'it' => 'Diventa volontario',
+                        'en' => 'Become a volunteer',
+                        'ru' => 'Стать волонтёром',
+                    ],
+                    'stats' => [
+                        [
+                            'value' => '—',
+                            'label' => [
+                                'it' => 'Volontari accolti',
+                                'en' => 'Volunteers welcomed',
+                                'ru' => 'Принятых волонтёров',
+                            ],
+                        ],
+                        [
+                            'value' => '—',
+                            'label' => [
+                                'it' => 'Ore di formazione',
+                                'en' => 'Training hours',
+                                'ru' => 'Часов обучения',
+                            ],
+                        ],
+                        [
+                            'value' => '—',
+                            'label' => [
+                                'it' => 'Progetti attivi',
+                                'en' => 'Active projects',
+                                'ru' => 'Активных проектов',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        );
+
         $existingAbout = Page::query()->where('key', 'about')->first();
 
         Page::query()->updateOrCreate(
@@ -31,7 +112,13 @@ class PageSeeder extends Seeder
                     'en' => '<p>Safe House ETS is a non-profit association committed to protecting human rights and providing concrete support to people experiencing social, economic, and housing vulnerability.</p><p>We work every day to build paths of inclusion, autonomy, and protection — combining humanitarian assistance, legal advocacy, digital support, and social reintegration.</p>',
                     'ru' => '<p>Safe House ETS — некоммерческая ассоциация, которая защищает права человека и оказывает практическую поддержку людям в уязвимом положении.</p><p>Мы строим пути включения, автономии и защиты — от экстренной помощи до долгосрочного сопровождения.</p>',
                 ],
-                'meta' => $this->aboutMeta(is_array($existingAbout?->meta) ? $existingAbout->meta : null),
+                'meta' => array_merge($this->aboutMeta(is_array($existingAbout?->meta) ? $existingAbout->meta : null), [
+                    'section_label' => [
+                        'it' => 'Chi siamo',
+                        'en' => 'About us',
+                        'ru' => 'О нас',
+                    ],
+                ]),
             ],
         );
 

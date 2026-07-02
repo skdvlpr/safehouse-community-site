@@ -26,14 +26,29 @@ class PageTemplateFormFields
 
         $fields[] = TextInput::make("slug.{$locale}")
             ->label('Slug')
-            ->required($isPrimaryLocale)
+            ->required(fn (Get $get): bool => $isPrimaryLocale && $get('template') !== 'home')
             ->maxLength(255)
-            ->alphaDash();
+            ->alphaDash()
+            ->visible(fn (Get $get): bool => $get('template') !== 'home');
 
         $fields[] = RichEditor::make("body.{$locale}")
             ->label(fn (Get $get): string => static::bodyLabel($get('template')))
             ->helperText(fn (Get $get): ?string => static::bodyHelper($get('template')))
-            ->required($isPrimaryLocale)
+            ->required(fn (Get $get): bool => $isPrimaryLocale && $get('template') !== 'home')
+            ->visible(fn (Get $get): bool => $get('template') !== 'home')
+            ->columnSpanFull();
+
+        $fields[] = TextInput::make("meta.section_label.{$locale}")
+            ->label('Section label (red)')
+            ->helperText('Small red label or banner text for this page. Leave empty for the default.')
+            ->maxLength(80)
+            ->columnSpanFull();
+
+        $fields[] = TextInput::make("meta.eyebrow.{$locale}")
+            ->label('Hero eyebrow')
+            ->helperText('Small red line above the main title.')
+            ->maxLength(255)
+            ->visible(fn (Get $get): bool => in_array($get('template'), ['home', 'landing'], true))
             ->columnSpanFull();
 
         $fields[] = TextInput::make("meta.tagline.{$locale}")
@@ -57,7 +72,74 @@ class PageTemplateFormFields
             ->visible(fn (Get $get): bool => $get('template') === 'about')
             ->columnSpanFull();
 
+        $fields[] = TextInput::make("meta.stats_heading.{$locale}")
+            ->label('Stats section title')
+            ->maxLength(255)
+            ->visible(fn (Get $get): bool => $get('template') === 'home')
+            ->columnSpanFull();
+
+        $fields[] = TextInput::make("meta.stats_lead.{$locale}")
+            ->label('Stats section intro')
+            ->maxLength(500)
+            ->visible(fn (Get $get): bool => $get('template') === 'home')
+            ->columnSpanFull();
+
+        $fields[] = TextInput::make("meta.cta_donate.{$locale}")
+            ->label('Donate button label')
+            ->maxLength(120)
+            ->visible(fn (Get $get): bool => $get('template') === 'home')
+            ->columnSpanFull();
+
+        $fields[] = TextInput::make("meta.cta_volunteer.{$locale}")
+            ->label('Volunteer button label')
+            ->maxLength(120)
+            ->visible(fn (Get $get): bool => $get('template') === 'home')
+            ->columnSpanFull();
+
         return $fields;
+    }
+
+    public static function homeStatsSection(): Section
+    {
+        $locales = config('locales.available', ['it', 'ru', 'en']);
+        $statFields = [];
+
+        foreach ($locales as $locale) {
+            $label = strtoupper($locale);
+
+            $statFields[] = TextInput::make("label.{$locale}")
+                ->label("Label ({$label})")
+                ->maxLength(255);
+        }
+
+        $statFields[] = TextInput::make('value')
+            ->label('Value')
+            ->helperText('Number or placeholder, e.g. 1.000+ or —')
+            ->maxLength(32);
+
+        return Section::make('Home stats')
+            ->description('Impact cards below the hero.')
+            ->visible(fn (Get $get): bool => $get('template') === 'home')
+            ->schema([
+                Repeater::make('meta.stats')
+                    ->label('Stats')
+                    ->reorderable()
+                    ->collapsible()
+                    ->itemLabel(function (array $state): string {
+                        foreach (config('locales.available', ['it', 'ru', 'en']) as $locale) {
+                            $label = $state['label'][$locale] ?? null;
+
+                            if (is_string($label) && $label !== '') {
+                                return $label;
+                            }
+                        }
+
+                        return (string) ($state['value'] ?? 'New stat');
+                    })
+                    ->schema($statFields)
+                    ->columnSpanFull(),
+            ])
+            ->columnSpanFull();
     }
 
     public static function serviceCardsSection(): Section

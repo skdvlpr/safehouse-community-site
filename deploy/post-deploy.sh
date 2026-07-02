@@ -15,6 +15,7 @@ php artisan db:seed --class=RoleSeeder --force --no-interaction
 php artisan db:seed --class=PageSeeder --force --no-interaction
 php artisan db:seed --class=DeployArticleSeeder --force --no-interaction
 php artisan db:seed --class=DonationCampaignSeeder --force --no-interaction
+php artisan db:seed --class=DeploySiteContentSeeder --force --no-interaction
 php artisan db:seed --class=DeployIntegrationSeeder --force --no-interaction
 
 php artisan cache:clear --no-interaction

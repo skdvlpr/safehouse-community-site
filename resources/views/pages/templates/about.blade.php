@@ -19,7 +19,7 @@
         ])
 
         <div class="page-section-band" aria-hidden="true">
-            <span>{{ __('site.pages.templates.about') }}</span>
+            <span>{{ $pages->sectionLabel($page, $locale, 'site.pages.templates.about') }}</span>
         </div>
 
         <div class="template-about-grid">

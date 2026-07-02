@@ -9,7 +9,11 @@
 
 @section('content')
     <x-page-template-shell :page="$page">
-        @include('pages.partials.template-eyebrow', ['label' => __('site.pages.templates.services')])
+        @include('pages.partials.section-label', [
+            'page' => $page,
+            'locale' => $locale,
+            'fallbackKey' => 'site.pages.templates.services',
+        ])
 
         @if ($body)
             <div class="template-services-banner safehouse-prose">

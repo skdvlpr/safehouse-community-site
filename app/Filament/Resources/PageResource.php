@@ -110,6 +110,7 @@ class PageResource extends Resource
                     ->collapsed(),
 
                 PageTemplateFormFields::serviceCardsSection(),
+                PageTemplateFormFields::homeStatsSection(),
 
                 Tabs::make('Translations')
                     ->tabs($tabs)

@@ -5,7 +5,11 @@
 
 @section('content')
     <x-page-template-shell :page="$page">
-        @include('pages.partials.template-eyebrow', ['label' => __('site.pages.templates.legal')])
+        @include('pages.partials.section-label', [
+            'page' => $page,
+            'locale' => $locale,
+            'fallbackKey' => 'site.pages.templates.legal',
+        ])
 
         @include('pages.partials.page-header', ['title' => $title, 'lead' => __('site.pages.legal_lead'), 'page' => $page])
 

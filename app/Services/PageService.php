@@ -211,10 +211,6 @@ class PageService
         return is_string($fallback) && $fallback !== '' ? $fallback : null;
     }
 
-    /**
-     * @param  array<string, mixed>|null  $meta
-     * @return list<array<string, mixed>>
-     */
     public function localizedServiceCards(?array $meta, ?string $locale = null): array
     {
         if ($meta === null) {
@@ -251,6 +247,58 @@ class PageService
         }
 
         return $resolved;
+    }
+
+    public function sectionLabel(\App\Models\Page $page, string $locale, string $fallbackLangKey): string
+    {
+        $custom = $this->localizedMeta($page->meta, 'section_label', $locale);
+
+        if ($custom !== null && $custom !== '') {
+            return $custom;
+        }
+
+        return (string) __($fallbackLangKey, [], $locale);
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $meta
+     * @return list<array{value: string, label: string}>
+     */
+    public function localizedHomeStats(?array $meta, ?string $locale = null): array
+    {
+        $locale ??= app()->getLocale();
+        $stats = $meta['stats'] ?? [];
+
+        if (! is_array($stats) || $stats === []) {
+            return collect(config('home.stats', []))
+                ->map(fn (array $stat): array => [
+                    'value' => (string) ($stat['value'] ?? '—'),
+                    'label' => (string) __($stat['label'] ?? '', [], $locale),
+                ])
+                ->all();
+        }
+
+        $resolved = [];
+
+        foreach ($stats as $stat) {
+            if (! is_array($stat)) {
+                continue;
+            }
+
+            $value = (string) ($stat['value'] ?? '—');
+            $label = $this->pickLocalized($stat['label'] ?? null, $locale) ?? '';
+
+            if ($label === '') {
+                continue;
+            }
+
+            $resolved[] = [
+                'value' => $value,
+                'label' => $label,
+            ];
+        }
+
+        return $resolved !== [] ? $resolved : $this->localizedHomeStats(null, $locale);
     }
 
     private function pickLocalized(mixed $value, string $locale): ?string
