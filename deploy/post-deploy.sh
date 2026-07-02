@@ -9,6 +9,28 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
+fix_runtime_permissions() {
+    if command -v sudo >/dev/null 2>&1; then
+        sudo chown -R "${USER:-deploy}:www-data" storage bootstrap/cache 2>/dev/null || true
+    fi
+
+    chmod -R ug+rwX storage bootstrap/cache 2>/dev/null || true
+
+    for dir in storage/framework/views storage/framework/cache storage/logs; do
+        mkdir -p "$dir"
+        chmod 2775 "$dir" 2>/dev/null || true
+        find "$dir" -type d -exec chmod 2775 {} + 2>/dev/null || true
+        find "$dir" -type f -exec chmod 664 {} + 2>/dev/null || true
+    done
+
+    if command -v setfacl >/dev/null 2>&1; then
+        setfacl -R -m g:www-data:rwX -d g:www-data:rwX storage/framework/views 2>/dev/null || true
+        setfacl -R -m g:www-data:rwX -d g:www-data:rwX storage/framework/cache 2>/dev/null || true
+    fi
+}
+
+fix_runtime_permissions
+
 php artisan migrate --force --no-interaction
 
 php artisan optimize:clear --no-interaction
@@ -30,13 +52,7 @@ php artisan filament:optimize --no-interaction
 php artisan route:clear --no-interaction
 php artisan view:clear --no-interaction
 
-# Ensure PHP-FPM (www-data) can read/write runtime dirs after CLI deploy.
-if command -v sudo >/dev/null 2>&1; then
-    sudo chown -R "${USER:-deploy}:www-data" storage bootstrap/cache 2>/dev/null || true
-fi
-chmod -R ug+rwX storage bootstrap/cache 2>/dev/null || true
-chmod g+s storage/framework/views storage/framework/cache storage/logs 2>/dev/null || true
-find storage/framework/views -type f -exec chmod g+rw {} + 2>/dev/null || true
+fix_runtime_permissions
 php artisan view:clear --no-interaction
 
 php artisan cms:health --no-interaction || true
@@ -47,7 +63,7 @@ if command -v sudo >/dev/null 2>&1; then
     else
         echo "WARN: Could not run cms:health as www-data (passwordless sudo missing)."
         echo "      After deploy, run on the server:"
-        echo "        cd ${DEPLOY_PATH} && php artisan optimize:clear && sudo chown -R deploy:www-data storage bootstrap/cache && sudo chmod -R ug+rwx storage bootstrap/cache && sudo systemctl reload php8.3-fpm"
+        echo "        cd ${DEPLOY_PATH} && php artisan view:clear && sudo chown -R deploy:www-data storage bootstrap/cache && sudo chmod -R ug+rwX storage bootstrap/cache && sudo find storage/framework/views -type f -exec chmod 664 {} +"
     fi
 fi
 
