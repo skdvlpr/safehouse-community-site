@@ -86,15 +86,53 @@
     }
 
     .footer-bar {
-        @apply flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between;
+        @apply flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between;
     }
 
     .footer-nav {
-        @apply flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-sm lg:ml-auto lg:flex-nowrap;
+        @apply flex flex-col items-end gap-2 text-sm lg:ml-auto;
     }
 
     .footer-nav__link {
-        @apply whitespace-nowrap text-safehouse-muted transition hover:text-safehouse-link;
+        @apply text-end whitespace-nowrap text-safehouse-muted transition hover:text-safehouse-link;
+    }
+
+    .nav-dropdown {
+        @apply relative;
+    }
+
+    .nav-dropdown__trigger {
+        @apply inline-flex cursor-default items-center gap-1 text-sm font-medium transition;
+    }
+
+    .nav-dropdown__chevron {
+        @apply h-4 w-4 opacity-60 transition-transform duration-200 group-hover:rotate-180;
+    }
+
+    .nav-dropdown__panel {
+        @apply pointer-events-none invisible absolute top-full left-1/2 z-50 min-w-52 -translate-x-1/2 overflow-hidden rounded-xl border border-white/5 bg-[#080808]/98 opacity-0 shadow-2xl shadow-black/60 backdrop-blur-xl transition-[opacity,visibility] duration-200 ease-out;
+    }
+
+    .nav-dropdown__panel::before {
+        content: '';
+        @apply absolute -top-2 left-0 h-2 w-full;
+    }
+
+    .nav-dropdown:hover .nav-dropdown__panel,
+    .nav-dropdown:focus-within .nav-dropdown__panel {
+        @apply pointer-events-auto visible opacity-100;
+    }
+
+    .nav-dropdown__link {
+        @apply block px-4 py-2.5 text-sm text-safehouse-muted transition hover:bg-white/5 hover:text-safehouse-text;
+    }
+
+    .nav-dropdown__link--active {
+        @apply bg-safehouse-primary/10 text-safehouse-primary;
+    }
+
+    .nav-dropdown.is-active .nav-dropdown__trigger {
+        @apply text-safehouse-primary;
     }
 
     .safehouse-glass {
@@ -343,5 +381,260 @@
 
     .page-carousel__thumb-image {
         @apply h-16 w-24 object-cover md:h-20 md:w-28;
+    }
+
+    .cookie-consent {
+        @apply pointer-events-auto fixed inset-x-0 bottom-0 z-[9999] p-4 md:p-5;
+    }
+
+    .cookie-consent.is-hidden {
+        @apply hidden;
+    }
+
+    .cookie-consent__shell {
+        @apply mx-auto w-full max-w-site-content;
+    }
+
+    .cookie-consent__card {
+        @apply overflow-hidden rounded-2xl border border-white/15 shadow-[0_-8px_40px_rgb(0_0_0_/_55%)];
+        border-top: 3px solid var(--color-safehouse-primary);
+    }
+
+    .cookie-consent__main {
+        @apply grid gap-4 p-4 md:grid-cols-[auto_1fr_auto] md:items-center md:gap-6 md:p-5;
+    }
+
+    .cookie-consent__badge {
+        @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-safehouse-primary/15 text-safehouse-primary;
+    }
+
+    .cookie-consent__icon {
+        @apply h-6 w-6;
+    }
+
+    .cookie-consent__title {
+        @apply text-base font-semibold text-safehouse-text;
+    }
+
+    .cookie-consent__text {
+        @apply mt-1 text-sm leading-relaxed text-safehouse-muted;
+    }
+
+    .cookie-consent__links {
+        @apply mt-2 text-xs;
+    }
+
+    .cookie-consent__links a {
+        @apply text-safehouse-link underline-offset-2 hover:text-safehouse-link-hover hover:underline;
+    }
+
+    .cookie-consent__actions {
+        @apply flex flex-col gap-2 sm:flex-row sm:flex-wrap md:justify-end;
+    }
+
+    .cookie-consent__btn {
+        @apply inline-flex min-h-10 cursor-pointer items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium leading-none transition select-none;
+        pointer-events: auto;
+    }
+
+    .cookie-consent__btn--primary {
+        @apply border border-transparent bg-safehouse-primary text-white hover:bg-safehouse-primary-hover active:scale-[0.98];
+    }
+
+    .cookie-consent__btn--secondary {
+        @apply border border-safehouse-primary/70 bg-transparent text-safehouse-text hover:bg-safehouse-primary/15 active:scale-[0.98];
+    }
+
+    .cookie-consent__btn--ghost {
+        @apply border border-transparent bg-transparent text-safehouse-muted hover:text-safehouse-text hover:underline active:scale-[0.98];
+    }
+
+    .cookie-consent__btn--compact {
+        @apply min-h-8 px-2 py-1 text-xs;
+    }
+
+    .cookie-consent__panel {
+        @apply border-t border-white/10 bg-black/30 px-4 py-4 md:px-5 md:py-5;
+    }
+
+    .cookie-consent__panel.is-hidden {
+        @apply hidden;
+    }
+
+    .cookie-consent__panel-head {
+        @apply mb-3 flex items-center justify-between gap-3;
+    }
+
+    .cookie-consent__panel-title {
+        @apply text-sm font-semibold text-safehouse-text;
+    }
+
+    .cookie-consent__options {
+        @apply grid gap-3 md:grid-cols-2;
+    }
+
+    .cookie-consent__option {
+        @apply flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-safehouse-muted;
+    }
+
+    .cookie-consent__option input {
+        @apply mt-0.5 shrink-0 accent-safehouse-primary;
+    }
+
+    .cookie-consent__option-note {
+        @apply mt-1 block text-xs leading-relaxed text-safehouse-muted;
+    }
+
+    .cookie-consent__panel-actions {
+        @apply mt-4 flex justify-end;
+    }
+
+    body.cookie-banner-open {
+        padding-bottom: 7.5rem;
+    }
+
+    @media (width >= 768px) {
+        body.cookie-banner-open {
+            padding-bottom: 6.5rem;
+        }
+    }
+
+    .donation-form {
+        @apply space-y-6 rounded-3xl border border-white/10 bg-safehouse-modal/95 p-6 shadow-[0_24px_80px_rgb(0_0_0_/_35%)] backdrop-blur-sm sm:p-8;
+    }
+
+    .donation-form__header {
+        @apply mb-2 space-y-3;
+    }
+
+    .donation-form__title {
+        @apply text-3xl font-semibold tracking-tight text-safehouse-text sm:text-4xl;
+    }
+
+    .donation-form__description {
+        @apply text-base leading-relaxed text-safehouse-muted;
+    }
+
+    .donation-form__section {
+        @apply space-y-3;
+    }
+
+    .donation-form__label {
+        @apply block text-sm font-medium text-safehouse-text;
+    }
+
+    .donation-form__input {
+        @apply w-full rounded-2xl border border-white/10 bg-safehouse-page/80 px-4 py-3 text-base text-safehouse-text transition outline-none placeholder:text-safehouse-muted/70 focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20;
+    }
+
+    .donation-form__input--textarea {
+        @apply min-h-28 resize-y;
+    }
+
+    .donation-form__segmented {
+        @apply grid grid-cols-1 gap-2 sm:grid-cols-2;
+    }
+
+    .donation-form__segment {
+        @apply relative flex cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-safehouse-page/60 px-4 py-3 text-sm font-medium text-safehouse-muted transition hover:border-white/20 hover:text-safehouse-text;
+    }
+
+    .donation-form__segment:has(input:checked) {
+        @apply border-safehouse-primary/70 bg-safehouse-primary/10 text-safehouse-text;
+    }
+
+    .donation-form__segment input {
+        @apply sr-only;
+    }
+
+    .donation-form__presets {
+        @apply grid grid-cols-2 gap-2 sm:grid-cols-3;
+    }
+
+    .donation-form__preset {
+        @apply rounded-2xl border border-white/10 bg-safehouse-page/70 px-4 py-3 text-sm font-semibold text-safehouse-text transition hover:border-safehouse-primary/40 hover:bg-safehouse-primary/5;
+    }
+
+    .donation-form__preset.is-active {
+        @apply border-safehouse-primary bg-safehouse-primary/15 text-white shadow-[0_0_0_1px_rgb(220_38_38_/_35%)];
+    }
+
+    .donation-form__amount-wrap {
+        @apply relative;
+    }
+
+    .donation-form__input--amount {
+        @apply pr-16;
+    }
+
+    .donation-form__amount-suffix {
+        @apply pointer-events-none absolute inset-y-0 end-4 flex items-center text-sm font-medium text-safehouse-muted;
+    }
+
+    .donation-form__hint {
+        @apply text-xs text-safehouse-muted;
+    }
+
+    .donation-form__notice {
+        @apply rounded-2xl border border-white/10 bg-safehouse-page/70 p-4 text-sm text-safehouse-muted;
+    }
+
+    .donation-form__notice--warning {
+        @apply border-amber-500/30 bg-amber-500/10 text-amber-100;
+    }
+
+    .donation-form__privacy {
+        @apply text-xs leading-relaxed text-safehouse-muted;
+
+        & a {
+            @apply text-safehouse-link underline underline-offset-2 hover:text-safehouse-link-hover;
+        }
+    }
+
+    .donation-form__stripe {
+        @apply rounded-2xl border border-white/10 bg-safehouse-page/80 p-4;
+    }
+
+    .donation-form__error {
+        @apply rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200;
+    }
+
+    .donation-form__submit {
+        @apply w-full rounded-2xl px-4 py-3.5 text-base font-semibold disabled:opacity-50;
+    }
+}
+
+@layer components {
+    .fundraising-progress {
+        @apply space-y-2;
+    }
+
+    .fundraising-progress__amounts {
+        @apply flex flex-wrap items-baseline gap-1 text-sm;
+    }
+
+    .fundraising-progress__collected {
+        @apply font-semibold text-safehouse-text;
+    }
+
+    .fundraising-progress__separator,
+    .fundraising-progress__target {
+        @apply text-safehouse-muted;
+    }
+
+    .fundraising-progress__track {
+        @apply relative h-6 overflow-hidden rounded-full bg-white/10;
+    }
+
+    .fundraising-progress__fill {
+        @apply flex h-full min-w-[2.75rem] items-center justify-end rounded-full bg-safehouse-primary px-2 transition-[width] duration-500 ease-out;
+    }
+
+    .fundraising-progress__percent {
+        @apply text-xs font-semibold text-white;
+    }
+
+    .fundraising-progress__collected-only {
+        @apply text-sm text-safehouse-muted;
     }
 }

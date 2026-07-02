@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateDonationIntentRequest;
 use App\Models\DonationCampaign;
 use App\Services\Payments\StripePaymentService;
+use App\Support\IntegrationConfig;
 use Illuminate\Http\JsonResponse;
 use RuntimeException;
 
@@ -40,7 +41,7 @@ class DonationCheckoutController extends Controller
         return response()->json([
             'client_secret' => $result['client_secret'],
             'payment_intent_id' => $result['payment_intent_id'],
-            'publishable_key' => config('stripe.key') ?: config('stripe.mock_publishable_key'),
+            'publishable_key' => IntegrationConfig::string('stripe.key') ?: config('stripe.mock_publishable_key'),
             'mock' => StripePaymentService::mockModeEnabled(),
             'complete_url' => StripePaymentService::mockModeEnabled()
                 ? route('api.donations.mock.complete', ['paymentIntent' => $result['payment_intent_id']])

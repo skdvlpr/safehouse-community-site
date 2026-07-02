@@ -13,7 +13,11 @@ php artisan migrate --force --no-interaction
 
 php artisan db:seed --class=RoleSeeder --force --no-interaction
 php artisan db:seed --class=PageSeeder --force --no-interaction
-php artisan db:seed --class=ArticleSeeder --force --no-interaction
+php artisan db:seed --class=DeployArticleSeeder --force --no-interaction
+php artisan db:seed --class=DonationCampaignSeeder --force --no-interaction
+php artisan db:seed --class=DeployIntegrationSeeder --force --no-interaction
+
+php artisan cache:clear --no-interaction
 
 php artisan storage:link --force 2>/dev/null || true
 

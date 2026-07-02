@@ -3,6 +3,7 @@
 namespace App\Services\Payments;
 
 use App\Models\DonationCampaign;
+use App\Support\IntegrationConfig;
 use RuntimeException;
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
@@ -16,7 +17,7 @@ class StripePaymentService
 
     public static function fromConfig(): self
     {
-        $secret = (string) config('stripe.secret');
+        $secret = IntegrationConfig::string('stripe.secret');
 
         if ($secret === '') {
             throw new RuntimeException('Stripe secret key is not configured.');
@@ -36,7 +37,7 @@ class StripePaymentService
         }
 
         return app()->environment('local')
-            && (string) config('stripe.secret') === '';
+            && IntegrationConfig::string('stripe.secret') === '';
     }
 
     public function createDonationIntent(
@@ -60,9 +61,9 @@ class StripePaymentService
                 'metadata' => $this->metadata($campaign, $donorName, $donorType, $comment),
             ];
 
-            $descriptor = trim((string) config('stripe.statement_descriptor', ''));
-            if ($descriptor !== '') {
-                $payload['statement_descriptor'] = mb_substr($descriptor, 0, 22);
+            $suffix = self::statementDescriptorSuffix();
+            if ($suffix !== '') {
+                $payload['statement_descriptor_suffix'] = $suffix;
             }
 
             $intent = $this->client->paymentIntents->create($payload);
@@ -87,7 +88,7 @@ class StripePaymentService
             throw new RuntimeException('Stripe client is not configured.');
         }
 
-        $secret = (string) config('stripe.webhook_secret');
+        $secret = IntegrationConfig::string('stripe.webhook_secret');
         if ($secret === '' || $signature === null || $signature === '') {
             throw new RuntimeException('Stripe webhook is not configured.');
         }
@@ -133,5 +134,12 @@ class StripePaymentService
         $intent = $event->data->object;
 
         return $intent instanceof PaymentIntent ? $intent : null;
+    }
+
+    public static function statementDescriptorSuffix(): string
+    {
+        $descriptor = trim(IntegrationConfig::string('stripe.statement_descriptor', 'SAFE HOUSE'));
+
+        return $descriptor === '' ? '' : mb_substr($descriptor, 0, 22);
     }
 }

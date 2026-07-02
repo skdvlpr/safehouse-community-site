@@ -17,8 +17,10 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RoleSeeder::class,
+            AdminUserSeeder::class,
             PageSeeder::class,
             ArticleSeeder::class,
+            DonationCampaignSeeder::class,
         ]);
 
         if (! User::query()->where('email', 'test@example.com')->exists()) {

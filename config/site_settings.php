@@ -1,0 +1,89 @@
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | CMS-editable integration keys (DB overrides .env when set)
+    |--------------------------------------------------------------------------
+    |
+    | Filament → Settings → Integrations. Secrets are encrypted at rest.
+    |
+    */
+
+    'keys' => [
+        'stripe.key' => [
+            'label' => 'Stripe publishable key',
+            'group' => 'stripe',
+            'encrypted' => false,
+            'config' => 'stripe.key',
+        ],
+        'stripe.secret' => [
+            'label' => 'Stripe secret key',
+            'group' => 'stripe',
+            'encrypted' => true,
+            'config' => 'stripe.secret',
+        ],
+        'stripe.webhook_secret' => [
+            'label' => 'Stripe webhook signing secret',
+            'group' => 'stripe',
+            'encrypted' => true,
+            'config' => 'stripe.webhook_secret',
+        ],
+        'stripe.currency' => [
+            'label' => 'Default currency',
+            'group' => 'stripe',
+            'encrypted' => false,
+            'config' => 'stripe.currency',
+        ],
+        'stripe.statement_descriptor' => [
+            'label' => 'Card statement descriptor',
+            'group' => 'stripe',
+            'encrypted' => false,
+            'config' => 'stripe.statement_descriptor',
+        ],
+        'stripe.account_id' => [
+            'label' => 'Stripe account id (optional)',
+            'group' => 'stripe',
+            'encrypted' => false,
+            'config' => 'stripe.account_id',
+        ],
+        'stripe.account_name' => [
+            'label' => 'Stripe account label (optional)',
+            'group' => 'stripe',
+            'encrypted' => false,
+            'config' => 'stripe.account_name',
+        ],
+        'espocrm.base_url' => [
+            'label' => 'CRM base URL',
+            'group' => 'espocrm',
+            'encrypted' => false,
+            'config' => 'espocrm.base_url',
+        ],
+        'espocrm.api_key' => [
+            'label' => 'CRM API key',
+            'group' => 'espocrm',
+            'encrypted' => true,
+            'config' => 'espocrm.api_key',
+        ],
+        'espocrm.assigned_user_id' => [
+            'label' => 'CRM assigned user id',
+            'group' => 'espocrm',
+            'encrypted' => false,
+            'config' => 'espocrm.assigned_user_id',
+        ],
+        'espocrm.prima_nota.default_beneficiary_name' => [
+            'label' => 'Prima Nota beneficiary name',
+            'group' => 'espocrm',
+            'encrypted' => false,
+            'config' => 'espocrm.prima_nota.default_beneficiary_name',
+        ],
+        'espocrm.prima_nota.default_subject_name' => [
+            'label' => 'Prima Nota default payer name',
+            'group' => 'espocrm',
+            'encrypted' => false,
+            'config' => 'espocrm.prima_nota.default_subject_name',
+        ],
+    ],
+
+];

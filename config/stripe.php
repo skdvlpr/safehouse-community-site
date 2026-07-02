@@ -21,6 +21,14 @@ return [
     'statement_descriptor' => env('STRIPE_STATEMENT_DESCRIPTOR', 'SAFE HOUSE'),
 
     /*
+     * Optional reference fields — CMS Integrations overrides .env when set.
+     * account_id is verified by php artisan stripe:verify against the API.
+     */
+    'account_id' => env('STRIPE_ACCOUNT_ID'),
+
+    'account_name' => env('STRIPE_ACCOUNT_NAME'),
+
+    /*
      * Public webhook URL for production registration in Stripe Dashboard.
      * Local dev: use `stripe listen --forward-to …` instead.
      */

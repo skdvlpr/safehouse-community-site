@@ -37,15 +37,6 @@ class EspoCrmPartyResolver
     {
         $entityType = (string) config('espocrm.prima_nota.beneficiary_party_entity', 'Account');
         $name = $payload->beneficiaryName();
-        $configuredId = trim((string) config('espocrm.prima_nota.beneficiary_account_id', ''));
-
-        if ($configuredId !== '') {
-            return [
-                'beneficiaryName' => $name,
-                'beneficiaryPartyId' => $configuredId,
-                'beneficiaryPartyType' => $entityType,
-            ];
-        }
 
         return $this->resolvePartyFields(
             prefix: 'beneficiary',

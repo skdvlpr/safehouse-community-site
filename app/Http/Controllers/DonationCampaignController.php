@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DonationCampaign;
+use App\Services\Donations\CampaignFundraisingProgressService;
 use App\Services\Payments\StripePaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -10,7 +11,7 @@ use Illuminate\View\View;
 
 class DonationCampaignController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, CampaignFundraisingProgressService $progressService): View
     {
         $campaigns = DonationCampaign::query()
             ->active()
@@ -20,10 +21,11 @@ class DonationCampaignController extends Controller
 
         return view('donations.index', [
             'campaigns' => $campaigns,
+            'progressBySlug' => $progressService->forCampaigns($campaigns),
         ]);
     }
 
-    public function show(string $locale, string $campaignSlug): View
+    public function show(string $locale, string $campaignSlug, CampaignFundraisingProgressService $progressService): View
     {
         $campaign = DonationCampaign::query()->where('slug', $campaignSlug)->firstOrFail();
         abort_unless($campaign->is_active, 404);
@@ -31,6 +33,7 @@ class DonationCampaignController extends Controller
         return view('donations.show', [
             'campaign' => $campaign,
             'stripeMock' => StripePaymentService::mockModeEnabled(),
+            'fundraisingProgress' => $progressService->forCampaign($campaign),
         ]);
     }
 
@@ -54,9 +57,14 @@ class DonationCampaignController extends Controller
                 ->with('donation_notice', __('Completa il pagamento dalla pagina della raccolta.'));
         }
 
+        $donorName = trim((string) $request->query('donor_name', ''));
+
         return view('donations.thank-you', [
             'campaign' => $campaign,
             'paymentIntentId' => $paymentIntentId,
+            'donorName' => mb_substr($donorName, 0, 255),
+            'thankYouHeading' => $campaign->thankYouHeading($donorName),
+            'thankYouBody' => $campaign->thankYouBody($locale),
         ]);
     }
 }

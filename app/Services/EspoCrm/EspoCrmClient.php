@@ -2,6 +2,7 @@
 
 namespace App\Services\EspoCrm;
 
+use App\Support\IntegrationConfig;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -15,8 +16,8 @@ class EspoCrmClient
 
     public static function fromConfig(): self
     {
-        $baseUrl = (string) config('espocrm.base_url');
-        $apiKey = (string) config('espocrm.api_key');
+        $baseUrl = IntegrationConfig::string('espocrm.base_url');
+        $apiKey = IntegrationConfig::string('espocrm.api_key');
 
         if ($baseUrl === '' || $apiKey === '') {
             throw new RuntimeException('EspoCRM base URL and API key must be configured.');

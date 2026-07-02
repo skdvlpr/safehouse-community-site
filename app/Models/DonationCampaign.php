@@ -21,6 +21,7 @@ class DonationCampaign extends Model
         'description',
         'privacy_notice',
         'form_notice',
+        'thank_you_message',
     ];
 
     /**
@@ -32,6 +33,7 @@ class DonationCampaign extends Model
         'description',
         'privacy_notice',
         'form_notice',
+        'thank_you_message',
         'preset_amounts',
         'allow_custom_amount',
         'min_amount_cents',
@@ -86,7 +88,77 @@ class DonationCampaign extends Model
     public function presetAmountCents(): array
     {
         $amounts = $this->preset_amounts ?? [];
+        $min = (int) $this->min_amount_cents;
 
-        return array_values(array_filter(array_map('intval', $amounts)));
+        $cents = array_values(array_unique(array_filter(
+            array_map('intval', is_array($amounts) ? $amounts : []),
+            static fn (int $value): bool => $value > 0,
+        )));
+
+        sort($cents);
+
+        return array_values(array_filter(
+            $cents,
+            static fn (int $value): bool => $value >= $min,
+        ));
+    }
+
+    public function formatPresetLabel(int $cents): string
+    {
+        $amount = $cents / 100;
+        $decimals = fmod($amount, 1.0) === 0.0 ? 0 : 2;
+        $formatted = number_format($amount, $decimals, ',', '.');
+        $currency = strtoupper((string) $this->currency);
+
+        return $currency === 'EUR' ? $formatted.' €' : $formatted.' '.$currency;
+    }
+
+    public function thankYouBody(?string $locale = null): string
+    {
+        $locale ??= app()->getLocale();
+
+        $message = trim((string) ($this->getTranslation('thank_you_message', $locale, false)
+            ?: $this->getTranslation('thank_you_message', 'it', false)
+            ?: ''));
+
+        if ($message !== '') {
+            return $message;
+        }
+
+        return (string) __('site.donations.thank_you_body');
+    }
+
+    public function thankYouHeading(string $donorName = ''): string
+    {
+        $firstName = trim(explode(' ', trim($donorName))[0] ?? '');
+
+        if ($firstName !== '') {
+            return (string) __('site.donations.thank_you_named', ['name' => $firstName]);
+        }
+
+        return (string) __('site.donations.thank_you_generic');
+    }
+
+    public static function parseEuroTagToCents(string $value): int
+    {
+        $normalized = str_replace([' ', '€'], '', trim($value));
+        $normalized = str_replace(',', '.', $normalized);
+
+        if ($normalized === '' || ! is_numeric($normalized)) {
+            return 0;
+        }
+
+        return (int) round((float) $normalized * 100);
+    }
+
+    public static function formatEuroTag(int $cents): string
+    {
+        $amount = $cents / 100;
+
+        if (fmod($amount, 1.0) === 0.0) {
+            return (string) (int) $amount;
+        }
+
+        return str_replace('.', ',', number_format($amount, 2, '.', ''));
     }
 }

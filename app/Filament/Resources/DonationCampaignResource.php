@@ -57,6 +57,11 @@ class DonationCampaignResource extends Resource
                     RichEditor::make("privacy_notice.{$locale}")
                         ->label('Privacy page content')
                         ->columnSpanFull(),
+                    Textarea::make("thank_you_message.{$locale}")
+                        ->label('Thank-you message')
+                        ->helperText('Shown on the page after a successful payment. Leave empty to use the default site text.')
+                        ->rows(4)
+                        ->columnSpanFull(),
                 ]);
         }
 
@@ -68,9 +73,33 @@ class DonationCampaignResource extends Resource
                 ->maxLength(255),
             Tabs::make('Translations')->tabs($tabs)->columnSpanFull(),
             TagsInput::make('preset_amounts')
-                ->label('Preset amounts (cents)')
-                ->placeholder('500, 1000, 2500')
-                ->helperText('Values in cents, e.g. 500 = €5.00'),
+                ->label('Preset amounts (EUR)')
+                ->placeholder('5, 10, 25, 50')
+                ->helperText('Amounts in euros. 5 = €5.00, 12,50 = €12.50. Stored as cents internally.')
+                ->formatStateUsing(function (?array $state): array {
+                    if ($state === null || $state === []) {
+                        return [];
+                    }
+
+                    return array_values(array_map(
+                        fn ($cents) => DonationCampaign::formatEuroTag((int) $cents),
+                        $state,
+                    ));
+                })
+                ->dehydrateStateUsing(function (?array $state): array {
+                    if ($state === null || $state === []) {
+                        return [];
+                    }
+
+                    $cents = array_values(array_unique(array_filter(array_map(
+                        fn ($value) => DonationCampaign::parseEuroTagToCents((string) $value),
+                        $state,
+                    ), static fn (int $value): bool => $value > 0)));
+
+                    sort($cents);
+
+                    return $cents;
+                }),
             Toggle::make('allow_custom_amount')->default(true),
             TextInput::make('min_amount_cents')->numeric()->default(50)->required(),
             TextInput::make('currency')->default('EUR')->maxLength(3)->required(),

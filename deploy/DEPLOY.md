@@ -80,6 +80,47 @@ Enter SSH password when prompted (or use your SSH key).
 
 ## Content sync
 
+Deploy seeds (idempotent, safe to re-run):
+
+| Seeder | Content |
+|--------|---------|
+| `PageSeeder` | Core pages (about, services, privacy, …) |
+| `DeployArticleSeeder` | Articles from `database/seeders/data/deploy-articles.php` |
+| `DonationCampaignSeeder` | Demo donation campaigns |
+| `DeployIntegrationSeeder` | Stripe **test** keys from `database/seeders/data/deploy-integrations.php` |
+
+Re-export from local CMS before deploy:
+
+```bash
+ddev exec php artisan site:export-deploy-data
+git add database/seeders/data/
+git commit -m "Update deploy content export"
+```
+
+CRM API key is **not** in the export — set `ESPOCRM_API_KEY` in server `.env` or CMS → Integrations.
+
+## Stripe test mode on production
+
+After first deploy:
+
+1. **Webhook (required for donations)** — Stripe Dashboard → [Webhooks](https://dashboard.stripe.com/test/webhooks) → Add endpoint:
+   - URL: `https://safehouse.community/api/webhooks/stripe`
+   - Events: `payment_intent.succeeded`
+   - Copy signing secret (`whsec_…`) → CMS → **Integrations** → Stripe webhook secret (or `STRIPE_WEBHOOK_SECRET` in `.env`)
+
+2. **Verify** on server:
+   ```bash
+   cd /var/www/safehouse-community-site
+   php artisan stripe:verify
+   php artisan config:clear && php artisan cache:clear
+   ```
+
+3. **Test payment** — open `/it/donazioni/safe-house`, use card `4242 4242 4242 4242`, any future expiry/CVC.
+
+4. **Switch to live** later — replace keys in CMS → Integrations and register a **live** webhook with the same URL.
+
+Deploy seeds already load **test** publishable/secret keys. Only webhook secret must be set manually (it is unique per endpoint).
+
 ## After deploy
 
 1. Open `https://safehouse.community` (after DNS).

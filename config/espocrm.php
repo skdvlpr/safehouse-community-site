@@ -29,8 +29,6 @@ return [
         'default_subject_name' => env('ESPOCRM_PRIMA_NOTA_DEFAULT_SUBJECT', 'Donatore'),
         'default_beneficiary_name' => env('ESPOCRM_PRIMA_NOTA_DEFAULT_BENEFICIARY', 'Safe House'),
         'beneficiary_party_entity' => 'Account',
-        // Pin canonical NGO account — skips name lookup (recommended in production).
-        'beneficiary_account_id' => env('ESPOCRM_BENEFICIARY_ACCOUNT_ID'),
     ],
 
 ];

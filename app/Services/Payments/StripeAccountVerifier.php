@@ -2,6 +2,7 @@
 
 namespace App\Services\Payments;
 
+use App\Support\IntegrationConfig;
 use RuntimeException;
 use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
@@ -23,9 +24,9 @@ class StripeAccountVerifier
 
         $checks = [];
 
-        $publishableKey = (string) config('stripe.key');
-        $secretKey = (string) config('stripe.secret');
-        $webhookSecret = (string) config('stripe.webhook_secret');
+        $publishableKey = IntegrationConfig::string('stripe.key');
+        $secretKey = IntegrationConfig::string('stripe.secret');
+        $webhookSecret = IntegrationConfig::string('stripe.webhook_secret');
 
         $checks[] = $this->checkKeyPresent('STRIPE_KEY (publishable)', $publishableKey);
         $checks[] = $this->checkKeyPresent('STRIPE_SECRET', $secretKey);
@@ -74,6 +75,18 @@ class StripeAccountVerifier
             ($balance->livemode ? 'Live' : 'Test').' mode — account '.$account->id,
         );
 
+        $expectedAccountId = IntegrationConfig::string('stripe.account_id');
+        if ($expectedAccountId !== '') {
+            $checks[] = ($account->id ?? '') === $expectedAccountId
+                ? $this->pass('Account id match', $expectedAccountId)
+                : $this->fail('Account id match', "Expected {$expectedAccountId}, API returned {$account->id}");
+        }
+
+        $accountLabel = IntegrationConfig::string('stripe.account_name');
+        if ($accountLabel !== '') {
+            $checks[] = $this->pass('Account label (reference)', $accountLabel);
+        }
+
         $checks[] = ($account->charges_enabled ?? false)
             ? $this->pass('Charges enabled', 'Card payments allowed')
             : $this->fail('Charges enabled', 'Complete Stripe onboarding / verification in Dashboard');
@@ -83,18 +96,18 @@ class StripeAccountVerifier
             : $this->fail('Payouts enabled', 'Add association bank account in Stripe → Settings → Payouts');
 
         $defaultCurrency = strtolower((string) ($account->default_currency ?? ''));
-        $expectedCurrency = strtolower((string) config('stripe.currency', 'eur'));
+        $expectedCurrency = strtolower(IntegrationConfig::string('stripe.currency', 'eur'));
         $checks[] = $defaultCurrency === $expectedCurrency || $defaultCurrency === ''
             ? $this->pass('Default currency', strtoupper($expectedCurrency))
             : $this->fail('Default currency', "Account default is {$defaultCurrency}, site expects {$expectedCurrency}");
 
-        $descriptor = (string) config('stripe.statement_descriptor', '');
+        $descriptor = StripePaymentService::statementDescriptorSuffix();
         if ($descriptor === '') {
-            $checks[] = $this->fail('Statement descriptor', 'Set STRIPE_STATEMENT_DESCRIPTOR (max 22 chars)');
+            $checks[] = $this->fail('Statement descriptor suffix', 'Set stripe.statement_descriptor in CMS or .env (max 22 chars)');
         } elseif (strlen($descriptor) > 22) {
-            $checks[] = $this->fail('Statement descriptor', 'Max 22 characters for card statements');
+            $checks[] = $this->fail('Statement descriptor suffix', 'Max 22 characters for card statements');
         } else {
-            $checks[] = $this->pass('Statement descriptor', $descriptor);
+            $checks[] = $this->pass('Statement descriptor suffix', $descriptor);
         }
 
         $webhookUrl = (string) config('stripe.webhook_url', '');
@@ -144,7 +157,7 @@ class StripeAccountVerifier
         }
 
         return $required
-            ? $this->fail($label, 'Missing in .env')
+            ? $this->fail($label, 'Missing — set in CMS Integrations or .env')
             : $this->pass($label, 'Optional — not set');
     }
 

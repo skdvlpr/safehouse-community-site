@@ -83,6 +83,8 @@ class MockDonationCheckoutTest extends TestCase
 
     public function test_donation_page_shows_mock_banner_in_mock_mode(): void
     {
+        config(['app.debug' => true]);
+
         DonationCampaign::factory()->create([
             'slug' => 'banner-campaign',
             'title' => ['it' => 'Raccolta banner'],
@@ -91,7 +93,7 @@ class MockDonationCheckoutTest extends TestCase
 
         $this->get(route('donations.show', ['locale' => 'it', 'campaignSlug' => 'banner-campaign']))
             ->assertOk()
-            ->assertSee('Modalità locale', false);
+            ->assertSee(__('site.donations.dev_simulation', [], 'it'), false);
     }
 
     protected function tearDown(): void

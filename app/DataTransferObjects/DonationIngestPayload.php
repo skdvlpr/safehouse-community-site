@@ -2,6 +2,8 @@
 
 namespace App\DataTransferObjects;
 
+use App\Support\IntegrationConfig;
+
 readonly class DonationIngestPayload
 {
     public function __construct(
@@ -67,13 +69,13 @@ readonly class DonationIngestPayload
             return $name;
         }
 
-        return (string) config('espocrm.prima_nota.default_subject_name', 'Donatore');
+        return IntegrationConfig::string('espocrm.prima_nota.default_subject_name', 'Donatore');
     }
 
     /** Beneficiario — receiving organization. */
     public function beneficiaryName(): string
     {
-        return (string) config('espocrm.prima_nota.default_beneficiary_name', 'Safe House');
+        return IntegrationConfig::string('espocrm.prima_nota.default_beneficiary_name', 'Safe House');
     }
 
     public function isOrganization(): bool

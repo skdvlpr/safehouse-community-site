@@ -62,7 +62,7 @@ class PageResource extends Resource
             ->schema([
                 TextInput::make('key')
                     ->label('Stable key')
-                    ->helperText('Used for navigation links, e.g. about, services, contact.')
+                    ->helperText('Used for direct navigation links (about, services, contact). Pages without these keys appear automatically under “Altre Pagine” in the site menu when published.')
                     ->maxLength(64)
                     ->alphaDash()
                     ->unique(ignoreRecord: true),

@@ -108,22 +108,6 @@ class EspoCrmPartyResolverTest extends TestCase
         ], $resolver->resolveBeneficiaryPartyFields($this->payload()));
     }
 
-    public function test_uses_configured_beneficiary_account_id_without_search(): void
-    {
-        config()->set('espocrm.prima_nota.beneficiary_account_id', 'acc-canonical');
-
-        $client = $this->createMock(EspoCrmClient::class);
-        $client->expects($this->never())->method('search');
-
-        $resolver = new EspoCrmPartyResolver($client);
-
-        $this->assertSame([
-            'beneficiaryName' => 'Safe House',
-            'beneficiaryPartyId' => 'acc-canonical',
-            'beneficiaryPartyType' => 'Account',
-        ], $resolver->resolveBeneficiaryPartyFields($this->payload()));
-    }
-
     public function test_picks_oldest_beneficiary_account_when_multiple_match(): void
     {
         $client = $this->createMock(EspoCrmClient::class);

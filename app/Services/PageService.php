@@ -39,6 +39,40 @@ class PageService
             ->first();
     }
 
+    /**
+     * Published CMS pages that are not linked directly in the main navigation.
+     *
+     * @return \Illuminate\Support\Collection<int, Page>
+     */
+    public function extraMenuPages(string $locale): \Illuminate\Support\Collection
+    {
+        if (! Schema::hasTable('pages')) {
+            return collect();
+        }
+
+        $standardKeys = \App\Support\Navigation::standardPageKeys();
+
+        return Page::query()
+            ->where('is_published', true)
+            ->where(function ($query) use ($standardKeys): void {
+                $query->whereNull('key');
+
+                if ($standardKeys !== []) {
+                    $query->orWhereNotIn('key', $standardKeys);
+                }
+            })
+            ->orderBy('id')
+            ->get()
+            ->filter(fn (Page $page): bool => $this->hasSlugForLocale($page, $locale))
+            ->sortBy(
+                fn (Page $page): string => mb_strtolower((string) ($page->getTranslation('title', $locale, false)
+                    ?: $page->getTranslation('title', 'it', false)
+                    ?: '')),
+                SORT_NATURAL,
+            )
+            ->values();
+    }
+
     public function urlForKey(string $key, ?string $locale = null): ?string
     {
         $locale ??= app()->getLocale();

@@ -4,6 +4,7 @@
     $locale = app()->getLocale();
     $title = $campaign->getTranslation('title', $locale, false) ?: $campaign->getTranslation('title', 'it');
     $formNotice = $campaign->getTranslation('form_notice', $locale, false) ?: $campaign->getTranslation('form_notice', 'it');
+    $description = $campaign->getTranslation('description', $locale, false);
     $presets = $campaign->presetAmountCents();
 @endphp
 
@@ -11,80 +12,119 @@
 
 @section('content')
     @if (session('donation_notice'))
-        <p class="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">{{ session('donation_notice') }}</p>
+        <p class="mb-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-100">
+            {{ session('donation_notice') }}
+        </p>
     @endif
 
-    <h1 class="mb-2 text-3xl font-semibold">{{ $title }}</h1>
-    @if ($campaign->getTranslation('description', $locale, false))
-        <div class="prose prose-invert mb-6 max-w-none text-safehouse-muted">{!! nl2br(e($campaign->getTranslation('description', $locale))) !!}</div>
-    @endif
+    <form id="donation-form" class="space-y-6 rounded-3xl border border-white/10 bg-safehouse-modal p-6 shadow-xl sm:p-8">
+        <header class="space-y-3">
+            <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">{{ $title }}</h1>
+            @if (! empty($fundraisingProgress))
+                @include('donations.partials.fundraising-progress', ['progress' => $fundraisingProgress])
+            @endif
+            @if ($description)
+                <div class="safehouse-prose max-w-none text-base text-safehouse-muted [&_p:last-child]:mb-0">
+                    {!! $description !!}
+                </div>
+            @endif
+        </header>
 
-    <form id="donation-form" class="space-y-6 rounded-xl border border-white/10 bg-safehouse-modal p-6">
         @csrf
 
-        <div>
-            <label class="mb-2 block text-sm font-medium">{{ __('Tipo di donatore') }}</label>
-            <div class="flex gap-4">
-                <label class="inline-flex items-center gap-2"><input type="radio" name="donor_type" value="individual" checked> {{ __('Persona fisica') }}</label>
-                <label class="inline-flex items-center gap-2"><input type="radio" name="donor_type" value="organization"> {{ __('Organizzazione / azienda') }}</label>
+        <div class="space-y-3">
+            <span class="block text-sm font-medium">{{ __('Tipo di donatore') }}</span>
+            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <label class="flex cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-safehouse-page/70 px-4 py-3 text-sm has-[:checked]:border-safehouse-primary has-[:checked]:bg-safehouse-primary/10">
+                    <input type="radio" name="donor_type" value="individual" class="sr-only" checked>
+                    <span>{{ __('Persona fisica') }}</span>
+                </label>
+                <label class="flex cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-safehouse-page/70 px-4 py-3 text-sm has-[:checked]:border-safehouse-primary has-[:checked]:bg-safehouse-primary/10">
+                    <input type="radio" name="donor_type" value="organization" class="sr-only">
+                    <span>{{ __('Organizzazione / azienda') }}</span>
+                </label>
             </div>
         </div>
 
-        <div>
-            <label for="donor_name" class="mb-2 block text-sm font-medium">{{ __('Nome o ragione sociale') }}</label>
+        <div class="space-y-2">
+            <label for="donor_name" class="block text-sm font-medium">{{ __('Nome o ragione sociale') }}</label>
             <input id="donor_name" name="donor_name" required maxlength="255"
-                   class="w-full rounded-lg border border-white/10 bg-safehouse-page px-3 py-2">
+                   class="w-full rounded-2xl border border-white/10 bg-safehouse-page px-4 py-3 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
         </div>
 
-        <div>
-            <label for="comment" class="mb-2 block text-sm font-medium">{{ __('Commento (opzionale)') }}</label>
+        <div class="space-y-2">
+            <label for="comment" class="block text-sm font-medium">{{ __('Commento (opzionale)') }}</label>
             <textarea id="comment" name="comment" rows="3" maxlength="5000"
-                      class="w-full rounded-lg border border-white/10 bg-safehouse-page px-3 py-2"></textarea>
+                      class="min-h-28 w-full resize-y rounded-2xl border border-white/10 bg-safehouse-page px-4 py-3 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20"></textarea>
         </div>
 
-        <div>
-            <label class="mb-2 block text-sm font-medium">{{ __('Importo') }} ({{ strtoupper($campaign->currency) }})</label>
+        <div class="space-y-3">
+            <span class="block text-sm font-medium">{{ __('Importo') }} ({{ strtoupper($campaign->currency) }})</span>
+
             @if (count($presets) > 0)
-                <div class="mb-3 flex flex-wrap gap-2" id="preset-buttons">
+                <div class="grid grid-cols-2 gap-2 sm:grid-cols-3" id="preset-buttons">
                     @foreach ($presets as $cents)
-                        <button type="button" data-cents="{{ $cents }}"
-                                class="preset-btn rounded-lg border border-white/10 px-4 py-2 text-sm hover:border-safehouse-primary">
-                            {{ number_format($cents / 100, 0) }} €
+                        <button type="button"
+                                data-cents="{{ $cents }}"
+                                class="preset-btn rounded-2xl border border-white/10 bg-safehouse-page/70 px-3 py-3 text-sm font-semibold transition hover:border-safehouse-primary/40">
+                            {{ $campaign->formatPresetLabel($cents) }}
                         </button>
                     @endforeach
                 </div>
             @endif
+
             @if ($campaign->allow_custom_amount)
-                <input id="amount_eur" name="amount_eur" type="number" min="{{ $campaign->min_amount_cents / 100 }}" step="0.01"
-                       placeholder="{{ __('Importo personalizzato') }}"
-                       class="w-full rounded-lg border border-white/10 bg-safehouse-page px-3 py-2">
+                <div class="relative">
+                    <input id="amount_eur"
+                           name="amount_eur"
+                           type="number"
+                           min="{{ number_format($campaign->min_amount_cents / 100, 2, '.', '') }}"
+                           step="0.01"
+                           inputmode="decimal"
+                           aria-label="{{ __('Importo personalizzato') }}"
+                           placeholder="0,00"
+                           class="w-full rounded-2xl border border-white/10 bg-safehouse-page py-3 pe-16 ps-4 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
+                    <span class="pointer-events-none absolute inset-y-0 end-4 flex items-center text-sm font-medium text-safehouse-muted">
+                        {{ strtoupper($campaign->currency) }}
+                    </span>
+                </div>
             @endif
-            <p class="mt-1 text-xs text-safehouse-muted">{{ __('Minimo') }}: {{ number_format($campaign->min_amount_cents / 100, 2) }} {{ strtoupper($campaign->currency) }}</p>
+
+            <p class="text-xs text-safehouse-muted">
+                {{ __('Minimo') }}: {{ $campaign->formatPresetLabel($campaign->min_amount_cents) }}
+            </p>
         </div>
 
         @if ($formNotice)
-            <p class="rounded-lg bg-safehouse-page p-4 text-sm text-safehouse-muted">{{ $formNotice }}</p>
+            <p class="rounded-2xl border border-white/10 bg-safehouse-page/70 p-4 text-sm text-safehouse-muted">{{ $formNotice }}</p>
         @endif
 
-        <p class="text-xs text-safehouse-muted">
+        <p class="text-xs leading-relaxed text-safehouse-muted">
             {{ __('I dati della carta non vengono mai memorizzati sui nostri server: il pagamento è gestito da Stripe.') }}
-            <a href="{{ route('donations.privacy', ['locale' => $locale, 'campaignSlug' => $campaign->slug]) }}" class="text-safehouse-primary underline">{{ __('Informativa privacy pagamenti') }}</a>
+            <a href="{{ route('donations.privacy', ['locale' => $locale, 'campaignSlug' => $campaign->slug]) }}"
+               class="text-safehouse-link underline underline-offset-2 hover:text-safehouse-link-hover">
+                {{ __('Informativa privacy pagamenti') }}
+            </a>
         </p>
 
-        @if ($stripeMock)
-            <p class="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
-                {{ __('Modalità locale: pagamento simulato senza Stripe. La donazione verrà registrata in EspoCRM come in produzione.') }}
+        @if ($stripeMock && config('app.debug'))
+            <p class="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-100">
+                {{ __('site.donations.dev_simulation') }}
             </p>
         @endif
 
-        <div id="payment-element" class="hidden rounded-lg border border-white/10 p-4"></div>
-        <div id="mock-payment-panel" @class(['hidden' => ! $stripeMock, 'rounded-lg border border-dashed border-amber-500/40 p-4 text-sm text-safehouse-muted'])>
-            {{ __('Dopo aver compilato il modulo, usa il pulsante sotto per simulare un pagamento riuscito.') }}
-        </div>
-        <p id="payment-errors" class="hidden text-sm text-red-400"></p>
+        <div id="payment-element" class="hidden rounded-2xl border border-white/10 bg-safehouse-page/80 p-4"></div>
+
+        @if ($stripeMock && config('app.debug'))
+            <div id="mock-payment-panel" class="hidden rounded-2xl border border-dashed border-amber-500/40 p-4 text-sm text-amber-100">
+                {{ __('site.donations.dev_simulation_hint') }}
+            </div>
+        @endif
+
+        <p id="payment-errors" class="hidden rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"></p>
 
         <button type="submit" id="submit-button"
-                class="safehouse-btn-primary w-full rounded-lg px-4 py-3 font-medium disabled:opacity-50">
+                class="safehouse-btn-primary w-full rounded-2xl px-4 py-3.5 text-base font-semibold disabled:opacity-50">
             {{ __('Continua al pagamento') }}
         </button>
     </form>
@@ -101,8 +141,9 @@
     const paymentElementContainer = document.getElementById('payment-element');
     const mockPaymentPanel = document.getElementById('mock-payment-panel');
     const errorEl = document.getElementById('payment-errors');
+    const amountInput = document.getElementById('amount_eur');
     const intentUrl = @json(route('api.donations.intents.store', ['donationCampaign' => $campaign->slug]));
-    const thankYouUrl = @json(route('donations.thank-you', ['locale' => $locale, 'campaignSlug' => $campaign->slug]));
+    const thankYouBaseUrl = @json(route('donations.thank-you', ['locale' => $locale, 'campaignSlug' => $campaign->slug]));
     const stripeMock = @json($stripeMock);
     let stripe = null;
     let elements = null;
@@ -110,14 +151,41 @@
     let completeUrl = null;
     let selectedCents = null;
 
-    document.querySelectorAll('.preset-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            selectedCents = parseInt(btn.dataset.cents, 10);
-            document.getElementById('amount_eur')?.value && (document.getElementById('amount_eur').value = (selectedCents / 100).toFixed(2));
-            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('border-safehouse-primary'));
-            btn.classList.add('border-safehouse-primary');
+    function thankYouUrl() {
+        const params = new URLSearchParams();
+        const donorName = form.donor_name.value.trim();
+        if (donorName !== '') {
+            params.set('donor_name', donorName);
+        }
+
+        const query = params.toString();
+        return query === '' ? thankYouBaseUrl : `${thankYouBaseUrl}?${query}`;
+    }
+
+    function clearPresetSelection() {
+        selectedCents = null;
+        document.querySelectorAll('.preset-btn').forEach((button) => {
+            button.classList.remove('border-safehouse-primary', 'bg-safehouse-primary/15', 'text-white');
         });
+    }
+
+    function selectPreset(button) {
+        selectedCents = parseInt(button.dataset.cents, 10);
+        document.querySelectorAll('.preset-btn').forEach((item) => {
+            item.classList.remove('border-safehouse-primary', 'bg-safehouse-primary/15', 'text-white');
+        });
+        button.classList.add('border-safehouse-primary', 'bg-safehouse-primary/15', 'text-white');
+
+        if (amountInput) {
+            amountInput.value = (selectedCents / 100).toFixed(2);
+        }
+    }
+
+    document.querySelectorAll('.preset-btn').forEach((button) => {
+        button.addEventListener('click', () => selectPreset(button));
     });
+
+    amountInput?.addEventListener('input', () => clearPresetSelection());
 
     function showError(message) {
         errorEl.textContent = message;
@@ -125,10 +193,15 @@
     }
 
     function resolveAmountCents() {
-        if (selectedCents) return selectedCents;
-        const input = document.getElementById('amount_eur');
-        if (!input || !input.value) return null;
-        return Math.round(parseFloat(input.value) * 100);
+        if (selectedCents) {
+            return selectedCents;
+        }
+
+        if (!amountInput || amountInput.value === '') {
+            return null;
+        }
+
+        return Math.round(parseFloat(amountInput.value.replace(',', '.')) * 100);
     }
 
     form.addEventListener('submit', async (event) => {
@@ -200,13 +273,19 @@
                 return;
             }
 
-            window.location.href = thankYouUrl + '?payment_intent=' + encodeURIComponent(completeData.payment_intent_id ?? '');
+            const params = new URLSearchParams();
+            params.set('payment_intent', completeData.payment_intent_id ?? '');
+            const donorName = form.donor_name.value.trim();
+            if (donorName !== '') {
+                params.set('donor_name', donorName);
+            }
+            window.location.href = `${thankYouBaseUrl}?${params.toString()}`;
             return;
         }
 
         const { error } = await stripe.confirmPayment({
             elements,
-            confirmParams: { return_url: thankYouUrl },
+            confirmParams: { return_url: thankYouUrl() },
         });
 
         if (error) {

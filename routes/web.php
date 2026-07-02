@@ -3,6 +3,7 @@
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ContactSubmissionController;
 use App\Http\Controllers\DonationCampaignController;
+use App\Http\Controllers\GdprConsentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\VolunteerController;
@@ -31,6 +32,10 @@ Route::prefix('{locale}')
         Route::get('/_preview/pages/{page}', [PageController::class, 'preview'])
             ->middleware('signed')
             ->name('pages.preview');
+
+        Route::post('/cookie-consent', [GdprConsentController::class, 'store'])
+            ->middleware('throttle:gdpr')
+            ->name('cookie-consent.store');
 
         Route::post('/contact', [ContactSubmissionController::class, 'store'])
             ->middleware('throttle:contact')

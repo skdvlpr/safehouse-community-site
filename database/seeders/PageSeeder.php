@@ -189,9 +189,9 @@ class PageSeeder extends Seeder
                     'ru' => 'cookie',
                 ],
                 'body' => [
-                    'it' => '<p>Informativa sui cookie utilizzati da safehouse.community. Banner GDPR e preferenze — task P6.</p>',
-                    'en' => '<p>Information about cookies used on safehouse.community. GDPR banner and preferences — scheduled in Phase P6.</p>',
-                    'ru' => '<p>Информация о cookie на safehouse.community. Баннер GDPR — фаза P6.</p>',
+                    'it' => '<p>Questo sito utilizza cookie necessari per il funzionamento (sessione, sicurezza) e, previo consenso, cookie analitici. Puoi gestire le preferenze dal banner cookie o contattarci per maggiori informazioni.</p>',
+                    'en' => '<p>This site uses essential cookies (session, security) and, with your consent, analytics cookies. Manage preferences from the cookie banner or contact us for more information.</p>',
+                    'ru' => '<p>На сайте используются необходимые cookie (сессия, безопасность) и, с вашего согласия, аналитические cookie. Настройки — в баннере cookie или по запросу.</p>',
                 ],
             ],
         );
@@ -212,9 +212,9 @@ class PageSeeder extends Seeder
                     'ru' => 'primer-landing',
                 ],
                 'body' => [
-                    'it' => '<p>Template landing: hero a tutta larghezza, gradiente rosso e pulsanti CTA. Usa per campagne o pagine promozionali.</p>',
-                    'en' => '<p>Landing template: full-width hero, red gradient, and CTA buttons for campaigns.</p>',
-                    'ru' => '<p>Шаблон лендинга: широкий hero, градиент и CTA-кнопки.</p>',
+                    'it' => '<p>Template landing per campagne e iniziative speciali: hero a tutta larghezza, messaggio chiaro e invito all\'azione. Ideale per raccolte temporanee o eventi sul territorio.</p>',
+                    'en' => '<p>Landing template for campaigns and special initiatives: full-width hero, clear message, and a call to action. Ideal for time-bound drives or community events.</p>',
+                    'ru' => '<p>Шаблон лендинга для кампаний и специнициатив: широкий hero, понятное сообщение и призыв к действию.</p>',
                 ],
             ],
         );
@@ -235,9 +235,9 @@ class PageSeeder extends Seeder
                     'ru' => 'primer-statya',
                 ],
                 'body' => [
-                    'it' => '<p>Template articolo: colonna stretta, capolettera rossa e meta data di aggiornamento. Ideale per approfondimenti e rassegne stampa.</p><p>Il secondo paragrafo mantiene la tipografia da lettura lunga.</p>',
-                    'en' => '<p>Article template: narrow column, red drop cap, and updated date meta for long reads.</p><p>Second paragraph keeps editorial typography.</p>',
-                    'ru' => '<p>Шаблон статьи: узкая колонка, буквица и дата обновления.</p><p>Второй абзац для длинного чтения.</p>',
+                    'it' => '<p>Template articolo per approfondimenti, testimonianze e rassegna stampa. Tipografia da lettura lunga e data di aggiornamento in evidenza.</p><p>Usa questa pagina come esempio di contenuto editoriale curato dal CMS.</p>',
+                    'en' => '<p>Article template for in-depth stories, testimonials, and press reviews. Long-read typography with a visible updated date.</p><p>Use this page as an example of editorial content managed in the CMS.</p>',
+                    'ru' => '<p>Шаблон статьи для материалов, историй и обзора прессы. Типографика для длинного чтения с датой обновления.</p><p>Пример редакционного контента из CMS.</p>',
                 ],
             ],
         );
@@ -258,9 +258,32 @@ class PageSeeder extends Seeder
                     'ru' => 'hab-novostey',
                 ],
                 'body' => [
-                    'it' => '<p>Template news index: testo introduttivo e card CTA verso l\'elenco dinamico /notizie.</p>',
-                    'en' => '<p>News index template: intro copy and CTA card to the dynamic /notizie list.</p>',
-                    'ru' => '<p>Шаблон хаба новостей: вступление и CTA на /notizie.</p>',
+                    'it' => '<p>Template hub notizie: introduzione e collegamento all\'elenco dinamico delle notizie pubblicate sul sito.</p>',
+                    'en' => '<p>News hub template: intro copy and a link to the dynamic news list on the site.</p>',
+                    'ru' => '<p>Шаблон хаба новостей: вступление и ссылка на динамический список новостей.</p>',
+                ],
+            ],
+        );
+
+        Page::query()->updateOrCreate(
+            ['key' => 'trasparenza'],
+            [
+                'template' => 'legal',
+                'is_published' => true,
+                'title' => [
+                    'it' => 'Trasparenza',
+                    'en' => 'Transparency',
+                    'ru' => 'Прозрачность',
+                ],
+                'slug' => [
+                    'it' => 'trasparenza',
+                    'en' => 'transparency',
+                    'ru' => 'prozrachnost',
+                ],
+                'body' => [
+                    'it' => '<p>Pubblichiamo annualmente bilancio sociale, rendicontazione delle raccolte e informazioni sul governo associativo. Questa pagina è un esempio di contenuto aggiuntivo gestito dal CMS e visibile nel menu <strong>Altre Pagine</strong>.</p><p>Per richieste specifiche scrivi a <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>',
+                    'en' => '<p>We publish an annual social report, fundraising summaries, and governance information. This page is an example of extra CMS content shown under <strong>Other pages</strong> in the menu.</p><p>For specific requests email <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>',
+                    'ru' => '<p>Мы публикуем годовой социальный отчёт, сводки по сборам и информацию об управлении ассоциацией. Эта страница — пример дополнительного CMS-контента в меню <strong>Другие страницы</strong>.</p><p>По запросам: <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>',
                 ],
             ],
         );

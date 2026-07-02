@@ -8,12 +8,26 @@ return [
         ['label' => 'site.nav.services', 'page_key' => 'services'],
         ['label' => 'site.nav.news', 'route' => 'articles.index'],
         ['label' => 'site.nav.donations', 'route' => 'donations.index'],
+        ['label' => 'site.nav.other_pages', 'type' => 'pages_dropdown'],
     ],
 
     'footer' => [
         ['label' => 'site.nav.privacy', 'page_key' => 'privacy'],
         ['label' => 'site.nav.contact', 'page_key' => 'contact'],
         ['label' => 'site.nav.cookie', 'page_key' => 'cookie'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Page keys linked directly in header/footer (excluded from "Altre Pagine")
+    |--------------------------------------------------------------------------
+    */
+    'standard_page_keys' => [
+        'about',
+        'services',
+        'privacy',
+        'contact',
+        'cookie',
     ],
 
 ];

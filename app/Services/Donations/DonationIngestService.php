@@ -6,6 +6,7 @@ use App\DataTransferObjects\DonationIngestPayload;
 use App\Services\EspoCrm\EspoCrmClient;
 use App\Services\EspoCrm\EspoCrmFinanziamentoService;
 use App\Services\EspoCrm\EspoCrmPartyResolver;
+use App\Support\IntegrationConfig;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -51,7 +52,7 @@ class DonationIngestService
             $this->partyResolver->resolveBeneficiaryPartyFields($payload),
         );
 
-        $assignedUserId = (string) config('espocrm.assigned_user_id', '');
+        $assignedUserId = IntegrationConfig::string('espocrm.assigned_user_id');
         if ($assignedUserId !== '') {
             $createPayload['assignedUserId'] = $assignedUserId;
         } else {
