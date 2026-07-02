@@ -30,4 +30,9 @@ return [
         'beneficiary_party_entity' => 'Account',
     ],
 
+    'reporting' => [
+        'meal_count_summary_path' => 'NonprofitEspocrm/reporting/meal-count/summary',
+        'association_meal_count_summary_path' => 'NonprofitEspocrm/reporting/association-meal-count/summary',
+    ],
+
 ];

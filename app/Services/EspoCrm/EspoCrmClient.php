@@ -107,4 +107,12 @@ class EspoCrmClient
 
         return $json;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function reportingSummary(string $path): array
+    {
+        return $this->request('get', ltrim($path, '/'));
+    }
 }

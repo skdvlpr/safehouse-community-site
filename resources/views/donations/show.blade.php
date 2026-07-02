@@ -250,7 +250,9 @@
             stripe = Stripe(data.publishable_key);
             clientSecret = data.client_secret;
             elements = stripe.elements({ clientSecret });
-            const paymentElement = elements.create('payment');
+            const paymentElement = elements.create('payment', {
+                wallets: { link: 'never' },
+            });
             paymentElement.mount('#payment-element');
             paymentElementContainer.classList.remove('hidden');
             submitButton.textContent = @json(__('Paga ora'));

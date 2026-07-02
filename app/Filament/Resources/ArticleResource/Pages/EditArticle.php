@@ -4,11 +4,14 @@ namespace App\Filament\Resources\ArticleResource\Pages;
 
 use App\Filament\Resources\ArticleResource;
 use App\Filament\Resources\ArticleResource\Actions\PreviewArticleAction;
+use App\Filament\Resources\ArticleResource\Concerns\NormalizesArticleCarouselMeta;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
 class EditArticle extends EditRecord
 {
+    use NormalizesArticleCarouselMeta;
+
     protected static string $resource = ArticleResource::class;
 
     protected function getHeaderActions(): array
@@ -21,7 +24,7 @@ class EditArticle extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        return $this->filterTranslatable($data);
+        return $this->normalizeArticleMeta($this->filterTranslatable($data));
     }
 
     /**

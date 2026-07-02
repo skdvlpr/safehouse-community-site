@@ -46,9 +46,9 @@ class PageSeeder extends Seeder
                         'ru' => 'Наш вклад',
                     ],
                     'stats_lead' => [
-                        'it' => 'Dati aggiornati — collegamento al CRM in arrivo.',
-                        'en' => 'Updated figures — CRM integration coming soon.',
-                        'ru' => 'Актуальные данные — интеграция с CRM скоро.',
+                        'it' => 'Conteggi pasti aggiornati dal CRM.',
+                        'en' => 'Meal counts updated from the CRM.',
+                        'ru' => 'Счётчики питания обновляются из CRM.',
                     ],
                     'cta_donate' => [
                         'it' => 'Sostieni una raccolta',
@@ -59,32 +59,6 @@ class PageSeeder extends Seeder
                         'it' => 'Diventa volontario',
                         'en' => 'Become a volunteer',
                         'ru' => 'Стать волонтёром',
-                    ],
-                    'stats' => [
-                        [
-                            'value' => '—',
-                            'label' => [
-                                'it' => 'Volontari accolti',
-                                'en' => 'Volunteers welcomed',
-                                'ru' => 'Принятых волонтёров',
-                            ],
-                        ],
-                        [
-                            'value' => '—',
-                            'label' => [
-                                'it' => 'Ore di formazione',
-                                'en' => 'Training hours',
-                                'ru' => 'Часов обучения',
-                            ],
-                        ],
-                        [
-                            'value' => '—',
-                            'label' => [
-                                'it' => 'Progetti attivi',
-                                'en' => 'Active projects',
-                                'ru' => 'Активных проектов',
-                            ],
-                        ],
                     ],
                 ],
             ],
@@ -329,28 +303,7 @@ class PageSeeder extends Seeder
             ],
         );
 
-        Page::query()->updateOrCreate(
-            ['key' => 'demo-news'],
-            [
-                'template' => 'news_index',
-                'is_published' => true,
-                'title' => [
-                    'it' => 'Hub notizie',
-                    'en' => 'News hub',
-                    'ru' => 'Хаб новостей',
-                ],
-                'slug' => [
-                    'it' => 'hub-notizie',
-                    'en' => 'news-hub',
-                    'ru' => 'hab-novostey',
-                ],
-                'body' => [
-                    'it' => '<p>Template hub notizie: introduzione e collegamento all\'elenco dinamico delle notizie pubblicate sul sito.</p>',
-                    'en' => '<p>News hub template: intro copy and a link to the dynamic news list on the site.</p>',
-                    'ru' => '<p>Шаблон хаба новостей: вступление и ссылка на динамический список новостей.</p>',
-                ],
-            ],
-        );
+        Page::query()->where('key', 'demo-news')->delete();
 
         Page::query()->updateOrCreate(
             ['key' => 'trasparenza'],

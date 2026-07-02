@@ -34,7 +34,7 @@ class DonationIngestService
 
         $financingId = $this->finanziamentoService->ensureExists(
             $payload->campaignTitle,
-            amount: (float) config('espocrm.finanziamento.default_amount', 0),
+            amount: $payload->financingGoalAmount ?? (float) config('espocrm.finanziamento.default_amount', 0),
             currency: $payload->currency,
         );
 

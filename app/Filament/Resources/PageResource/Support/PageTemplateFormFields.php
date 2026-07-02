@@ -74,13 +74,14 @@ class PageTemplateFormFields
 
         $fields[] = TextInput::make("meta.stats_heading.{$locale}")
             ->label('Stats section title')
+            ->helperText('Meal counters are loaded from EspoCRM. Customize the section title here.')
             ->maxLength(255)
             ->visible(fn (Get $get): bool => $get('template') === 'home')
             ->columnSpanFull();
 
         $fields[] = TextInput::make("meta.stats_lead.{$locale}")
             ->label('Stats section intro')
-            ->maxLength(500)
+            ->helperText('Short line below the stats heading.')
             ->visible(fn (Get $get): bool => $get('template') === 'home')
             ->columnSpanFull();
 

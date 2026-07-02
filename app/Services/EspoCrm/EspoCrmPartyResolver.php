@@ -111,24 +111,36 @@ class EspoCrmPartyResolver
      */
     private function findByExactName(string $entityType, string $name): array
     {
-        $result = $this->client->search($entityType, [
-            'select' => 'id,name',
-            'maxSize' => 5,
-            'orderBy' => 'id',
-            'order' => 'asc',
-            'where' => [
-                [
-                    'type' => 'equals',
-                    'attribute' => 'name',
-                    'value' => $name,
+        try {
+            $result = $this->client->search($entityType, [
+                'select' => 'id,name',
+                'maxSize' => 5,
+                'orderBy' => 'id',
+                'order' => 'asc',
+                'where' => [
+                    [
+                        'type' => 'equals',
+                        'attribute' => 'name',
+                        'value' => $name,
+                    ],
+                    [
+                        'type' => 'equals',
+                        'attribute' => 'deleted',
+                        'value' => false,
+                    ],
                 ],
-                [
-                    'type' => 'equals',
-                    'attribute' => 'deleted',
-                    'value' => false,
-                ],
-            ],
-        ]);
+            ]);
+        } catch (RuntimeException $exception) {
+            if (str_contains($exception->getMessage(), 'No read access')) {
+                Log::warning("EspoCRM API user cannot read {$entityType}; creating party inline.", [
+                    'name' => $name,
+                ]);
+
+                return [];
+            }
+
+            throw $exception;
+        }
 
         $list = $result['list'] ?? [];
 

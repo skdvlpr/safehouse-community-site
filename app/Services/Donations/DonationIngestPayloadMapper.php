@@ -37,11 +37,13 @@ class DonationIngestPayloadMapper
     private function build(string $externalId, int $amountCents, string $currency, array $metadata): DonationIngestPayload
     {
         $campaignTitle = (string) ($metadata['campaign_title'] ?? 'Donazioni online');
+        $financingGoalAmount = null;
 
         if (isset($metadata['campaign_id'])) {
             $campaign = DonationCampaign::query()->find($metadata['campaign_id']);
             if ($campaign !== null) {
                 $campaignTitle = $campaign->finanziamentoTitle();
+                $financingGoalAmount = $campaign->fundraisingGoalAmount();
             }
         }
 
@@ -55,6 +57,7 @@ class DonationIngestPayloadMapper
             comment: isset($metadata['comment']) ? (string) $metadata['comment'] : null,
             donorType: isset($metadata['donor_type']) ? (string) $metadata['donor_type'] : null,
             donatedAt: now()->toIso8601String(),
+            financingGoalAmount: $financingGoalAmount,
         );
     }
 }

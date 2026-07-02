@@ -61,6 +61,7 @@ class DeployArticleSeeder extends Seeder
                     'slug' => $articleData['slug'] ?? [],
                     'excerpt' => $articleData['excerpt'] ?? [],
                     'body' => $articleData['body'] ?? [],
+                    'meta' => $articleData['meta'] ?? null,
                     'is_published' => (bool) ($articleData['is_published'] ?? true),
                     'published_at' => isset($articleData['published_at'])
                         ? Carbon::parse((string) $articleData['published_at'])

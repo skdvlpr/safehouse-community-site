@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Article;
 use App\Models\Page;
+use App\Services\EspoCrm\HomeMealStatsService;
 use App\Support\PageCarousel;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Schema;
@@ -166,13 +166,8 @@ class PageService
             'carouselSlides' => PageCarousel::slides($page->meta, $locale),
         ];
 
-        if ($page->template === 'news_index') {
-            $data['recentArticles'] = Article::query()
-                ->where('is_published', true)
-                ->whereNotNull('published_at')
-                ->orderByDesc('published_at')
-                ->limit(3)
-                ->get();
+        if (($page->template ?: 'default') === 'home') {
+            $data['mealStats'] = app(HomeMealStatsService::class)->snapshot();
         }
 
         return $data;

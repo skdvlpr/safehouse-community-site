@@ -34,6 +34,11 @@ class CreateDonationCampaign extends CreateRecord
             $data['preset_amounts'] = array_values(array_map('intval', $data['preset_amounts']));
         }
 
+        if (array_key_exists('fundraising_goal_eur', $data)) {
+            $data['fundraising_goal_cents'] = $data['fundraising_goal_eur'];
+            unset($data['fundraising_goal_eur']);
+        }
+
         return $data;
     }
 }

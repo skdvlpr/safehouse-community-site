@@ -38,6 +38,7 @@ class DonationCampaign extends Model
         'allow_custom_amount',
         'min_amount_cents',
         'currency',
+        'fundraising_goal_cents',
         'espocrm_finanziamento_name',
         'is_active',
         'sort_order',
@@ -80,6 +81,17 @@ class DonationCampaign extends Model
         return (string) ($this->getTranslation('title', $locale, false)
             ?: $this->getTranslation('title', 'it', false)
             ?: $this->slug);
+    }
+
+    public function fundraisingGoalAmount(): ?float
+    {
+        $cents = $this->fundraising_goal_cents;
+
+        if ($cents === null || (int) $cents <= 0) {
+            return null;
+        }
+
+        return ((int) $cents) / 100;
     }
 
     /**

@@ -45,6 +45,7 @@ class DonationCampaignSeeder extends Seeder
                 'allow_custom_amount' => true,
                 'min_amount_cents' => 500,
                 'currency' => 'EUR',
+                'fundraising_goal_cents' => 70000,
                 'espocrm_finanziamento_name' => 'Donate to Safe House',
                 'is_active' => true,
                 'sort_order' => 0,

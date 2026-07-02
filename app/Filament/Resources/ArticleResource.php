@@ -8,12 +8,15 @@ use App\Models\Article;
 use App\Models\ArticleCategory;
 use BackedEnum;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
@@ -70,6 +73,14 @@ class ArticleResource extends Resource
                 ]);
         }
 
+        $carouselAltFields = [];
+
+        foreach ($locales as $locale) {
+            $carouselAltFields[] = TextInput::make("alt.{$locale}")
+                ->label('Alt text ('.strtoupper($locale).')')
+                ->maxLength(255);
+        }
+
         return $schema->schema([
             Select::make('article_category_id')
                 ->label('Category')
@@ -91,6 +102,37 @@ class ArticleResource extends Resource
                 ->seconds(false)
                 ->nullable()
                 ->helperText('Required for the article to appear on /notizie.'),
+
+            Section::make('Photo carousel')
+                ->description('Optional gallery shown on the article page and in the news feed.')
+                ->schema([
+                    Repeater::make('meta.carousel')
+                        ->label('Slides')
+                        ->maxItems((int) config('page_carousel.max_slides', 12))
+                        ->reorderable()
+                        ->collapsible()
+                        ->itemLabel(fn (array $state): string => is_string($state['path'] ?? null) && $state['path'] !== ''
+                            ? basename($state['path'])
+                            : 'New slide')
+                        ->schema([
+                            FileUpload::make('path')
+                                ->label('Image')
+                                ->image()
+                                ->imagePreviewHeight('150')
+                                ->panelAspectRatio('16:9')
+                                ->panelLayout('integrated')
+                                ->disk((string) config('page_carousel.disk', 'public'))
+                                ->directory((string) config('page_carousel.article_directory', 'article-carousels'))
+                                ->required()
+                                ->maxSize(5120)
+                                ->columnSpanFull(),
+
+                            ...$carouselAltFields,
+                        ])
+                        ->columnSpanFull(),
+                ])
+                ->columnSpanFull()
+                ->collapsed(),
 
             Tabs::make('Translations')
                 ->tabs($tabs)

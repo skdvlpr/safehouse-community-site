@@ -8,6 +8,7 @@ return [
     */
     'disk' => 'public',
     'directory' => 'page-carousels',
+    'article_directory' => 'article-carousels',
     'max_slides' => 12,
 
 ];

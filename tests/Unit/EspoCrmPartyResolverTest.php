@@ -131,6 +131,25 @@ class EspoCrmPartyResolverTest extends TestCase
         ], $resolver->resolveBeneficiaryPartyFields($this->payload()));
     }
 
+    public function test_creates_contact_when_api_user_cannot_read_contacts(): void
+    {
+        $client = $this->createMock(EspoCrmClient::class);
+        $client->method('search')
+            ->willReturnCallback(function (string $entityType): array {
+                throw new RuntimeException('EspoCRM API error (No read access.): ""');
+            });
+
+        $resolver = new EspoCrmPartyResolver($client);
+
+        $this->assertSame([
+            'subjectName' => 'Anna Bianchi',
+            'createSubjectContact' => true,
+        ], $resolver->resolveSubjectPartyFields($this->payload(
+            donorName: 'Anna Bianchi',
+            donorType: 'individual',
+        )));
+    }
+
     public function test_subject_still_rejects_multiple_contact_matches(): void
     {
         $client = $this->createMock(EspoCrmClient::class);

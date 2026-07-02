@@ -121,6 +121,65 @@ class DonationIngestServiceTest extends TestCase
         });
     }
 
+    public function test_ingest_creates_finanziamento_with_campaign_goal_amount(): void
+    {
+        Http::fake(function ($request) {
+            $url = $request->url();
+            $method = $request->method();
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/PrimaNota')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Opportunity')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'POST' && str_contains($url, '/api/v1/Opportunity')) {
+                $payload = $request->data();
+
+                return ($payload['name'] ?? '') === 'Nuova raccolta'
+                    && ($payload['amount'] ?? null) === 700.0
+                    && ($payload['amountCurrency'] ?? '') === 'EUR'
+                    ? Http::response(['id' => 'opp-goal'])
+                    : Http::response(['message' => 'bad opportunity payload'], 400);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Contact')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Account')) {
+                return Http::response([
+                    'total' => 1,
+                    'list' => [['id' => 'acc-safe-house', 'name' => 'Safe House']],
+                ]);
+            }
+
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+                return Http::response(['id' => 'pn-new', 'financingId' => 'opp-goal']);
+            }
+
+            return Http::response(['message' => 'Unexpected request: '.$method.' '.$url], 500);
+        });
+
+        $result = app(DonationIngestService::class)->ingest(new DonationIngestPayload(
+            provider: 'stripe',
+            externalId: 'pi_goal_fin',
+            amount: 10,
+            currency: 'EUR',
+            campaignTitle: 'Nuova raccolta',
+            donorName: 'Paolo Neri',
+            comment: null,
+            donorType: 'individual',
+            donatedAt: '2026-06-30T10:00:00+00:00',
+            financingGoalAmount: 700,
+        ));
+
+        $this->assertSame('created', $result['status']);
+        $this->assertSame('opp-goal', $result['financing_id']);
+    }
+
     public function test_ingest_creates_finanziamento_when_missing_in_crm(): void
     {
         Http::fake(function ($request) {

@@ -96,6 +96,9 @@ class PageResource extends Resource
                                 FileUpload::make('path')
                                     ->label('Image')
                                     ->image()
+                                    ->imagePreviewHeight('150')
+                                    ->panelAspectRatio('16:9')
+                                    ->panelLayout('integrated')
                                     ->disk((string) config('page_carousel.disk', 'public'))
                                     ->directory((string) config('page_carousel.directory', 'page-carousels'))
                                     ->required()
@@ -110,7 +113,6 @@ class PageResource extends Resource
                     ->collapsed(),
 
                 PageTemplateFormFields::serviceCardsSection(),
-                PageTemplateFormFields::homeStatsSection(),
 
                 Tabs::make('Translations')
                     ->tabs($tabs)
@@ -207,7 +209,6 @@ class PageResource extends Resource
             'landing' => 'Layout: full hero + CTA buttons.',
             'legal' => 'Layout: monospace legal document.',
             'contact' => 'Layout: info + form mockup.',
-            'news_index' => 'Layout: intro + news CTA card.',
             default => 'Layout: title + single panel.',
         };
 

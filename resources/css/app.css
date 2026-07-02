@@ -645,4 +645,212 @@
     .fundraising-progress__collected-only {
         @apply text-sm text-safehouse-muted;
     }
+
+    .news-toolbar {
+        @apply mb-8 rounded-2xl p-5 md:p-6;
+    }
+
+    .news-toolbar__row {
+        @apply flex flex-col gap-6;
+    }
+
+    .news-toolbar__group {
+        @apply flex flex-col gap-3;
+    }
+
+    .news-toolbar__group--dates {
+        @apply lg:max-w-xl;
+    }
+
+    .news-toolbar__group--layout {
+        @apply lg:items-start;
+    }
+
+    .news-toolbar__label {
+        @apply text-xs font-semibold uppercase tracking-wide text-safehouse-muted;
+    }
+
+    .news-toolbar__hint {
+        @apply text-sm text-safehouse-muted;
+    }
+
+    .news-toolbar__footer {
+        @apply mt-5 border-t border-white/10 pt-4;
+    }
+
+    .news-toolbar__clear {
+        @apply text-sm font-medium text-safehouse-link transition hover:text-safehouse-link-hover;
+    }
+
+    .news-category-chips {
+        @apply flex flex-wrap gap-2;
+    }
+
+    .news-category-chip {
+        @apply rounded-full border border-white/15 bg-safehouse-page/50 px-3 py-1.5 text-sm font-medium text-safehouse-muted transition hover:border-safehouse-primary/40 hover:text-safehouse-text;
+    }
+
+    .news-category-chip.is-active {
+        @apply border-safehouse-primary/60 bg-safehouse-primary/15 text-safehouse-text;
+    }
+
+    .news-date-filters {
+        @apply flex flex-wrap items-center gap-2;
+    }
+
+    .news-date-filters__field input {
+        @apply rounded-xl border border-white/10 bg-safehouse-page px-3 py-2 text-sm text-safehouse-text outline-none transition focus:border-safehouse-primary/60;
+    }
+
+    .news-date-filters__separator {
+        @apply text-safehouse-muted;
+    }
+
+    .news-date-filters__submit {
+        @apply px-4 py-2 text-sm;
+    }
+
+    .news-view-toggle {
+        @apply inline-flex rounded-xl border border-white/10 bg-safehouse-page/60 p-1;
+    }
+
+    .news-view-toggle__btn {
+        @apply rounded-lg px-4 py-2 text-sm font-medium text-safehouse-muted transition hover:text-safehouse-text;
+    }
+
+    .news-view-toggle__btn.is-active {
+        @apply bg-safehouse-primary/20 text-safehouse-text;
+    }
+
+    .news-feed {
+        @apply flex flex-col gap-4;
+    }
+
+    .news-feed__item {
+        @apply rounded-2xl p-6 md:p-8;
+    }
+
+    .news-feed__meta {
+        @apply mb-3 flex flex-wrap items-center gap-3;
+    }
+
+    .news-feed__date {
+        @apply text-xs uppercase tracking-wide text-safehouse-muted;
+    }
+
+    .news-feed__category {
+        @apply rounded-full border border-white/10 px-2.5 py-0.5 text-xs font-medium text-safehouse-muted;
+    }
+
+    .news-feed__title {
+        @apply text-2xl font-semibold tracking-tight md:text-3xl;
+    }
+
+    .news-feed__link {
+        @apply text-safehouse-text transition hover:text-safehouse-link;
+    }
+
+    .news-feed__excerpt {
+        @apply mt-3 max-w-3xl text-base leading-relaxed text-safehouse-muted;
+    }
+
+    .news-list {
+        @apply overflow-hidden rounded-2xl;
+    }
+
+    .news-list__item {
+        @apply flex flex-col gap-3 border-b border-white/10 px-5 py-4 last:border-b-0 sm:flex-row sm:items-center sm:gap-4;
+    }
+
+    .news-list__main {
+        @apply min-w-0;
+    }
+
+    .news-list__date {
+        @apply block text-xs uppercase tracking-wide text-safehouse-muted;
+    }
+
+    .news-list__title {
+        @apply mt-1 text-base font-semibold sm:mt-0.5;
+    }
+
+    .news-list__link {
+        @apply text-safehouse-text transition hover:text-safehouse-link;
+    }
+
+    .news-list__category {
+        @apply shrink-0 rounded-full border border-white/10 px-2.5 py-0.5 text-xs font-medium text-safehouse-muted;
+    }
+
+    .news-pagination {
+        @apply mt-8;
+    }
+
+    .home-meal-stats {
+        @apply flex flex-col gap-6;
+    }
+
+    .home-meal-stats__panel {
+        @apply overflow-hidden rounded-2xl p-0;
+    }
+
+    .home-meal-stats__panel-title {
+        @apply border-b border-white/10 px-5 py-4 text-base font-semibold tracking-tight md:px-6 md:text-lg;
+    }
+
+    .home-meal-stats__grid {
+        @apply grid grid-cols-1 gap-px bg-white/10 md:grid-cols-3;
+    }
+
+    .home-meal-stats__period {
+        @apply bg-safehouse-page/70 px-5 py-4 md:px-6 md:py-5;
+    }
+
+    .home-meal-stats__period-title {
+        @apply text-sm font-semibold text-safehouse-text;
+    }
+
+    .home-meal-stats__period-range {
+        @apply mt-0.5 text-xs leading-snug text-safehouse-muted;
+    }
+
+    .home-meal-stats__metrics {
+        @apply mt-4 flex flex-col gap-2;
+    }
+
+    .home-meal-stats__metric {
+        @apply flex flex-wrap items-baseline gap-x-2 gap-y-0.5;
+    }
+
+    .home-meal-stats__metric-value {
+        @apply text-base font-semibold tabular-nums text-safehouse-primary md:text-lg;
+    }
+
+    .home-meal-stats__metric-label {
+        @apply text-sm text-safehouse-muted;
+    }
+
+    .news-feed__cover {
+        @apply mb-5 block overflow-hidden rounded-xl border border-white/10;
+    }
+
+    .news-feed__cover-image {
+        @apply aspect-[16/9] w-full object-cover transition duration-300 hover:scale-[1.02];
+    }
+
+    .news-feed__cover-count {
+        @apply absolute bottom-3 right-3 rounded-full bg-black/55 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm;
+    }
+
+    .news-feed__cover-wrap {
+        @apply relative;
+    }
+
+    .news-list__thumb {
+        @apply h-16 w-24 shrink-0 overflow-hidden rounded-lg border border-white/10;
+    }
+
+    .news-list__thumb-image {
+        @apply h-full w-full object-cover;
+    }
 }

@@ -29,6 +29,16 @@ class EspoCrmVerifierTest extends TestCase
                 'name' => 'Office Manager',
             ], 200),
             'https://crm.test/api/v1/PrimaNota*' => Http::response(['total' => 0, 'list' => []], 200),
+            'https://crm.test/api/v1/Account*' => Http::response(['total' => 0, 'list' => []], 200),
+            'https://crm.test/api/v1/Contact*' => Http::response(['total' => 0, 'list' => []], 200),
+            'https://crm.test/api/v1/NonprofitEspocrm/reporting/meal-count/summary' => Http::response([
+                'metricList' => ['totalMeals'],
+                'year' => ['totalMeals' => 1],
+            ], 200),
+            'https://crm.test/api/v1/NonprofitEspocrm/reporting/association-meal-count/summary' => Http::response([
+                'metricList' => ['portionCount'],
+                'year' => ['portionCount' => 2],
+            ], 200),
         ]);
 
         $checks = app(EspoCrmVerifier::class)->runChecks();

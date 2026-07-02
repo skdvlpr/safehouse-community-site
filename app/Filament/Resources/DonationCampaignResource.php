@@ -103,6 +103,28 @@ class DonationCampaignResource extends Resource
             Toggle::make('allow_custom_amount')->default(true),
             TextInput::make('min_amount_cents')->numeric()->default(50)->required(),
             TextInput::make('currency')->default('EUR')->maxLength(3)->required(),
+            TextInput::make('fundraising_goal_eur')
+                ->label('Importo obiettivo (EUR)')
+                ->helperText('Obiettivo della raccolta in CRM (Fondi e Finanziamenti → Importo) quando il record non esiste ancora. Lascia vuoto per 0.')
+                ->placeholder('700')
+                ->formatStateUsing(function ($state, ?DonationCampaign $record): ?string {
+                    $cents = $record?->fundraising_goal_cents;
+
+                    if ($cents === null || (int) $cents <= 0) {
+                        return null;
+                    }
+
+                    return DonationCampaign::formatEuroTag((int) $cents);
+                })
+                ->dehydrateStateUsing(function (?string $state): ?int {
+                    if ($state === null || trim($state) === '') {
+                        return null;
+                    }
+
+                    $cents = DonationCampaign::parseEuroTagToCents($state);
+
+                    return $cents > 0 ? $cents : null;
+                }),
             TextInput::make('espocrm_finanziamento_name')
                 ->label('EspoCRM Finanziamento name')
                 ->helperText('Filled automatically when the campaign is saved. Override only if the CRM name must differ from the campaign title.')
@@ -125,7 +147,10 @@ class DonationCampaignResource extends Resource
                 Tables\Columns\TextColumn::make('updated_at')->dateTime()->sortable(),
             ])
             ->defaultSort('sort_order')
-            ->actions([\Filament\Actions\EditAction::make()])
+            ->actions([
+                \Filament\Actions\EditAction::make(),
+                \Filament\Actions\DeleteAction::make(),
+            ])
             ->bulkActions([\Filament\Actions\BulkActionGroup::make([\Filament\Actions\DeleteBulkAction::make()])]);
     }
 

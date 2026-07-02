@@ -59,5 +59,55 @@ class ArticleSeeder extends Seeder
                 'published_at' => now()->subDays(3),
             ],
         );
+
+        $eventsCategory = ArticleCategory::query()->updateOrCreate(
+            ['slug->it' => 'eventi'],
+            [
+                'name' => [
+                    'it' => 'Eventi',
+                    'en' => 'Events',
+                    'ru' => 'События',
+                ],
+                'slug' => [
+                    'it' => 'eventi',
+                    'en' => 'events',
+                    'ru' => 'sobytiya',
+                ],
+                'description' => [
+                    'it' => 'Iniziative, incontri e attività sul territorio.',
+                    'en' => 'Initiatives, meetings, and local activities.',
+                    'ru' => 'Инициативы, встречи и мероприятия.',
+                ],
+            ],
+        );
+
+        Article::query()->updateOrCreate(
+            ['slug->it' => 'open-day-volontari'],
+            [
+                'article_category_id' => $eventsCategory->id,
+                'title' => [
+                    'it' => 'Open day volontari',
+                    'en' => 'Volunteer open day',
+                    'ru' => 'День открытых дверей для волонтёров',
+                ],
+                'slug' => [
+                    'it' => 'open-day-volontari',
+                    'en' => 'volunteer-open-day',
+                    'ru' => 'den-otkrytyh-dverey',
+                ],
+                'excerpt' => [
+                    'it' => 'Un pomeriggio per conoscere il volontariato in Safe House.',
+                    'en' => 'An afternoon to learn about volunteering at Safe House.',
+                    'ru' => 'Послеобеденное время, чтобы узнать о волонтёрстве в Safe House.',
+                ],
+                'body' => [
+                    'it' => '<p>Vi aspettiamo in sede per presentare le attività e rispondere alle domande.</p>',
+                    'en' => '<p>Join us on site to learn about our activities and ask questions.</p>',
+                    'ru' => '<p>Ждём вас, чтобы рассказать о деятельности и ответить на вопросы.</p>',
+                ],
+                'is_published' => true,
+                'published_at' => now(),
+            ],
+        );
     }
 }

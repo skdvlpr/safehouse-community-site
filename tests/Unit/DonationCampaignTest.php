@@ -21,6 +21,15 @@ class DonationCampaignTest extends TestCase
         $this->assertSame('12,50 €', $campaign->formatPresetLabel(1250));
     }
 
+    public function test_fundraising_goal_amount_converts_cents_to_euros(): void
+    {
+        $campaign = DonationCampaign::factory()->create([
+            'fundraising_goal_cents' => 70000,
+        ]);
+
+        $this->assertSame(700.0, $campaign->fundraisingGoalAmount());
+    }
+
     public function test_preset_amount_cents_deduplicates_and_filters_below_minimum(): void
     {
         $campaign = new DonationCampaign([

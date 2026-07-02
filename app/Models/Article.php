@@ -32,6 +32,7 @@ class Article extends Model
         'slug',
         'excerpt',
         'body',
+        'meta',
         'is_published',
         'published_at',
     ];
@@ -44,6 +45,7 @@ class Article extends Model
         return [
             'is_published' => 'boolean',
             'published_at' => 'datetime',
+            'meta' => 'array',
         ];
     }
 

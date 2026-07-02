@@ -80,6 +80,50 @@ class EspoCrmVerifier
             $checks[] = $this->fail('PrimaNota read', $exception->getMessage());
         }
 
+        foreach (['Account', 'Contact'] as $entityType) {
+            try {
+                $this->client->search($entityType, [
+                    'select' => 'id',
+                    'maxSize' => 1,
+                ]);
+                $checks[] = $this->pass("{$entityType} read", 'API user can search donors/beneficiaries');
+            } catch (Throwable $exception) {
+                if (str_contains($exception->getMessage(), 'No read access')) {
+                    $checks[] = $this->warn(
+                        "{$entityType} read",
+                        'No read access — ingest will create parties inline instead of matching existing records.',
+                    );
+
+                    continue;
+                }
+
+                $checks[] = $this->fail("{$entityType} read", $exception->getMessage());
+            }
+        }
+
+        foreach ([
+            'Meal count summary' => (string) config('espocrm.reporting.meal_count_summary_path'),
+            'Network meal count summary' => (string) config('espocrm.reporting.association_meal_count_summary_path'),
+        ] as $label => $path) {
+            try {
+                $summary = $this->client->reportingSummary($path);
+                $metrics = $summary['metricList'] ?? [];
+
+                if (! is_array($metrics) || $metrics === []) {
+                    $checks[] = $this->warn(
+                        $label,
+                        'Endpoint reachable but metricList is empty — grant the API user read access on MealCount / AssociationMealCount.',
+                    );
+
+                    continue;
+                }
+
+                $checks[] = $this->pass($label, 'Metrics: '.implode(', ', array_map('strval', $metrics)));
+            } catch (Throwable $exception) {
+                $checks[] = $this->fail($label, $exception->getMessage());
+            }
+        }
+
         return $checks;
     }
 

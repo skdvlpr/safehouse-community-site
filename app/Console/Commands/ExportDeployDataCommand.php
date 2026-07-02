@@ -4,37 +4,17 @@ namespace App\Console\Commands;
 
 use App\Models\Article;
 use App\Models\ArticleCategory;
-use App\Services\SiteSettingsService;
 use Illuminate\Console\Command;
 
 class ExportDeployDataCommand extends Command
 {
     protected $signature = 'site:export-deploy-data';
 
-    protected $description = 'Export CMS articles and integration settings for production deploy seeders';
+    protected $description = 'Export CMS articles for production deploy seeders';
 
-    public function handle(SiteSettingsService $settings): int
+    public function handle(): int
     {
-        $integrationPath = database_path('seeders/data/deploy-integrations.php');
         $articlesPath = database_path('seeders/data/deploy-articles.php');
-
-        $integrationSettings = [];
-
-        foreach (array_keys(config('site_settings.keys', [])) as $key) {
-            $value = $settings->get($key);
-
-            if ($value !== '') {
-                $integrationSettings[$key] = $value;
-            }
-        }
-
-        if (isset($integrationSettings['espocrm.base_url']) && app()->environment('local')) {
-            $integrationSettings['espocrm.base_url'] = 'https://crm.safehouse.community';
-        }
-
-        unset($integrationSettings['espocrm.api_key'], $integrationSettings['stripe.webhook_secret']);
-
-        $this->writePhpReturnFile($integrationPath, $integrationSettings, 'Integration defaults for production deploy');
 
         $categories = ArticleCategory::query()->get()->map(function (ArticleCategory $category): array {
             return [
@@ -54,6 +34,7 @@ class ExportDeployDataCommand extends Command
                 'slug' => $article->getTranslations('slug'),
                 'excerpt' => $article->getTranslations('excerpt'),
                 'body' => $article->getTranslations('body'),
+                'meta' => $article->meta,
                 'is_published' => $article->is_published,
                 'published_at' => $article->published_at?->toIso8601String(),
             ];
@@ -65,7 +46,6 @@ class ExportDeployDataCommand extends Command
         ], 'CMS articles for production deploy');
 
         $this->info('Exported:');
-        $this->line('  '.$integrationPath);
         $this->line('  '.$articlesPath);
 
         return self::SUCCESS;

@@ -55,6 +55,69 @@ class PageCarousel
 
     /**
      * @param  array<string, mixed>|null  $meta
+     * @return array{url: string, alt: string}|null
+     */
+    public static function firstSlide(?array $meta, ?string $locale = null): ?array
+    {
+        $slides = self::slides($meta, $locale);
+
+        return $slides[0] ?? null;
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $meta
+     * @return array<string, mixed>|null
+     */
+    public static function normalizeCarouselOnly(?array $meta): ?array
+    {
+        if ($meta === null) {
+            return null;
+        }
+
+        $items = $meta['carousel'] ?? [];
+
+        if (! is_array($items)) {
+            $meta['carousel'] = [];
+
+            return $meta;
+        }
+
+        $normalized = [];
+
+        foreach ($items as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $path = self::normalizePath($item['path'] ?? null);
+
+            if ($path === null) {
+                continue;
+            }
+
+            $alt = [];
+
+            foreach (config('locales.available', ['it', 'ru', 'en']) as $locale) {
+                $value = $item['alt'][$locale] ?? $item["alt_{$locale}"] ?? null;
+
+                if (is_string($value) && $value !== '') {
+                    $alt[$locale] = $value;
+                }
+            }
+
+            $normalized[] = [
+                'path' => $path,
+                'alt' => $alt,
+            ];
+        }
+
+        $meta['carousel'] = array_values($normalized);
+
+        return $meta;
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $meta
      * @return array<string, mixed>|null
      */
     public static function normalizeMeta(?array $meta): ?array

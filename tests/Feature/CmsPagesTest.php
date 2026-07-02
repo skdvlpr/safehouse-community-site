@@ -55,7 +55,11 @@ class CmsPagesTest extends TestCase
     {
         $this->get('/it/esempio-landing')->assertOk()->assertSee('data-page-template="landing"', false);
         $this->get('/it/esempio-articolo')->assertOk()->assertSee('data-page-template="article"', false);
-        $this->get('/it/hub-notizie')->assertOk()->assertSee('data-page-template="news_index"', false);
+    }
+
+    public function test_news_hub_page_is_removed(): void
+    {
+        $this->get('/it/hub-notizie')->assertNotFound();
     }
 
     public function test_localized_about_slugs(): void

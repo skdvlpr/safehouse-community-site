@@ -87,9 +87,8 @@ Deploy seeds (idempotent, safe to re-run):
 | `PageSeeder` | Core pages (about, services, privacy, …) |
 | `DeployArticleSeeder` | Articles from `database/seeders/data/deploy-articles.php` |
 | `DonationCampaignSeeder` | Demo donation campaigns |
-| `DeployIntegrationSeeder` | Stripe **test** keys from `database/seeders/data/deploy-integrations.php` |
 
-Re-export from local CMS before deploy:
+Re-export articles from local CMS before deploy:
 
 ```bash
 ddev exec php artisan site:export-deploy-data

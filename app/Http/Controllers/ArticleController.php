@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTransferObjects\ArticleListingFilters;
 use App\Models\Article;
 use App\Services\ArticleService;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 
@@ -11,16 +13,16 @@ class ArticleController extends Controller
 {
     public function __construct(private readonly ArticleService $articles) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $articles = Article::query()
-            ->where('is_published', true)
-            ->whereNotNull('published_at')
-            ->orderByDesc('published_at')
-            ->paginate(12);
+        $locale = app()->getLocale();
+        $filters = ArticleListingFilters::fromRequest($request);
 
         return view('pages.articles.index', [
-            'articles' => $articles,
+            'articles' => $this->articles->paginatedListing($filters, $locale),
+            'categories' => $this->articles->categoriesForListing($locale),
+            'filters' => $filters,
+            'locale' => $locale,
         ]);
     }
 

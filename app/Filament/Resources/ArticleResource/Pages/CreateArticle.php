@@ -3,15 +3,18 @@
 namespace App\Filament\Resources\ArticleResource\Pages;
 
 use App\Filament\Resources\ArticleResource;
+use App\Filament\Resources\ArticleResource\Concerns\NormalizesArticleCarouselMeta;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateArticle extends CreateRecord
 {
+    use NormalizesArticleCarouselMeta;
+
     protected static string $resource = ArticleResource::class;
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        return $this->filterTranslatable($data);
+        return $this->normalizeArticleMeta($this->filterTranslatable($data));
     }
 
     /**

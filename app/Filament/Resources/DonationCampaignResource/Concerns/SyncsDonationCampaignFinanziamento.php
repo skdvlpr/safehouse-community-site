@@ -18,7 +18,11 @@ trait SyncsDonationCampaignFinanziamento
             }
 
             $name = $campaign->finanziamentoTitle();
-            app(EspoCrmFinanziamentoService::class)->ensureExists($name);
+            app(EspoCrmFinanziamentoService::class)->ensureExists(
+                $name,
+                amount: $campaign->fundraisingGoalAmount(),
+                currency: (string) $campaign->currency,
+            );
 
             if ($campaign->espocrm_finanziamento_name !== $name) {
                 $campaign->forceFill(['espocrm_finanziamento_name' => $name])->saveQuietly();

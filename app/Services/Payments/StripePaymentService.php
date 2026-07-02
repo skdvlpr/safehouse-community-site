@@ -58,6 +58,8 @@ class StripePaymentService
                 'amount' => $amountCents,
                 'currency' => strtolower($campaign->currency),
                 'automatic_payment_methods' => ['enabled' => true],
+                'customer_creation' => 'always',
+                'setup_future_usage' => 'off_session',
                 'metadata' => $this->metadata($campaign, $donorName, $donorType, $comment),
             ];
 

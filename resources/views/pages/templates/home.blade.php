@@ -14,7 +14,6 @@
             ?: __('site.home.cta_donate');
         $ctaVolunteer = $pages->localizedMeta($page->meta, 'cta_volunteer', $locale)
             ?: __('site.home.cta_volunteer');
-        $stats = $pages->localizedHomeStats($page->meta, $locale);
         $primaryTagline = app(\App\Services\SiteContentService::class)->primaryTagline($locale);
     @endphp
 
@@ -67,16 +66,7 @@
                 </div>
             </div>
 
-            <div class="grid gap-4 sm:grid-cols-3">
-                @foreach ($stats as $stat)
-                    <article class="safehouse-glass rounded-xl p-6 text-center">
-                        <p class="text-3xl font-semibold tabular-nums text-safehouse-primary md:text-4xl">
-                            {{ $stat['value'] }}
-                        </p>
-                        <p class="mt-2 text-sm text-safehouse-muted">{{ $stat['label'] }}</p>
-                    </article>
-                @endforeach
-            </div>
+            @include('pages.partials.home-meal-stats', ['mealStats' => $mealStats])
         </section>
     </x-page-template-shell>
 @endsection

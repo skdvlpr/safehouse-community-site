@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\SiteSetting;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 
@@ -42,6 +43,22 @@ class SiteContentService
         }
 
         return '';
+    }
+
+    /**
+     * @param  array<string, mixed>  $formState
+     */
+    public function updateFromFormState(array $formState): void
+    {
+        $this->updateMany($this->flattenFormState($formState));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function nestedFormValues(): array
+    {
+        return $this->nestFormState($this->formValues());
     }
 
     /**
@@ -147,5 +164,45 @@ class SiteContentService
 
             return $normalized;
         });
+    }
+
+    /**
+     * @param  array<string, mixed>  $formState
+     * @return array<string, string|null>
+     */
+    private function flattenFormState(array $formState): array
+    {
+        /** @var array<string, mixed> $flat */
+        $flat = Arr::dot($formState);
+
+        $normalized = [];
+
+        foreach ($flat as $key => $value) {
+            if (! is_string($key)) {
+                continue;
+            }
+
+            if ($value === null) {
+                $normalized[$key] = null;
+
+                continue;
+            }
+
+            $normalized[$key] = is_string($value) ? $value : (string) $value;
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @param  array<string, string>  $flat
+     * @return array<string, mixed>
+     */
+    private function nestFormState(array $flat): array
+    {
+        /** @var array<string, mixed> $nested */
+        $nested = Arr::undot($flat);
+
+        return $nested;
     }
 }

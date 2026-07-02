@@ -34,13 +34,6 @@ return [
         'example_key' => 'demo-article',
     ],
 
-    'news_index' => [
-        'label' => 'News listing shell',
-        'description' => 'Static intro pointing to /notizie (dynamic list).',
-        'view' => 'pages.templates.news-index',
-        'example_key' => 'demo-news',
-    ],
-
     'landing' => [
         'label' => 'Landing',
         'description' => 'Wide hero and optional call-to-action emphasis.',
