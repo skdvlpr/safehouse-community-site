@@ -35,6 +35,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Shared hosting deploy runs artisan as `deploy` while CMS runs as `www-data`.
+        // Group-writable files prevent Blade cache touch() failures across users.
+        umask(0002);
+
         $this->configureRateLimiting();
         $this->configurePasswordDefaults();
     }

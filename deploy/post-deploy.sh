@@ -4,6 +4,8 @@ set -euo pipefail
 DEPLOY_PATH="${DEPLOY_PATH:-/var/www/safehouse-community-site}"
 cd "$DEPLOY_PATH"
 
+umask 0002
+
 if [ ! -f .env ]; then
     echo "ERROR: $DEPLOY_PATH/.env is missing. Copy deploy/env.production.example and configure it first."
     exit 1
@@ -15,6 +17,7 @@ fix_runtime_permissions() {
     fi
 
     chmod -R ug+rwX storage bootstrap/cache 2>/dev/null || true
+    chgrp -R www-data storage bootstrap/cache 2>/dev/null || true
 
     for dir in storage/framework/views storage/framework/cache storage/logs; do
         mkdir -p "$dir"
@@ -27,6 +30,15 @@ fix_runtime_permissions() {
         setfacl -R -m g:www-data:rwX -d g:www-data:rwX storage/framework/views 2>/dev/null || true
         setfacl -R -m g:www-data:rwX -d g:www-data:rwX storage/framework/cache 2>/dev/null || true
     fi
+}
+
+warm_cms_cache() {
+    local host
+    host="$(php -r 'echo parse_url(getenv("APP_URL") ?: "https://safehouse.community", PHP_URL_HOST) ?: "safehouse.community";')"
+
+    curl -sf -o /dev/null "https://${host}/cms-safehouse/login" \
+        || curl -sf -o /dev/null -H "Host: ${host}" "http://127.0.0.1/cms-safehouse/login" \
+        || true
 }
 
 fix_runtime_permissions
@@ -52,19 +64,12 @@ php artisan filament:optimize --no-interaction
 php artisan route:clear --no-interaction
 php artisan view:clear --no-interaction
 
-fix_runtime_permissions
+# Drop deploy-owned Blade cache; warm CMS through PHP-FPM (www-data) instead of artisan cms:health.
 php artisan view:clear --no-interaction
+fix_runtime_permissions
+warm_cms_cache
+fix_runtime_permissions
 
 php artisan cms:health --no-interaction || true
-
-if command -v sudo >/dev/null 2>&1; then
-    if sudo -n -u www-data php artisan cms:health --no-interaction 2>/dev/null; then
-        :
-    else
-        echo "WARN: Could not run cms:health as www-data (passwordless sudo missing)."
-        echo "      After deploy, run on the server:"
-        echo "        cd ${DEPLOY_PATH} && php artisan view:clear && sudo chown -R deploy:www-data storage bootstrap/cache && sudo chmod -R ug+rwX storage bootstrap/cache && sudo find storage/framework/views -type f -exec chmod 664 {} +"
-    fi
-fi
 
 echo "Deploy post-steps finished."
