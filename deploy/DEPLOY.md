@@ -132,14 +132,16 @@ cd /var/www/safehouse-community-site
 php artisan optimize:clear
 php artisan filament:optimize
 php artisan route:clear
-php artisan config:cache
+php artisan config:clear
 sudo chown -R deploy:www-data storage bootstrap/cache
 sudo chmod -R ug+rwx storage bootstrap/cache
-sudo -u www-data php artisan cms:health
 sudo systemctl reload php8.3-fpm
+sudo -u www-data php artisan cms:health
 ```
 
-If `cms:health` still passes but the browser shows 500:
+Do **not** run `php artisan config:cache` on production — it breaks PHP-FPM when caches are built as the deploy user.
+
+If the browser still shows 500 after the steps above:
 
 1. Open `https://safehouse.community/cms-safehouse/login` once.
 2. Read the captured exception:
