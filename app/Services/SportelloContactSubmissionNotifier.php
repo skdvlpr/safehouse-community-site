@@ -6,6 +6,7 @@ use App\Jobs\LinkSportelloContactSubmissionToCrmJob;
 use App\Mail\ContactSubmissionMail;
 use App\Mail\ContactSubmissionMailRecipients;
 use App\Models\ContactSubmission;
+use App\Services\EspoCrm\LinkSportelloContactSubmissionService;
 use App\Support\ContactDeskOptions;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -16,6 +17,7 @@ class SportelloContactSubmissionNotifier
 {
     public function __construct(
         private readonly OutboundMailConfigurator $mail,
+        private readonly LinkSportelloContactSubmissionService $crmLinker,
     ) {}
 
     public function notify(ContactSubmission $submission): void
@@ -87,6 +89,16 @@ class SportelloContactSubmissionNotifier
             return;
         }
 
-        LinkSportelloContactSubmissionToCrmJob::dispatch($submission->id);
+        try {
+            $this->crmLinker->ensureLead($submission->fresh());
+        } catch (Throwable $exception) {
+            Log::warning('Sportello CRM lead was not created immediately; queued linking will retry', [
+                'submission_id' => $submission->id,
+                'error' => $exception->getMessage(),
+            ]);
+        }
+
+        LinkSportelloContactSubmissionToCrmJob::dispatch($submission->id)
+            ->delay(now()->addSeconds(90));
     }
 }

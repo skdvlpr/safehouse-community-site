@@ -7,7 +7,7 @@
 @endphp
 
 <footer class="mt-auto border-t border-white/10 bg-safehouse-modal/50">
-    <div class="site-content py-6 md:py-7">
+    <div class="site-content py-5 md:py-6">
         <div class="footer-bar">
             <div class="footer-brand">
                 @include('layouts.partials.brand-mark', [
@@ -31,7 +31,7 @@
             </nav>
         </div>
 
-        <p class="mt-5 border-t border-white/10 pt-4 text-xs text-safehouse-muted">
+        <p class="footer-copyright">
             {{ __('site.footer.rights', ['year' => now()->year]) }}
         </p>
     </div>

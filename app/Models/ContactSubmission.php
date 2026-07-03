@@ -25,6 +25,11 @@ class ContactSubmission extends Model
         'user_agent_hash',
         'gdpr_consent_at',
         'replied_at',
+        'correlation_token',
+        'outbound_message_id',
+        'crm_case_id',
+        'crm_lead_id',
+        'crm_link_status',
     ];
 
     /**

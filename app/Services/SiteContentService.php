@@ -13,7 +13,9 @@ class SiteContentService
 
     public function primaryTagline(?string $locale = null): string
     {
-        return $this->translatable('content.primary_tagline', $locale);
+        $text = $this->translatable('content.primary_tagline', $locale);
+
+        return trim(preg_replace('/\s+/u', ' ', $text) ?? '');
     }
 
     public function translatable(string $key, ?string $locale = null): string

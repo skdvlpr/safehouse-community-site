@@ -8,6 +8,7 @@ return [
         'news' => 'News',
         'donations' => 'Donations',
         'contact' => 'Contact',
+        'contact_us' => 'Contact us',
         'privacy' => 'Privacy',
         'cookie' => 'Cookies',
         'donate' => 'Donate',
@@ -24,6 +25,7 @@ return [
         'lead' => 'Welcome, training, and support for those building a better future.',
         'cta_donate' => 'Support a campaign',
         'cta_volunteer' => 'Become a volunteer',
+        'cta_contact' => 'Contact us',
         'stats' => [
             'heading' => 'Our impact',
             'lead' => 'Live figures from the CRM.',

@@ -52,16 +52,16 @@
                    class="w-full rounded-2xl border border-white/10 bg-safehouse-page px-4 py-3 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
         </div>
 
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
             <div class="space-y-2">
                 <label for="donor_email" class="block text-sm font-medium">{{ __('Email') }}</label>
                 <input id="donor_email" name="donor_email" type="email" maxlength="255" autocomplete="email"
-                       class="w-full rounded-2xl border border-white/10 bg-safehouse-page px-4 py-3 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
+                       class="donation-form__input min-h-12 w-full">
             </div>
             <div class="space-y-2 donation-phone-field">
                 <label for="donor_phone" class="block text-sm font-medium">{{ __('Telefono') }}</label>
                 <input id="donor_phone" name="donor_phone" type="tel" maxlength="50" autocomplete="tel"
-                       class="w-full rounded-2xl border border-white/10 bg-safehouse-page px-4 py-3 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
+                       class="donation-form__input min-h-12 w-full">
                 <input type="hidden" id="donor_phone_country" name="donor_phone_country" value="">
             </div>
         </div>

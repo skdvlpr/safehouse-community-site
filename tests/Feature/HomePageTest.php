@@ -23,6 +23,8 @@ class HomePageTest extends TestCase
             ->assertSee('Pasti distribuiti', false)
             ->assertSee('Interventi sul territorio', false)
             ->assertSee('I nostri partner', false)
+            ->assertSee(__('site.home.cta_contact', [], 'it'), false)
+            ->assertSee('/it/contatti', false)
             ->assertSee('favicon.svg', false);
     }
 

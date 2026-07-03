@@ -5,6 +5,7 @@ namespace App\Services\EspoCrm;
 use App\Models\ContactSubmission;
 use App\Support\ContactDeskOptions;
 use App\Support\IntegrationConfig;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class EspoCrmContactIntakeService
@@ -34,35 +35,54 @@ class EspoCrmContactIntakeService
      */
     public function findCaseByCorrelationToken(string $token): ?array
     {
-        $needle = '[SH-'.$token.']';
+        $referenceId = 'SH-'.strtolower($token);
+        $needle = '['.$referenceId.']';
 
-        $response = $this->client->search('Case', [
-            'where' => [
+        $select = 'id,name,description,parentType,parentId,type';
+
+        foreach ([
+            [
                 [
-                    'type' => 'or',
-                    'value' => [
-                        [
-                            'type' => 'contains',
-                            'attribute' => 'description',
-                            'value' => $needle,
-                        ],
-                        [
-                            'type' => 'contains',
-                            'attribute' => 'name',
-                            'value' => $needle,
-                        ],
-                    ],
+                    'type' => 'contains',
+                    'attribute' => 'name',
+                    'value' => $needle,
                 ],
             ],
-            'maxSize' => 1,
-            'orderBy' => 'createdAt',
-            'order' => 'desc',
-            'select' => 'id,name,description,parentType,parentId,type',
-        ]);
+            [
+                [
+                    'type' => 'contains',
+                    'attribute' => 'description',
+                    'value' => $needle,
+                ],
+            ],
+            [
+                [
+                    'type' => 'equals',
+                    'attribute' => 'websiteReferenceId',
+                    'value' => $referenceId,
+                ],
+            ],
+        ] as $where) {
+            try {
+                $response = $this->client->search('Case', [
+                    'where' => $where,
+                    'maxSize' => 1,
+                    'orderBy' => 'createdAt',
+                    'order' => 'desc',
+                    'select' => $select,
+                ]);
 
-        $row = $response['list'][0] ?? null;
+                $row = $response['list'][0] ?? null;
 
-        return is_array($row) ? $row : null;
+                if (is_array($row)) {
+                    return $row;
+                }
+            } catch (RuntimeException $exception) {
+                continue;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -161,13 +181,52 @@ class EspoCrmContactIntakeService
         return $this->client->create('Lead', $payload);
     }
 
-    public function linkCaseToLead(string $caseId, string $leadId, string $caseType): void
+    public function linkCaseToLead(string $caseId, string $leadId, string $caseType, ContactSubmission $submission): void
     {
         $this->client->update('Case', $caseId, [
             'parentType' => 'Lead',
             'parentId' => $leadId,
             'type' => $caseType,
         ]);
+
+        $token = trim((string) $submission->correlation_token);
+
+        $metadata = array_filter([
+            'websiteContactName' => trim($submission->name),
+            'sportelloDisplayName' => self::sportelloDisplayName($submission, $caseType),
+            'websiteReferenceId' => $token !== '' ? 'SH-'.strtolower($token) : null,
+        ], static fn (mixed $value): bool => $value !== null && $value !== '');
+
+        if ($metadata === []) {
+            return;
+        }
+
+        try {
+            $this->client->update('Case', $caseId, $metadata);
+        } catch (RuntimeException $exception) {
+            Log::warning('Sportello CRM case metadata update skipped', [
+                'case_id' => $caseId,
+                'submission_id' => $submission->id,
+                'error' => $exception->getMessage(),
+            ]);
+        }
+    }
+
+    private static function sportelloDisplayName(ContactSubmission $submission, string $caseType): string
+    {
+        $abbreviated = match ($caseType) {
+            'SportelloDigitale' => 'Sp. Digitale',
+            'SportelloLegale' => 'Sp. Legale',
+            default => null,
+        };
+
+        if ($abbreviated !== null) {
+            return $abbreviated;
+        }
+
+        $deskLabel = trim((string) (ContactDeskOptions::deskConfig($submission->desk)['label'] ?? ''));
+
+        return $deskLabel !== '' ? $deskLabel : 'Sportello';
     }
 
     /**

@@ -14,6 +14,9 @@
             ?: __('site.home.cta_donate');
         $ctaVolunteer = $pages->localizedMeta($page->meta, 'cta_volunteer', $locale)
             ?: __('site.home.cta_volunteer');
+        $ctaContact = $pages->localizedMeta($page->meta, 'cta_contact', $locale)
+            ?: __('site.home.cta_contact');
+        $contactUrl = \App\Support\Navigation::url(['page_key' => 'contact'], $locale);
         $primaryTagline = app(\App\Services\SiteContentService::class)->primaryTagline($locale);
     @endphp
 
@@ -30,7 +33,7 @@
             </h1>
 
             @if ($primaryTagline !== '')
-                <p class="mb-8 max-w-2xl text-lg text-safehouse-muted md:text-xl">
+                <p class="mb-8 max-w-2xl text-lg text-safehouse-muted md:max-w-none md:text-xl md:whitespace-nowrap">
                     {{ $primaryTagline }}
                 </p>
             @endif
@@ -43,6 +46,9 @@
                 </a>
                 <a href="{{ route('volunteers.show', ['locale' => $locale]) }}" class="safehouse-btn-secondary">
                     {{ $ctaVolunteer }}
+                </a>
+                <a href="{{ $contactUrl }}" class="safehouse-btn-secondary">
+                    {{ $ctaContact }}
                 </a>
             </div>
         </section>

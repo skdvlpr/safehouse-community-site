@@ -3,12 +3,19 @@
 namespace Tests\Feature;
 
 use App\Models\DonationCampaign;
+use Database\Seeders\PageSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class SiteLayoutTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed(PageSeeder::class);
+    }
 
     public function test_home_includes_header_footer_and_locale_switcher(): void
     {
@@ -18,7 +25,9 @@ class SiteLayoutTest extends TestCase
             ->assertSee('Safe House', false)
             ->assertSee('/en', false)
             ->assertSee('/ru', false)
-            ->assertSee(__('site.nav.donations', [], 'it'), false);
+            ->assertSee(__('site.nav.donations', [], 'it'), false)
+            ->assertSee(__('site.nav.contact_us', [], 'it'), false)
+            ->assertSee('/it/contatti', false);
     }
 
     public function test_donation_pages_use_shared_layout(): void

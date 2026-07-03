@@ -8,6 +8,7 @@ return [
         'news' => 'Notizie',
         'donations' => 'Donazioni',
         'contact' => 'Contatti',
+        'contact_us' => 'Contattaci',
         'privacy' => 'Privacy',
         'cookie' => 'Cookie',
         'donate' => 'Dona ora',
@@ -24,6 +25,7 @@ return [
         'lead' => 'Accoglienza, formazione e sostegno per chi costruisce un futuro migliore.',
         'cta_donate' => 'Sostieni una raccolta',
         'cta_volunteer' => 'Diventa volontario',
+        'cta_contact' => 'Contattaci',
         'stats' => [
             'heading' => 'Il nostro impatto',
             'lead' => 'Dati aggiornati dal CRM.',

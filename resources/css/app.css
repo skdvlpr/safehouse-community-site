@@ -86,19 +86,23 @@
     }
 
     .footer-bar {
-        @apply flex items-stretch justify-between gap-6 lg:gap-10;
+        @apply flex items-start justify-between gap-4 sm:gap-6 lg:gap-8;
     }
 
     .footer-brand {
-        @apply flex min-h-[4.5rem] flex-col justify-between gap-2 sm:min-h-[5rem];
+        @apply flex min-w-0 flex-col gap-1.5;
     }
 
     .footer-brand__tagline {
-        @apply max-w-xs text-sm leading-snug text-safehouse-muted;
+        @apply text-sm leading-snug text-safehouse-muted md:whitespace-nowrap;
     }
 
     .footer-nav {
-        @apply flex min-h-[4.5rem] flex-col items-end justify-between self-stretch text-sm sm:min-h-[5rem];
+        @apply flex shrink-0 flex-col items-end gap-2 pt-0.5 text-sm;
+    }
+
+    .footer-copyright {
+        @apply mt-3 border-t border-white/10 pt-3 text-xs text-safehouse-muted;
     }
 
     .footer-nav__link {
@@ -304,7 +308,53 @@
 
     .template-contact-form__field input,
     .template-contact-form__field textarea {
-        @apply w-full rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-sm text-safehouse-text;
+        @apply w-full rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-sm text-safehouse-text outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20;
+    }
+
+    .sportello-select {
+        @apply relative;
+    }
+
+    .sportello-select__trigger {
+        @apply flex w-full items-center justify-between gap-3 rounded-2xl border border-white/10 bg-safehouse-page/80 px-4 py-3 text-left text-sm text-safehouse-text shadow-sm outline-none transition hover:border-white/20 focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20;
+    }
+
+    .sportello-select.is-open .sportello-select__trigger {
+        @apply border-safehouse-primary/60 ring-2 ring-safehouse-primary/20;
+    }
+
+    .sportello-select--invalid .sportello-select__trigger {
+        @apply border-red-400/60;
+    }
+
+    .sportello-select__chevron {
+        @apply h-4 w-4 shrink-0 text-safehouse-muted transition-transform duration-200;
+    }
+
+    .sportello-select.is-open .sportello-select__chevron {
+        @apply rotate-180 text-safehouse-text;
+    }
+
+    .sportello-select__menu {
+        @apply absolute z-30 mt-2 max-h-60 w-full overflow-auto rounded-2xl border border-white/10 bg-safehouse-modal/98 p-1.5 shadow-2xl shadow-black/50 backdrop-blur-xl;
+    }
+
+    .sportello-select__option {
+        @apply cursor-pointer rounded-xl px-3 py-2.5 text-sm text-safehouse-muted transition outline-none;
+    }
+
+    .sportello-select__option.is-active,
+    .sportello-select__option:hover {
+        @apply bg-white/5 text-safehouse-text;
+    }
+
+    .sportello-select__option.is-selected {
+        @apply bg-safehouse-primary/15 font-medium text-white;
+    }
+
+    .sportello-select__option.is-selected.is-active,
+    .sportello-select__option.is-selected:hover {
+        @apply bg-safehouse-primary/20 text-white;
     }
 
     .template-contact-form__note {
@@ -847,20 +897,24 @@
     }
 
     .donation-phone-field .iti {
-        @apply w-full;
+        @apply flex w-full min-h-12 overflow-hidden rounded-2xl border border-white/10 bg-safehouse-page/80 transition focus-within:border-safehouse-primary/60 focus-within:ring-2 focus-within:ring-safehouse-primary/20;
     }
 
     .donation-phone-field .iti__tel-input {
-        @apply w-full rounded-2xl border border-white/10 bg-safehouse-page py-3 pe-4 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20;
+        @apply min-h-12 w-full border-0 bg-transparent py-3 pe-4 text-base text-safehouse-text shadow-none outline-none ring-0 placeholder:text-safehouse-muted/70 focus:border-0 focus:ring-0;
         padding-left: 6.25rem !important;
     }
 
     .donation-phone-field .iti__country-container {
-        @apply rounded-l-2xl border border-white/10 bg-safehouse-page/90;
+        @apply flex items-center border-0 border-e border-white/10 bg-transparent;
     }
 
     .donation-phone-field .iti__selected-country {
-        @apply rounded-l-2xl;
+        @apply flex h-full items-center rounded-none bg-transparent px-2;
+    }
+
+    .donation-phone-field .iti__selected-dial-code {
+        @apply text-sm text-safehouse-muted;
     }
 
     .donation-phone-field .iti__dropdown-content {

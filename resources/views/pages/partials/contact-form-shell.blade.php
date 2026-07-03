@@ -2,7 +2,10 @@
     <p class="template-contact-form__success" role="status">{{ session('contact_success') }}</p>
 @endif
 
-@php($deskOptions = \App\Support\ContactDeskOptions::forForm())
+@php
+    $deskOptions = \App\Support\ContactDeskOptions::forForm();
+    $selectedDesk = old('desk', array_key_first($deskOptions));
+@endphp
 
 <form
     class="template-contact-form"
@@ -53,19 +56,58 @@
 
     @if (count($deskOptions) > 0)
         <div class="template-contact-form__field">
-            <label for="contact-desk">{{ __('site.pages.contact_desk') }}</label>
-            <select
-                id="contact-desk"
-                name="desk"
-                required
-                @class(['template-contact-form__input--invalid' => $errors->has('desk')])
+            <label id="contact-desk-label">{{ __('site.pages.contact_desk') }}</label>
+            <div
+                class="sportello-select @error('desk') sportello-select--invalid @enderror"
+                data-sportello-select
             >
-                @foreach ($deskOptions as $value => $label)
-                    <option value="{{ $value }}" @selected(old('desk', array_key_first($deskOptions)) === $value)>
-                        {{ $label }}
-                    </option>
-                @endforeach
-            </select>
+                <input
+                    type="hidden"
+                    name="desk"
+                    value="{{ $selectedDesk }}"
+                    required
+                    data-sportello-select-input
+                >
+                <button
+                    type="button"
+                    id="contact-desk"
+                    class="sportello-select__trigger"
+                    data-sportello-select-trigger
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-labelledby="contact-desk-label"
+                >
+                    <span data-sportello-select-value>
+                        {{ $deskOptions[$selectedDesk] ?? reset($deskOptions) }}
+                    </span>
+                    <svg class="sportello-select__chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.25a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <ul
+                    class="sportello-select__menu"
+                    data-sportello-select-menu
+                    role="listbox"
+                    aria-labelledby="contact-desk-label"
+                    hidden
+                >
+                    @foreach ($deskOptions as $value => $label)
+                        <li
+                            role="option"
+                            data-sportello-select-option
+                            data-value="{{ $value }}"
+                            aria-selected="{{ (string) $selectedDesk === (string) $value ? 'true' : 'false' }}"
+                            tabindex="-1"
+                            @class([
+                                'sportello-select__option',
+                                'is-selected' => (string) $selectedDesk === (string) $value,
+                            ])
+                        >
+                            {{ $label }}
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
             @error('desk')
                 <p class="template-contact-form__error">{{ $message }}</p>
             @enderror

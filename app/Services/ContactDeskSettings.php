@@ -20,13 +20,14 @@ class ContactDeskSettings
     public function all(): array
     {
         return Cache::rememberForever(self::CACHE_KEY, function (): array {
+            $defaults = $this->defaults();
             $stored = $this->readFromDatabase();
 
-            if ($stored !== []) {
-                return $stored;
+            if ($stored === []) {
+                return $defaults;
             }
 
-            return $this->normalizeList($this->defaults());
+            return $this->mergeStoredWithDefaults($stored, $defaults);
         });
     }
 
@@ -122,6 +123,25 @@ class ContactDeskSettings
         }
 
         return $this->normalizeList($decoded);
+    }
+
+    /**
+     * @param  list<array{key: string, label: string, inbox: string, case_type: string}>  $stored
+     * @param  list<array{key: string, label: string, inbox: string, case_type: string}>  $defaults
+     * @return list<array{key: string, label: string, inbox: string, case_type: string}>
+     */
+    private function mergeStoredWithDefaults(array $stored, array $defaults): array
+    {
+        $storedKeys = array_flip(array_column($stored, 'key'));
+        $merged = $stored;
+
+        foreach ($defaults as $defaultDesk) {
+            if (! isset($storedKeys[$defaultDesk['key']])) {
+                $merged[] = $defaultDesk;
+            }
+        }
+
+        return $this->normalizeList($merged);
     }
 
     /**

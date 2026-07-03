@@ -34,8 +34,28 @@ class ContactDeskSettingsTest extends TestCase
 
         $desks = app(ContactDeskSettings::class)->all();
 
-        $this->assertCount(1, $desks);
+        $this->assertCount(3, $desks);
         $this->assertSame('custom_desk', $desks[0]['key']);
         $this->assertSame('CustomCaseType', $desks[0]['case_type']);
+        $this->assertContains('legal_desk', array_column($desks, 'key'));
+    }
+
+    public function test_merges_missing_default_desks_when_only_one_is_configured_in_cms(): void
+    {
+        app(ContactDeskSettings::class)->save([
+            [
+                'key' => 'digital_desk',
+                'label' => 'Sportello digitale',
+                'inbox' => 'sportello.digitale@safehouse.community',
+                'case_type' => 'SportelloDigitale',
+            ],
+        ]);
+
+        app(ContactDeskSettings::class)->forgetCache();
+
+        $keys = array_column(app(ContactDeskSettings::class)->all(), 'key');
+
+        $this->assertContains('digital_desk', $keys);
+        $this->assertContains('legal_desk', $keys);
     }
 }
