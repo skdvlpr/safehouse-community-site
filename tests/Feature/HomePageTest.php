@@ -39,11 +39,12 @@ class HomePageTest extends TestCase
                     return ['metricList' => ['portionCount'], 'portionCount' => 2194];
                 }
 
+                if (str_contains($path, 'intervention')) {
+                    return ['metricList' => ['recordCount'], 'recordCount' => 42];
+                }
+
                 return ['metricList' => ['totalMeals'], 'totalMeals' => 955];
             });
-        $client->method('search')
-            ->with('Intervention', ['maxSize' => 0, 'select' => 'id'])
-            ->willReturn(['total' => 42]);
 
         $this->app->instance(EspoCrmClient::class, $client);
         Cache::flush();

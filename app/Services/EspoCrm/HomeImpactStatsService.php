@@ -9,7 +9,7 @@ use Throwable;
 
 class HomeImpactStatsService
 {
-    private const CACHE_KEY = 'home_impact_stats_snapshot_v1';
+    private const CACHE_KEY = 'home_impact_stats_snapshot_v2';
 
     public function __construct(
         private readonly EspoCrmClient $client,
@@ -51,16 +51,38 @@ class HomeImpactStatsService
         $mealCount = (int) ($mealTotals['totalMeals'] ?? 0);
         $networkCount = (int) ($networkTotals['portionCount'] ?? 0);
 
-        $interventionResponse = $this->client->search('Intervention', [
-            'maxSize' => 0,
-            'select' => 'id',
-        ]);
+        $interventionTotals = $this->client->reportingTotals(
+            (string) config('espocrm.reporting.intervention_totals_path'),
+        );
 
-        $interventions = (int) ($interventionResponse['total'] ?? 0);
+        $interventions = self::toCount($interventionTotals['recordCount'] ?? null);
 
         return new HomeImpactStatsSnapshot(
             distributedMeals: $mealCount + $networkCount,
             interventions: $interventions,
         );
+    }
+
+    private static function toCount(mixed $value): int
+    {
+        if (is_int($value)) {
+            return max(0, $value);
+        }
+
+        if (is_float($value)) {
+            return max(0, (int) round($value));
+        }
+
+        if (! is_string($value)) {
+            return 0;
+        }
+
+        $normalized = preg_replace('/[^\d-]/', '', $value) ?? '';
+
+        if ($normalized === '' || $normalized === '-') {
+            return 0;
+        }
+
+        return max(0, (int) $normalized);
     }
 }

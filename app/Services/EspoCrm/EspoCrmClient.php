@@ -89,14 +89,15 @@ class EspoCrmClient
     {
         $url = rtrim($this->baseUrl, '/').'/api/v1/'.$entityType;
 
-        $response = Http::withHeaders([
+        $pending = Http::withHeaders([
             'X-Api-Key' => $this->apiKey,
             'Accept' => 'application/json',
-        ])
-            ->acceptJson()
-            ->asJson()
-            ->timeout(15)
-            ->{$method}($url, $payload);
+        ])->timeout(15);
+
+        $response = match (strtolower($method)) {
+            'get' => $pending->get($url, $payload),
+            default => $pending->acceptJson()->asJson()->{$method}($url, $payload),
+        };
 
         try {
             $response->throw();
