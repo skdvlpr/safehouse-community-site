@@ -12,7 +12,7 @@ class HomeImpactStatsServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_intervention_total_uses_reporting_record_count(): void
+    public function test_intervention_total_uses_sum_of_intervention_count_field(): void
     {
         $client = $this->createMock(EspoCrmClient::class);
         $client->method('reportingTotals')
@@ -22,7 +22,7 @@ class HomeImpactStatsServiceTest extends TestCase
                 }
 
                 if (str_contains($path, 'intervention')) {
-                    return ['recordCount' => 3456];
+                    return ['interventionCount' => 26, 'recordCount' => 3];
                 }
 
                 return ['totalMeals' => 200];
@@ -34,7 +34,7 @@ class HomeImpactStatsServiceTest extends TestCase
         $snapshot = app(HomeImpactStatsService::class)->snapshot();
 
         $this->assertSame(300, $snapshot->distributedMeals);
-        $this->assertSame(3456, $snapshot->interventions);
+        $this->assertSame(26, $snapshot->interventions);
     }
 
     public function test_meal_totals_still_load_when_intervention_reporting_is_unavailable(): void
@@ -53,8 +53,20 @@ class HomeImpactStatsServiceTest extends TestCase
                 return ['totalMeals' => 200];
             });
         $client->method('search')
-            ->with('Intervention', ['maxSize' => 1, 'select' => 'id'])
-            ->willReturn(['total' => 42]);
+            ->willReturnCallback(function (string $entity, array $query): array {
+                if ($entity !== 'Intervention') {
+                    return ['total' => 0, 'list' => []];
+                }
+
+                return [
+                    'total' => 3,
+                    'list' => [
+                        ['interventionCount' => 2],
+                        ['interventionCount' => 4],
+                        ['interventionCount' => 20],
+                    ],
+                ];
+            });
 
         $this->app->instance(EspoCrmClient::class, $client);
         Cache::flush();
@@ -62,6 +74,6 @@ class HomeImpactStatsServiceTest extends TestCase
         $snapshot = app(HomeImpactStatsService::class)->snapshot();
 
         $this->assertSame(300, $snapshot->distributedMeals);
-        $this->assertSame(42, $snapshot->interventions);
+        $this->assertSame(26, $snapshot->interventions);
     }
 }

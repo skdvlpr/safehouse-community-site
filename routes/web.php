@@ -18,6 +18,7 @@ Route::prefix('{locale}')
         Route::get('/', [HomeController::class, 'index'])->name('home');
 
         Route::get('/donazioni', [DonationCampaignController::class, 'index'])->name('donations.index');
+        Route::get('/donazioni/5-per-mille', [DonationCampaignController::class, 'fivePerMille'])->name('donations.five-per-mille');
         Route::get('/donazioni/{campaignSlug}/privacy', [DonationCampaignController::class, 'privacy'])->name('donations.privacy');
         Route::get('/donazioni/{campaignSlug}/grazie', [DonationCampaignController::class, 'thankYou'])->name('donations.thank-you');
         Route::get('/donazioni/{campaignSlug}', [DonationCampaignController::class, 'show'])->name('donations.show');

@@ -16,6 +16,7 @@ return [
         'campaigns' => 'Campagne donazioni',
         'integrations' => 'Integrazioni',
         'sportelli_config' => 'Sportelli',
+        'donations_config' => 'Donazioni (5×1000 / IBAN)',
         'site_content' => 'Contenuto del sito',
     ],
 
@@ -111,6 +112,21 @@ return [
         'turnstile_enabled' => 'Abilita captcha Cloudflare Turnstile (opzionale)',
         'turnstile_site_key' => 'Turnstile site key',
         'turnstile_secret_key' => 'Turnstile secret key',
+        'five_per_mille_enabled' => 'Mostra pagina 5 per mille',
+        'codice_fiscale' => 'Codice fiscale associazione',
+        'five_per_mille_menu_label' => 'Etichetta menu',
+        'five_per_mille_heading' => 'Titolo pagina',
+        'five_per_mille_lead' => 'Sottotitolo',
+        'five_per_mille_body' => 'Testo introduttivo (HTML)',
+        'five_per_mille_instructions' => 'Istruzioni per la dichiarazione (HTML)',
+        'five_per_mille_codice_label' => 'Etichetta codice fiscale',
+        'bank_transfer_enabled' => 'Mostra sezione bonifico',
+        'donation_iban' => 'IBAN',
+        'donation_beneficiary' => 'Intestatario conto',
+        'bank_transfer_heading' => 'Titolo sezione bonifico',
+        'bank_transfer_body' => 'Testo bonifico (HTML)',
+        'bank_transfer_iban_label' => 'Etichetta IBAN',
+        'bank_transfer_beneficiary_label' => 'Etichetta intestatario',
     ],
 
     'integrations' => [
@@ -135,6 +151,8 @@ return [
         'contact_desks' => 'Elenco sportelli',
         'sportello_mail' => 'Email automatiche',
         'contact_captcha' => 'Captcha modulo contatti',
+        'five_per_mille' => '5 per mille',
+        'bank_transfer' => 'Bonifico bancario',
     ],
 
     'helpers' => [
@@ -190,6 +208,11 @@ return [
         'turnstile_enabled' => 'Disattivato per impostazione predefinita. Attivalo solo se hai configurato le chiavi Turnstile su Cloudflare.',
         'turnstile_site_key' => 'Chiave pubblica (widget sul sito).',
         'turnstile_secret_key' => 'Chiave segreta (verifica server). Memorizzata cifrata.',
+        'five_per_mille_enabled' => 'Pagina /donazioni/5-per-mille e voce evidenziata nel menu.',
+        'codice_fiscale' => 'Codice da indicare nel riquadro 5 per mille della dichiarazione dei redditi.',
+        'five_per_mille_menu_label' => 'Testo nel menu principale (evidenziato).',
+        'bank_transfer_enabled' => 'Blocco bonifico in cima alla pagina /donazioni.',
+        'donation_iban' => 'IBAN mostrato sul sito per i bonifici diretti.',
     ],
 
     'templates' => [
@@ -263,6 +286,7 @@ return [
         'tagline_saved' => 'Slogan salvato',
         'integrations_saved' => 'Impostazioni integrazioni salvate',
         'sportelli_config_saved' => 'Configurazione sportelli salvata',
+        'donations_config_saved' => 'Configurazione donazioni salvata',
         'smtp_preset_applied' => 'Preset SMTP applicato: :provider',
         'smtp_preset_missing' => 'Seleziona un provider prima di applicare il preset',
         'contact_desks_invalid' => 'Elenco sportelli non valido',

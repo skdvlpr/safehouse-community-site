@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DonationCampaign;
 use App\Services\Donations\CampaignFundraisingProgressService;
 use App\Services\Donations\StripeDonationThankYouSync;
+use App\Services\DonationSettingsService;
 use App\Services\Payments\StripePaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,8 +13,11 @@ use Illuminate\View\View;
 
 class DonationCampaignController extends Controller
 {
-    public function index(Request $request, CampaignFundraisingProgressService $progressService): View
-    {
+    public function index(
+        Request $request,
+        CampaignFundraisingProgressService $progressService,
+        DonationSettingsService $donationSettings,
+    ): View {
         $campaigns = DonationCampaign::query()
             ->active()
             ->orderBy('sort_order')
@@ -23,6 +27,17 @@ class DonationCampaignController extends Controller
         return view('donations.index', [
             'campaigns' => $campaigns,
             'progressBySlug' => $progressService->forCampaigns($campaigns),
+            'donationSettings' => $donationSettings,
+        ]);
+    }
+
+    public function fivePerMille(string $locale, DonationSettingsService $donationSettings): View
+    {
+        abort_unless($donationSettings->fivePerMilleEnabled(), 404);
+
+        return view('donations.five-per-mille', [
+            'donationSettings' => $donationSettings,
+            'locale' => $locale,
         ]);
     }
 

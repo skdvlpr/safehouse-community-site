@@ -153,6 +153,22 @@
         backdrop-filter: blur(12px);
     }
 
+    .nav-link--highlight {
+        @apply rounded-full border border-safehouse-primary/50 bg-safehouse-primary/15 px-3 py-1 text-safehouse-primary shadow-sm shadow-safehouse-primary/20;
+    }
+
+    .nav-link--highlight:hover {
+        @apply border-safehouse-primary bg-safehouse-primary/25 text-safehouse-text;
+    }
+
+    .donation-feature-card {
+        @apply shadow-lg shadow-safehouse-primary/10;
+    }
+
+    .donation-five-per-mille__title {
+        @apply text-balance;
+    }
+
     .safehouse-btn-primary {
         @apply inline-flex min-h-10 items-center justify-center rounded-md border border-transparent px-5 py-2.5 text-sm font-medium leading-none whitespace-nowrap bg-safehouse-primary text-white transition-colors hover:bg-safehouse-primary-hover;
     }

@@ -9,7 +9,7 @@ use Throwable;
 
 class HomeImpactStatsService
 {
-    private const CACHE_KEY = 'home_impact_stats_snapshot_v3';
+    private const CACHE_KEY = 'home_impact_stats_snapshot_v4';
 
     public function __construct(
         private readonly EspoCrmClient $client,
@@ -77,7 +77,11 @@ class HomeImpactStatsService
                 (string) config('espocrm.reporting.intervention_totals_path'),
             );
 
-            return self::toCount($interventionTotals['recordCount'] ?? null);
+            return self::toCount(
+                $interventionTotals['interventionCount']
+                    ?? $interventionTotals['recordCount']
+                    ?? null,
+            );
         } catch (Throwable $exception) {
             Log::warning('Intervention reporting totals unavailable; falling back to CRM search.', [
                 'reason' => $exception->getMessage(),
@@ -85,12 +89,7 @@ class HomeImpactStatsService
         }
 
         try {
-            $interventionResponse = $this->client->search('Intervention', [
-                'maxSize' => 1,
-                'select' => 'id',
-            ]);
-
-            return self::toCount($interventionResponse['total'] ?? null);
+            return $this->sumInterventionCountsFromSearch();
         } catch (Throwable $exception) {
             Log::warning('Unable to load home intervention count from EspoCRM.', [
                 'reason' => $exception->getMessage(),
@@ -98,6 +97,37 @@ class HomeImpactStatsService
 
             return null;
         }
+    }
+
+    private function sumInterventionCountsFromSearch(): int
+    {
+        $total = 0;
+        $offset = 0;
+        $pageSize = 200;
+        $recordTotal = 0;
+
+        do {
+            $interventionResponse = $this->client->search('Intervention', [
+                'maxSize' => $pageSize,
+                'offset' => $offset,
+                'select' => 'interventionCount',
+            ]);
+
+            $recordTotal = (int) ($interventionResponse['total'] ?? 0);
+
+            foreach ($interventionResponse['list'] ?? [] as $row) {
+                if (! is_array($row)) {
+                    continue;
+                }
+
+                $count = $row['interventionCount'] ?? 1;
+                $total += max(0, (int) $count);
+            }
+
+            $offset += $pageSize;
+        } while ($offset < $recordTotal);
+
+        return $total;
     }
 
     private static function toCount(mixed $value): int

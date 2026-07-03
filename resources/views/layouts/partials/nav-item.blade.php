@@ -46,12 +46,26 @@
         </div>
     @endif
 @else
+    @php
+        $highlight = (bool) ($item['highlight'] ?? false);
+        $label = __($item['label']);
+
+        if (($item['route'] ?? null) === 'donations.five-per-mille') {
+            $customLabel = app(\App\Services\DonationSettingsService::class)
+                ->localized(app(\App\Services\DonationSettingsService::class)->fivePerMille(), 'menu_label', $locale);
+
+            if ($customLabel !== '') {
+                $label = $customLabel;
+            }
+        }
+    @endphp
     <a href="{{ Navigation::url($item, $locale) }}"
        @class([
            'text-sm font-medium transition',
-           'text-safehouse-primary' => $isActive,
-           'text-safehouse-muted hover:text-safehouse-text' => ! $isActive,
+           'nav-link--highlight' => $highlight,
+           'text-safehouse-primary' => $isActive && ! $highlight,
+           'text-safehouse-muted hover:text-safehouse-text' => ! $isActive && ! $highlight,
        ])>
-        {{ __($item['label']) }}
+        {{ $label }}
     </a>
 @endif

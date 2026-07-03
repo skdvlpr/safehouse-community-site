@@ -7,6 +7,7 @@ return [
         ['label' => 'site.nav.about', 'page_key' => 'about'],
         ['label' => 'site.nav.services', 'page_key' => 'services'],
         ['label' => 'site.nav.news', 'route' => 'articles.index'],
+        ['label' => 'site.nav.five_per_mille', 'route' => 'donations.five-per-mille', 'highlight' => true],
         ['label' => 'site.nav.donations', 'route' => 'donations.index'],
         ['label' => 'site.nav.contact_us', 'page_key' => 'contact'],
         ['label' => 'site.nav.other_pages', 'type' => 'pages_dropdown'],
