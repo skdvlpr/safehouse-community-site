@@ -897,9 +897,15 @@
     }
 
     .donation-phone-field .iti {
-        @apply flex w-full min-h-12 overflow-hidden rounded-2xl border border-white/10 bg-safehouse-page/80 transition focus-within:border-safehouse-primary/60 focus-within:ring-2 focus-within:ring-safehouse-primary/20;
+        --iti-hover-color: rgb(255 255 255 / 6%);
+        --iti-border-color: rgb(255 255 255 / 12%);
+        --iti-dialcode-color: var(--color-safehouse-muted);
+        --iti-dropdown-bg: var(--color-safehouse-modal);
+        --iti-arrow-color: var(--color-safehouse-muted);
+        @apply flex w-full min-h-12 overflow-visible rounded-2xl border border-white/10 bg-safehouse-page/80 transition focus-within:border-safehouse-primary/60 focus-within:ring-2 focus-within:ring-safehouse-primary/20;
     }
 
+    .donation-phone-field .iti .donation-form__input,
     .donation-phone-field .iti__tel-input {
         @apply min-h-12 w-full border-0 bg-transparent py-3 pe-4 text-base text-safehouse-text shadow-none outline-none ring-0 placeholder:text-safehouse-muted/70 focus:border-0 focus:ring-0;
         padding-left: 6.25rem !important;
@@ -909,8 +915,9 @@
         @apply flex items-center border-0 border-e border-white/10 bg-transparent;
     }
 
-    .donation-phone-field .iti__selected-country {
-        @apply flex h-full items-center rounded-none bg-transparent px-2;
+    .donation-phone-field .iti__selected-country,
+    .donation-phone-field .iti__selected-country-primary {
+        @apply flex h-full items-center rounded-none bg-transparent px-2 text-safehouse-text;
     }
 
     .donation-phone-field .iti__selected-dial-code {
@@ -918,10 +925,26 @@
     }
 
     .donation-phone-field .iti__dropdown-content {
-        @apply border border-white/10 bg-safehouse-modal text-safehouse-text;
+        @apply z-50 overflow-hidden rounded-xl border border-white/10 bg-safehouse-modal text-safehouse-text shadow-xl shadow-black/50;
+    }
+
+    .donation-phone-field .iti__search-input {
+        @apply border-0 border-b border-white/10 bg-safehouse-page/90 px-3 py-2.5 text-sm text-safehouse-text outline-none placeholder:text-safehouse-muted/70;
+    }
+
+    .donation-phone-field .iti__country-list {
+        @apply max-h-64;
+    }
+
+    .donation-phone-field .iti__country {
+        @apply text-sm text-safehouse-text;
     }
 
     .donation-phone-field .iti__country.iti__highlight {
         @apply bg-safehouse-primary/15;
+    }
+
+    .donation-phone-field .iti__dial-code {
+        @apply text-safehouse-muted;
     }
 }

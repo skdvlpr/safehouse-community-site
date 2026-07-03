@@ -15,6 +15,7 @@ return [
         'news_categories' => 'Categorie notizie',
         'campaigns' => 'Campagne donazioni',
         'integrations' => 'Integrazioni',
+        'sportelli_config' => 'Sportelli',
         'site_content' => 'Contenuto del sito',
     ],
 
@@ -103,6 +104,13 @@ return [
         'contact_desk_label' => 'Etichetta nel menu',
         'contact_desk_inbox' => 'Email di destinazione (group inbox CRM)',
         'contact_desk_case_type' => 'Tipo segnalazione CRM (Case.type)',
+        'sportelli_config_link' => 'Configurazione sportelli',
+        'sportello_mail_subject' => 'Oggetto email',
+        'sportello_mail_body' => 'Corpo email (HTML)',
+        'sportello_mail_placeholders' => 'Segnaposto disponibili',
+        'turnstile_enabled' => 'Abilita captcha Cloudflare Turnstile (opzionale)',
+        'turnstile_site_key' => 'Turnstile site key',
+        'turnstile_secret_key' => 'Turnstile secret key',
     ],
 
     'integrations' => [
@@ -125,6 +133,8 @@ return [
         'mail_sender' => 'Mittente',
         'contact_notifications' => 'Modulo contatti (Sportelli)',
         'contact_desks' => 'Elenco sportelli',
+        'sportello_mail' => 'Email automatiche',
+        'contact_captcha' => 'Captcha modulo contatti',
     ],
 
     'helpers' => [
@@ -174,6 +184,12 @@ return [
         'contact_desks' => 'Ogni sportello invia email al group inbox indicato. In CRM configura manualmente lo stesso indirizzo, il team e il tipo segnalazione corrispondente.',
         'contact_desk_key' => 'Identificatore stabile (es. digital_desk). Non cambiarlo dopo il go-live se ci sono già richieste.',
         'contact_desk_case_type' => 'Valore enum Case.type in EspoCRM (es. SportelloDigitale). Deve esistere nei metadati CRM.',
+        'sportelli_config_link' => 'Sportelli, template email e captcha si configurano in Impostazioni → Sportelli.',
+        'sportello_mail_subject' => 'Facoltativo. Usa i segnaposto elencati sotto. Se vuoto: [SH-token] Nuovo messaggio — nome.',
+        'sportello_mail_body' => 'Editor HTML come per le pagine del sito. Alla fine viene sempre aggiunto un blocco testo per CRM (Sportello, Tipo segnalazione, Riferimento SH).',
+        'turnstile_enabled' => 'Disattivato per impostazione predefinita. Attivalo solo se hai configurato le chiavi Turnstile su Cloudflare.',
+        'turnstile_site_key' => 'Chiave pubblica (widget sul sito).',
+        'turnstile_secret_key' => 'Chiave segreta (verifica server). Memorizzata cifrata.',
     ],
 
     'templates' => [
@@ -246,6 +262,7 @@ return [
     'notifications' => [
         'tagline_saved' => 'Slogan salvato',
         'integrations_saved' => 'Impostazioni integrazioni salvate',
+        'sportelli_config_saved' => 'Configurazione sportelli salvata',
         'smtp_preset_applied' => 'Preset SMTP applicato: :provider',
         'smtp_preset_missing' => 'Seleziona un provider prima di applicare il preset',
         'contact_desks_invalid' => 'Elenco sportelli non valido',

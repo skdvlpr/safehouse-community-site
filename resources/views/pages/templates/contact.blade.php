@@ -25,3 +25,9 @@
         </div>
     </x-page-template-shell>
 @endsection
+
+@if (app(\App\Services\TurnstileVerifier::class)->enabled())
+    @push('head')
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    @endpush
+@endif

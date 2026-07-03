@@ -2,6 +2,10 @@
     <p class="template-contact-form__success" role="status">{{ session('contact_success') }}</p>
 @endif
 
+@error('contact_rate_limit')
+    <p class="template-contact-form__error" role="alert">{{ $message }}</p>
+@enderror
+
 @php
     $deskOptions = \App\Support\ContactDeskOptions::forForm();
     $selectedDesk = old('desk', array_key_first($deskOptions));
@@ -145,6 +149,20 @@
             <p class="template-contact-form__error">{{ $message }}</p>
         @enderror
     </div>
+
+    @php($turnstile = app(\App\Services\TurnstileVerifier::class))
+    @if ($turnstile->enabled())
+        <div class="template-contact-form__field">
+            <div
+                class="cf-turnstile"
+                data-sitekey="{{ $turnstile->siteKey() }}"
+                data-theme="dark"
+            ></div>
+            @error('cf-turnstile-response')
+                <p class="template-contact-form__error">{{ $message }}</p>
+            @enderror
+        </div>
+    @endif
 
     <button type="submit" class="safehouse-btn-primary w-full">
         {{ __('site.pages.contact_submit') }}

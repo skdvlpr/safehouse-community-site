@@ -94,6 +94,8 @@ class LinkSportelloContactSubmissionService
 
         if (($case['parentType'] ?? null) !== 'Lead' || ($case['parentId'] ?? null) !== $leadId) {
             $this->intake->linkCaseToLead($caseId, $leadId, $caseType, $submission);
+        } else {
+            $this->intake->syncCaseMetadata($caseId, $caseType, $submission);
         }
 
         $submission->forceFill([

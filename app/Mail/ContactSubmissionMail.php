@@ -14,9 +14,13 @@ class ContactSubmissionMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    /**
+     * @param  array{html?: string, text?: string, subject?: string}|null  $rendered
+     */
     public function __construct(
         public ContactSubmission $submission,
         public ?ContactSubmissionMailRecipients $recipients = null,
+        public ?array $rendered = null,
     ) {}
 
     public function envelope(): Envelope
@@ -25,7 +29,9 @@ class ContactSubmissionMail extends Mailable
         $recipients = $this->recipients ?? new ContactSubmissionMailRecipients(to: []);
 
         return new Envelope(
-            subject: $recipients->subject ?? ('Nuovo messaggio dal modulo contatti — '.$this->submission->name),
+            subject: $recipients->subject
+                ?? $this->rendered['subject']
+                ?? ('Nuovo messaggio dal modulo contatti — '.$this->submission->name),
             to: $this->addresses($recipients->to),
             cc: $this->addresses($recipients->cc),
             bcc: $this->addresses($recipients->bcc),
@@ -46,6 +52,16 @@ class ContactSubmissionMail extends Mailable
 
     public function content(): Content
     {
+        if ($this->rendered !== null) {
+            return new Content(
+                htmlString: $this->rendered['html'] ?? '',
+                text: 'mail.contact-submission-text',
+                with: [
+                    'textBody' => $this->rendered['text'] ?? '',
+                ],
+            );
+        }
+
         return new Content(
             text: 'mail.contact-submission',
         );

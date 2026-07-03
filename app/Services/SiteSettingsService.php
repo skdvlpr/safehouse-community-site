@@ -27,15 +27,45 @@ class SiteSettingsService
                 return (string) config($definition['config'], '');
             }
 
-            $stored = SiteSetting::query()->where('key', $key)->first();
-            $dbValue = $stored?->decryptedValue();
+            $raw = $this->getRaw($key);
 
-            if ($dbValue !== null && $dbValue !== '') {
-                return $dbValue;
+            if ($raw !== null && $raw !== '') {
+                return $raw;
             }
 
             return (string) config($definition['config'], '');
         });
+    }
+
+    public function has(string $key): bool
+    {
+        if (! Schema::hasTable('site_settings')) {
+            return false;
+        }
+
+        return SiteSetting::query()->where('key', $key)->exists();
+    }
+
+    public function isTruthy(string $key): bool
+    {
+        if ($this->has($key)) {
+            $raw = $this->getRaw($key);
+
+            return filter_var($raw, FILTER_VALIDATE_BOOL);
+        }
+
+        return filter_var($this->get($key), FILTER_VALIDATE_BOOL);
+    }
+
+    public function getRaw(string $key): ?string
+    {
+        if (! Schema::hasTable('site_settings')) {
+            return null;
+        }
+
+        $stored = SiteSetting::query()->where('key', $key)->first();
+
+        return $stored?->decryptedValue();
     }
 
     /**
@@ -97,6 +127,12 @@ class SiteSettingsService
 
             if ($value === null) {
                 $normalized[$key] = null;
+
+                continue;
+            }
+
+            if (is_bool($value)) {
+                $normalized[$key] = $value ? '1' : '0';
 
                 continue;
             }

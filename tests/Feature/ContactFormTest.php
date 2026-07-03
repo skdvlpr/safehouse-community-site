@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\ContactSubmission;
+use App\Services\ContactSubmissionRateLimiter;
 use App\Services\ContactSubmissionService;
 use Database\Seeders\PageSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,14 +20,30 @@ class ContactFormTest extends TestCase
         $this->seed(PageSeeder::class);
     }
 
-    public function test_contact_form_stores_submission_with_hashed_fingerprint(): void
+    /**
+     * @return array<string, string>
+     */
+    private function validContactPayload(): array
     {
-        $response = $this->withHeaders(['User-Agent' => 'Safehouse Test Agent'])->post('/it/contact', [
+        return [
             'name' => 'Luca Bianchi',
             'email' => 'luca@example.com',
             'message' => 'Buongiorno, vorrei informazioni.',
+            'desk' => 'digital_desk',
             'gdpr_consent' => '1',
-        ]);
+        ];
+    }
+
+    private function clearContactRateLimit(): void
+    {
+        RateLimiter::clear(app(ContactSubmissionRateLimiter::class)->key(
+            request()->create('/', 'POST', server: ['REMOTE_ADDR' => '127.0.0.1']),
+        ));
+    }
+
+    public function test_contact_form_stores_submission_with_hashed_fingerprint(): void
+    {
+        $response = $this->withHeaders(['User-Agent' => 'Safehouse Test Agent'])->post('/it/contact', $this->validContactPayload());
 
         $response
             ->assertRedirect('/it/contatti')
@@ -64,10 +81,7 @@ class ContactFormTest extends TestCase
     public function test_honeypot_submission_is_silently_accepted_without_storage(): void
     {
         $response = $this->post('/it/contact', [
-            'name' => 'Bot',
-            'email' => 'bot@example.com',
-            'message' => 'Spam',
-            'gdpr_consent' => '1',
+            ...$this->validContactPayload(),
             'company' => 'Acme Inc.',
         ]);
 
@@ -80,20 +94,37 @@ class ContactFormTest extends TestCase
 
     public function test_contact_form_is_rate_limited(): void
     {
-        RateLimiter::clear('contact');
+        $this->clearContactRateLimit();
 
-        $payload = [
-            'name' => 'Luca Bianchi',
-            'email' => 'luca@example.com',
-            'message' => 'Messaggio di prova.',
-            'gdpr_consent' => '1',
-        ];
+        $payload = $this->validContactPayload();
+        $payload['message'] = 'Messaggio di prova.';
 
-        for ($i = 0; $i < 5; $i++) {
-            $this->post('/it/contact', $payload)->assertRedirect();
+        for ($i = 0; $i < 10; $i++) {
+            $this->post('/it/contact', $payload)
+                ->assertRedirect('/it/contatti')
+                ->assertSessionHas('contact_success');
         }
 
-        $this->post('/it/contact', $payload)->assertStatus(429);
+        $this->post('/it/contact', $payload)
+            ->assertRedirect('/it/contatti')
+            ->assertSessionHasErrors('contact_rate_limit');
+    }
+
+    public function test_failed_validation_does_not_count_toward_rate_limit(): void
+    {
+        $this->clearContactRateLimit();
+
+        for ($i = 0; $i < 20; $i++) {
+            $this->from('/it/contatti')->post('/it/contact', [
+                'name' => '',
+                'email' => 'not-an-email',
+                'message' => '',
+            ])->assertSessionHasErrors(['name', 'email', 'message', 'gdpr_consent']);
+        }
+
+        $this->post('/it/contact', $this->validContactPayload())
+            ->assertRedirect('/it/contatti')
+            ->assertSessionHas('contact_success');
     }
 
     public function test_contact_page_renders_working_form(): void

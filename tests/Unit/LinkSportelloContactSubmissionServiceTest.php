@@ -69,6 +69,17 @@ class LinkSportelloContactSubmissionServiceTest extends TestCase
         $submission->refresh();
         $this->assertSame('linked', $submission->crm_link_status);
         $this->assertSame('case-1', $submission->crm_case_id);
+
+        Http::assertSent(function ($request): bool {
+            if ($request->method() !== 'PUT' || ! str_contains($request->url(), '/Case/case-1')) {
+                return false;
+            }
+
+            $payload = $request->data();
+
+            return ($payload['sportelloDisplayName'] ?? null) === 'Sportello digitale'
+                && ($payload['type'] ?? null) === 'SportelloDigitale';
+        });
     }
 
     public function test_find_case_falls_back_when_reference_field_is_unavailable(): void

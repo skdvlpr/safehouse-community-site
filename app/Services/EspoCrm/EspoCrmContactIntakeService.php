@@ -189,12 +189,18 @@ class EspoCrmContactIntakeService
             'type' => $caseType,
         ]);
 
+        $this->syncCaseMetadata($caseId, $caseType, $submission);
+    }
+
+    public function syncCaseMetadata(string $caseId, string $caseType, ContactSubmission $submission): void
+    {
         $token = trim((string) $submission->correlation_token);
 
         $metadata = array_filter([
             'websiteContactName' => trim($submission->name),
-            'sportelloDisplayName' => self::sportelloDisplayName($submission, $caseType),
+            'sportelloDisplayName' => self::sportelloDisplayName($submission),
             'websiteReferenceId' => $token !== '' ? 'SH-'.strtolower($token) : null,
+            'type' => $caseType,
         ], static fn (mixed $value): bool => $value !== null && $value !== '');
 
         if ($metadata === []) {
@@ -212,18 +218,8 @@ class EspoCrmContactIntakeService
         }
     }
 
-    private static function sportelloDisplayName(ContactSubmission $submission, string $caseType): string
+    private static function sportelloDisplayName(ContactSubmission $submission): string
     {
-        $abbreviated = match ($caseType) {
-            'SportelloDigitale' => 'Sp. Digitale',
-            'SportelloLegale' => 'Sp. Legale',
-            default => null,
-        };
-
-        if ($abbreviated !== null) {
-            return $abbreviated;
-        }
-
         $deskLabel = trim((string) (ContactDeskOptions::deskConfig($submission->desk)['label'] ?? ''));
 
         return $deskLabel !== '' ? $deskLabel : 'Sportello';

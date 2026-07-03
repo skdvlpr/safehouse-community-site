@@ -38,7 +38,6 @@ Route::prefix('{locale}')
             ->name('cookie-consent.store');
 
         Route::post('/contact', [ContactSubmissionController::class, 'store'])
-            ->middleware('throttle:contact')
             ->name('contact.store');
 
         Route::get('/volontariato', [VolunteerController::class, 'show'])->name('volunteers.show');

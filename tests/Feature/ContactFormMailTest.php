@@ -55,10 +55,17 @@ class ContactFormMailTest extends TestCase
         ])->assertRedirect();
 
         Mail::assertSent(ContactSubmissionMail::class, function (ContactSubmissionMail $mail): bool {
+            $text = (string) ($mail->rendered['text'] ?? '');
+
             return $mail->hasTo('sportello.digitale@safehouse.community')
                 && $mail->hasCc('luca@example.com')
-                && $mail->submission->desk === 'digital_desk';
+                && $mail->hasReplyTo('luca@example.com', 'Luca Bianchi')
+                && $mail->submission->desk === 'digital_desk'
+                && str_contains($text, 'Tipo segnalazione: SportelloDigitale')
+                && str_contains($text, 'Sportello: Sportello digitale');
         });
+
+        Mail::assertSentCount(1);
 
         Bus::assertDispatched(LinkSportelloContactSubmissionToCrmJob::class);
     }

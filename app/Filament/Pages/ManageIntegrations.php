@@ -2,7 +2,6 @@
 
 namespace App\Filament\Pages;
 
-use App\Services\ContactDeskSettings;
 use App\Services\SiteSettingsService;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -52,11 +51,9 @@ class ManageIntegrations extends Page
         return $user !== null && $user->hasRole('super-admin');
     }
 
-    public function mount(SiteSettingsService $settings, ContactDeskSettings $desks): void
+    public function mount(SiteSettingsService $settings): void
     {
-        $values = $settings->nestedFormValues();
-        data_set($values, 'contact.desks', $desks->all());
-        $this->form->fill($values);
+        $this->form->fill($settings->nestedFormValues());
     }
 
     public function content(Schema $schema): Schema
@@ -210,6 +207,10 @@ class ManageIntegrations extends Page
                             ->maxLength(255),
                     ]),
                     Section::make(__('cms.sections.contact_notifications'))->schema([
+                        \Filament\Forms\Components\Placeholder::make('sportelli_config_link')
+                            ->label(__('cms.fields.sportelli_config_link'))
+                            ->content(__('cms.helpers.sportelli_config_link'))
+                            ->columnSpanFull(),
                         \Filament\Forms\Components\TextInput::make('contact.website_from_address')
                             ->label(__('cms.fields.contact_website_from_address'))
                             ->email()
@@ -221,62 +222,14 @@ class ManageIntegrations extends Page
                             ->placeholder('Safe House — sito web')
                             ->maxLength(255),
                     ]),
-                    Section::make(__('cms.sections.contact_desks'))->schema([
-                        \Filament\Forms\Components\Repeater::make('contact.desks')
-                            ->label(__('cms.fields.contact_desks'))
-                            ->helperText(__('cms.helpers.contact_desks'))
-                            ->schema([
-                                \Filament\Forms\Components\TextInput::make('key')
-                                    ->label(__('cms.fields.contact_desk_key'))
-                                    ->helperText(__('cms.helpers.contact_desk_key'))
-                                    ->required()
-                                    ->maxLength(64)
-                                    ->alphaDash(),
-                                \Filament\Forms\Components\TextInput::make('label')
-                                    ->label(__('cms.fields.contact_desk_label'))
-                                    ->required()
-                                    ->maxLength(255),
-                                \Filament\Forms\Components\TextInput::make('inbox')
-                                    ->label(__('cms.fields.contact_desk_inbox'))
-                                    ->email()
-                                    ->required()
-                                    ->placeholder('sportello.digitale@safehouse.community')
-                                    ->maxLength(255),
-                                \Filament\Forms\Components\TextInput::make('case_type')
-                                    ->label(__('cms.fields.contact_desk_case_type'))
-                                    ->helperText(__('cms.helpers.contact_desk_case_type'))
-                                    ->required()
-                                    ->placeholder('SportelloDigitale')
-                                    ->maxLength(64),
-                            ])
-                            ->minItems(1)
-                            ->reorderable()
-                            ->collapsible()
-                            ->itemLabel(fn (array $state): ?string => $state['label'] ?? $state['key'] ?? null)
-                            ->addActionLabel(__('cms.actions.add_contact_desk'))
-                            ->columns(2),
-                    ]),
                 ]),
             ]),
         ]);
     }
 
-    public function save(SiteSettingsService $settings, ContactDeskSettings $deskSettings): void
+    public function save(SiteSettingsService $settings): void
     {
         $state = $this->form->getState();
-        $desks = data_get($state, 'contact.desks', []);
-
-        try {
-            $deskSettings->save(is_array($desks) ? $desks : []);
-        } catch (\InvalidArgumentException $exception) {
-            Notification::make()
-                ->title(__('cms.notifications.contact_desks_invalid'))
-                ->body($exception->getMessage())
-                ->danger()
-                ->send();
-
-            return;
-        }
 
         if (isset($state['contact']) && is_array($state['contact'])) {
             unset($state['contact']['desks']);
@@ -285,7 +238,6 @@ class ManageIntegrations extends Page
         $settings->updateFromFormState($state);
 
         $values = $settings->nestedFormValues();
-        data_set($values, 'contact.desks', $deskSettings->all());
         $this->form->fill($values);
 
         Notification::make()

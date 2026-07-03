@@ -138,6 +138,24 @@ return [
             'encrypted' => false,
             'config' => 'contact_mail.website_from_name',
         ],
+        'turnstile.enabled' => [
+            'label' => 'Turnstile captcha enabled',
+            'group' => 'turnstile',
+            'encrypted' => false,
+            'config' => 'turnstile.enabled',
+        ],
+        'turnstile.site_key' => [
+            'label' => 'Turnstile site key',
+            'group' => 'turnstile',
+            'encrypted' => false,
+            'config' => 'turnstile.site_key',
+        ],
+        'turnstile.secret_key' => [
+            'label' => 'Turnstile secret key',
+            'group' => 'turnstile',
+            'encrypted' => true,
+            'config' => 'turnstile.secret_key',
+        ],
     ],
 
 ];

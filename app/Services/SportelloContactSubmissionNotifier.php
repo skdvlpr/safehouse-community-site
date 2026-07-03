@@ -65,7 +65,9 @@ class SportelloContactSubmissionNotifier
 
         $this->mail->applyForSportello();
 
-        $subject = '[SH-'.$token.'] Nuovo messaggio — '.$submission->name;
+        $locale = app()->getLocale();
+        $rendered = app(ContactSubmissionMailRenderer::class)->render($submission, $locale);
+        $subject = $rendered['subject'];
 
         try {
             Mail::send(new ContactSubmissionMail(
@@ -76,6 +78,7 @@ class SportelloContactSubmissionNotifier
                     messageId: $messageId,
                     subject: $subject,
                 ),
+                rendered: $rendered,
             ));
         } catch (Throwable $exception) {
             $submission->forceFill(['crm_link_status' => 'failed'])->save();
