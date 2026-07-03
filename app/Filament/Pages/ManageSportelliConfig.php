@@ -66,10 +66,11 @@ class ManageSportelliConfig extends Page
         SiteSettingsService $settings,
     ): void {
         $values = array_merge(
-            ['contact' => ['desks' => $desks->all()]],
             $mailSettings->nestedFormValues(),
             $settings->nestedFormValues(),
         );
+
+        data_set($values, 'contact.desks', $desks->all());
 
         data_set(
             $values,
@@ -238,10 +239,10 @@ class ManageSportelliConfig extends Page
         $settings->updateFromFormState(is_array($state) ? $state : []);
 
         $values = array_merge(
-            ['contact' => ['desks' => $deskSettings->all()]],
             $mailSettings->nestedFormValues(),
             $settings->nestedFormValues(),
         );
+        data_set($values, 'contact.desks', $deskSettings->all());
         data_set(
             $values,
             'turnstile.enabled',
