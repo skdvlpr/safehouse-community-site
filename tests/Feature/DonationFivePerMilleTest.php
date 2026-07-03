@@ -17,8 +17,8 @@ class DonationFivePerMilleTest extends TestCase
                 'five_per_mille' => [
                     'enabled' => true,
                     'codice_fiscale' => '98765432109',
-                    'menu_label' => ['it' => '5 per mille'],
-                    'heading' => ['it' => 'Dona il 5 per mille'],
+                    'menu_label' => ['it' => '5 x 1000'],
+                    'heading' => ['it' => 'Dona il 5 x 1000'],
                     'lead' => ['it' => 'Senza costi aggiuntivi.'],
                     'body' => ['it' => '<p>Testo introduttivo.</p>'],
                     'instructions' => ['it' => '<p>Istruzioni.</p>'],
@@ -40,7 +40,7 @@ class DonationFivePerMilleTest extends TestCase
 
         $this->get('/it/donazioni/5-per-mille')
             ->assertOk()
-            ->assertSee('Dona il 5 per mille', false)
+            ->assertSee('Dona il 5 x 1000', false)
             ->assertSee('98765432109', false)
             ->assertSee('Senza costi aggiuntivi.', false);
     }
@@ -52,8 +52,8 @@ class DonationFivePerMilleTest extends TestCase
                 'five_per_mille' => [
                     'enabled' => true,
                     'codice_fiscale' => '98765432109',
-                    'menu_label' => ['it' => '5 per mille'],
-                    'heading' => ['it' => 'Dona il 5 per mille'],
+                    'menu_label' => ['it' => '5 x 1000'],
+                    'heading' => ['it' => 'Dona il 5 x 1000'],
                     'lead' => ['it' => 'Lead'],
                     'body' => ['it' => ''],
                     'instructions' => ['it' => ''],
@@ -75,7 +75,7 @@ class DonationFivePerMilleTest extends TestCase
 
         $this->get('/it/donazioni')
             ->assertOk()
-            ->assertSee('Dona il 5 per mille', false)
+            ->assertSee('Dona il 5 x 1000', false)
             ->assertSee('Bonifico bancario', false)
             ->assertSee('IT60X0542811101000000123456', false);
     }

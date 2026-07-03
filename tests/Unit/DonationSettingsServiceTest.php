@@ -15,7 +15,7 @@ class DonationSettingsServiceTest extends TestCase
         $settings = app(DonationSettingsService::class);
 
         $this->assertTrue($settings->fivePerMilleEnabled());
-        $this->assertSame('Dona il 5 per mille', $settings->localized($settings->fivePerMille(), 'heading', 'it'));
+        $this->assertSame('Dona 5 x 1000', $settings->localized($settings->fivePerMille(), 'heading', 'it'));
     }
 
     public function test_persists_codice_fiscale_and_iban(): void
@@ -25,8 +25,8 @@ class DonationSettingsServiceTest extends TestCase
                 'five_per_mille' => [
                     'enabled' => true,
                     'codice_fiscale' => '12345678901',
-                    'menu_label' => ['it' => '5 per mille'],
-                    'heading' => ['it' => 'Dona il 5 per mille'],
+                    'menu_label' => ['it' => '5 x 1000'],
+                    'heading' => ['it' => 'Dona il 5 x 1000'],
                     'lead' => ['it' => 'Lead'],
                     'body' => ['it' => '<p>Body</p>'],
                     'instructions' => ['it' => '<ol><li>Step</li></ol>'],

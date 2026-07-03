@@ -154,11 +154,11 @@
     }
 
     .nav-link--highlight {
-        @apply rounded-full border border-safehouse-primary/50 bg-safehouse-primary/15 px-3 py-1 text-safehouse-primary shadow-sm shadow-safehouse-primary/20;
+        @apply font-semibold text-safehouse-primary;
     }
 
     .nav-link--highlight:hover {
-        @apply border-safehouse-primary bg-safehouse-primary/25 text-safehouse-text;
+        @apply text-safehouse-primary-hover;
     }
 
     .donation-feature-card {

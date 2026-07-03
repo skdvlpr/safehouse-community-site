@@ -42,10 +42,11 @@
     @endphp
     <a href="{{ Navigation::url($item, $locale) }}"
        @class([
-           'block rounded-md px-3 py-2 text-sm hover:bg-white/5 hover:text-safehouse-text',
+           'block rounded-md px-3 py-2 text-sm hover:bg-white/5',
            'nav-link--highlight' => $highlight,
            'text-safehouse-primary bg-white/5' => $isActive && ! $highlight,
-           'text-safehouse-muted' => ! $isActive && ! $highlight,
+           'text-safehouse-muted hover:text-safehouse-text' => ! $isActive && ! $highlight,
+           'bg-white/5' => $isActive && $highlight,
        ])>
         {{ $label }}
     </a>
