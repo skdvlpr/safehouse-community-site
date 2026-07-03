@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('cms-safehouse')
             ->path(env('FILAMENT_PATH', 'cms-safehouse'))
-            ->brandName(__('cms.brand'))
+            ->brandName(fn (): string => __('cms.brand'))
             ->favicon(asset('favicon.svg'))
             ->login()
             ->colors([

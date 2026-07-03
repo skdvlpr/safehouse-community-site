@@ -105,7 +105,7 @@ class ManageIntegrations extends Page
                             ->label(__('cms.fields.webhook_secret'))
                             ->password()
                             ->revealable()
-                            ->helperText(__('cms.helpers.stripe_webhook'))
+                            ->helperText(__('cms.helpers.stripe_webhook_live'))
                             ->dehydrated(fn (?string $state): bool => filled($state)),
                         \Filament\Forms\Components\TextInput::make('stripe.currency')
                             ->label(__('cms.fields.default_currency'))
@@ -155,6 +155,17 @@ class ManageIntegrations extends Page
                 ]),
                 Tab::make(__('cms.integrations.mail'))->schema([
                     Section::make(__('cms.sections.smtp'))->schema([
+                        \Filament\Forms\Components\Select::make('mail.provider_preset')
+                            ->label(__('cms.fields.smtp_provider_preset'))
+                            ->options($this->mailProviderOptions())
+                            ->placeholder(__('cms.fields.smtp_provider_custom'))
+                            ->helperText(__('cms.helpers.smtp_provider_preset'))
+                            ->dehydrated(false),
+                        Actions::make([
+                            Action::make('applyMailProviderPreset')
+                                ->label(__('cms.actions.apply_smtp_preset'))
+                                ->action('applyMailProviderPreset'),
+                        ]),
                         \Filament\Forms\Components\TextInput::make('mail.host')
                             ->label(__('cms.fields.smtp_host'))
                             ->placeholder('smtp.example.com')
@@ -217,6 +228,52 @@ class ManageIntegrations extends Page
             ->title(__('cms.notifications.integrations_saved'))
             ->success()
             ->send();
+    }
+
+    public function applyMailProviderPreset(): void
+    {
+        $presetKey = (string) data_get($this->data, 'mail.provider_preset', '');
+        $preset = config("mail_providers.providers.{$presetKey}");
+
+        if (! is_array($preset)) {
+            Notification::make()
+                ->title(__('cms.notifications.smtp_preset_missing'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        data_set($this->data, 'mail.host', (string) ($preset['host'] ?? ''));
+        data_set($this->data, 'mail.port', (string) ($preset['port'] ?? ''));
+        data_set($this->data, 'mail.encryption', (string) ($preset['encryption'] ?? 'tls'));
+
+        $this->form->fill($this->data);
+
+        $detail = (string) ($preset['hint'] ?? '');
+        Notification::make()
+            ->title(__('cms.notifications.smtp_preset_applied', ['provider' => (string) ($preset['label'] ?? $presetKey)]))
+            ->body($detail !== '' ? $detail : null)
+            ->success()
+            ->send();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function mailProviderOptions(): array
+    {
+        $options = [];
+
+        foreach ((array) config('mail_providers.providers', []) as $key => $preset) {
+            if (! is_array($preset)) {
+                continue;
+            }
+
+            $options[$key] = (string) ($preset['label'] ?? $key);
+        }
+
+        return $options;
     }
 
     public function getSubheading(): string|Htmlable|null

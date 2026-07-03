@@ -92,6 +92,8 @@ return [
         'smtp_encryption_none' => 'Nessuna',
         'smtp_username' => 'Utente SMTP',
         'smtp_password' => 'Password SMTP',
+        'smtp_provider_preset' => 'Provider email',
+        'smtp_provider_custom' => 'Personalizzato (inserimento manuale)',
         'from_address' => 'Email mittente',
         'from_name' => 'Nome mittente',
         'contact_notification_email' => 'Destinatario modulo contatti',
@@ -146,6 +148,7 @@ return [
         'stripe_publishable' => 'pk_test_… per i test, pk_live_… per la produzione.',
         'stripe_secret' => 'Memorizzata cifrata. Lascia vuoto per mantenere il valore attuale al salvataggio.',
         'stripe_webhook' => 'whsec_… dalla Dashboard Stripe o stripe listen.',
+        'stripe_webhook_live' => 'whsec_… dall\'endpoint LIVE in Stripe Dashboard (Developers → Webhooks). Il segreto di test non funziona con chiavi live.',
         'stripe_descriptor' => 'Aggiunto sugli estratti conto dei donatori (max 22 caratteri). Stripe usa statement_descriptor_suffix sui PaymentIntent.',
         'stripe_account_id' => 'Facoltativo. Mostrato nell\'URL della Dashboard; verificato con php artisan stripe:verify.',
         'stripe_account_name' => 'Etichetta facoltativa per il team — non inviata all\'API Stripe.',
@@ -154,6 +157,7 @@ return [
         'default_payer_name' => 'Fallback quando il nome del donatore è vuoto.',
         'integrations_subheading' => 'I valori salvati qui sostituiscono .env sul server. I segreti sono cifrati nel database.',
         'smtp_host' => 'Es. smtp.gmail.com, mail.safehouse.community o il server del tuo provider.',
+        'smtp_provider_preset' => 'Scegli un provider e clicca «Applica preset» — restano solo utente e password.',
         'smtp_port' => 'Di solito 587 con TLS oppure 465 con SSL.',
         'smtp_password' => 'Memorizzata cifrata. Lascia vuoto per mantenere il valore attuale al salvataggio.',
         'from_address' => 'Indirizzo mostrato come mittente delle email automatiche del sito.',
@@ -216,6 +220,7 @@ return [
         'open_preview' => 'Apri anteprima',
         'save_settings' => 'Salva impostazioni',
         'save_tagline' => 'Salva slogan',
+        'apply_smtp_preset' => 'Applica preset',
     ],
 
     'preview' => [
@@ -228,6 +233,8 @@ return [
     'notifications' => [
         'tagline_saved' => 'Slogan salvato',
         'integrations_saved' => 'Impostazioni integrazioni salvate',
+        'smtp_preset_applied' => 'Preset SMTP applicato: :provider',
+        'smtp_preset_missing' => 'Seleziona un provider prima di applicare il preset',
         'espocrm_sync_failed' => 'Sincronizzazione Finanziamento EspoCRM non riuscita',
     ],
 

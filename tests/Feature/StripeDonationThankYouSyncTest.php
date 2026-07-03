@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\DonationCampaign;
-use App\Services\Donations\LocalStripeDonationSync;
+use App\Services\Donations\StripeDonationThankYouSync;
 use App\Services\Payments\StripePaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -11,7 +11,7 @@ use Mockery;
 use Stripe\PaymentIntent;
 use Tests\TestCase;
 
-class LocalStripeDonationSyncTest extends TestCase
+class StripeDonationThankYouSyncTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -27,10 +27,8 @@ class LocalStripeDonationSyncTest extends TestCase
         config()->set('stripe.mock', false);
     }
 
-    public function test_thank_you_page_syncs_succeeded_payment_intent_to_crm_in_local_env(): void
+    public function test_thank_you_page_syncs_succeeded_payment_intent_to_crm(): void
     {
-        app()->detectEnvironment(fn (): string => 'local');
-
         $campaign = DonationCampaign::factory()->create([
             'slug' => 'safe-house',
             'is_active' => true,
@@ -104,16 +102,62 @@ class LocalStripeDonationSyncTest extends TestCase
         });
     }
 
-    public function test_sync_service_is_noop_outside_local_environment(): void
+    public function test_sync_service_runs_in_production_environment(): void
     {
         app()->detectEnvironment(fn (): string => 'production');
 
+        $intent = PaymentIntent::constructFrom([
+            'id' => 'pi_prod_fallback',
+            'object' => 'payment_intent',
+            'status' => 'succeeded',
+            'amount' => 500,
+            'amount_received' => 500,
+            'currency' => 'eur',
+            'metadata' => [
+                'campaign_title' => 'Test',
+                'donor_name' => 'Donor',
+            ],
+        ], null);
+
         $mock = Mockery::mock(StripePaymentService::class);
-        $mock->shouldNotReceive('retrievePaymentIntent');
+        $mock->shouldReceive('mockModeEnabled')->andReturn(false);
+        $mock->shouldReceive('retrievePaymentIntent')
+            ->once()
+            ->with('pi_prod_fallback')
+            ->andReturn($intent);
         $this->instance(StripePaymentService::class, $mock);
 
-        app(LocalStripeDonationSync::class)->ingestSucceededPaymentIntent('pi_ignored');
+        Http::fake(function ($request) {
+            if ($request->method() === 'GET' && str_contains($request->url(), '/api/v1/PrimaNota')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
 
-        $this->assertTrue(true);
+            if ($request->method() === 'GET' && str_contains($request->url(), '/api/v1/Opportunity')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($request->method() === 'POST' && str_contains($request->url(), '/api/v1/Opportunity')) {
+                return Http::response(['id' => 'opp-new']);
+            }
+
+            if ($request->method() === 'GET' && str_contains($request->url(), '/api/v1/Contact')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($request->method() === 'GET' && str_contains($request->url(), '/api/v1/Account')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($request->method() === 'POST' && str_contains($request->url(), '/api/v1/PrimaNota')) {
+                return Http::response(['id' => 'pn-prod']);
+            }
+
+            return Http::response(['message' => 'Unexpected'], 500);
+        });
+
+        app(StripeDonationThankYouSync::class)->ingestSucceededPaymentIntent('pi_prod_fallback');
+
+        Http::assertSent(fn ($request): bool => $request->method() === 'POST'
+            && str_contains($request->url(), '/api/v1/PrimaNota'));
     }
 }

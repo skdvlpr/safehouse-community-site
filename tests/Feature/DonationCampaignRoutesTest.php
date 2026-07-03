@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\DataTransferObjects\FundraisingProgress;
 use App\Models\DonationCampaign;
 use App\Services\Donations\CampaignFundraisingProgressService;
-use App\Services\Donations\LocalStripeDonationSync;
+use App\Services\Donations\StripeDonationThankYouSync;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -66,7 +66,7 @@ class DonationCampaignRoutesTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->mock(LocalStripeDonationSync::class, function ($mock): void {
+        $this->mock(StripeDonationThankYouSync::class, function ($mock): void {
             $mock->shouldReceive('ingestSucceededPaymentIntent')
                 ->once()
                 ->with('pi_test_123');

@@ -7,7 +7,11 @@ use Illuminate\Support\Facades\Log;
 use RuntimeException;
 use Throwable;
 
-class LocalStripeDonationSync
+/**
+ * Idempotent CRM sync after a succeeded Stripe PaymentIntent.
+ * Fallback when the webhook is delayed or missed; also used in local dev without stripe listen.
+ */
+class StripeDonationThankYouSync
 {
     public function __construct(
         private readonly StripePaymentService $stripePaymentService,
@@ -15,13 +19,9 @@ class LocalStripeDonationSync
         private readonly DonationIngestPayloadMapper $payloadMapper,
     ) {}
 
-    /**
-     * Local dev fallback when stripe listen is not running.
-     * Production still relies on signed webhooks only.
-     */
     public function ingestSucceededPaymentIntent(string $paymentIntentId): void
     {
-        if (! app()->isLocal() || StripePaymentService::mockModeEnabled()) {
+        if (StripePaymentService::mockModeEnabled()) {
             return;
         }
 
@@ -34,7 +34,7 @@ class LocalStripeDonationSync
             $intent = $this->stripePaymentService->retrievePaymentIntent($paymentIntentId);
             $this->donationIngestService->ingest($this->payloadMapper->fromPaymentIntent($intent));
         } catch (RuntimeException $exception) {
-            Log::warning('Local Stripe donation sync failed.', [
+            Log::warning('Stripe donation thank-you sync failed.', [
                 'payment_intent_id' => $paymentIntentId,
                 'reason' => $exception->getMessage(),
             ]);

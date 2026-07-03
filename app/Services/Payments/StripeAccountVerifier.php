@@ -111,13 +111,20 @@ class StripeAccountVerifier
         }
 
         $webhookUrl = (string) config('stripe.webhook_url', '');
+        $apiMode = ($balance->livemode ?? false) ? 'LIVE' : 'TEST';
+
         if ($webhookUrl !== '') {
             $checks[] = $this->pass('Webhook URL (register in Dashboard)', $webhookUrl);
             $checks[] = $this->pass('Webhook event', 'payment_intent.succeeded');
-        } elseif ($webhookSecret === '') {
-            $checks[] = $this->fail('Webhook', 'Set STRIPE_WEBHOOK_SECRET or use stripe listen locally');
+        }
+
+        if ($webhookSecret === '') {
+            $checks[] = $this->fail('Webhook secret', 'Set in CMS — required for Prima Nota / Finanziamento sync after payment');
         } else {
-            $checks[] = $this->pass('Webhook secret', 'Configured (verify endpoint in Dashboard for production)');
+            $checks[] = $this->pass(
+                'Webhook secret',
+                "Configured — must be the {$apiMode} endpoint whsec_ from Stripe Dashboard (test and live secrets differ)",
+            );
         }
 
         return $checks;
