@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# One-time production helper: sync safehouse.community Caddy block (Turnstile CSP).
+# Repair or apply safehouse.community Caddy block (Turnstile CSP, CMS-safe headers).
 # Self-deletes after a successful reload.
 #
-# Run on the CRM VPS after site deploy:
-#   sudo bash /var/www/safehouse-community-site/deploy/apply-caddy-site-once.sh
+# If CMS broke after a bad Caddy edit, restore the latest backup first:
+#   sudo ls -lt /etc/caddy/Caddyfile.bak-* | head
+#   sudo cp /etc/caddy/Caddyfile.bak-YYYYMMDD-HHMMSS /etc/caddy/Caddyfile
 #
-# Idempotent — safe to run again until it succeeds (then the file removes itself).
+# Then run:
+#   sudo bash /var/www/safehouse-community-site/deploy/apply-caddy-site-once.sh
 
 set -euo pipefail
 
@@ -13,6 +15,7 @@ SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SO
 DEPLOY_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CADDYFILE="${CADDYFILE:-/etc/caddy/Caddyfile}"
 SNIPPET="${DEPLOY_PATH}/deploy/Caddyfile.snippet"
+SITE_LABEL="safehouse.community"
 
 self_remove() {
     rm -f -- "$SCRIPT_PATH" 2>/dev/null || true
@@ -33,7 +36,6 @@ fi
 
 if [[ ! -f "$SNIPPET" ]]; then
     echo "ERROR: Snippet not found: $SNIPPET"
-    echo "Deploy the site first (rsync / GitHub Actions), then re-run."
     exit 1
 fi
 
@@ -52,64 +54,107 @@ BACKUP="${CADDYFILE}.bak-${TIMESTAMP}"
 cp -a "$CADDYFILE" "$BACKUP"
 echo "==> Backup: $BACKUP"
 
-python3 - "$CADDYFILE" "$SNIPPET" <<'PY'
+python3 - "$CADDYFILE" "$SNIPPET" "$SITE_LABEL" <<'PY'
 import re
 import sys
 from pathlib import Path
 
+
+def extract_site_block(text: str, label: str) -> tuple[int, int] | None:
+    match = re.search(rf"(?m)^{re.escape(label)}", text)
+    if not match:
+        return None
+
+    brace_start = text.find("{", match.end())
+    if brace_start == -1:
+        return None
+
+    depth = 0
+    for index in range(brace_start, len(text)):
+        char = text[index]
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return match.start(), index + 1
+
+    return None
+
+
+def extra_cms_allowlist_ips(block: str) -> list[str]:
+    ips: list[str] = []
+
+    for line in block.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("not remote_ip"):
+            continue
+
+        for ip in stripped.split()[2:]:
+            if ip.startswith("#"):
+                break
+            if ip not in {"127.0.0.1", "::1"}:
+                ips.append(ip)
+
+    return ips
+
+
+def merge_cms_allowlist(block: str, ips: list[str]) -> str:
+    if not ips:
+        return block
+
+    lines = block.splitlines()
+    output: list[str] = []
+    in_blocked = False
+    inserted = False
+
+    for line in lines:
+        if "@blocked_cms" in line:
+            in_blocked = True
+
+        output.append(line)
+
+        if in_blocked and not inserted and "not remote_ip 127.0.0.1 ::1" in line:
+            for ip in ips:
+                if f"not remote_ip {ip}" not in block:
+                    output.append(f"        not remote_ip {ip}")
+            inserted = True
+
+        if in_blocked and line.strip() == "}":
+            in_blocked = False
+
+    return "\n".join(output) + ("\n" if block.endswith("\n") else "")
+
+
 caddy_path = Path(sys.argv[1])
 snippet_path = Path(sys.argv[2])
+site_label = sys.argv[3]
 
 caddy = caddy_path.read_text(encoding="utf-8")
 snippet = snippet_path.read_text(encoding="utf-8")
 
-block_match = re.search(
-    r"(?ms)^safehouse\.community.*?^\}",
-    snippet,
-)
-if not block_match:
-    raise SystemExit(f"No safehouse.community block in {snippet_path}")
+new_span = extract_site_block(snippet, site_label)
+if new_span is None:
+    raise SystemExit(f"No {site_label} block in {snippet_path}")
 
-new_block = block_match.group(0).rstrip() + "\n"
+new_block = snippet[new_span[0] : new_span[1]].rstrip() + "\n"
 
-csp_match = re.search(
-    r'^\s*Content-Security-Policy\s+"[^"]+"\s*$',
-    new_block,
-    re.MULTILINE,
-)
-if not csp_match:
-    raise SystemExit("Content-Security-Policy line missing in snippet")
+existing_span = extract_site_block(caddy, site_label)
+if existing_span is not None:
+    old_block = caddy[existing_span[0] : existing_span[1]]
+    allowlist_ips = extra_cms_allowlist_ips(old_block)
+    if allowlist_ips:
+        print(f"==> Preserving CMS allowlist IPs: {', '.join(allowlist_ips)}")
+        new_block = merge_cms_allowlist(new_block, allowlist_ips)
 
-expected_csp = csp_match.group(0).strip()
-
-if "challenges.cloudflare.com" in caddy and re.search(
-    r"(?ms)^safehouse\.community.*?^\}",
-    caddy,
-):
-    print("==> safehouse.community block already includes Turnstile CSP — validating only.")
-    sys.exit(0)
-
-existing = re.search(r"(?ms)^safehouse\.community.*?^\}", caddy)
-
-if existing:
-    print("==> Updating existing safehouse.community block from deploy/Caddyfile.snippet")
-    updated = caddy[: existing.start()] + new_block + caddy[existing.end() :]
+    print("==> Replacing safehouse.community block from deploy/Caddyfile.snippet")
+    updated = caddy[: existing_span[0]] + new_block + caddy[existing_span[1] :]
 else:
     print("==> Appending safehouse.community block from deploy/Caddyfile.snippet")
     updated = caddy.rstrip() + "\n\n" + new_block
 
-if "challenges.cloudflare.com" not in updated:
-    if re.search(r'^\s*Content-Security-Policy\s+"', updated, re.MULTILINE):
-        print("==> Patching Content-Security-Policy for Cloudflare Turnstile")
-        updated = re.sub(
-            r'^\s*Content-Security-Policy\s+"[^"]+"\s*$',
-            expected_csp,
-            updated,
-            count=1,
-            flags=re.MULTILINE,
-        )
-    else:
-        raise SystemExit("Could not locate Content-Security-Policy to patch.")
+if "@public_csp not path /cms-safehouse*" not in updated:
+    raise SystemExit("Snippet is missing the CMS-safe @public_csp matcher.")
 
 caddy_path.write_text(updated, encoding="utf-8")
 print("==> Caddyfile updated.")
@@ -126,6 +171,6 @@ else
 fi
 
 echo ""
-echo "Done. safehouse.community Caddy block is up to date (Turnstile CSP included)."
+echo "Done. safehouse.community Caddy block restored (CMS excluded from CSP)."
 self_remove
 echo "Script removed: $SCRIPT_PATH"
