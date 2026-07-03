@@ -33,6 +33,7 @@ class CreateDonationIntentRequest extends FormRequest
             'donor_type' => ['required', Rule::in(['individual', 'organization'])],
             'donor_email' => ['nullable', 'string', 'email', 'max:255'],
             'donor_phone' => ['nullable', 'string', 'max:50'],
+            'donor_phone_country' => ['nullable', 'string', 'regex:/^\d{1,4}$/'],
             'comment' => ['nullable', 'string', 'max:5000'],
         ];
     }
@@ -43,12 +44,23 @@ class CreateDonationIntentRequest extends FormRequest
             $contact = DonorContact::fromInput(
                 $this->input('donor_email'),
                 $this->input('donor_phone'),
+                $this->input('donor_phone_country'),
             );
 
             if (! $contact->hasChannel()) {
                 $validator->errors()->add(
                     'donor_email',
                     __('Inserisci un\'email o un numero di telefono per identificare il donatore.'),
+                );
+
+                return;
+            }
+
+            $rawPhone = trim((string) $this->input('donor_phone', ''));
+            if ($rawPhone !== '' && $contact->phone === null) {
+                $validator->errors()->add(
+                    'donor_phone',
+                    __('Inserisci un numero di telefono valido con prefisso internazionale.'),
                 );
             }
         });
@@ -59,6 +71,7 @@ class CreateDonationIntentRequest extends FormRequest
         return DonorContact::fromInput(
             $this->validated('donor_email'),
             $this->validated('donor_phone'),
+            $this->validated('donor_phone_country'),
         );
     }
 }

@@ -44,6 +44,7 @@ class StripeWebhookDonationTest extends TestCase
                 'campaign_id' => (string) $campaign->id,
                 'donor_name' => 'Luigi Verdi',
                 'donor_type' => 'individual',
+                'donor_email' => 'luigi@example.com',
                 'comment' => 'Supporto mensile',
             ],
         ]);
@@ -73,6 +74,7 @@ class StripeWebhookDonationTest extends TestCase
                 && ($payload['internalClassification'] ?? '') === 'Donation'
                 && ($payload['subjectName'] ?? '') === 'Luigi Verdi'
                 && ($payload['createSubjectContact'] ?? false) === true
+                && ($payload['subjectEmailAddress'] ?? '') === 'luigi@example.com'
                 && ($payload['beneficiaryPartyId'] ?? '') === 'acc-safe-house'
                 && ($payload['beneficiaryPartyType'] ?? '') === 'Account'
                 && ($payload['financingId'] ?? '') === 'opp-webhook'
@@ -236,7 +238,9 @@ class StripeWebhookDonationTest extends TestCase
             }
 
             if ($method === 'GET' && str_contains($url, '/api/v1/Contact')) {
-                if ($subjectContactMatches === 1) {
+                $attribute = $request->data()['where'][0]['attribute'] ?? '';
+
+                if ($subjectContactMatches === 1 && in_array($attribute, ['emailAddress', 'phoneNumber', 'phoneNumberNumeric'], true)) {
                     return Http::response([
                         'total' => 1,
                         'list' => [['id' => $subjectContactId, 'name' => 'Luigi Verdi']],

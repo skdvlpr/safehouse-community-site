@@ -47,6 +47,7 @@ class StripeDonationThankYouSyncTest extends TestCase
                 'campaign_title' => 'Donate to Safe House',
                 'donor_name' => 'Sem Test',
                 'donor_type' => 'individual',
+                'donor_phone' => '+393331112222',
             ],
         ], null);
 

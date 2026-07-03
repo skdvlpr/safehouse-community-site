@@ -3,6 +3,7 @@
 namespace App\Services\EspoCrm;
 
 use App\DataTransferObjects\DonationIngestPayload;
+use App\Support\DonorContact;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
@@ -29,6 +30,8 @@ class EspoCrmPartyResolver
             createAccountFlag: 'createSubjectAccount',
             createContactFlag: 'createSubjectContact',
             label: 'Soggetto pagamento',
+            matchByContactChannel: true,
+            matchByName: false,
         );
     }
 
@@ -49,6 +52,8 @@ class EspoCrmPartyResolver
             createAccountFlag: 'createBeneficiaryAccount',
             createContactFlag: 'createBeneficiaryContact',
             label: 'Beneficiario',
+            matchByContactChannel: false,
+            matchByName: true,
             allowDuplicateMatches: true,
         );
     }
@@ -65,14 +70,25 @@ class EspoCrmPartyResolver
         string $createAccountFlag,
         string $createContactFlag,
         string $label,
+        bool $matchByContactChannel,
+        bool $matchByName,
         bool $allowDuplicateMatches = false,
     ): array {
-        $matches = $this->findPartyMatches($entityType, $name, $email, $phone);
+        $matches = $this->findMatches(
+            entityType: $entityType,
+            name: $name,
+            email: $email,
+            phone: $phone,
+            matchByContactChannel: $matchByContactChannel,
+            matchByName: $matchByName,
+        );
         $count = count($matches);
 
         if ($count > 1 && $allowDuplicateMatches) {
-            Log::warning("Multiple EspoCRM {$entityType} records matched {$label} name; using the oldest id.", [
+            Log::warning("Multiple EspoCRM {$entityType} records matched {$label}; using the oldest id.", [
                 'name' => $name,
+                'email' => $email,
+                'phone' => $phone,
                 'match_count' => $count,
                 'selected_id' => $matches[0]['id'],
             ]);
@@ -81,13 +97,15 @@ class EspoCrmPartyResolver
         }
 
         if ($count > 1) {
-            Log::error("Multiple EspoCRM {$entityType} records matched {$label} name.", [
+            Log::error("Multiple EspoCRM {$entityType} records matched {$label}.", [
                 'name' => $name,
+                'email' => $email,
+                'phone' => $phone,
                 'match_count' => $count,
             ]);
 
             throw new RuntimeException(
-                "Multiple EspoCRM {$entityType} records match {$label} name \"{$name}\"."
+                "Multiple EspoCRM {$entityType} records match {$label} contact details."
             );
         }
 
@@ -119,23 +137,55 @@ class EspoCrmPartyResolver
     /**
      * @return list<array{id: string}>
      */
-    private function findPartyMatches(string $entityType, string $name, ?string $email, ?string $phone): array
+    private function findMatches(
+        string $entityType,
+        string $name,
+        ?string $email,
+        ?string $phone,
+        bool $matchByContactChannel,
+        bool $matchByName,
+    ): array {
+        if ($matchByContactChannel) {
+            if ($email !== null && $email !== '') {
+                $matches = $this->findByField($entityType, 'emailAddress', $email);
+                if ($matches !== []) {
+                    return $matches;
+                }
+            }
+
+            if ($phone !== null && $phone !== '') {
+                $matches = $this->findByPhone($entityType, $phone);
+                if ($matches !== []) {
+                    return $matches;
+                }
+            }
+
+            return [];
+        }
+
+        if ($matchByName) {
+            return $this->findByExactName($entityType, $name);
+        }
+
+        return [];
+    }
+
+    /**
+     * @return list<array{id: string}>
+     */
+    private function findByPhone(string $entityType, string $e164Phone): array
     {
-        if ($email !== null && $email !== '') {
-            $matches = $this->findByField($entityType, 'emailAddress', $email);
-            if ($matches !== []) {
-                return $matches;
-            }
+        $matches = $this->findByField($entityType, 'phoneNumber', $e164Phone);
+        if ($matches !== []) {
+            return $matches;
         }
 
-        if ($phone !== null && $phone !== '') {
-            $matches = $this->findByField($entityType, 'phoneNumber', $phone);
-            if ($matches !== []) {
-                return $matches;
-            }
+        $numeric = DonorContact::phoneNumericKey($e164Phone);
+        if ($numeric === '') {
+            return [];
         }
 
-        return $this->findByExactName($entityType, $name);
+        return $this->findByField($entityType, 'phoneNumberNumeric', $numeric);
     }
 
     /**
@@ -164,7 +214,7 @@ class EspoCrmPartyResolver
             ]);
         } catch (RuntimeException $exception) {
             if (str_contains($exception->getMessage(), 'No read access')) {
-                Log::warning("EspoCRM API user cannot read {$entityType} by {$attribute}; falling back to name match.", [
+                Log::warning("EspoCRM API user cannot read {$entityType} by {$attribute}.", [
                     'value' => $value,
                 ]);
 

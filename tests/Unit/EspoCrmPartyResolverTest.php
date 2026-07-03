@@ -19,7 +19,7 @@ class EspoCrmPartyResolverTest extends TestCase
         config()->set('espocrm.prima_nota.default_beneficiary_name', 'Safe House');
     }
 
-    public function test_resolves_existing_contact_by_email_before_name(): void
+    public function test_resolves_existing_contact_by_email(): void
     {
         $client = $this->createMock(EspoCrmClient::class);
         $client->method('search')
@@ -44,6 +44,60 @@ class EspoCrmPartyResolverTest extends TestCase
         )));
     }
 
+    public function test_does_not_resolve_subject_by_name_only(): void
+    {
+        $client = $this->createMock(EspoCrmClient::class);
+        $client->method('search')
+            ->willReturnCallback(function (string $entityType, array $params): array {
+                if (($params['where'][0]['attribute'] ?? '') === 'name') {
+                    return ['total' => 1, 'list' => [['id' => 'contact-by-name', 'name' => 'Mario Rossi']]];
+                }
+
+                return ['total' => 0, 'list' => []];
+            });
+
+        $resolver = new EspoCrmPartyResolver($client);
+
+        $this->assertSame([
+            'subjectName' => 'Mario Rossi',
+            'createSubjectContact' => true,
+            'subjectEmailAddress' => 'mario@example.com',
+        ], $resolver->resolveSubjectPartyFields($this->payload(
+            donorName: 'Mario Rossi',
+            donorType: 'individual',
+            donorEmail: 'mario@example.com',
+        )));
+    }
+
+    public function test_resolves_existing_contact_by_phone_numeric(): void
+    {
+        $client = $this->createMock(EspoCrmClient::class);
+        $client->method('search')
+            ->willReturnCallback(function (string $entityType, array $params): array {
+                if ($entityType === 'Contact' && ($params['where'][0]['attribute'] ?? '') === 'phoneNumber') {
+                    return ['total' => 0, 'list' => []];
+                }
+
+                if ($entityType === 'Contact' && ($params['where'][0]['attribute'] ?? '') === 'phoneNumberNumeric') {
+                    return ['total' => 1, 'list' => [['id' => 'contact-by-phone', 'name' => 'Luigi Verdi']]];
+                }
+
+                return ['total' => 0, 'list' => []];
+            });
+
+        $resolver = new EspoCrmPartyResolver($client);
+
+        $this->assertSame([
+            'subjectName' => 'Different Spelling',
+            'subjectPartyId' => 'contact-by-phone',
+            'subjectPartyType' => 'Contact',
+        ], $resolver->resolveSubjectPartyFields($this->payload(
+            donorName: 'Different Spelling',
+            donorType: 'individual',
+            donorPhone: '+393331112222',
+        )));
+    }
+
     public function test_creates_contact_with_email_and_phone_when_new_donor(): void
     {
         $client = $this->createMock(EspoCrmClient::class);
@@ -56,49 +110,31 @@ class EspoCrmPartyResolverTest extends TestCase
             'subjectName' => 'Anna Bianchi',
             'createSubjectContact' => true,
             'subjectEmailAddress' => 'anna@example.com',
-            'subjectPhoneNumber' => '+39333111222',
+            'subjectPhoneNumber' => '+393331112222',
         ], $resolver->resolveSubjectPartyFields($this->payload(
             donorName: 'Anna Bianchi',
             donorType: 'individual',
             donorEmail: 'anna@example.com',
-            donorPhone: '+39333111222',
+            donorPhone: '+393331112222',
         )));
-    }
-
-    public function test_resolves_existing_contact_for_individual_donor(): void
-    {
-        $client = $this->createMock(EspoCrmClient::class);
-        $client->method('search')
-            ->willReturnMap([
-                ['Contact', $this->searchArgs('Mario Rossi'), ['total' => 1, 'list' => [['id' => 'contact-1', 'name' => 'Mario Rossi']]]],
-            ]);
-
-        $resolver = new EspoCrmPartyResolver($client);
-        $payload = $this->payload(donorName: 'Mario Rossi', donorType: 'individual');
-
-        $this->assertSame([
-            'subjectName' => 'Mario Rossi',
-            'subjectPartyId' => 'contact-1',
-            'subjectPartyType' => 'Contact',
-        ], $resolver->resolveSubjectPartyFields($payload));
     }
 
     public function test_creates_account_for_new_organization_donor(): void
     {
         $client = $this->createMock(EspoCrmClient::class);
         $client->method('search')
-            ->willReturnMap([
-                ['Account', $this->searchArgs('Acme SRL'), ['total' => 0, 'list' => []]],
-            ]);
+            ->willReturn(['total' => 0, 'list' => []]);
 
         $resolver = new EspoCrmPartyResolver($client);
 
         $this->assertSame([
             'subjectName' => 'Acme SRL',
             'createSubjectAccount' => true,
+            'subjectEmailAddress' => 'info@acme.example',
         ], $resolver->resolveSubjectPartyFields($this->payload(
             donorName: 'Acme SRL',
             donorType: 'organization',
+            donorEmail: 'info@acme.example',
         )));
     }
 
@@ -106,18 +142,18 @@ class EspoCrmPartyResolverTest extends TestCase
     {
         $client = $this->createMock(EspoCrmClient::class);
         $client->method('search')
-            ->willReturnMap([
-                ['Contact', $this->searchArgs('Anna Bianchi'), ['total' => 0, 'list' => []]],
-            ]);
+            ->willReturn(['total' => 0, 'list' => []]);
 
         $resolver = new EspoCrmPartyResolver($client);
 
         $this->assertSame([
             'subjectName' => 'Anna Bianchi',
             'createSubjectContact' => true,
+            'subjectPhoneNumber' => '+393339998877',
         ], $resolver->resolveSubjectPartyFields($this->payload(
             donorName: 'Anna Bianchi',
             donorType: 'individual',
+            donorPhone: '+393339998877',
         )));
     }
 
@@ -181,7 +217,7 @@ class EspoCrmPartyResolverTest extends TestCase
     {
         $client = $this->createMock(EspoCrmClient::class);
         $client->method('search')
-            ->willReturnCallback(function (string $entityType): array {
+            ->willReturnCallback(function (): array {
                 throw new RuntimeException('EspoCRM API error (No read access.): ""');
             });
 
@@ -190,32 +226,42 @@ class EspoCrmPartyResolverTest extends TestCase
         $this->assertSame([
             'subjectName' => 'Anna Bianchi',
             'createSubjectContact' => true,
+            'subjectEmailAddress' => 'anna@example.com',
         ], $resolver->resolveSubjectPartyFields($this->payload(
             donorName: 'Anna Bianchi',
             donorType: 'individual',
+            donorEmail: 'anna@example.com',
         )));
     }
 
-    public function test_subject_still_rejects_multiple_contact_matches(): void
+    public function test_subject_rejects_multiple_email_matches(): void
     {
         $client = $this->createMock(EspoCrmClient::class);
         $client->method('search')
-            ->willReturnMap([
-                ['Contact', $this->searchArgs('Mario Rossi'), [
-                    'total' => 2,
-                    'list' => [
-                        ['id' => 'contact-1', 'name' => 'Mario Rossi'],
-                        ['id' => 'contact-2', 'name' => 'Mario Rossi'],
-                    ],
-                ]],
-            ]);
+            ->willReturnCallback(function (string $entityType, array $params): array {
+                if ($entityType === 'Contact' && ($params['where'][0]['attribute'] ?? '') === 'emailAddress') {
+                    return [
+                        'total' => 2,
+                        'list' => [
+                            ['id' => 'contact-1', 'name' => 'Mario Rossi'],
+                            ['id' => 'contact-2', 'name' => 'Mario R.'],
+                        ],
+                    ];
+                }
+
+                return ['total' => 0, 'list' => []];
+            });
 
         $resolver = new EspoCrmPartyResolver($client);
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Multiple EspoCRM Contact records match Soggetto pagamento name "Mario Rossi".');
+        $this->expectExceptionMessage('Multiple EspoCRM Contact records match Soggetto pagamento contact details.');
 
-        $resolver->resolveSubjectPartyFields($this->payload(donorName: 'Mario Rossi', donorType: 'individual'));
+        $resolver->resolveSubjectPartyFields($this->payload(
+            donorName: 'Mario Rossi',
+            donorType: 'individual',
+            donorEmail: 'mario@example.com',
+        ));
     }
 
     /**

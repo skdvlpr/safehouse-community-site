@@ -845,4 +845,29 @@
     .news-list__thumb-image {
         @apply h-full w-full object-cover;
     }
+
+    .donation-phone-field .iti {
+        @apply w-full;
+    }
+
+    .donation-phone-field .iti__tel-input {
+        @apply w-full rounded-2xl border border-white/10 bg-safehouse-page py-3 pe-4 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20;
+        padding-left: 6.25rem !important;
+    }
+
+    .donation-phone-field .iti__country-container {
+        @apply rounded-l-2xl border border-white/10 bg-safehouse-page/90;
+    }
+
+    .donation-phone-field .iti__selected-country {
+        @apply rounded-l-2xl;
+    }
+
+    .donation-phone-field .iti__dropdown-content {
+        @apply border border-white/10 bg-safehouse-modal text-safehouse-text;
+    }
+
+    .donation-phone-field .iti__country.iti__highlight {
+        @apply bg-safehouse-primary/15;
+    }
 }

@@ -72,6 +72,7 @@ class DonationIngestServiceTest extends TestCase
                 && ($payload['amount'] ?? null) === 15.0
                 && ($payload['subjectName'] ?? '') === 'Anna Bianchi'
                 && ($payload['createSubjectAccount'] ?? false) === true
+                && ($payload['subjectEmailAddress'] ?? '') === 'anna@example.com'
                 && ($payload['beneficiaryName'] ?? '') === 'Safe House'
                 && ($payload['beneficiaryPartyId'] ?? '') === 'acc-safe-house'
                 && ($payload['beneficiaryPartyType'] ?? '') === 'Account'
@@ -103,6 +104,7 @@ class DonationIngestServiceTest extends TestCase
             comment: null,
             donorType: 'individual',
             donatedAt: now()->toIso8601String(),
+            donorEmail: 'luigi@example.com',
         ));
 
         Http::assertSent(function ($request): bool {
@@ -292,12 +294,14 @@ class DonationIngestServiceTest extends TestCase
             comment: null,
             donorType: 'individual',
             donatedAt: now()->toIso8601String(),
+            donorPhone: '+393331112222',
         ));
 
         Http::assertSent(function ($request): bool {
             return $request->method() === 'POST'
                 && ($request->data()['subjectName'] ?? '') === 'Donatore'
-                && ($request->data()['createSubjectContact'] ?? false) === true;
+                && ($request->data()['createSubjectContact'] ?? false) === true
+                && ($request->data()['subjectPhoneNumber'] ?? '') === '+393331112222';
         });
     }
 
@@ -325,6 +329,7 @@ class DonationIngestServiceTest extends TestCase
             comment: 'Test',
             donorType: 'organization',
             donatedAt: '2026-06-29T12:00:00+00:00',
+            donorEmail: 'anna@example.com',
         ));
     }
 
@@ -363,7 +368,9 @@ class DonationIngestServiceTest extends TestCase
             }
 
             if ($method === 'GET' && str_contains($url, '/api/v1/Contact')) {
-                if ($subjectContactMatches === 1) {
+                $attribute = $request->data()['where'][0]['attribute'] ?? '';
+
+                if ($subjectContactMatches === 1 && in_array($attribute, ['emailAddress', 'phoneNumber', 'phoneNumberNumeric'], true)) {
                     return Http::response([
                         'total' => 1,
                         'list' => [['id' => $subjectContactId, 'name' => 'Luigi Verdi']],
@@ -374,9 +381,10 @@ class DonationIngestServiceTest extends TestCase
             }
 
             if ($method === 'GET' && str_contains($url, '/api/v1/Account')) {
-                $name = $request->data()['where'][0]['value'] ?? '';
+                $attribute = $request->data()['where'][0]['attribute'] ?? '';
+                $value = $request->data()['where'][0]['value'] ?? '';
 
-                if ($name === 'Safe House') {
+                if ($value === 'Safe House' && $attribute === 'name') {
                     if ($beneficiaryAccountMatches === 1) {
                         return Http::response([
                             'total' => 1,
@@ -387,7 +395,7 @@ class DonationIngestServiceTest extends TestCase
                     return Http::response(['total' => 0, 'list' => []]);
                 }
 
-                if ($subjectAccountMatches === 1) {
+                if ($subjectAccountMatches === 1 && in_array($attribute, ['emailAddress', 'phoneNumber', 'phoneNumberNumeric', 'name'], true)) {
                     return Http::response([
                         'total' => 1,
                         'list' => [['id' => $subjectAccountId, 'name' => 'Anna Bianchi']],

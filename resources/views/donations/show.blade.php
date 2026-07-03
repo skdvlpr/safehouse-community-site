@@ -58,10 +58,11 @@
                 <input id="donor_email" name="donor_email" type="email" maxlength="255" autocomplete="email"
                        class="w-full rounded-2xl border border-white/10 bg-safehouse-page px-4 py-3 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
             </div>
-            <div class="space-y-2">
+            <div class="space-y-2 donation-phone-field">
                 <label for="donor_phone" class="block text-sm font-medium">{{ __('Telefono') }}</label>
                 <input id="donor_phone" name="donor_phone" type="tel" maxlength="50" autocomplete="tel"
                        class="w-full rounded-2xl border border-white/10 bg-safehouse-page px-4 py-3 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
+                <input type="hidden" id="donor_phone_country" name="donor_phone_country" value="">
             </div>
         </div>
         <p class="text-xs text-safehouse-muted">{{ __('Inserisci almeno un\'email o un numero di telefono per collegare la donazione al CRM.') }}</p>
@@ -149,8 +150,14 @@
     </form>
 @endsection
 
+@push('head')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/css/intlTelInput.css">
+@endpush
+
 @push('scripts')
 @if (! $stripeMock)
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/intlTelInput.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/utils.js"></script>
 <script src="https://js.stripe.com/v3/"></script>
 @endif
 <script>
@@ -171,13 +178,61 @@
     let clientSecret = null;
     let completeUrl = null;
     let selectedCents = null;
+    let donorPhoneInput = null;
+    const donorPhoneCountryInput = document.getElementById('donor_phone_country');
+    const donorPhoneElement = document.getElementById('donor_phone');
+
+    if (donorPhoneElement && window.intlTelInput) {
+        donorPhoneInput = window.intlTelInput(donorPhoneElement, {
+            initialCountry: 'it',
+            preferredCountries: ['it', 'ru', 'us', 'gb', 'de', 'fr'],
+            separateDialCode: true,
+            nationalMode: false,
+            formatOnDisplay: true,
+            autoPlaceholder: 'aggressive',
+        });
+
+        const syncPhoneCountry = () => {
+            const country = donorPhoneInput.getSelectedCountryData();
+            if (donorPhoneCountryInput && country?.dialCode) {
+                donorPhoneCountryInput.value = country.dialCode;
+            }
+        };
+
+        donorPhoneElement.addEventListener('countrychange', syncPhoneCountry);
+        donorPhoneElement.addEventListener('input', () => {
+            const raw = donorPhoneElement.value.trim();
+            if (raw.startsWith('+')) {
+                donorPhoneInput.setNumber(raw);
+            }
+        });
+
+        syncPhoneCountry();
+    }
 
     function donorEmail() {
         return form.donor_email.value.trim();
     }
 
     function donorPhone() {
-        return form.donor_phone.value.trim();
+        if (!donorPhoneInput) {
+            return donorPhoneElement?.value.trim() ?? '';
+        }
+
+        const raw = donorPhoneElement.value.trim();
+        if (raw === '') {
+            return '';
+        }
+
+        if (donorPhoneInput.isValidNumber()) {
+            return donorPhoneInput.getNumber();
+        }
+
+        if (raw.startsWith('+')) {
+            return raw.replace(/[\s\-\(\)]+/g, '');
+        }
+
+        return raw;
     }
 
     function hasDonorContactChannel() {
@@ -290,6 +345,13 @@
             return;
         }
 
+        const phoneValue = donorPhone();
+        if (donorPhoneElement?.value.trim() !== '' && donorPhoneInput && !donorPhoneInput.isValidNumber()) {
+            showError(@json(__('Inserisci un numero di telefono valido con prefisso internazionale.')));
+            submitButton.disabled = false;
+            return;
+        }
+
         if (!clientSecret && !completeUrl) {
             const response = await fetch(intentUrl, {
                 method: 'POST',
@@ -303,7 +365,8 @@
                     donor_name: form.donor_name.value,
                     donor_type: form.querySelector('input[name=donor_type]:checked').value,
                     donor_email: donorEmail() || null,
-                    donor_phone: donorPhone() || null,
+                    donor_phone: phoneValue || null,
+                    donor_phone_country: donorPhoneCountryInput?.value || null,
                     comment: form.comment.value || null,
                 }),
             });
@@ -327,7 +390,6 @@
             clientSecret = data.client_secret;
             elements = stripe.elements({ clientSecret });
             paymentElement = elements.create('payment', {
-                wallets: { link: 'never' },
                 defaultValues: {
                     billingDetails: donorBillingDetails(),
                 },
