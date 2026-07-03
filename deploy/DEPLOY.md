@@ -43,8 +43,8 @@ sudo chown -R deploy:www-data storage bootstrap/cache
 sudo chmod -R ug+rwx storage bootstrap/cache
 
 # Caddy — append deploy/Caddyfile.snippet to /etc/caddy/Caddyfile, then:
-sudo caddy validate --config /etc/caddy/Caddyfile
-sudo systemctl reload caddy
+sudo bash /var/www/safehouse-community-site/deploy/apply-caddy-site-once.sh
+# (syncs the site block + Turnstile CSP, validates, reloads, self-deletes)
 ```
 
 ## GitHub Actions secrets
@@ -129,6 +129,16 @@ After first deploy:
 3. **Test payment** — open `/it/donazioni/safe-house`, use card `4242 4242 4242 4242`, any future expiry/CVC.
 
 4. **Switch to live** later — replace keys in CMS → Integrations and register a **live** webhook with the same URL.
+
+### Caddy (Turnstile CSP)
+
+After deploy, run once on the server as root:
+
+```bash
+sudo bash /var/www/safehouse-community-site/deploy/apply-caddy-site-once.sh
+```
+
+The script replaces or appends the `safehouse.community` block from `deploy/Caddyfile.snippet`, validates Caddy, reloads, then **deletes itself**. Re-deploy restores the script if you need to run it again.
 
 Deploy seeds already load **test** publishable/secret keys. Only webhook secret must be set manually (it is unique per endpoint).
 
