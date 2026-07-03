@@ -9,7 +9,7 @@ use Throwable;
 
 class HomeImpactStatsService
 {
-    private const CACHE_KEY = 'home_impact_stats_snapshot_v2';
+    private const CACHE_KEY = 'home_impact_stats_snapshot_v3';
 
     public function __construct(
         private readonly EspoCrmClient $client,
@@ -41,26 +41,63 @@ class HomeImpactStatsService
 
     private function loadFromCrm(): HomeImpactStatsSnapshot
     {
-        $mealTotals = $this->client->reportingTotals(
-            (string) config('espocrm.reporting.meal_count_totals_path'),
-        );
-        $networkTotals = $this->client->reportingTotals(
-            (string) config('espocrm.reporting.association_meal_count_totals_path'),
-        );
-
-        $mealCount = (int) ($mealTotals['totalMeals'] ?? 0);
-        $networkCount = (int) ($networkTotals['portionCount'] ?? 0);
-
-        $interventionTotals = $this->client->reportingTotals(
-            (string) config('espocrm.reporting.intervention_totals_path'),
-        );
-
-        $interventions = self::toCount($interventionTotals['recordCount'] ?? null);
-
         return new HomeImpactStatsSnapshot(
-            distributedMeals: $mealCount + $networkCount,
-            interventions: $interventions,
+            distributedMeals: $this->loadDistributedMeals(),
+            interventions: $this->loadInterventionCount(),
         );
+    }
+
+    private function loadDistributedMeals(): ?int
+    {
+        try {
+            $mealTotals = $this->client->reportingTotals(
+                (string) config('espocrm.reporting.meal_count_totals_path'),
+            );
+            $networkTotals = $this->client->reportingTotals(
+                (string) config('espocrm.reporting.association_meal_count_totals_path'),
+            );
+
+            $mealCount = (int) ($mealTotals['totalMeals'] ?? 0);
+            $networkCount = (int) ($networkTotals['portionCount'] ?? 0);
+
+            return $mealCount + $networkCount;
+        } catch (Throwable $exception) {
+            Log::warning('Unable to load home meal totals from EspoCRM.', [
+                'reason' => $exception->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
+
+    private function loadInterventionCount(): ?int
+    {
+        try {
+            $interventionTotals = $this->client->reportingTotals(
+                (string) config('espocrm.reporting.intervention_totals_path'),
+            );
+
+            return self::toCount($interventionTotals['recordCount'] ?? null);
+        } catch (Throwable $exception) {
+            Log::warning('Intervention reporting totals unavailable; falling back to CRM search.', [
+                'reason' => $exception->getMessage(),
+            ]);
+        }
+
+        try {
+            $interventionResponse = $this->client->search('Intervention', [
+                'maxSize' => 1,
+                'select' => 'id',
+            ]);
+
+            return self::toCount($interventionResponse['total'] ?? null);
+        } catch (Throwable $exception) {
+            Log::warning('Unable to load home intervention count from EspoCRM.', [
+                'reason' => $exception->getMessage(),
+            ]);
+
+            return null;
+        }
     }
 
     private static function toCount(mixed $value): int

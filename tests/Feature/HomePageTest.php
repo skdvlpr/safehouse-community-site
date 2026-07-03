@@ -63,6 +63,8 @@ class HomePageTest extends TestCase
         $client = $this->createMock(EspoCrmClient::class);
         $client->method('reportingTotals')
             ->willThrowException(new \RuntimeException('CRM unavailable'));
+        $client->method('search')
+            ->willThrowException(new \RuntimeException('CRM unavailable'));
 
         $this->app->instance(EspoCrmClient::class, $client);
         Cache::flush();

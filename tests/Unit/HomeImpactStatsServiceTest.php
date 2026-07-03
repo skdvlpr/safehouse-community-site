@@ -36,4 +36,32 @@ class HomeImpactStatsServiceTest extends TestCase
         $this->assertSame(300, $snapshot->distributedMeals);
         $this->assertSame(3456, $snapshot->interventions);
     }
+
+    public function test_meal_totals_still_load_when_intervention_reporting_is_unavailable(): void
+    {
+        $client = $this->createMock(EspoCrmClient::class);
+        $client->method('reportingTotals')
+            ->willReturnCallback(function (string $path): array {
+                if (str_contains($path, 'intervention')) {
+                    throw new \RuntimeException('Route not found');
+                }
+
+                if (str_contains($path, 'association-meal-count')) {
+                    return ['portionCount' => 100];
+                }
+
+                return ['totalMeals' => 200];
+            });
+        $client->method('search')
+            ->with('Intervention', ['maxSize' => 1, 'select' => 'id'])
+            ->willReturn(['total' => 42]);
+
+        $this->app->instance(EspoCrmClient::class, $client);
+        Cache::flush();
+
+        $snapshot = app(HomeImpactStatsService::class)->snapshot();
+
+        $this->assertSame(300, $snapshot->distributedMeals);
+        $this->assertSame(42, $snapshot->interventions);
+    }
 }
