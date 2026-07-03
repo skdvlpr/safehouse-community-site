@@ -3,6 +3,9 @@ Nuovo messaggio dal sito Safe House
 
 Nome: {{ $submission->name }}
 Email: {{ $submission->email }}
+@if ($submission->correlation_token)
+Riferimento: [SH-{{ $submission->correlation_token }}]
+@endif
 
 Messaggio:
 ----------

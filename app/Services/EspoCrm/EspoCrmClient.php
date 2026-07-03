@@ -76,6 +76,15 @@ class EspoCrmClient
      * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
      */
+    public function update(string $entityType, string $id, array $payload): array
+    {
+        return $this->request('put', $entityType.'/'.$id, $payload);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
     private function request(string $method, string $entityType, array $payload = []): array
     {
         $url = rtrim($this->baseUrl, '/').'/api/v1/'.$entityType;
@@ -114,5 +123,14 @@ class EspoCrmClient
     public function reportingSummary(string $path): array
     {
         return $this->request('get', ltrim($path, '/'));
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    public function reportingTotals(string $path, array $payload = []): array
+    {
+        return $this->request('post', ltrim($path, '/'), $payload);
     }
 }

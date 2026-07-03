@@ -2,6 +2,8 @@
     <p class="template-contact-form__success" role="status">{{ session('contact_success') }}</p>
 @endif
 
+@php($deskOptions = \App\Support\ContactDeskOptions::forForm())
+
 <form
     class="template-contact-form"
     method="POST"
@@ -48,6 +50,27 @@
             <p class="template-contact-form__error">{{ $message }}</p>
         @enderror
     </div>
+
+    @if (count($deskOptions) > 0)
+        <div class="template-contact-form__field">
+            <label for="contact-desk">{{ __('site.pages.contact_desk') }}</label>
+            <select
+                id="contact-desk"
+                name="desk"
+                required
+                @class(['template-contact-form__input--invalid' => $errors->has('desk')])
+            >
+                @foreach ($deskOptions as $value => $label)
+                    <option value="{{ $value }}" @selected(old('desk', array_key_first($deskOptions)) === $value)>
+                        {{ $label }}
+                    </option>
+                @endforeach
+            </select>
+            @error('desk')
+                <p class="template-contact-form__error">{{ $message }}</p>
+            @enderror
+        </div>
+    @endif
 
     <div class="template-contact-form__field">
         <label for="contact-message">{{ __('site.pages.contact_message') }}</label>

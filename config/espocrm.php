@@ -33,6 +33,8 @@ return [
     'reporting' => [
         'meal_count_summary_path' => 'NonprofitEspocrm/reporting/meal-count/summary',
         'association_meal_count_summary_path' => 'NonprofitEspocrm/reporting/association-meal-count/summary',
+        'meal_count_totals_path' => 'NonprofitEspocrm/reporting/meal-count/totals',
+        'association_meal_count_totals_path' => 'NonprofitEspocrm/reporting/association-meal-count/totals',
     ],
 
 ];

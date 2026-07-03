@@ -126,11 +126,17 @@ return [
             'encrypted' => false,
             'config' => 'mail_settings.from_name',
         ],
-        'contact.notification_email' => [
-            'label' => 'Contact form recipient',
+        'contact.website_from_address' => [
+            'label' => 'Contact form website sender',
             'group' => 'mail',
             'encrypted' => false,
-            'config' => 'mail_settings.contact_to',
+            'config' => 'contact_mail.website_from_address',
+        ],
+        'contact.website_from_name' => [
+            'label' => 'Contact form website sender name',
+            'group' => 'mail',
+            'encrypted' => false,
+            'config' => 'contact_mail.website_from_name',
         ],
     ],
 

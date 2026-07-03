@@ -22,6 +22,4 @@ return [
 
     'from_name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Safe House')),
 
-    'contact_to' => env('MAIL_CONTACT_TO'),
-
 ];

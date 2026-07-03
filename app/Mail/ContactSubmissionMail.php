@@ -16,17 +16,31 @@ class ContactSubmissionMail extends Mailable
 
     public function __construct(
         public ContactSubmission $submission,
+        public ?ContactSubmissionMailRecipients $recipients = null,
     ) {}
 
     public function envelope(): Envelope
     {
         $replyTo = filter_var($this->submission->email, FILTER_VALIDATE_EMAIL);
+        $recipients = $this->recipients ?? new ContactSubmissionMailRecipients(to: []);
 
         return new Envelope(
-            subject: 'Nuovo messaggio dal modulo contatti — '.$this->submission->name,
+            subject: $recipients->subject ?? ('Nuovo messaggio dal modulo contatti — '.$this->submission->name),
+            to: $this->addresses($recipients->to),
+            cc: $this->addresses($recipients->cc),
+            bcc: $this->addresses($recipients->bcc),
             replyTo: $replyTo !== false
                 ? [new Address($replyTo, $this->submission->name)]
                 : [],
+            using: [
+                function ($message) use ($recipients): void {
+                    if ($recipients->messageId === null) {
+                        return;
+                    }
+
+                    $message->getHeaders()->addIdHeader('Message-ID', $recipients->messageId);
+                },
+            ],
         );
     }
 
@@ -35,5 +49,24 @@ class ContactSubmissionMail extends Mailable
         return new Content(
             text: 'mail.contact-submission',
         );
+    }
+
+    /**
+     * @param  list<string>  $emails
+     * @return list<Address>
+     */
+    private function addresses(array $emails): array
+    {
+        $addresses = [];
+
+        foreach ($emails as $email) {
+            if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+                continue;
+            }
+
+            $addresses[] = new Address($email);
+        }
+
+        return $addresses;
     }
 }

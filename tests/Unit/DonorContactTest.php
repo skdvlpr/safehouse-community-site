@@ -36,6 +36,21 @@ class DonorContactTest extends TestCase
         $this->assertSame('393331112222', DonorContact::phoneNumericKey('+39 333 111 2222'));
     }
 
+    public function test_normalizes_pasted_italian_mobile_with_country_prefix(): void
+    {
+        $contact = DonorContact::fromInput('donor@example.com', '+39 3202696323');
+
+        $this->assertSame('+393202696323', $contact->phone);
+        $this->assertTrue($contact->hasChannel());
+    }
+
+    public function test_normalizes_italian_mobile_without_prefix_using_country_code(): void
+    {
+        $contact = DonorContact::fromInput(null, '320 269 6323', '39');
+
+        $this->assertSame('+393202696323', $contact->phone);
+    }
+
     public function test_rejects_invalid_phone(): void
     {
         $contact = DonorContact::fromInput(null, 'abc');

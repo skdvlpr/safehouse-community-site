@@ -21,10 +21,10 @@ class VerifyMailCommand extends Command
             return self::FAILURE;
         }
 
-        $recipient = (string) ($this->option('to') ?: $mail->contactRecipient());
+        $recipient = (string) ($this->option('to') ?: $mail->websiteFromAddress());
 
         if (filter_var($recipient, FILTER_VALIDATE_EMAIL) === false) {
-            $this->components->error('No valid recipient. Set contact.notification_email in CMS or pass --to=email@example.com');
+            $this->components->error('No valid recipient. Pass --to=email@example.com or configure the website sender in CMS.');
 
             return self::FAILURE;
         }

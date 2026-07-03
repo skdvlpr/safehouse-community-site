@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Page;
-use App\Services\EspoCrm\HomeMealStatsService;
+use App\Services\EspoCrm\HomeImpactStatsService;
 use App\Support\PageCarousel;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Schema;
@@ -167,7 +167,7 @@ class PageService
         ];
 
         if (($page->template ?: 'default') === 'home') {
-            $data['mealStats'] = app(HomeMealStatsService::class)->snapshot();
+            $data['impactStats'] = app(HomeImpactStatsService::class)->snapshot();
         }
 
         return $data;

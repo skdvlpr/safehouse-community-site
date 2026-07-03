@@ -187,7 +187,7 @@
             initialCountry: 'it',
             preferredCountries: ['it', 'ru', 'us', 'gb', 'de', 'fr'],
             separateDialCode: true,
-            nationalMode: false,
+            nationalMode: true,
             formatOnDisplay: true,
             autoPlaceholder: 'aggressive',
         });
@@ -199,15 +199,59 @@
             }
         };
 
-        donorPhoneElement.addEventListener('countrychange', syncPhoneCountry);
-        donorPhoneElement.addEventListener('input', () => {
+        const normalizePastedPhone = () => {
             const raw = donorPhoneElement.value.trim();
-            if (raw.startsWith('+')) {
+            if (raw.startsWith('+') || raw.startsWith('00')) {
                 donorPhoneInput.setNumber(raw);
             }
+            syncPhoneCountry();
+        };
+
+        donorPhoneElement.addEventListener('countrychange', syncPhoneCountry);
+        donorPhoneElement.addEventListener('input', normalizePastedPhone);
+        donorPhoneElement.addEventListener('paste', () => {
+            window.setTimeout(normalizePastedPhone, 0);
         });
 
         syncPhoneCountry();
+    }
+
+    function isValidE164(number) {
+        return typeof number === 'string' && /^\+[1-9]\d{7,14}$/.test(number);
+    }
+
+    function normalizePhoneRaw(raw, dialCode) {
+        const compact = raw.replace(/[\s\-\(\)]+/g, '');
+        if (compact === '') {
+            return '';
+        }
+
+        if (compact.startsWith('+')) {
+            const e164 = `+${compact.slice(1).replace(/\D/g, '')}`;
+
+            return isValidE164(e164) ? e164 : '';
+        }
+
+        if (compact.startsWith('00')) {
+            const e164 = `+${compact.slice(2).replace(/\D/g, '')}`;
+
+            return isValidE164(e164) ? e164 : '';
+        }
+
+        let digits = compact.replace(/\D/g, '');
+        if (digits === '') {
+            return '';
+        }
+
+        const code = (dialCode ?? '39').replace(/\D/g, '') || '39';
+
+        if (digits.startsWith('0')) {
+            digits = digits.replace(/^0+/, '');
+        }
+
+        const e164 = `+${code}${digits}`;
+
+        return isValidE164(e164) ? e164 : '';
     }
 
     function donorEmail() {
@@ -215,24 +259,21 @@
     }
 
     function donorPhone() {
-        if (!donorPhoneInput) {
-            return donorPhoneElement?.value.trim() ?? '';
-        }
-
-        const raw = donorPhoneElement.value.trim();
+        const raw = donorPhoneElement?.value.trim() ?? '';
         if (raw === '') {
             return '';
         }
 
-        if (donorPhoneInput.isValidNumber()) {
-            return donorPhoneInput.getNumber();
+        if (donorPhoneInput) {
+            const pluginNumber = donorPhoneInput.getNumber();
+            if (isValidE164(pluginNumber)) {
+                return pluginNumber;
+            }
+
+            return normalizePhoneRaw(raw, donorPhoneInput.getSelectedCountryData()?.dialCode);
         }
 
-        if (raw.startsWith('+')) {
-            return raw.replace(/[\s\-\(\)]+/g, '');
-        }
-
-        return raw;
+        return normalizePhoneRaw(raw, donorPhoneCountryInput?.value ?? null);
     }
 
     function hasDonorContactChannel() {
@@ -346,7 +387,7 @@
         }
 
         const phoneValue = donorPhone();
-        if (donorPhoneElement?.value.trim() !== '' && donorPhoneInput && !donorPhoneInput.isValidNumber()) {
+        if (donorPhoneElement?.value.trim() !== '' && !isValidE164(phoneValue)) {
             showError(@json(__('Inserisci un numero di telefono valido con prefisso internazionale.')));
             submitButton.disabled = false;
             return;

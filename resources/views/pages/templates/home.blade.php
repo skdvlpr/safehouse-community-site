@@ -66,7 +66,7 @@
                 </div>
             </div>
 
-            @include('pages.partials.home-meal-stats', ['mealStats' => $mealStats])
+            @include('pages.partials.home-impact-stats', ['impactStats' => $impactStats])
         </section>
     </x-page-template-shell>
 @endsection

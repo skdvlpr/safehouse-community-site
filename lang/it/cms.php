@@ -96,7 +96,13 @@ return [
         'smtp_provider_custom' => 'Personalizzato (inserimento manuale)',
         'from_address' => 'Email mittente',
         'from_name' => 'Nome mittente',
-        'contact_notification_email' => 'Destinatario modulo contatti',
+        'contact_website_from_address' => 'Mittente modulo contatti (sito)',
+        'contact_website_from_name' => 'Nome mittente modulo contatti',
+        'contact_desks' => 'Sportelli',
+        'contact_desk_key' => 'Chiave interna',
+        'contact_desk_label' => 'Etichetta nel menu',
+        'contact_desk_inbox' => 'Email di destinazione (group inbox CRM)',
+        'contact_desk_case_type' => 'Tipo segnalazione CRM (Case.type)',
     ],
 
     'integrations' => [
@@ -117,7 +123,8 @@ return [
         'prima_nota_defaults' => 'Predefiniti Prima Nota',
         'smtp' => 'Server SMTP',
         'mail_sender' => 'Mittente',
-        'contact_notifications' => 'Modulo contatti',
+        'contact_notifications' => 'Modulo contatti (Sportelli)',
+        'contact_desks' => 'Elenco sportelli',
     ],
 
     'helpers' => [
@@ -131,7 +138,7 @@ return [
         'hero_tagline' => 'Breve riga accanto al titolo grande.',
         'our_values' => 'Colonna destra — pannello valori evidenziato.',
         'closing_statement' => 'Citazione a tutta larghezza in fondo alla pagina.',
-        'stats_section_title' => 'I contatori pasti sono caricati da EspoCRM. Personalizza qui il titolo della sezione.',
+        'stats_section_title' => 'I contatori sono caricati da EspoCRM. Personalizza qui il titolo della sezione.',
         'stats_section_intro' => 'Breve riga sotto il titolo delle statistiche.',
         'home_stats' => 'Schede impatto sotto l\'hero.',
         'service_cards' => 'Schede numerate nella griglia sotto il banner rosso introduttivo.',
@@ -161,7 +168,12 @@ return [
         'smtp_port' => 'Di solito 587 con TLS oppure 465 con SSL.',
         'smtp_password' => 'Memorizzata cifrata. Lascia vuoto per mantenere il valore attuale al salvataggio.',
         'from_address' => 'Indirizzo mostrato come mittente delle email automatiche del sito.',
-        'contact_notification_email' => 'Ogni invio del modulo contatti genera un\'email a questo indirizzo. Verifica con php artisan mail:verify.',
+        'contact_notification_email' => 'Obsoleto — il modulo contatti invia solo verso Sportello digitale o legale.',
+        'contact_website_from_address' => 'Indirizzo mittente per le richieste dal sito (es. website@safehouse.community). Usa le credenziali SMTP della sezione sopra.',
+        'contact_website_from_name' => 'Nome mostrato come mittente nelle email verso gli sportelli.',
+        'contact_desks' => 'Ogni sportello invia email al group inbox indicato. In CRM configura manualmente lo stesso indirizzo, il team e il tipo segnalazione corrispondente.',
+        'contact_desk_key' => 'Identificatore stabile (es. digital_desk). Non cambiarlo dopo il go-live se ci sono già richieste.',
+        'contact_desk_case_type' => 'Valore enum Case.type in EspoCRM (es. SportelloDigitale). Deve esistere nei metadati CRM.',
     ],
 
     'templates' => [
@@ -221,6 +233,7 @@ return [
         'save_settings' => 'Salva impostazioni',
         'save_tagline' => 'Salva slogan',
         'apply_smtp_preset' => 'Applica preset',
+        'add_contact_desk' => 'Aggiungi sportello',
     ],
 
     'preview' => [
@@ -235,6 +248,7 @@ return [
         'integrations_saved' => 'Impostazioni integrazioni salvate',
         'smtp_preset_applied' => 'Preset SMTP applicato: :provider',
         'smtp_preset_missing' => 'Seleziona un provider prima di applicare il preset',
+        'contact_desks_invalid' => 'Elenco sportelli non valido',
         'espocrm_sync_failed' => 'Sincronizzazione Finanziamento EspoCRM non riuscita',
     ],
 

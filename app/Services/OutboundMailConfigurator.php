@@ -16,17 +16,67 @@ class OutboundMailConfigurator
         return IntegrationConfig::string('mail.host');
     }
 
-    public function contactRecipient(): string
+    public function canSendSportelloNotifications(): bool
     {
-        return IntegrationConfig::string('contact.notification_email');
+        if (! $this->isConfigured()) {
+            return false;
+        }
+
+        $fromAddress = $this->websiteFromAddress();
+
+        return IntegrationConfig::string('mail.username') !== ''
+            && filter_var($fromAddress, FILTER_VALIDATE_EMAIL) !== false;
     }
 
-    public function canSendContactNotifications(): bool
+    public function websiteFromAddress(): string
     {
-        return $this->isConfigured() && filter_var($this->contactRecipient(), FILTER_VALIDATE_EMAIL) !== false;
+        $configured = IntegrationConfig::string('contact.website_from_address');
+
+        if ($configured !== '' && filter_var($configured, FILTER_VALIDATE_EMAIL) !== false) {
+            return $configured;
+        }
+
+        $fallback = (string) config('contact_mail.website_from_address', 'website@safehouse.community');
+
+        return filter_var($fallback, FILTER_VALIDATE_EMAIL) !== false
+            ? $fallback
+            : IntegrationConfig::string('mail.from_address');
+    }
+
+    public function websiteFromName(): string
+    {
+        $configured = IntegrationConfig::string('contact.website_from_name');
+
+        if ($configured !== '') {
+            return $configured;
+        }
+
+        $fallback = (string) config('contact_mail.website_from_name', '');
+
+        return $fallback !== '' ? $fallback : IntegrationConfig::string('mail.from_name');
     }
 
     public function apply(): void
+    {
+        $this->applySmtp(
+            IntegrationConfig::string('mail.username'),
+            IntegrationConfig::string('mail.password'),
+            IntegrationConfig::string('mail.from_address'),
+            IntegrationConfig::string('mail.from_name'),
+        );
+    }
+
+    public function applyForSportello(): void
+    {
+        $this->applySmtp(
+            IntegrationConfig::string('mail.username'),
+            IntegrationConfig::string('mail.password'),
+            $this->websiteFromAddress(),
+            $this->websiteFromName(),
+        );
+    }
+
+    private function applySmtp(string $username, string $password, string $fromAddress, string $fromName): void
     {
         $host = $this->host();
 
@@ -42,13 +92,10 @@ class OutboundMailConfigurator
             'mail.default' => 'smtp',
             'mail.mailers.smtp.host' => $host,
             'mail.mailers.smtp.port' => $port > 0 ? $port : 587,
-            'mail.mailers.smtp.username' => IntegrationConfig::string('mail.username'),
-            'mail.mailers.smtp.password' => IntegrationConfig::string('mail.password'),
+            'mail.mailers.smtp.username' => $username,
+            'mail.mailers.smtp.password' => $password,
             'mail.mailers.smtp.scheme' => $scheme,
         ]);
-
-        $fromAddress = IntegrationConfig::string('mail.from_address');
-        $fromName = IntegrationConfig::string('mail.from_name');
 
         if ($fromAddress !== '') {
             config([
