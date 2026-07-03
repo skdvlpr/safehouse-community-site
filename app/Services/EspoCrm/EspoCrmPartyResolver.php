@@ -24,6 +24,8 @@ class EspoCrmPartyResolver
             prefix: 'subject',
             entityType: $entityType,
             name: $name,
+            email: $payload->donorEmail,
+            phone: $payload->donorPhone,
             createAccountFlag: 'createSubjectAccount',
             createContactFlag: 'createSubjectContact',
             label: 'Soggetto pagamento',
@@ -42,6 +44,8 @@ class EspoCrmPartyResolver
             prefix: 'beneficiary',
             entityType: $entityType,
             name: $name,
+            email: null,
+            phone: null,
             createAccountFlag: 'createBeneficiaryAccount',
             createContactFlag: 'createBeneficiaryContact',
             label: 'Beneficiario',
@@ -56,12 +60,14 @@ class EspoCrmPartyResolver
         string $prefix,
         string $entityType,
         string $name,
+        ?string $email,
+        ?string $phone,
         string $createAccountFlag,
         string $createContactFlag,
         string $label,
         bool $allowDuplicateMatches = false,
     ): array {
-        $matches = $this->findByExactName($entityType, $name);
+        $matches = $this->findPartyMatches($entityType, $name, $email, $phone);
         $count = count($matches);
 
         if ($count > 1 && $allowDuplicateMatches) {
@@ -94,16 +100,106 @@ class EspoCrmPartyResolver
         }
 
         if ($entityType === 'Account') {
-            return [
+            return array_filter([
                 $prefix.'Name' => $name,
                 $createAccountFlag => true,
-            ];
+                $prefix.'EmailAddress' => $email,
+                $prefix.'PhoneNumber' => $phone,
+            ], fn ($value) => $value !== null && $value !== '');
         }
 
-        return [
+        return array_filter([
             $prefix.'Name' => $name,
             $createContactFlag => true,
-        ];
+            $prefix.'EmailAddress' => $email,
+            $prefix.'PhoneNumber' => $phone,
+        ], fn ($value) => $value !== null && $value !== '');
+    }
+
+    /**
+     * @return list<array{id: string}>
+     */
+    private function findPartyMatches(string $entityType, string $name, ?string $email, ?string $phone): array
+    {
+        if ($email !== null && $email !== '') {
+            $matches = $this->findByField($entityType, 'emailAddress', $email);
+            if ($matches !== []) {
+                return $matches;
+            }
+        }
+
+        if ($phone !== null && $phone !== '') {
+            $matches = $this->findByField($entityType, 'phoneNumber', $phone);
+            if ($matches !== []) {
+                return $matches;
+            }
+        }
+
+        return $this->findByExactName($entityType, $name);
+    }
+
+    /**
+     * @return list<array{id: string}>
+     */
+    private function findByField(string $entityType, string $attribute, string $value): array
+    {
+        try {
+            $result = $this->client->search($entityType, [
+                'select' => 'id,name',
+                'maxSize' => 5,
+                'orderBy' => 'id',
+                'order' => 'asc',
+                'where' => [
+                    [
+                        'type' => 'equals',
+                        'attribute' => $attribute,
+                        'value' => $value,
+                    ],
+                    [
+                        'type' => 'equals',
+                        'attribute' => 'deleted',
+                        'value' => false,
+                    ],
+                ],
+            ]);
+        } catch (RuntimeException $exception) {
+            if (str_contains($exception->getMessage(), 'No read access')) {
+                Log::warning("EspoCRM API user cannot read {$entityType} by {$attribute}; falling back to name match.", [
+                    'value' => $value,
+                ]);
+
+                return [];
+            }
+
+            throw $exception;
+        }
+
+        return $this->extractMatches($result);
+    }
+
+    /**
+     * @param  array<string, mixed>  $result
+     * @return list<array{id: string}>
+     */
+    private function extractMatches(array $result): array
+    {
+        $list = $result['list'] ?? [];
+
+        if (! is_array($list)) {
+            return [];
+        }
+
+        $matches = array_values(array_filter(array_map(function ($row): ?array {
+            if (! is_array($row)) {
+                return null;
+            }
+
+            $id = $row['id'] ?? null;
+
+            return is_string($id) && $id !== '' ? ['id' => $id] : null;
+        }, $list)));
+
+        return $this->sortMatchesById($matches);
     }
 
     /**
@@ -142,23 +238,7 @@ class EspoCrmPartyResolver
             throw $exception;
         }
 
-        $list = $result['list'] ?? [];
-
-        if (! is_array($list)) {
-            return [];
-        }
-
-        $matches = array_values(array_filter(array_map(function ($row): ?array {
-            if (! is_array($row)) {
-                return null;
-            }
-
-            $id = $row['id'] ?? null;
-
-            return is_string($id) && $id !== '' ? ['id' => $id] : null;
-        }, $list)));
-
-        return $this->sortMatchesById($matches);
+        return $this->extractMatches($result);
     }
 
     /**

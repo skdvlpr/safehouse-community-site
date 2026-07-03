@@ -46,6 +46,8 @@ class StripePaymentService
         string $donorName,
         string $donorType,
         ?string $comment,
+        ?string $donorEmail = null,
+        ?string $donorPhone = null,
     ): array {
         if ($this->client === null) {
             throw new RuntimeException('Stripe client is not configured.');
@@ -59,8 +61,12 @@ class StripePaymentService
                 'currency' => strtolower($campaign->currency),
                 'automatic_payment_methods' => ['enabled' => true],
                 'setup_future_usage' => 'off_session',
-                'metadata' => $this->metadata($campaign, $donorName, $donorType, $comment),
+                'metadata' => $this->metadata($campaign, $donorName, $donorType, $comment, $donorEmail, $donorPhone),
             ];
+
+            if ($donorEmail !== null && $donorEmail !== '') {
+                $payload['receipt_email'] = $donorEmail;
+            }
 
             $suffix = self::statementDescriptorSuffix();
             if ($suffix !== '') {
@@ -135,12 +141,16 @@ class StripePaymentService
         string $donorName,
         string $donorType,
         ?string $comment,
+        ?string $donorEmail = null,
+        ?string $donorPhone = null,
     ): array {
         return array_filter([
             'campaign_id' => (string) $campaign->id,
             'campaign_title' => mb_substr($campaign->finanziamentoTitle(), 0, 500),
             'donor_name' => mb_substr(trim($donorName), 0, 500),
             'donor_type' => $donorType,
+            'donor_email' => $donorEmail !== null ? mb_substr($donorEmail, 0, 500) : null,
+            'donor_phone' => $donorPhone !== null ? mb_substr($donorPhone, 0, 500) : null,
             'comment' => $comment !== null ? mb_substr(trim($comment), 0, 500) : null,
         ], fn ($value) => $value !== null && $value !== '');
     }

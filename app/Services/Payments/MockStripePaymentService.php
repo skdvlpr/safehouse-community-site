@@ -29,6 +29,8 @@ class MockStripePaymentService extends StripePaymentService
         string $donorName,
         string $donorType,
         ?string $comment,
+        ?string $donorEmail = null,
+        ?string $donorPhone = null,
     ): array {
         $this->assertDonationIntentAllowed($campaign, $amountCents);
 
@@ -39,7 +41,7 @@ class MockStripePaymentService extends StripePaymentService
             'payment_intent_id' => $paymentIntentId,
             'amount_cents' => $amountCents,
             'currency' => strtolower($campaign->currency),
-            'metadata' => $this->metadata($campaign, $donorName, $donorType, $comment),
+            'metadata' => $this->metadata($campaign, $donorName, $donorType, $comment, $donorEmail, $donorPhone),
             'status' => 'requires_payment_method',
         ]);
 

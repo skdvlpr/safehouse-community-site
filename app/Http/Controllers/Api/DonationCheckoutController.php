@@ -25,12 +25,15 @@ class DonationCheckoutController extends Controller
         }
 
         try {
+            $contact = $request->donorContact();
             $result = $this->stripePaymentService->createDonationIntent(
                 $campaign,
                 (int) $request->validated('amount_cents'),
                 (string) $request->validated('donor_name'),
                 (string) $request->validated('donor_type'),
                 $request->validated('comment'),
+                $contact->email,
+                $contact->phone,
             );
         } catch (RuntimeException $exception) {
             report($exception);

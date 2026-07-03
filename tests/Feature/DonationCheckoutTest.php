@@ -38,6 +38,8 @@ class DonationCheckoutTest extends TestCase
                     'Mario Rossi',
                     'individual',
                     'Grazie per il lavoro',
+                    'mario@example.com',
+                    null,
                 )
                 ->andReturn([
                     'client_secret' => 'cs_test_secret',
@@ -49,6 +51,7 @@ class DonationCheckoutTest extends TestCase
             'amount_cents' => 2500,
             'donor_name' => 'Mario Rossi',
             'donor_type' => 'individual',
+            'donor_email' => 'mario@example.com',
             'comment' => 'Grazie per il lavoro',
         ])
             ->assertOk()
@@ -72,6 +75,7 @@ class DonationCheckoutTest extends TestCase
             'amount_cents' => 1000,
             'donor_name' => 'Anna Bianchi',
             'donor_type' => 'organization',
+            'donor_phone' => '+39333111222',
         ])->assertNotFound();
     }
 
@@ -93,9 +97,25 @@ class DonationCheckoutTest extends TestCase
             'amount_cents' => 1500,
             'donor_name' => 'Anna Bianchi',
             'donor_type' => 'organization',
+            'donor_email' => 'anna@example.com',
         ])
             ->assertUnprocessable()
             ->assertJsonPath('message', 'Custom amounts are not allowed for this campaign.');
+    }
+
+    public function test_store_requires_email_or_phone(): void
+    {
+        DonationCampaign::factory()->create(['slug' => 'contact-required']);
+
+        $this->mockStripeService(fn (MockInterface $mock) => $mock->shouldNotReceive('createDonationIntent'));
+
+        $this->postJson('/api/donations/intents/contact-required', [
+            'amount_cents' => 1000,
+            'donor_name' => 'Anna Bianchi',
+            'donor_type' => 'individual',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['donor_email']);
     }
 
     public function test_store_validates_required_fields(): void

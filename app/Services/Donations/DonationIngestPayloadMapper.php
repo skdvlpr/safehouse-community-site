@@ -4,6 +4,7 @@ namespace App\Services\Donations;
 
 use App\DataTransferObjects\DonationIngestPayload;
 use App\Models\DonationCampaign;
+use App\Support\DonorContact;
 use Stripe\PaymentIntent;
 
 class DonationIngestPayloadMapper
@@ -58,6 +59,8 @@ class DonationIngestPayloadMapper
             donorType: isset($metadata['donor_type']) ? (string) $metadata['donor_type'] : null,
             donatedAt: now()->toIso8601String(),
             financingGoalAmount: $financingGoalAmount,
+            donorEmail: isset($metadata['donor_email']) ? DonorContact::normalizeEmail((string) $metadata['donor_email']) : null,
+            donorPhone: isset($metadata['donor_phone']) ? DonorContact::normalizePhone((string) $metadata['donor_phone']) : null,
         );
     }
 }

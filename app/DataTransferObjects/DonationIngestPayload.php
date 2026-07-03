@@ -17,6 +17,8 @@ readonly class DonationIngestPayload
         public ?string $donorType,
         public string $donatedAt,
         public ?float $financingGoalAmount = null,
+        public ?string $donorEmail = null,
+        public ?string $donorPhone = null,
     ) {}
 
     public function platformLabel(): string

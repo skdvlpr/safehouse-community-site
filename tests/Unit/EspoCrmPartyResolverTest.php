@@ -19,6 +19,52 @@ class EspoCrmPartyResolverTest extends TestCase
         config()->set('espocrm.prima_nota.default_beneficiary_name', 'Safe House');
     }
 
+    public function test_resolves_existing_contact_by_email_before_name(): void
+    {
+        $client = $this->createMock(EspoCrmClient::class);
+        $client->method('search')
+            ->willReturnCallback(function (string $entityType, array $params): array {
+                if ($entityType === 'Contact' && ($params['where'][0]['attribute'] ?? '') === 'emailAddress') {
+                    return ['total' => 1, 'list' => [['id' => 'contact-by-email', 'name' => 'Other Name']]];
+                }
+
+                return ['total' => 0, 'list' => []];
+            });
+
+        $resolver = new EspoCrmPartyResolver($client);
+
+        $this->assertSame([
+            'subjectName' => 'Mario Rossi',
+            'subjectPartyId' => 'contact-by-email',
+            'subjectPartyType' => 'Contact',
+        ], $resolver->resolveSubjectPartyFields($this->payload(
+            donorName: 'Mario Rossi',
+            donorType: 'individual',
+            donorEmail: 'mario@example.com',
+        )));
+    }
+
+    public function test_creates_contact_with_email_and_phone_when_new_donor(): void
+    {
+        $client = $this->createMock(EspoCrmClient::class);
+        $client->method('search')
+            ->willReturn(['total' => 0, 'list' => []]);
+
+        $resolver = new EspoCrmPartyResolver($client);
+
+        $this->assertSame([
+            'subjectName' => 'Anna Bianchi',
+            'createSubjectContact' => true,
+            'subjectEmailAddress' => 'anna@example.com',
+            'subjectPhoneNumber' => '+39333111222',
+        ], $resolver->resolveSubjectPartyFields($this->payload(
+            donorName: 'Anna Bianchi',
+            donorType: 'individual',
+            donorEmail: 'anna@example.com',
+            donorPhone: '+39333111222',
+        )));
+    }
+
     public function test_resolves_existing_contact_for_individual_donor(): void
     {
         $client = $this->createMock(EspoCrmClient::class);
@@ -200,6 +246,8 @@ class EspoCrmPartyResolverTest extends TestCase
     private function payload(
         string $donorName = 'Mario Rossi',
         string $donorType = 'individual',
+        ?string $donorEmail = null,
+        ?string $donorPhone = null,
     ): DonationIngestPayload {
         return new DonationIngestPayload(
             provider: 'stripe',
@@ -211,6 +259,8 @@ class EspoCrmPartyResolverTest extends TestCase
             comment: null,
             donorType: $donorType,
             donatedAt: now()->toIso8601String(),
+            donorEmail: $donorEmail,
+            donorPhone: $donorPhone,
         );
     }
 }

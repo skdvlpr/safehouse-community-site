@@ -52,6 +52,20 @@
                    class="w-full rounded-2xl border border-white/10 bg-safehouse-page px-4 py-3 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
         </div>
 
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="space-y-2">
+                <label for="donor_email" class="block text-sm font-medium">{{ __('Email') }}</label>
+                <input id="donor_email" name="donor_email" type="email" maxlength="255" autocomplete="email"
+                       class="w-full rounded-2xl border border-white/10 bg-safehouse-page px-4 py-3 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
+            </div>
+            <div class="space-y-2">
+                <label for="donor_phone" class="block text-sm font-medium">{{ __('Telefono') }}</label>
+                <input id="donor_phone" name="donor_phone" type="tel" maxlength="50" autocomplete="tel"
+                       class="w-full rounded-2xl border border-white/10 bg-safehouse-page px-4 py-3 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
+            </div>
+        </div>
+        <p class="text-xs text-safehouse-muted">{{ __('Inserisci almeno un\'email o un numero di telefono per collegare la donazione al CRM.') }}</p>
+
         <div class="space-y-2">
             <label for="comment" class="block text-sm font-medium">{{ __('Commento (opzionale)') }}</label>
             <textarea id="comment" name="comment" rows="3" maxlength="5000"
@@ -115,6 +129,11 @@
 
         <div id="payment-element" class="hidden rounded-2xl border border-white/10 bg-safehouse-page/80 p-4"></div>
 
+        <button type="button" id="apply-donor-to-stripe"
+                class="hidden w-full rounded-2xl border border-white/15 bg-safehouse-page/70 px-4 py-3 text-sm font-medium transition hover:border-safehouse-primary/40">
+            {{ __('Usa i miei dati nel modulo di pagamento') }}
+        </button>
+
         @if ($stripeMock && config('app.debug'))
             <div id="mock-payment-panel" class="hidden rounded-2xl border border-dashed border-amber-500/40 p-4 text-sm text-amber-100">
                 {{ __('site.donations.dev_simulation_hint') }}
@@ -142,14 +161,63 @@
     const mockPaymentPanel = document.getElementById('mock-payment-panel');
     const errorEl = document.getElementById('payment-errors');
     const amountInput = document.getElementById('amount_eur');
+    const applyDonorToStripeButton = document.getElementById('apply-donor-to-stripe');
     const intentUrl = @json(route('api.donations.intents.store', ['donationCampaign' => $campaign->slug]));
     const thankYouBaseUrl = @json(route('donations.thank-you', ['locale' => $locale, 'campaignSlug' => $campaign->slug]));
     const stripeMock = @json($stripeMock);
     let stripe = null;
     let elements = null;
+    let paymentElement = null;
     let clientSecret = null;
     let completeUrl = null;
     let selectedCents = null;
+
+    function donorEmail() {
+        return form.donor_email.value.trim();
+    }
+
+    function donorPhone() {
+        return form.donor_phone.value.trim();
+    }
+
+    function hasDonorContactChannel() {
+        return donorEmail() !== '' || donorPhone() !== '';
+    }
+
+    function donorBillingDetails() {
+        const details = {
+            name: form.donor_name.value.trim(),
+        };
+
+        const email = donorEmail();
+        const phone = donorPhone();
+
+        if (email !== '') {
+            details.email = email;
+        }
+
+        if (phone !== '') {
+            details.phone = phone;
+        }
+
+        return details;
+    }
+
+    function applyDonorDetailsToStripe() {
+        if (!paymentElement) {
+            return;
+        }
+
+        paymentElement.update({
+            defaultValues: {
+                billingDetails: donorBillingDetails(),
+            },
+        });
+    }
+
+    applyDonorToStripeButton?.addEventListener('click', () => {
+        applyDonorDetailsToStripe();
+    });
 
     function thankYouUrl() {
         const params = new URLSearchParams();
@@ -216,6 +284,12 @@
             return;
         }
 
+        if (!hasDonorContactChannel()) {
+            showError(@json(__('Inserisci un\'email o un numero di telefono.')));
+            submitButton.disabled = false;
+            return;
+        }
+
         if (!clientSecret && !completeUrl) {
             const response = await fetch(intentUrl, {
                 method: 'POST',
@@ -228,6 +302,8 @@
                     amount_cents: amountCents,
                     donor_name: form.donor_name.value,
                     donor_type: form.querySelector('input[name=donor_type]:checked').value,
+                    donor_email: donorEmail() || null,
+                    donor_phone: donorPhone() || null,
                     comment: form.comment.value || null,
                 }),
             });
@@ -250,10 +326,17 @@
             stripe = Stripe(data.publishable_key);
             clientSecret = data.client_secret;
             elements = stripe.elements({ clientSecret });
-            const paymentElement = elements.create('payment', {
+            paymentElement = elements.create('payment', {
                 wallets: { link: 'never' },
+                defaultValues: {
+                    billingDetails: donorBillingDetails(),
+                },
             });
             paymentElement.mount('#payment-element');
+            paymentElement.on('ready', () => {
+                applyDonorDetailsToStripe();
+                applyDonorToStripeButton?.classList.remove('hidden');
+            });
             paymentElementContainer.classList.remove('hidden');
             submitButton.textContent = @json(__('Paga ora'));
             submitButton.disabled = false;
@@ -287,7 +370,12 @@
 
         const { error } = await stripe.confirmPayment({
             elements,
-            confirmParams: { return_url: thankYouUrl() },
+            confirmParams: {
+                return_url: thankYouUrl(),
+                payment_method_data: {
+                    billing_details: donorBillingDetails(),
+                },
+            },
         });
 
         if (error) {
