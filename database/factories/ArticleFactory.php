@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\ArticleSection;
 use App\Models\Article;
 use App\Models\ArticleCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -19,6 +20,7 @@ class ArticleFactory extends Factory
     public function definition(): array
     {
         return [
+            'section' => ArticleSection::News,
             'article_category_id' => ArticleCategory::factory(),
             'title' => [
                 'it' => fake()->sentence(4),
@@ -46,6 +48,13 @@ class ArticleFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'is_published' => true,
             'published_at' => now(),
+        ]);
+    }
+
+    public function editorial(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'section' => ArticleSection::Editorial,
         ]);
     }
 }

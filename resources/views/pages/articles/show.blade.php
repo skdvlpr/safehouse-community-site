@@ -36,9 +36,9 @@
         </div>
 
         <p class="mt-8">
-            <a href="{{ route('articles.index', ['locale' => $locale]) }}"
+            <a href="{{ route($indexRoute ?? 'articles.index', ['locale' => $locale]) }}"
                class="text-sm font-medium text-safehouse-link transition hover:text-safehouse-link-hover">
-                ← {{ __('site.pages.news_back') }}
+                ← {{ __($backLabel ?? 'site.pages.news_back') }}
             </a>
         </p>
     </article>

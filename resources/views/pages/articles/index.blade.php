@@ -12,6 +12,7 @@
         'filters' => $filters,
         'categories' => $categories,
         'locale' => $locale,
+        'indexRoute' => $indexRoute ?? 'articles.index',
     ])
 
     @if ($articles->isEmpty())
@@ -21,13 +22,21 @@
     @elseif ($filters->layout === 'list')
         <div class="news-list safehouse-glass">
             @foreach ($articles as $article)
-                @include('pages.articles.partials.list-item', ['article' => $article, 'locale' => $locale])
+                @include('pages.articles.partials.list-item', [
+                    'article' => $article,
+                    'locale' => $locale,
+                    'showRoute' => $showRoute ?? 'articles.show',
+                ])
             @endforeach
         </div>
     @else
         <div class="news-feed">
             @foreach ($articles as $article)
-                @include('pages.articles.partials.feed-item', ['article' => $article, 'locale' => $locale])
+                @include('pages.articles.partials.feed-item', [
+                    'article' => $article,
+                    'locale' => $locale,
+                    'showRoute' => $showRoute ?? 'articles.show',
+                ])
             @endforeach
         </div>
     @endif

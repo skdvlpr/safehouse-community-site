@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\DonationCampaignResource\Pages;
 use App\Filament\Support\CmsLocaleTabs;
 use App\Models\DonationCampaign;
+use App\Models\User;
 use BackedEnum;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TagsInput;
@@ -197,5 +198,12 @@ class DonationCampaignResource extends Resource
             'create' => Pages\CreateDonationCampaign::route('/create'),
             'edit' => Pages\EditDonationCampaign::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = auth()->user();
+
+        return $user instanceof User && $user->isAdminLike();
     }
 }

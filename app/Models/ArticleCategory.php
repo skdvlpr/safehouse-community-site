@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ArticleSection;
 use Database\Factories\ArticleCategoryFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -26,10 +27,21 @@ class ArticleCategory extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'section',
         'name',
         'slug',
         'description',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'section' => ArticleSection::class,
+        ];
+    }
 
     public function articles(): HasMany
     {

@@ -1,5 +1,6 @@
 @php
     $locale = $locale ?? app()->getLocale();
+    $showRoute = $showRoute ?? 'articles.show';
     $slug = $article->getTranslation('slug', $locale, false) ?: $article->getTranslation('slug', 'it');
     $articleTitle = $article->getTranslation('title', $locale);
     $excerpt = $article->getTranslation('excerpt', $locale);
@@ -21,10 +22,14 @@
         @endif
     </div>
 
-    @include('pages.articles.partials.feed-cover', ['article' => $article, 'locale' => $locale])
+    @include('pages.articles.partials.feed-cover', [
+        'article' => $article,
+        'locale' => $locale,
+        'showRoute' => $showRoute,
+    ])
 
     <h2 class="news-feed__title">
-        <a href="{{ route('articles.show', ['locale' => $locale, 'articleSlug' => $slug]) }}"
+        <a href="{{ route($showRoute, ['locale' => $locale, 'articleSlug' => $slug]) }}"
            class="news-feed__link">
             {{ $articleTitle }}
         </a>

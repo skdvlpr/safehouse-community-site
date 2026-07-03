@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\ArticleSection;
 use App\Filament\Resources\ArticleCategoryResource\Pages;
 use App\Filament\Support\CmsLocaleTabs;
 use App\Models\ArticleCategory;
+use App\Models\User;
 use BackedEnum;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -14,6 +16,8 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 class ArticleCategoryResource extends Resource
@@ -122,5 +126,32 @@ class ArticleCategoryResource extends Resource
             'create' => Pages\CreateArticleCategory::route('/create'),
             'edit' => Pages\EditArticleCategory::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->where('section', ArticleSection::News);
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = auth()->user();
+
+        return $user instanceof User && $user->isAdminLike();
+    }
+
+    public static function canCreate(): bool
+    {
+        return static::canViewAny();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return static::canViewAny();
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return static::canViewAny();
     }
 }

@@ -1,0 +1,125 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Enums\ArticleSection;
+use App\Models\Article;
+use App\Models\ArticleCategory;
+use App\Models\User;
+use Database\Seeders\RoleSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class EditorialArticleTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_articoli_page_lists_published_editorial_articles(): void
+    {
+        $category = ArticleCategory::factory()->create([
+            'section' => ArticleSection::Editorial,
+            'name' => ['it' => 'Rassegna'],
+            'slug' => ['it' => 'rassegna'],
+        ]);
+
+        Article::factory()->editorial()->published()->create([
+            'article_category_id' => $category->id,
+            'title' => ['it' => 'Storia editoriale di prova'],
+            'slug' => ['it' => 'storia-editoriale-prova'],
+            'body' => ['it' => '<p>Contenuto.</p>'],
+        ]);
+
+        Article::factory()->published()->create([
+            'title' => ['it' => 'Notizia separata'],
+            'slug' => ['it' => 'notizia-separata'],
+            'body' => ['it' => '<p>News.</p>'],
+        ]);
+
+        $this->get('/it/articoli')
+            ->assertOk()
+            ->assertSee('Storia editoriale di prova', false)
+            ->assertDontSee('Notizia separata', false)
+            ->assertSee('Rassegna', false);
+    }
+
+    public function test_articoli_filters_by_category(): void
+    {
+        $included = ArticleCategory::factory()->create([
+            'section' => ArticleSection::Editorial,
+            'slug' => ['it' => 'inclusa'],
+        ]);
+        $excluded = ArticleCategory::factory()->create([
+            'section' => ArticleSection::Editorial,
+            'slug' => ['it' => 'esclusa'],
+        ]);
+
+        Article::factory()->editorial()->published()->create([
+            'article_category_id' => $included->id,
+            'title' => ['it' => 'Articolo incluso'],
+            'slug' => ['it' => 'articolo-incluso'],
+            'body' => ['it' => '<p>Ok</p>'],
+        ]);
+
+        Article::factory()->editorial()->published()->create([
+            'article_category_id' => $excluded->id,
+            'title' => ['it' => 'Articolo escluso'],
+            'slug' => ['it' => 'articolo-escluso'],
+            'body' => ['it' => '<p>No</p>'],
+        ]);
+
+        $this->get('/it/articoli?categories[]=inclusa')
+            ->assertOk()
+            ->assertSee('Articolo incluso', false)
+            ->assertDontSee('Articolo escluso', false);
+    }
+
+    public function test_journalist_can_access_editorial_cms_but_not_news_cms(): void
+    {
+        $this->seed(RoleSeeder::class);
+
+        $journalist = User::factory()->create();
+        $journalist->assignRole('journalist');
+
+        $this->actingAs($journalist)
+            ->get('/cms-safehouse/editorial-articles')
+            ->assertOk();
+
+        $this->actingAs($journalist)
+            ->get('/cms-safehouse/articles')
+            ->assertForbidden();
+    }
+
+    public function test_journalist_cannot_edit_another_authors_editorial_article(): void
+    {
+        $this->seed(RoleSeeder::class);
+
+        $owner = User::factory()->create();
+        $owner->assignRole('journalist');
+
+        $other = User::factory()->create();
+        $other->assignRole('journalist');
+
+        $article = Article::factory()->editorial()->create([
+            'author_id' => $owner->id,
+            'title' => ['it' => 'Di qualcun altro'],
+            'slug' => ['it' => 'di-qualcun-altro'],
+            'body' => ['it' => '<p>Test</p>'],
+        ]);
+
+        $this->actingAs($other)
+            ->get('/cms-safehouse/editorial-articles/'.$article->id.'/edit')
+            ->assertNotFound();
+    }
+
+    public function test_admin_can_manage_users(): void
+    {
+        $this->seed(RoleSeeder::class);
+
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
+        $this->actingAs($admin)
+            ->get('/cms-safehouse/users')
+            ->assertOk();
+    }
+}

@@ -16,7 +16,9 @@ class RbacTest extends TestCase
         $this->seed(RoleSeeder::class);
 
         $this->assertDatabaseHas('roles', ['name' => 'super-admin']);
+        $this->assertDatabaseHas('roles', ['name' => 'admin']);
         $this->assertDatabaseHas('roles', ['name' => 'editor']);
+        $this->assertDatabaseHas('roles', ['name' => 'journalist']);
     }
 
     public function test_super_admin_can_access_panel(): void
@@ -37,6 +39,30 @@ class RbacTest extends TestCase
 
         $user = User::factory()->create();
         $user->assignRole('editor');
+
+        $response = $this->actingAs($user)->get('/cms-safehouse');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_journalist_can_access_panel(): void
+    {
+        $this->seed(RoleSeeder::class);
+
+        $user = User::factory()->create();
+        $user->assignRole('journalist');
+
+        $response = $this->actingAs($user)->get('/cms-safehouse');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_admin_can_access_panel(): void
+    {
+        $this->seed(RoleSeeder::class);
+
+        $user = User::factory()->create();
+        $user->assignRole('admin');
 
         $response = $this->actingAs($user)->get('/cms-safehouse');
 

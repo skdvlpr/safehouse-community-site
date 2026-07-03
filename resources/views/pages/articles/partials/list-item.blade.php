@@ -1,5 +1,6 @@
 @php
     $locale = $locale ?? app()->getLocale();
+    $showRoute = $showRoute ?? 'articles.show';
     $slug = $article->getTranslation('slug', $locale, false) ?: $article->getTranslation('slug', 'it');
     $articleTitle = $article->getTranslation('title', $locale);
     $articlesService = app(\App\Services\ArticleService::class);
@@ -10,7 +11,7 @@
 
 <article class="news-list__item">
     @if ($cover !== null)
-        <a href="{{ route('articles.show', ['locale' => $locale, 'articleSlug' => $slug]) }}"
+        <a href="{{ route($showRoute, ['locale' => $locale, 'articleSlug' => $slug]) }}"
            class="news-list__thumb"
            aria-hidden="true"
            tabindex="-1">
@@ -29,7 +30,7 @@
             </time>
         @endif
         <h2 class="news-list__title">
-            <a href="{{ route('articles.show', ['locale' => $locale, 'articleSlug' => $slug]) }}"
+            <a href="{{ route($showRoute, ['locale' => $locale, 'articleSlug' => $slug]) }}"
                class="news-list__link">
                 {{ $articleTitle }}
             </a>

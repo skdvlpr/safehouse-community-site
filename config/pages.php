@@ -8,6 +8,7 @@ return [
     'reserved_slugs' => [
         'donazioni',
         'notizie',
+        'articoli',
         'volontariato',
     ],
 

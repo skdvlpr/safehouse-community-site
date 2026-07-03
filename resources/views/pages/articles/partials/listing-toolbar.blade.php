@@ -2,9 +2,10 @@
     /** @var \App\DataTransferObjects\ArticleListingFilters $filters */
     /** @var \Illuminate\Support\Collection<int, \App\Models\ArticleCategory> $categories */
     $articlesService = app(\App\Services\ArticleService::class);
+    $indexRoute = $indexRoute ?? 'articles.index';
 @endphp
 
-<section class="news-toolbar safehouse-glass" aria-label="{{ __('site.pages.news_filters_label') }}">
+<section class="news-toolbar safehouse-glass" aria-label="{{ __($filtersLabel ?? 'site.pages.news_filters_label') }}">
     <div class="news-toolbar__row">
         <div class="news-toolbar__group">
             <span class="news-toolbar__label">{{ __('site.pages.news_categories_label') }}</span>
@@ -19,21 +20,21 @@
                         );
                     @endphp
                     @if ($categorySlug !== null && $categoryName !== '')
-                        <a href="{{ route('articles.index', $toggleFilters->routeParameters($locale)) }}"
+                        <a href="{{ route($indexRoute, $toggleFilters->routeParameters($locale)) }}"
                            @class(['news-category-chip', 'is-active' => $isActive])
                            aria-pressed="{{ $isActive ? 'true' : 'false' }}">
                             {{ $categoryName }}
                         </a>
                     @endif
                 @empty
-                    <p class="news-toolbar__hint">{{ __('site.pages.news_categories_empty') }}</p>
+                    <p class="news-toolbar__hint">{{ __($categoriesEmptyLabel ?? 'site.pages.news_categories_empty') }}</p>
                 @endforelse
             </div>
         </div>
 
         <div class="news-toolbar__group news-toolbar__group--dates">
             <span class="news-toolbar__label">{{ __('site.pages.news_date_label') }}</span>
-            <form method="get" action="{{ route('articles.index', ['locale' => $locale]) }}" class="news-date-filters">
+            <form method="get" action="{{ route($indexRoute, ['locale' => $locale]) }}" class="news-date-filters">
                 @foreach ($filters->categorySlugs as $categorySlug)
                     <input type="hidden" name="categories[]" value="{{ $categorySlug }}">
                 @endforeach
@@ -64,11 +65,11 @@
         <div class="news-toolbar__group news-toolbar__group--layout">
             <span class="news-toolbar__label">{{ __('site.pages.news_view_label') }}</span>
             <div class="news-view-toggle" role="group" aria-label="{{ __('site.pages.news_view_label') }}">
-                <a href="{{ route('articles.index', $filters->withLayout('feed')->routeParameters($locale)) }}"
+                <a href="{{ route($indexRoute, $filters->withLayout('feed')->routeParameters($locale)) }}"
                    @class(['news-view-toggle__btn', 'is-active' => $filters->layout === 'feed'])>
                     {{ __('site.pages.news_view_feed') }}
                 </a>
-                <a href="{{ route('articles.index', $filters->withLayout('list')->routeParameters($locale)) }}"
+                <a href="{{ route($indexRoute, $filters->withLayout('list')->routeParameters($locale)) }}"
                    @class(['news-view-toggle__btn', 'is-active' => $filters->layout === 'list'])>
                     {{ __('site.pages.news_view_list') }}
                 </a>
@@ -78,7 +79,7 @@
 
     @if ($filters->hasActiveFilters())
         <div class="news-toolbar__footer">
-            <a href="{{ route('articles.index', ['locale' => $locale]) }}" class="news-toolbar__clear">
+            <a href="{{ route($indexRoute, ['locale' => $locale]) }}" class="news-toolbar__clear">
                 {{ __('site.pages.news_clear_filters') }}
             </a>
         </div>

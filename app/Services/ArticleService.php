@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DataTransferObjects\ArticleListingFilters;
+use App\Enums\ArticleSection;
 use App\Models\Article;
 use App\Models\ArticleCategory;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -16,29 +17,33 @@ class ArticleService
     /**
      * @return Collection<int, ArticleCategory>
      */
-    public function categoriesForListing(string $locale): Collection
+    public function categoriesForListing(string $locale, ArticleSection $section = ArticleSection::News): Collection
     {
         if (! Schema::hasTable('article_categories')) {
             return new Collection;
         }
 
         return ArticleCategory::query()
-            ->whereHas('articles', fn (Builder $query): Builder => $this->publishedArticlesQuery($query))
+            ->where('section', $section)
+            ->whereHas('articles', fn (Builder $query): Builder => $this->publishedArticlesQuery($query, $section))
             ->orderBy('id')
             ->get()
             ->filter(fn (ArticleCategory $category): bool => $this->categorySlug($category, $locale) !== null)
             ->values();
     }
 
-    public function paginatedListing(ArticleListingFilters $filters, string $locale): LengthAwarePaginator
-    {
+    public function paginatedListing(
+        ArticleListingFilters $filters,
+        string $locale,
+        ArticleSection $section = ArticleSection::News,
+    ): LengthAwarePaginator {
         if (! Schema::hasTable('articles')) {
             return Article::query()->whereRaw('1 = 0')->paginate(12);
         }
 
-        $query = $this->publishedArticlesQuery(Article::query()->with('category'));
+        $query = $this->publishedArticlesQuery(Article::query()->with('category'), $section);
 
-        $categoryIds = $this->resolveCategoryIds($filters->categorySlugs, $locale);
+        $categoryIds = $this->resolveCategoryIds($filters->categorySlugs, $locale, $section);
         if ($categoryIds !== []) {
             $query->whereIn('article_category_id', $categoryIds);
         }
@@ -85,13 +90,14 @@ class ArticleService
      * @param  list<string>  $slugs
      * @return list<int>
      */
-    private function resolveCategoryIds(array $slugs, string $locale): array
+    private function resolveCategoryIds(array $slugs, string $locale, ArticleSection $section): array
     {
         if ($slugs === [] || ! Schema::hasTable('article_categories')) {
             return [];
         }
 
         return ArticleCategory::query()
+            ->where('section', $section)
             ->where(function (Builder $query) use ($slugs, $locale): void {
                 foreach ($slugs as $slug) {
                     $query->orWhere("slug->{$locale}", $slug)
@@ -107,9 +113,10 @@ class ArticleService
      * @param  Builder<Article>  $query
      * @return Builder<Article>
      */
-    private function publishedArticlesQuery(Builder $query): Builder
+    private function publishedArticlesQuery(Builder $query, ArticleSection $section): Builder
     {
         return $query
+            ->where('section', $section)
             ->where('is_published', true)
             ->whereNotNull('published_at');
     }
@@ -126,7 +133,10 @@ class ArticleService
             return null;
         }
 
-        return route('articles.show', ['locale' => $locale, 'articleSlug' => $slug]);
+        return route($this->showRouteName($article->section), [
+            'locale' => $locale,
+            'articleSlug' => $slug,
+        ]);
     }
 
     public function previewUrl(Article $article, string $locale, ?\DateTimeInterface $expiresAt = null): ?string
@@ -138,13 +148,34 @@ class ArticleService
         $expiresAt ??= now()->addHours(2);
 
         return URL::temporarySignedRoute(
-            'articles.preview',
+            $this->previewRouteName($article->section),
             $expiresAt,
             [
                 'locale' => $locale,
                 'article' => $article->getKey(),
             ]
         );
+    }
+
+    public function indexRouteName(ArticleSection $section): string
+    {
+        return $section === ArticleSection::Editorial
+            ? 'editorial-articles.index'
+            : 'articles.index';
+    }
+
+    public function showRouteName(ArticleSection $section): string
+    {
+        return $section === ArticleSection::Editorial
+            ? 'editorial-articles.show'
+            : 'articles.show';
+    }
+
+    public function previewRouteName(ArticleSection $section): string
+    {
+        return $section === ArticleSection::Editorial
+            ? 'editorial-articles.preview'
+            : 'articles.preview';
     }
 
     public function hasPreviewableSlug(Article $article, ?string $locale = null): bool
@@ -178,13 +209,17 @@ class ArticleService
         return is_string($slug) && $slug !== '' ? $slug : null;
     }
 
-    public function findPublishedBySlug(string $locale, string $slug): Article
-    {
+    public function findPublishedBySlug(
+        string $locale,
+        string $slug,
+        ArticleSection $section = ArticleSection::News,
+    ): Article {
         if (! Schema::hasTable('articles')) {
             abort(404);
         }
 
         $article = Article::query()
+            ->where('section', $section)
             ->where('is_published', true)
             ->whereNotNull('published_at')
             ->where("slug->{$locale}", $slug)

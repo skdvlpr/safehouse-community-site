@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\ArticleSection;
 use App\Models\ArticleCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,6 +19,7 @@ class ArticleCategoryFactory extends Factory
     public function definition(): array
     {
         return [
+            'section' => ArticleSection::News,
             'name' => [
                 'it' => fake()->words(2, true),
                 'en' => fake()->words(2, true),

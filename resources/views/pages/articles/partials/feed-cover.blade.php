@@ -5,7 +5,8 @@
 
 @if ($slideCount > 0)
     @php
-        $articleUrl = route('articles.show', [
+        $showRoute = $showRoute ?? 'articles.show';
+        $articleUrl = route($showRoute, [
             'locale' => $locale ?? app()->getLocale(),
             'articleSlug' => $article->getTranslation('slug', $locale ?? app()->getLocale(), false)
                 ?: $article->getTranslation('slug', 'it'),

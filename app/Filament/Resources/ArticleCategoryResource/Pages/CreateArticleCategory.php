@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ArticleCategoryResource\Pages;
 
+use App\Enums\ArticleSection;
 use App\Filament\Resources\ArticleCategoryResource;
 use Filament\Resources\Pages\CreateRecord;
 
@@ -11,6 +12,8 @@ class CreateArticleCategory extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        $data['section'] = ArticleSection::News;
+
         return $this->filterTranslatable($data);
     }
 

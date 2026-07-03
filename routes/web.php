@@ -3,6 +3,7 @@
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ContactSubmissionController;
 use App\Http\Controllers\DonationCampaignController;
+use App\Http\Controllers\EditorialArticleController;
 use App\Http\Controllers\GdprConsentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
@@ -26,9 +27,16 @@ Route::prefix('{locale}')
         Route::get('/notizie', [ArticleController::class, 'index'])->name('articles.index');
         Route::get('/notizie/{articleSlug}', [ArticleController::class, 'show'])->name('articles.show');
 
+        Route::get('/articoli', [EditorialArticleController::class, 'index'])->name('editorial-articles.index');
+        Route::get('/articoli/{articleSlug}', [EditorialArticleController::class, 'show'])->name('editorial-articles.show');
+
         Route::get('/_preview/articles/{article}', [ArticleController::class, 'preview'])
             ->middleware('signed')
             ->name('articles.preview');
+
+        Route::get('/_preview/editorial-articles/{article}', [EditorialArticleController::class, 'preview'])
+            ->middleware('signed')
+            ->name('editorial-articles.preview');
 
         Route::get('/_preview/pages/{page}', [PageController::class, 'preview'])
             ->middleware('signed')

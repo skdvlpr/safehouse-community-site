@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ArticleSection;
 use Database\Factories\ArticleFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,7 +28,9 @@ class Article extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'section',
         'article_category_id',
+        'author_id',
         'title',
         'slug',
         'excerpt',
@@ -43,6 +46,7 @@ class Article extends Model
     protected function casts(): array
     {
         return [
+            'section' => ArticleSection::class,
             'is_published' => 'boolean',
             'published_at' => 'datetime',
             'meta' => 'array',
@@ -52,5 +56,10 @@ class Article extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(ArticleCategory::class, 'article_category_id');
+    }
+
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'author_id');
     }
 }

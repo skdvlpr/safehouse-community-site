@@ -9,6 +9,7 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -25,7 +26,30 @@ class User extends Authenticatable implements FilamentUser
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->hasAnyRole(['super-admin', 'editor']);
+        return $this->hasAnyRole(['super-admin', 'admin', 'editor', 'journalist']);
+    }
+
+    public function isJournalist(): bool
+    {
+        return $this->hasRole('journalist');
+    }
+
+    public function isAdminLike(): bool
+    {
+        return $this->hasAnyRole(['super-admin', 'admin', 'editor']);
+    }
+
+    public function canManageUsers(): bool
+    {
+        return $this->hasAnyRole(['super-admin', 'admin']);
+    }
+
+    /**
+     * @return HasMany<Article, $this>
+     */
+    public function authoredArticles(): HasMany
+    {
+        return $this->hasMany(Article::class, 'author_id');
     }
 
     /**

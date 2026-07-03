@@ -7,6 +7,7 @@ use App\Filament\Resources\PageResource\Pages;
 use App\Filament\Resources\PageResource\Support\PageTemplateFormFields;
 use App\Filament\Support\CmsLocaleTabs;
 use App\Models\Page;
+use App\Models\User;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -224,5 +225,12 @@ class PageResource extends Resource
             : '';
 
         return trim("{$description} {$layout}{$example}");
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = auth()->user();
+
+        return $user instanceof User && $user->isAdminLike();
     }
 }
