@@ -156,6 +156,12 @@ return [
             'encrypted' => true,
             'config' => 'turnstile.secret_key',
         ],
+        'developer.no_cache' => [
+            'label' => 'Disable HTTP browser cache',
+            'group' => 'developer',
+            'encrypted' => false,
+            'config' => 'developer.no_cache',
+        ],
     ],
 
 ];

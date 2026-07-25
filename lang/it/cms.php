@@ -21,6 +21,7 @@ return [
         'sportelli_config' => 'Sportelli',
         'donations_config' => 'Donazioni (5 x 1000 / IBAN)',
         'site_content' => 'Contenuto del sito',
+        'developer_tools' => 'Strumenti sviluppatore',
     ],
 
     'models' => [
@@ -142,6 +143,7 @@ return [
         'bank_transfer_body' => 'Testo bonifico (HTML)',
         'bank_transfer_iban_label' => 'Etichetta IBAN',
         'bank_transfer_beneficiary_label' => 'Etichetta intestatario',
+        'no_cache' => 'Disattiva cache browser (No cache)',
     ],
 
     'integrations' => [
@@ -168,6 +170,7 @@ return [
         'contact_captcha' => 'Captcha modulo contatti',
         'five_per_mille' => '5 x 1000',
         'bank_transfer' => 'Bonifico bancario',
+        'developer_cache' => 'Cache e sviluppo',
     ],
 
     'helpers' => [
@@ -228,6 +231,8 @@ return [
         'five_per_mille_menu_label' => 'Testo nel menu principale (in evidenza).',
         'bank_transfer_enabled' => 'Blocco bonifico in cima alla pagina /donazioni.',
         'donation_iban' => 'IBAN mostrato sul sito per i bonifici diretti.',
+        'developer_cache' => 'Come in EspoCRM: disattiva la cache HTTP del browser e svuota le cache Laravel. Non ricostruisce gli asset Vite (usa bin/dev-rebuild-frontend.sh).',
+        'no_cache' => 'Aggiunge Cache-Control: no-store alle risposte HTTP. Utile in sviluppo quando HTML/CSS restano vecchi dopo un rebuild.',
     ],
 
     'templates' => [
@@ -288,6 +293,7 @@ return [
         'save_tagline' => 'Salva slogan',
         'apply_smtp_preset' => 'Applica preset',
         'add_contact_desk' => 'Aggiungi sportello',
+        'clear_cache' => 'Svuota cache',
     ],
 
     'preview' => [
@@ -306,6 +312,8 @@ return [
         'smtp_preset_missing' => 'Seleziona un provider prima di applicare il preset',
         'contact_desks_invalid' => 'Elenco sportelli non valido',
         'espocrm_sync_failed' => 'Sincronizzazione Finanziamento EspoCRM non riuscita',
+        'developer_tools_saved' => 'Impostazioni sviluppatore salvate',
+        'cache_cleared' => 'Cache svuotata',
     ],
 
     'items' => [
