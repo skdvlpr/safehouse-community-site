@@ -23,7 +23,7 @@ class DonationCampaignTest extends TestCase
 
     public function test_fundraising_goal_amount_converts_cents_to_euros(): void
     {
-        $campaign = DonationCampaign::factory()->create([
+        $campaign = new DonationCampaign([
             'fundraising_goal_cents' => 70000,
         ]);
 

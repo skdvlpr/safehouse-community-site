@@ -53,6 +53,7 @@ class MockDonationCheckoutTest extends TestCase
             'amount_cents' => 5000,
             'donor_name' => 'Mock Donor',
             'donor_type' => 'individual',
+            'donor_email' => 'mock.donor@example.com',
             'comment' => 'Local mock payment',
         ])->assertOk();
 
