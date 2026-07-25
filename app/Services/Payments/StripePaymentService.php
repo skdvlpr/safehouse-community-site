@@ -2,9 +2,11 @@
 
 namespace App\Services\Payments;
 
+use App\DataTransferObjects\StripeEnrichmentFields;
 use App\DataTransferObjects\StripeSettlementAmounts;
 use App\Models\DonationCampaign;
 use App\Support\IntegrationConfig;
+use Illuminate\Support\Carbon;
 use RuntimeException;
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
@@ -124,11 +126,127 @@ class StripePaymentService
      */
     public function settlementFromPaymentIntent(PaymentIntent $intent): StripeSettlementAmounts
     {
+        [$charge, $balanceTransaction] = $this->resolveChargeAndBalanceTransaction($intent);
+
         $grossCents = (int) ($intent->amount_received ?? $intent->amount);
         $currency = (string) $intent->currency;
         $feeCents = 0;
         $netCents = $grossCents;
 
+        if (is_object($balanceTransaction)) {
+            $feeCents = (int) ($balanceTransaction->fee ?? 0);
+            $netCents = (int) ($balanceTransaction->net ?? ($grossCents - $feeCents));
+        }
+
+        return StripeSettlementAmounts::fromCents([
+            'gross_cents' => $grossCents,
+            'fee_cents' => $feeCents,
+            'net_cents' => $netCents,
+            'currency' => $currency,
+        ]);
+    }
+
+    /**
+     * P0/P1/P2 enrichment from PaymentIntent + Charge + BalanceTransaction.
+     */
+    public function enrichmentFromPaymentIntent(PaymentIntent $intent): StripeEnrichmentFields
+    {
+        [$charge, $balanceTransaction] = $this->resolveChargeAndBalanceTransaction($intent);
+
+        $createdAt = null;
+        if (is_numeric($intent->created ?? null)) {
+            $createdAt = Carbon::createFromTimestamp((int) $intent->created, 'UTC')
+                ->format('Y-m-d H:i:s');
+        }
+
+        $methodType = null;
+        $cardBrand = null;
+        $cardLast4 = null;
+        $receiptUrl = null;
+        $receiptEmail = null;
+        $billingEmail = null;
+        $billingPhone = null;
+        $riskLevel = null;
+        $statementDescriptor = null;
+        $chargeId = null;
+        $livemode = is_bool($intent->livemode ?? null) ? (bool) $intent->livemode : null;
+
+        if (is_object($charge)) {
+            $chargeId = isset($charge->id) ? (string) $charge->id : null;
+            if (is_bool($charge->livemode ?? null)) {
+                $livemode = (bool) $charge->livemode;
+            }
+            $receiptUrl = isset($charge->receipt_url) && is_string($charge->receipt_url) ? $charge->receipt_url : null;
+            $receiptEmail = isset($charge->receipt_email) && is_string($charge->receipt_email) ? $charge->receipt_email : null;
+            $statementDescriptor = isset($charge->calculated_statement_descriptor) && is_string($charge->calculated_statement_descriptor)
+                ? $charge->calculated_statement_descriptor
+                : (isset($charge->statement_descriptor) && is_string($charge->statement_descriptor) ? $charge->statement_descriptor : null);
+
+            $details = $charge->payment_method_details ?? null;
+            if (is_object($details)) {
+                $methodType = isset($details->type) ? (string) $details->type : null;
+                $card = $details->card ?? null;
+                if (is_object($card)) {
+                    $cardBrand = isset($card->brand) ? (string) $card->brand : null;
+                    $cardLast4 = isset($card->last4) ? (string) $card->last4 : null;
+                }
+            }
+
+            $billing = $charge->billing_details ?? null;
+            if (is_object($billing)) {
+                $billingEmail = isset($billing->email) && is_string($billing->email) ? $billing->email : null;
+                $billingPhone = isset($billing->phone) && is_string($billing->phone) ? $billing->phone : null;
+            }
+
+            $outcome = $charge->outcome ?? null;
+            if (is_object($outcome) && isset($outcome->risk_level) && is_string($outcome->risk_level)) {
+                $riskLevel = $outcome->risk_level;
+            }
+        }
+
+        $btId = null;
+        $feeDetailsJson = null;
+        if (is_object($balanceTransaction)) {
+            $btId = isset($balanceTransaction->id) ? (string) $balanceTransaction->id : null;
+            $feeDetails = $balanceTransaction->fee_details ?? null;
+            if (is_array($feeDetails) || is_object($feeDetails)) {
+                $encoded = json_encode($feeDetails, JSON_UNESCAPED_UNICODE);
+                $feeDetailsJson = is_string($encoded) ? $encoded : null;
+            }
+        }
+
+        $customerId = null;
+        $customer = $intent->customer ?? null;
+        if (is_string($customer) && $customer !== '') {
+            $customerId = $customer;
+        } elseif (is_object($customer) && isset($customer->id)) {
+            $customerId = (string) $customer->id;
+        }
+
+        return new StripeEnrichmentFields(
+            stripePaymentCreatedAt: $createdAt,
+            stripeChargeId: $chargeId,
+            stripeBalanceTransactionId: $btId,
+            stripePaymentMethodType: $methodType,
+            stripeCardBrand: $cardBrand,
+            stripeCardLast4: $cardLast4,
+            stripeReceiptUrl: $receiptUrl,
+            stripeReceiptEmail: $receiptEmail,
+            stripeBillingEmail: $billingEmail,
+            stripeBillingPhone: $billingPhone,
+            stripeFeeDetailsJson: $feeDetailsJson,
+            stripeLivemode: $livemode,
+            stripeRadarRiskLevel: $riskLevel,
+            stripeStatementDescriptor: $statementDescriptor,
+            stripeCustomerId: $customerId,
+        );
+    }
+
+    /**
+     * @return array{0: object|string|null, 1: object|string|null}
+     */
+    private function resolveChargeAndBalanceTransaction(PaymentIntent $intent): array
+    {
         $charge = $intent->latest_charge;
         if (is_string($charge) && $charge !== '' && $this->client !== null) {
             try {
@@ -140,6 +258,7 @@ class StripePaymentService
             }
         }
 
+        $balanceTransaction = null;
         if (is_object($charge)) {
             $balanceTransaction = $charge->balance_transaction ?? null;
             if (is_string($balanceTransaction) && $balanceTransaction !== '' && $this->client !== null) {
@@ -149,18 +268,9 @@ class StripePaymentService
                     throw new RuntimeException('Stripe balance transaction lookup failed: '.$exception->getMessage(), 0, $exception);
                 }
             }
-            if (is_object($balanceTransaction)) {
-                $feeCents = (int) ($balanceTransaction->fee ?? 0);
-                $netCents = (int) ($balanceTransaction->net ?? ($grossCents - $feeCents));
-            }
         }
 
-        return StripeSettlementAmounts::fromCents([
-            'gross_cents' => $grossCents,
-            'fee_cents' => $feeCents,
-            'net_cents' => $netCents,
-            'currency' => $currency,
-        ]);
+        return [$charge, $balanceTransaction];
     }
 
     /**
@@ -182,6 +292,11 @@ class StripePaymentService
             'net_cents' => $netCents,
             'currency' => (string) ($stored['currency'] ?? 'eur'),
         ]);
+    }
+
+    public function enrichmentFromMockStoredIntent(array $stored): StripeEnrichmentFields
+    {
+        return StripeEnrichmentFields::fromMockStoredIntent($stored);
     }
 
     public function constructWebhookEvent(string $payload, ?string $signature): \Stripe\Event

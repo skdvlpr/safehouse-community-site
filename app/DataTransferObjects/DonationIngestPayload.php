@@ -22,6 +22,7 @@ readonly class DonationIngestPayload
         public ?float $financingGoalAmount = null,
         public ?string $donorEmail = null,
         public ?string $donorPhone = null,
+        public ?StripeEnrichmentFields $stripeEnrichment = null,
     ) {}
 
     /**
@@ -40,6 +41,7 @@ readonly class DonationIngestPayload
         ?float $financingGoalAmount = null,
         ?string $donorEmail = null,
         ?string $donorPhone = null,
+        ?StripeEnrichmentFields $stripeEnrichment = null,
     ): self {
         return new self(
             provider: $provider,
@@ -57,6 +59,7 @@ readonly class DonationIngestPayload
             financingGoalAmount: $financingGoalAmount,
             donorEmail: $donorEmail,
             donorPhone: $donorPhone,
+            stripeEnrichment: $stripeEnrichment,
         );
     }
 
@@ -93,7 +96,7 @@ readonly class DonationIngestPayload
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
     public function primaNotaDonationFields(): array
     {
@@ -109,6 +112,10 @@ readonly class DonationIngestPayload
 
         if ($this->comment !== null && trim($this->comment) !== '') {
             $fields['donationComment'] = trim($this->comment);
+        }
+
+        if ($this->stripeEnrichment !== null) {
+            $fields = array_merge($fields, $this->stripeEnrichment->toPrimaNotaFields());
         }
 
         return $fields;

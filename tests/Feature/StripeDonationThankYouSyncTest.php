@@ -66,6 +66,15 @@ class StripeDonationThankYouSyncTest extends TestCase
                 'net_cents' => 100,
                 'currency' => 'eur',
             ]));
+        $mock->shouldReceive('enrichmentFromPaymentIntent')
+            ->once()
+            ->with($intent)
+            ->andReturn(\App\DataTransferObjects\StripeEnrichmentFields::fromMockStoredIntent([
+                'created' => time(),
+                'payment_method_type' => 'card',
+                'card_brand' => 'visa',
+                'card_last4' => '4242',
+            ]));
         $this->instance(StripePaymentService::class, $mock);
 
         Http::fake(function ($request) {
@@ -143,6 +152,13 @@ class StripeDonationThankYouSyncTest extends TestCase
                 'fee_cents' => 0,
                 'net_cents' => 500,
                 'currency' => 'eur',
+            ]));
+        $mock->shouldReceive('enrichmentFromPaymentIntent')
+            ->once()
+            ->with($intent)
+            ->andReturn(\App\DataTransferObjects\StripeEnrichmentFields::fromMockStoredIntent([
+                'created' => time(),
+                'payment_method_type' => 'card',
             ]));
         $this->instance(StripePaymentService::class, $mock);
 

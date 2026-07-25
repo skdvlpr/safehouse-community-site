@@ -3,6 +3,7 @@
 namespace App\Services\Donations;
 
 use App\DataTransferObjects\DonationIngestPayload;
+use App\DataTransferObjects\StripeEnrichmentFields;
 use App\DataTransferObjects\StripeSettlementAmounts;
 use App\Models\DonationCampaign;
 use App\Services\Payments\StripePaymentService;
@@ -22,24 +23,28 @@ class DonationIngestPayloadMapper
     public function fromMockStoredIntent(array $stored): DonationIngestPayload
     {
         $settlement = $this->stripePaymentService->settlementFromMockStoredIntent($stored);
+        $enrichment = $this->stripePaymentService->enrichmentFromMockStoredIntent($stored);
 
         return $this->build(
             externalId: (string) $stored['payment_intent_id'],
             settlement: $settlement,
             metadata: (array) ($stored['metadata'] ?? []),
             donatedAt: $this->donatedAtFromMockStoredIntent($stored),
+            enrichment: $enrichment,
         );
     }
 
     public function fromPaymentIntent(PaymentIntent $intent): DonationIngestPayload
     {
         $settlement = $this->stripePaymentService->settlementFromPaymentIntent($intent);
+        $enrichment = $this->stripePaymentService->enrichmentFromPaymentIntent($intent);
 
         return $this->build(
             externalId: $intent->id,
             settlement: $settlement,
             metadata: $intent->metadata->toArray(),
             donatedAt: $this->donatedAtFromPaymentIntent($intent),
+            enrichment: $enrichment,
         );
     }
 
@@ -80,6 +85,7 @@ class DonationIngestPayloadMapper
         StripeSettlementAmounts $settlement,
         array $metadata,
         string $donatedAt,
+        ?StripeEnrichmentFields $enrichment = null,
     ): DonationIngestPayload {
         $campaignTitle = (string) ($metadata['campaign_title'] ?? 'Donazioni online');
         $financingGoalAmount = null;
@@ -108,6 +114,7 @@ class DonationIngestPayloadMapper
             financingGoalAmount: $financingGoalAmount,
             donorEmail: isset($metadata['donor_email']) ? DonorContact::normalizeEmail((string) $metadata['donor_email']) : null,
             donorPhone: isset($metadata['donor_phone']) ? DonorContact::normalizePhone((string) $metadata['donor_phone']) : null,
+            stripeEnrichment: $enrichment,
         );
     }
 }

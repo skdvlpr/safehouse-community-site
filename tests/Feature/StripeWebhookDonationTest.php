@@ -280,7 +280,9 @@ class StripeWebhookDonationTest extends TestCase
                 && ($payload['commissionAmount'] ?? null) === 2.9
                 && ($payload['commissionPercent'] ?? null) === 2.9
                 && ($payload['amount'] ?? null) === 97.1
-                && ($payload['donationPaymentProvider'] ?? '') === 'Stripe';
+                && ($payload['donationPaymentProvider'] ?? '') === 'Stripe'
+                && ($payload['stripePaymentMethodType'] ?? '') === 'card'
+                && ($payload['stripeChargeId'] ?? '') === 'ch_test';
         });
     }
 
@@ -378,6 +380,16 @@ class StripeWebhookDonationTest extends TestCase
         $mock->shouldReceive('paymentIntentFromEvent')->with($event)->andReturn($intent);
         $mock->shouldReceive('retrieveSettledPaymentIntent')->with($intent->id)->andReturn($intent);
         $mock->shouldReceive('settlementFromPaymentIntent')->andReturn($settlement);
+        $mock->shouldReceive('enrichmentFromPaymentIntent')->andReturn(
+            \App\DataTransferObjects\StripeEnrichmentFields::fromMockStoredIntent([
+                'created' => (int) ($intent->created ?? time()),
+                'charge_id' => 'ch_test',
+                'balance_transaction_id' => 'txn_test',
+                'payment_method_type' => 'card',
+                'card_brand' => 'visa',
+                'card_last4' => '4242',
+            ])
+        );
         $this->instance(StripePaymentService::class, $mock);
     }
 

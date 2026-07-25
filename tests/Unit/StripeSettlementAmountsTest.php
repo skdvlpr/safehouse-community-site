@@ -67,4 +67,62 @@ class StripeSettlementAmountsTest extends TestCase
         $this->assertSame(48.0, $settlement->net);
         $this->assertSame(4.0, $settlement->feePercent);
     }
+
+    public function test_enrichment_from_payment_intent_reads_method_and_ids(): void
+    {
+        $intent = PaymentIntent::constructFrom([
+            'id' => 'pi_enrich',
+            'amount' => 10000,
+            'amount_received' => 10000,
+            'currency' => 'eur',
+            'created' => 1720000000,
+            'livemode' => false,
+            'customer' => 'cus_123',
+            'latest_charge' => [
+                'id' => 'ch_enrich',
+                'object' => 'charge',
+                'livemode' => false,
+                'receipt_url' => 'https://pay.stripe.com/receipts/test',
+                'receipt_email' => 'donor@example.com',
+                'calculated_statement_descriptor' => 'SAFE HOUSE',
+                'payment_method_details' => [
+                    'type' => 'card',
+                    'card' => [
+                        'brand' => 'visa',
+                        'last4' => '4242',
+                    ],
+                ],
+                'billing_details' => [
+                    'email' => 'bill@example.com',
+                    'phone' => '+391234',
+                ],
+                'outcome' => [
+                    'risk_level' => 'normal',
+                ],
+                'balance_transaction' => [
+                    'id' => 'txn_enrich',
+                    'object' => 'balance_transaction',
+                    'fee' => 290,
+                    'net' => 9710,
+                    'amount' => 10000,
+                    'fee_details' => [
+                        ['type' => 'stripe_fee', 'amount' => 290, 'currency' => 'eur'],
+                    ],
+                ],
+            ],
+        ]);
+
+        $enrichment = (new StripePaymentService(null))->enrichmentFromPaymentIntent($intent);
+        $fields = $enrichment->toPrimaNotaFields();
+
+        $this->assertSame('ch_enrich', $fields['stripeChargeId']);
+        $this->assertSame('txn_enrich', $fields['stripeBalanceTransactionId']);
+        $this->assertSame('card', $fields['stripePaymentMethodType']);
+        $this->assertSame('visa', $fields['stripeCardBrand']);
+        $this->assertSame('4242', $fields['stripeCardLast4']);
+        $this->assertSame('cus_123', $fields['stripeCustomerId']);
+        $this->assertSame('normal', $fields['stripeRadarRiskLevel']);
+        $this->assertFalse($fields['stripeLivemode']);
+        $this->assertStringContainsString('stripe_fee', (string) $fields['stripeFeeDetailsJson']);
+    }
 }
