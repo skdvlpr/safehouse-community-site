@@ -62,10 +62,12 @@ readonly class DonationIngestPayload
 
     public function platformLabel(): string
     {
-        return match ($this->provider) {
-            'stripe' => 'Stripe',
-            default => ucfirst($this->provider),
-        };
+        // Stripe website ingest path must always map to CRM enum value "Stripe".
+        if ($this->provider === 'stripe') {
+            return 'Stripe';
+        }
+
+        return 'Other';
     }
 
     /**

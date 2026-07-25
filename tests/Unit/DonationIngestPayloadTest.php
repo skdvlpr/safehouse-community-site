@@ -67,4 +67,22 @@ class DonationIngestPayloadTest extends TestCase
             'donationPaymentReference' => '#pi_anon',
         ], $payload->primaNotaDonationFields());
     }
+
+    public function test_non_stripe_provider_maps_to_other_enum_not_invented_label(): void
+    {
+        $payload = DonationIngestPayload::withGrossOnly(
+            provider: 'paypal',
+            externalId: 'ext_1',
+            gross: 5,
+            currency: 'EUR',
+            campaignTitle: 'Raccolta',
+            donorName: 'X',
+            comment: null,
+            donorType: null,
+            donatedAt: '2026-06-29T12:00:00+00:00',
+        );
+
+        $this->assertSame('Other', $payload->platformLabel());
+        $this->assertSame('Other', $payload->primaNotaDonationFields()['donationPaymentProvider']);
+    }
 }
