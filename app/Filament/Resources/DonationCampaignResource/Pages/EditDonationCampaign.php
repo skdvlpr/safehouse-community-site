@@ -37,6 +37,10 @@ class EditDonationCampaign extends EditRecord
             unset($data['fundraising_goal_eur']);
         }
 
+        if (! empty($data['allows_recurring'])) {
+            $data['fundraising_goal_cents'] = null;
+        }
+
         return $data;
     }
 

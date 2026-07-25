@@ -43,12 +43,53 @@ class DonationCampaignSeeder extends Seeder
                 ],
                 'preset_amounts' => [1000, 2500, 5000, 10000, 25000, 50000],
                 'allow_custom_amount' => true,
+                'allows_recurring' => false,
                 'min_amount_cents' => 500,
                 'currency' => 'EUR',
                 'fundraising_goal_cents' => 70000,
                 'espocrm_finanziamento_name' => 'Donate to Safe House',
                 'is_active' => true,
                 'sort_order' => 0,
+            ],
+        );
+
+        DonationCampaign::query()->updateOrCreate(
+            ['slug' => 'donazione-ricorrente'],
+            [
+                'title' => [
+                    'it' => 'Donazione ricorrente',
+                    'en' => 'Recurring donation',
+                    'ru' => 'Регулярное пожертвование',
+                ],
+                'description' => [
+                    'it' => '<p>Sostieni Safe House ogni mese con un contributo ricorrente. Puoi interrompere in qualsiasi momento tramite il portale Stripe dedicato ai donatori.</p>',
+                    'en' => '<p>Support Safe House every month with a recurring gift. You can cancel anytime via the Stripe donor portal.</p>',
+                    'ru' => '<p>Поддерживайте Safe House ежемесячно. Отменить можно в любой момент через портал Stripe для доноров.</p>',
+                ],
+                'form_notice' => [
+                    'it' => 'Questa campagna accetta donazioni ricorrenti. Prima di confermare ti spiegheremo come disdire.',
+                    'en' => 'This campaign accepts recurring donations. Before confirming we explain how to cancel.',
+                    'ru' => 'Эта кампания принимает регулярные пожертвования. Перед подтверждением мы объясним, как отписаться.',
+                ],
+                'privacy_notice' => [
+                    'it' => '<p>Trattiamo i dati solo per gestire la donazione ricorrente e gli obblighi di legge. I pagamenti sono gestiti da Stripe.</p>',
+                    'en' => '<p>We process data only to manage the recurring donation and legal obligations. Payments are handled by Stripe.</p>',
+                    'ru' => '<p>Мы обрабатываем данные только для регулярного пожертвования и юридических обязательств. Платежи обрабатывает Stripe.</p>',
+                ],
+                'thank_you_message' => [
+                    'it' => 'Grazie per il tuo sostegno ricorrente. Puoi gestire o annullare l\'abbonamento in qualsiasi momento dal link del portale donatori che ti invieremo.',
+                    'en' => 'Thank you for your recurring support. You can manage or cancel anytime from the donor portal link we will send you.',
+                    'ru' => 'Спасибо за регулярную поддержку. Управлять или отменить подписку можно в любой момент по ссылке портала донора.',
+                ],
+                'preset_amounts' => [1000, 2500, 5000, 10000],
+                'allow_custom_amount' => true,
+                'allows_recurring' => true,
+                'min_amount_cents' => 500,
+                'currency' => 'EUR',
+                'fundraising_goal_cents' => null,
+                'espocrm_finanziamento_name' => 'Donazione ricorrente',
+                'is_active' => true,
+                'sort_order' => 3,
             ],
         );
 

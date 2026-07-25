@@ -30,6 +30,23 @@ class DonationCampaignTest extends TestCase
         $this->assertSame(700.0, $campaign->fundraisingGoalAmount());
     }
 
+    public function test_allows_recurring_defaults_false_and_clears_goal_semantics(): void
+    {
+        $oneTime = new DonationCampaign([
+            'allows_recurring' => false,
+            'fundraising_goal_cents' => 50000,
+        ]);
+        $this->assertFalse($oneTime->allowsRecurring());
+        $this->assertTrue($oneTime->hasFundraisingGoal());
+
+        $recurring = new DonationCampaign([
+            'allows_recurring' => true,
+            'fundraising_goal_cents' => null,
+        ]);
+        $this->assertTrue($recurring->allowsRecurring());
+        $this->assertFalse($recurring->hasFundraisingGoal());
+    }
+
     public function test_preset_amount_cents_deduplicates_and_filters_below_minimum(): void
     {
         $campaign = new DonationCampaign([

@@ -117,6 +117,11 @@ class DonationCampaignResource extends Resource
             Toggle::make('allow_custom_amount')
                 ->label(__('cms.fields.allow_custom_amount'))
                 ->default(true),
+            Toggle::make('allows_recurring')
+                ->label(__('cms.fields.allows_recurring'))
+                ->helperText(__('cms.helpers.allows_recurring'))
+                ->default(false)
+                ->live(),
             TextInput::make('min_amount_cents')
                 ->label(__('cms.fields.min_amount_cents'))
                 ->numeric()
@@ -131,6 +136,7 @@ class DonationCampaignResource extends Resource
                 ->label(__('cms.fields.fundraising_goal'))
                 ->helperText(__('cms.helpers.fundraising_goal'))
                 ->placeholder('700')
+                ->visible(fn ($get): bool => ! (bool) $get('allows_recurring'))
                 ->formatStateUsing(function ($state, ?DonationCampaign $record): ?string {
                     $cents = $record?->fundraising_goal_cents;
 
@@ -175,6 +181,9 @@ class DonationCampaignResource extends Resource
                     ->label(__('cms.fields.slug')),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label(__('cms.fields.is_active'))
+                    ->boolean(),
+                Tables\Columns\IconColumn::make('allows_recurring')
+                    ->label(__('cms.fields.allows_recurring'))
                     ->boolean(),
                 Tables\Columns\TextColumn::make('currency')
                     ->label(__('cms.fields.currency')),

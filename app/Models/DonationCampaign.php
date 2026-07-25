@@ -36,6 +36,7 @@ class DonationCampaign extends Model
         'thank_you_message',
         'preset_amounts',
         'allow_custom_amount',
+        'allows_recurring',
         'min_amount_cents',
         'currency',
         'fundraising_goal_cents',
@@ -52,6 +53,7 @@ class DonationCampaign extends Model
         return [
             'preset_amounts' => 'array',
             'allow_custom_amount' => 'boolean',
+            'allows_recurring' => 'boolean',
             'is_active' => 'boolean',
         ];
     }
@@ -92,6 +94,16 @@ class DonationCampaign extends Model
         }
 
         return ((int) $cents) / 100;
+    }
+
+    public function allowsRecurring(): bool
+    {
+        return (bool) $this->allows_recurring;
+    }
+
+    public function hasFundraisingGoal(): bool
+    {
+        return $this->fundraisingGoalAmount() !== null;
     }
 
     /**

@@ -34,10 +34,19 @@ class DonationCampaignFactory extends Factory
             ],
             'preset_amounts' => [500, 1000, 2500, 5000],
             'allow_custom_amount' => true,
+            'allows_recurring' => false,
             'min_amount_cents' => 50,
             'currency' => 'EUR',
             'is_active' => true,
             'sort_order' => 0,
         ];
+    }
+
+    public function recurring(): static
+    {
+        return $this->state(fn (): array => [
+            'allows_recurring' => true,
+            'fundraising_goal_cents' => null,
+        ]);
     }
 }
