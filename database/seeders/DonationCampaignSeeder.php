@@ -81,7 +81,7 @@ class DonationCampaignSeeder extends Seeder
                     'en' => 'Thank you for your recurring support. You can manage or cancel anytime from the donor portal link we will send you.',
                     'ru' => 'Спасибо за регулярную поддержку. Управлять или отменить подписку можно в любой момент по ссылке портала донора.',
                 ],
-                'preset_amounts' => [1000, 2500, 5000, 10000],
+                'preset_amounts' => [1000, 2000, 5000, 10000],
                 'allow_custom_amount' => true,
                 'allows_recurring' => true,
                 'min_amount_cents' => 500,
@@ -89,7 +89,7 @@ class DonationCampaignSeeder extends Seeder
                 'fundraising_goal_cents' => null,
                 'espocrm_finanziamento_name' => 'Donazione ricorrente',
                 'is_active' => true,
-                'sort_order' => 3,
+                'sort_order' => 0,
             ],
         );
 

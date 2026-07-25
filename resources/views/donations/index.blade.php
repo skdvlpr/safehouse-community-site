@@ -31,6 +31,28 @@
 
     @include('donations.partials.bank-transfer', ['donationSettings' => $donationSettings])
 
+    @if ($recurringCampaign)
+        @php
+            $recurringTitle = $recurringCampaign->getTranslation('title', $locale, false)
+                ?: $recurringCampaign->getTranslation('title', 'it');
+            $recurringDescription = $recurringCampaign->getTranslation('description', $locale, false)
+                ?: $recurringCampaign->getTranslation('description', 'it');
+        @endphp
+        <a href="{{ route('donations.show', ['locale' => $locale, 'campaignSlug' => $recurringCampaign->slug]) }}"
+           class="donation-feature-card mb-8 block rounded-2xl border border-safehouse-primary/40 bg-gradient-to-br from-safehouse-primary/20 via-safehouse-primary/5 to-transparent p-6 transition hover:border-safehouse-primary md:p-8">
+            <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-safehouse-primary">
+                {{ __('site.donations.recurring_badge') }}
+            </p>
+            <h2 class="mb-3 text-2xl font-semibold md:text-3xl">{{ $recurringTitle }}</h2>
+            @if ($recurringDescription)
+                <p class="mb-4 max-w-2xl text-safehouse-muted">
+                    {{ Str::limit(strip_tags($recurringDescription), 180) }}
+                </p>
+            @endif
+            <span class="safehouse-btn-primary inline-flex">{{ __('site.donations.recurring_cta') }}</span>
+        </a>
+    @endif
+
     <h2 class="mb-4 text-xl font-semibold">{{ __('site.donations.online_campaigns_heading') }}</h2>
 
     <div class="space-y-4">

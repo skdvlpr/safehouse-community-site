@@ -72,6 +72,28 @@ class DonationCampaign extends Model
         return $query->where('is_active', true);
     }
 
+    /**
+     * Goal / one-time campaigns managed in DonationCampaignResource.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeOneTime(Builder $query): Builder
+    {
+        return $query->where('allows_recurring', false);
+    }
+
+    /**
+     * Recurring singleton (and any future recurring rows).
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeRecurring(Builder $query): Builder
+    {
+        return $query->where('allows_recurring', true);
+    }
+
     public function finanziamentoTitle(?string $locale = null): string
     {
         if ($this->espocrm_finanziamento_name) {
@@ -103,6 +125,10 @@ class DonationCampaign extends Model
 
     public function hasFundraisingGoal(): bool
     {
+        if ($this->allowsRecurring()) {
+            return false;
+        }
+
         return $this->fundraisingGoalAmount() !== null;
     }
 

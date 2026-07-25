@@ -132,6 +132,8 @@ return [
         'index_title' => 'Support Safe House',
         'index_lead' => 'Choose how to contribute: 5 x 1000, bank transfer, or online campaigns with Stripe.',
         'online_campaigns_heading' => 'Online campaigns',
+        'recurring_badge' => 'Monthly donation',
+        'recurring_cta' => 'Give every month',
         'five_per_mille_cta' => 'Learn how to donate with 5 x 1000',
         'copy_codice_fiscale' => 'Copy tax code',
         'copy_iban' => 'Copy IBAN',

@@ -7,6 +7,7 @@ use App\Services\Donations\CampaignFundraisingProgressService;
 use App\Services\Donations\StripeDonationThankYouSync;
 use App\Services\DonationSettingsService;
 use App\Services\Payments\StripePaymentService;
+use App\Services\RecurringDonationCampaignService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -17,9 +18,11 @@ class DonationCampaignController extends Controller
         Request $request,
         CampaignFundraisingProgressService $progressService,
         DonationSettingsService $donationSettings,
+        RecurringDonationCampaignService $recurringDonations,
     ): View {
         $campaigns = DonationCampaign::query()
             ->active()
+            ->oneTime()
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get();
@@ -28,6 +31,7 @@ class DonationCampaignController extends Controller
             'campaigns' => $campaigns,
             'progressBySlug' => $progressService->forCampaigns($campaigns),
             'donationSettings' => $donationSettings,
+            'recurringCampaign' => $recurringDonations->activeCampaign(),
         ]);
     }
 
@@ -49,7 +53,9 @@ class DonationCampaignController extends Controller
         return view('donations.show', [
             'campaign' => $campaign,
             'stripeMock' => StripePaymentService::mockModeEnabled(),
-            'fundraisingProgress' => $progressService->forCampaign($campaign),
+            'fundraisingProgress' => $campaign->allowsRecurring()
+                ? null
+                : $progressService->forCampaign($campaign),
         ]);
     }
 

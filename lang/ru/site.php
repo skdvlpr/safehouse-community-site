@@ -132,6 +132,8 @@ return [
         'index_title' => 'Поддержите Safe House',
         'index_lead' => 'Выберите способ помощи: 5 x 1000, банковский перевод или онлайн-сборы через Stripe.',
         'online_campaigns_heading' => 'Онлайн-сборы',
+        'recurring_badge' => 'Ежемесячное пожертвование',
+        'recurring_cta' => 'Поддерживать каждый месяц',
         'five_per_mille_cta' => 'Как пожертвовать через 5 x 1000',
         'copy_codice_fiscale' => 'Скопировать codice fiscale',
         'copy_iban' => 'Скопировать IBAN',

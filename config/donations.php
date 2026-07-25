@@ -4,6 +4,12 @@ return [
 
     'storage_key' => 'donations.settings',
 
+    /**
+     * Singleton DonationCampaign slug used by RecurringDonationCampaignService / CMS tab.
+     * Never has a fundraising goal; excluded from "Campagne donazioni" CRUD.
+     */
+    'recurring_campaign_slug' => env('DONATIONS_RECURRING_SLUG', 'donazione-ricorrente'),
+
     'five_per_mille' => [
         'enabled' => true,
         'codice_fiscale' => env('DONATIONS_CODICE_FISCALE', ''),

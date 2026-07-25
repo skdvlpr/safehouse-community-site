@@ -25,11 +25,31 @@ class DonationCampaignRoutesTest extends TestCase
             'title' => ['it' => 'Raccolta nascosta'],
             'is_active' => false,
         ]);
+        DonationCampaign::factory()->recurring()->create([
+            'slug' => 'donazione-ricorrente',
+            'title' => ['it' => 'Donazione ricorrente'],
+            'is_active' => true,
+        ]);
 
         $this->get('/it/donazioni')
             ->assertOk()
             ->assertSee('Raccolta attiva')
-            ->assertDontSee('Raccolta nascosta');
+            ->assertDontSee('Raccolta nascosta')
+            ->assertSee('Donazione ricorrente')
+            ->assertSee(__('site.donations.recurring_cta'));
+    }
+
+    public function test_donations_index_hides_disabled_recurring_campaign(): void
+    {
+        DonationCampaign::factory()->recurring()->create([
+            'slug' => 'donazione-ricorrente',
+            'title' => ['it' => 'Donazione ricorrente nascosta'],
+            'is_active' => false,
+        ]);
+
+        $this->get('/it/donazioni')
+            ->assertOk()
+            ->assertDontSee('Donazione ricorrente nascosta');
     }
 
     public function test_donations_index_shows_fundraising_progress_bar(): void

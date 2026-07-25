@@ -36,13 +36,16 @@ class BootstrapProductionContentSeederTest extends TestCase
         DonationCampaign::query()->where('slug', 'operazione-inverno')->delete();
         DonationCampaign::query()->where('slug', 'mensa-solidale')->delete();
 
-        $this->assertSame(1, DonationCampaign::query()->count());
+        $this->assertSame(2, DonationCampaign::query()->count());
 
         $this->seed(BootstrapProductionContentSeeder::class);
 
-        $this->assertSame(1, DonationCampaign::query()->count());
+        $this->assertSame(2, DonationCampaign::query()->count());
         $this->assertTrue(
             DonationCampaign::query()->where('slug', 'safe-house')->exists(),
+        );
+        $this->assertTrue(
+            DonationCampaign::query()->where('slug', 'donazione-ricorrente')->exists(),
         );
     }
 

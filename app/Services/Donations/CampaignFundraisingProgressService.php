@@ -41,6 +41,10 @@ class CampaignFundraisingProgressService
 
     public function forCampaign(DonationCampaign $campaign): ?FundraisingProgress
     {
+        if ($campaign->allowsRecurring()) {
+            return null;
+        }
+
         if (! $this->isConfigured()) {
             return null;
         }

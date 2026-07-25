@@ -132,6 +132,8 @@ return [
         'index_title' => 'Sostieni Safe House',
         'index_lead' => 'Scegli come contribuire: 5 x 1000, bonifico bancario o raccolte online con Stripe.',
         'online_campaigns_heading' => 'Raccolte online',
+        'recurring_badge' => 'Donazione mensile',
+        'recurring_cta' => 'Sostieni ogni mese',
         'five_per_mille_cta' => 'Scopri come donare con il 5 x 1000',
         'copy_codice_fiscale' => 'Copia codice fiscale',
         'copy_iban' => 'Copia IBAN',

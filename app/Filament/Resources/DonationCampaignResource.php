@@ -18,6 +18,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 class DonationCampaignResource extends Resource
@@ -26,7 +27,8 @@ class DonationCampaignResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-heart';
 
-    protected static ?int $navigationSort = 1;
+    /** Below Donazioni ricorrenti (1) and 5 x 1000 / IBAN (2). */
+    protected static ?int $navigationSort = 3;
 
     public static function getNavigationGroup(): string|UnitEnum|null
     {
@@ -46,6 +48,11 @@ class DonationCampaignResource extends Resource
     public static function getPluralModelLabel(): string
     {
         return __('cms.models.donation_campaigns');
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->oneTime();
     }
 
     public static function form(Schema $schema): Schema
@@ -117,11 +124,6 @@ class DonationCampaignResource extends Resource
             Toggle::make('allow_custom_amount')
                 ->label(__('cms.fields.allow_custom_amount'))
                 ->default(true),
-            Toggle::make('allows_recurring')
-                ->label(__('cms.fields.allows_recurring'))
-                ->helperText(__('cms.helpers.allows_recurring'))
-                ->default(false)
-                ->live(),
             TextInput::make('min_amount_cents')
                 ->label(__('cms.fields.min_amount_cents'))
                 ->numeric()
@@ -136,7 +138,6 @@ class DonationCampaignResource extends Resource
                 ->label(__('cms.fields.fundraising_goal'))
                 ->helperText(__('cms.helpers.fundraising_goal'))
                 ->placeholder('700')
-                ->visible(fn ($get): bool => ! (bool) $get('allows_recurring'))
                 ->formatStateUsing(function ($state, ?DonationCampaign $record): ?string {
                     $cents = $record?->fundraising_goal_cents;
 
@@ -181,9 +182,6 @@ class DonationCampaignResource extends Resource
                     ->label(__('cms.fields.slug')),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label(__('cms.fields.is_active'))
-                    ->boolean(),
-                Tables\Columns\IconColumn::make('allows_recurring')
-                    ->label(__('cms.fields.allows_recurring'))
                     ->boolean(),
                 Tables\Columns\TextColumn::make('currency')
                     ->label(__('cms.fields.currency')),

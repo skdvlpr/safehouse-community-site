@@ -41,7 +41,7 @@ class DonationCampaignTest extends TestCase
 
         $recurring = new DonationCampaign([
             'allows_recurring' => true,
-            'fundraising_goal_cents' => null,
+            'fundraising_goal_cents' => 50000,
         ]);
         $this->assertTrue($recurring->allowsRecurring());
         $this->assertFalse($recurring->hasFundraisingGoal());
