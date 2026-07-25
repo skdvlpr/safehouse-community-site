@@ -25,7 +25,7 @@ class EspoCrmPartyResolverTest extends TestCase
         $client->method('search')
             ->willReturnCallback(function (string $entityType, array $params): array {
                 if ($entityType === 'Contact' && ($params['where'][0]['attribute'] ?? '') === 'emailAddress') {
-                    return ['total' => 1, 'list' => [['id' => 'contact-by-email', 'name' => 'Other Name']]];
+                    return ['total' => 1, 'list' => [['id' => 'contact-by-email', 'name' => 'Other Name', 'emailAddress' => 'mario@example.com', 'phoneNumber' => null]]];
                 }
 
                 return ['total' => 0, 'list' => []];
@@ -41,6 +41,40 @@ class EspoCrmPartyResolverTest extends TestCase
             donorName: 'Mario Rossi',
             donorType: 'individual',
             donorEmail: 'mario@example.com',
+        )));
+    }
+
+    public function test_backfills_missing_phone_when_matched_by_email(): void
+    {
+        $client = $this->createMock(EspoCrmClient::class);
+        $client->method('search')
+            ->willReturnCallback(function (string $entityType, array $params): array {
+                if ($entityType === 'Contact' && ($params['where'][0]['attribute'] ?? '') === 'emailAddress') {
+                    return ['total' => 1, 'list' => [[
+                        'id' => 'contact-email-only',
+                        'name' => 'Mario Rossi',
+                        'emailAddress' => 'mario@example.com',
+                        'phoneNumber' => null,
+                    ]]];
+                }
+
+                return ['total' => 0, 'list' => []];
+            });
+        $client->expects($this->once())
+            ->method('update')
+            ->with('Contact', 'contact-email-only', ['phoneNumber' => '+393331112222']);
+
+        $resolver = new EspoCrmPartyResolver($client);
+
+        $this->assertSame([
+            'subjectName' => 'Mario Rossi',
+            'subjectPartyId' => 'contact-email-only',
+            'subjectPartyType' => 'Contact',
+        ], $resolver->resolveSubjectPartyFields($this->payload(
+            donorName: 'Mario Rossi',
+            donorType: 'individual',
+            donorEmail: 'mario@example.com',
+            donorPhone: '+393331112222',
         )));
     }
 
@@ -270,7 +304,7 @@ class EspoCrmPartyResolverTest extends TestCase
     private function searchArgs(string $name): array
     {
         return [
-            'select' => 'id,name',
+            'select' => 'id,name,emailAddress,phoneNumber',
             'maxSize' => 5,
             'orderBy' => 'id',
             'order' => 'asc',
@@ -298,7 +332,10 @@ class EspoCrmPartyResolverTest extends TestCase
         return new DonationIngestPayload(
             provider: 'stripe',
             externalId: 'pi_party_test',
-            amount: 10,
+            amountGross: 10,
+            commissionAmount: 0,
+            commissionPercent: 0,
+            netAmount: 10,
             currency: 'EUR',
             campaignTitle: 'Raccolta',
             donorName: $donorName,

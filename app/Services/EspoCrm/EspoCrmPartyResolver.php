@@ -110,6 +110,8 @@ class EspoCrmPartyResolver
         }
 
         if ($count === 1) {
+            $this->backfillMissingChannels($entityType, $matches[0], $email, $phone);
+
             return [
                 $prefix.'Name' => $name,
                 $prefix.'PartyId' => $matches[0]['id'],
@@ -135,7 +137,43 @@ class EspoCrmPartyResolver
     }
 
     /**
-     * @return list<array{id: string}>
+     * @param  array{id: string, emailAddress?: string|null, phoneNumber?: string|null}  $match
+     */
+    private function backfillMissingChannels(
+        string $entityType,
+        array $match,
+        ?string $email,
+        ?string $phone,
+    ): void {
+        $patch = [];
+
+        $existingEmail = trim((string) ($match['emailAddress'] ?? ''));
+        if ($existingEmail === '' && $email !== null && trim($email) !== '') {
+            $patch['emailAddress'] = trim($email);
+        }
+
+        $existingPhone = trim((string) ($match['phoneNumber'] ?? ''));
+        if ($existingPhone === '' && $phone !== null && trim($phone) !== '') {
+            $patch['phoneNumber'] = trim($phone);
+        }
+
+        if ($patch === []) {
+            return;
+        }
+
+        try {
+            $this->client->update($entityType, $match['id'], $patch);
+        } catch (RuntimeException $exception) {
+            Log::warning("EspoCRM could not backfill {$entityType} contact channels.", [
+                'id' => $match['id'],
+                'patch' => array_keys($patch),
+                'error' => $exception->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * @return list<array{id: string, emailAddress?: string|null, phoneNumber?: string|null}>
      */
     private function findMatches(
         string $entityType,
@@ -171,7 +209,7 @@ class EspoCrmPartyResolver
     }
 
     /**
-     * @return list<array{id: string}>
+     * @return list<array{id: string, emailAddress?: string|null, phoneNumber?: string|null}>
      */
     private function findByPhone(string $entityType, string $e164Phone): array
     {
@@ -189,13 +227,13 @@ class EspoCrmPartyResolver
     }
 
     /**
-     * @return list<array{id: string}>
+     * @return list<array{id: string, emailAddress?: string|null, phoneNumber?: string|null}>
      */
     private function findByField(string $entityType, string $attribute, string $value): array
     {
         try {
             $result = $this->client->search($entityType, [
-                'select' => 'id,name',
+                'select' => 'id,name,emailAddress,phoneNumber',
                 'maxSize' => 5,
                 'orderBy' => 'id',
                 'order' => 'asc',
@@ -229,7 +267,7 @@ class EspoCrmPartyResolver
 
     /**
      * @param  array<string, mixed>  $result
-     * @return list<array{id: string}>
+     * @return list<array{id: string, emailAddress?: string|null, phoneNumber?: string|null}>
      */
     private function extractMatches(array $result): array
     {
@@ -245,21 +283,28 @@ class EspoCrmPartyResolver
             }
 
             $id = $row['id'] ?? null;
+            if (! is_string($id) || $id === '') {
+                return null;
+            }
 
-            return is_string($id) && $id !== '' ? ['id' => $id] : null;
+            return [
+                'id' => $id,
+                'emailAddress' => is_string($row['emailAddress'] ?? null) ? $row['emailAddress'] : null,
+                'phoneNumber' => is_string($row['phoneNumber'] ?? null) ? $row['phoneNumber'] : null,
+            ];
         }, $list)));
 
         return $this->sortMatchesById($matches);
     }
 
     /**
-     * @return list<array{id: string}>
+     * @return list<array{id: string, emailAddress?: string|null, phoneNumber?: string|null}>
      */
     private function findByExactName(string $entityType, string $name): array
     {
         try {
             $result = $this->client->search($entityType, [
-                'select' => 'id,name',
+                'select' => 'id,name,emailAddress,phoneNumber',
                 'maxSize' => 5,
                 'orderBy' => 'id',
                 'order' => 'asc',
@@ -292,8 +337,8 @@ class EspoCrmPartyResolver
     }
 
     /**
-     * @param  list<array{id: string}>  $matches
-     * @return list<array{id: string}>
+     * @param  list<array{id: string, emailAddress?: string|null, phoneNumber?: string|null}>  $matches
+     * @return list<array{id: string, emailAddress?: string|null, phoneNumber?: string|null}>
      */
     private function sortMatchesById(array $matches): array
     {
