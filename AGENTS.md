@@ -73,8 +73,11 @@ ddev start
 # → https://safehouse-community-site.ddev.site
 ddev composer install
 ddev npm install && ddev npm run build
+# or: bash bin/dev-rebuild-frontend.sh
 ddev exec php artisan migrate --seed   # agents run automatically after migration/seeder changes
 ```
+
+`public/build/` is gitignored. After pull (or when CSS/JS looks stale — e.g. missing `.nav-link--highlight` on 5 x 1000), run `bash bin/dev-rebuild-frontend.sh` (or `ddev npm run build`). Filament → Settings → Developer tools can clear Laravel caches; it does not rebuild Vite.
 
 **Agent rule:** Never finish a task that touched `database/migrations/` or `database/seeders/` without running `ddev exec php artisan migrate` (or `migrate --seed`) in the same session. Do not ask the user to run migrations unless DDEV is down.
 
