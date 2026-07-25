@@ -93,6 +93,7 @@ class DonationCampaignController extends Controller
             'donorName' => mb_substr($donorName, 0, 255),
             'thankYouHeading' => $campaign->thankYouHeading($donorName),
             'thankYouBody' => $campaign->thankYouBody($locale),
+            'isRecurring' => $campaign->allowsRecurring(),
         ]);
     }
 }

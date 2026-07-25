@@ -6,6 +6,7 @@
     $formNotice = $campaign->getTranslation('form_notice', $locale, false) ?: $campaign->getTranslation('form_notice', 'it');
     $description = $campaign->getTranslation('description', $locale, false);
     $presets = $campaign->presetAmountCents();
+    $isRecurring = $campaign->allowsRecurring();
 @endphp
 
 @section('title', $title)
@@ -17,8 +18,14 @@
         </p>
     @endif
 
-    <form id="donation-form" class="space-y-6 rounded-3xl border border-white/10 bg-safehouse-modal p-6 shadow-xl sm:p-8">
+    <form id="donation-form" class="space-y-6 rounded-3xl border border-white/10 bg-safehouse-modal p-6 shadow-xl sm:p-8"
+          data-recurring="{{ $isRecurring ? '1' : '0' }}">
         <header class="space-y-3">
+            @if ($isRecurring)
+                <p class="text-sm font-semibold uppercase tracking-wider text-safehouse-primary">
+                    {{ __('site.donations.recurring_frequency_badge') }}
+                </p>
+            @endif
             <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">{{ $title }}</h1>
             @if (! empty($fundraisingProgress))
                 @include('donations.partials.fundraising-progress', ['progress' => $fundraisingProgress])
@@ -31,6 +38,17 @@
         </header>
 
         @csrf
+
+        @if ($isRecurring)
+            <aside class="rounded-2xl border border-safehouse-primary/35 bg-safehouse-primary/10 p-4 sm:p-5" role="note">
+                <h2 class="mb-2 text-sm font-semibold text-safehouse-primary">
+                    {{ __('site.donations.cancel_notice_title') }}
+                </h2>
+                <p class="text-sm leading-relaxed text-safehouse-muted">
+                    {{ __('site.donations.cancel_notice_body') }}
+                </p>
+            </aside>
+        @endif
 
         <div class="space-y-3">
             <span class="block text-sm font-medium">{{ __('Tipo di donatore') }}</span>
@@ -74,7 +92,14 @@
         </div>
 
         <div class="space-y-3">
-            <span class="block text-sm font-medium">{{ __('Importo') }} ({{ strtoupper($campaign->currency) }})</span>
+            <span class="block text-sm font-medium">
+                @if ($isRecurring)
+                    {{ __('site.donations.amount_monthly_label') }}
+                @else
+                    {{ __('Importo') }}
+                @endif
+                ({{ strtoupper($campaign->currency) }})
+            </span>
 
             @if (count($presets) > 0)
                 <div class="grid grid-cols-2 gap-2 sm:grid-cols-3" id="preset-buttons">
@@ -82,7 +107,7 @@
                         <button type="button"
                                 data-cents="{{ $cents }}"
                                 class="preset-btn rounded-2xl border border-white/10 bg-safehouse-page/70 px-3 py-3 text-sm font-semibold transition hover:border-safehouse-primary/40">
-                            {{ $campaign->formatPresetLabel($cents) }}
+                            {{ $campaign->formatPresetLabel($cents) }}@if ($isRecurring)<span class="ms-1 font-normal text-safehouse-muted">{{ __('site.donations.preset_per_month_suffix') }}</span>@endif
                         </button>
                     @endforeach
                 </div>
@@ -96,7 +121,7 @@
                            min="{{ number_format($campaign->min_amount_cents / 100, 2, '.', '') }}"
                            step="0.01"
                            inputmode="decimal"
-                           aria-label="{{ __('Importo personalizzato') }}"
+                           aria-label="{{ $isRecurring ? __('site.donations.amount_monthly_label') : __('Importo personalizzato') }}"
                            placeholder="0,00"
                            class="w-full rounded-2xl border border-white/10 bg-safehouse-page py-3 pe-16 ps-4 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
                     <span class="pointer-events-none absolute inset-y-0 end-4 flex items-center text-sm font-medium text-safehouse-muted">
@@ -106,12 +131,20 @@
             @endif
 
             <p class="text-xs text-safehouse-muted">
-                {{ __('Minimo') }}: {{ $campaign->formatPresetLabel($campaign->min_amount_cents) }}
+                {{ __('Minimo') }}: {{ $campaign->formatPresetLabel($campaign->min_amount_cents) }}@if ($isRecurring) {{ __('site.donations.preset_per_month_suffix') }}@endif
             </p>
         </div>
 
         @if ($formNotice)
             <p class="rounded-2xl border border-white/10 bg-safehouse-page/70 p-4 text-sm text-safehouse-muted">{{ $formNotice }}</p>
+        @endif
+
+        @if ($isRecurring)
+            <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-safehouse-page/70 p-4 text-sm leading-relaxed">
+                <input id="recurring_cancel_ack" name="recurring_cancel_ack" type="checkbox" value="1"
+                       class="mt-1 size-4 shrink-0 rounded border-white/20 bg-safehouse-page text-safehouse-primary focus:ring-safehouse-primary/40">
+                <span>{{ __('site.donations.cancel_ack_label') }}</span>
+            </label>
         @endif
 
         <p class="text-xs leading-relaxed text-safehouse-muted">
@@ -145,7 +178,11 @@
 
         <button type="submit" id="submit-button"
                 class="safehouse-btn-primary w-full rounded-2xl px-4 py-3.5 text-base font-semibold disabled:opacity-50">
-            {{ __('Continua al pagamento') }}
+            @if ($isRecurring)
+                {{ __('site.donations.continue_monthly_payment') }}
+            @else
+                {{ __('Continua al pagamento') }}
+            @endif
         </button>
     </form>
 @endsection
@@ -172,6 +209,8 @@
     const intentUrl = @json(route('api.donations.intents.store', ['donationCampaign' => $campaign->slug]));
     const thankYouBaseUrl = @json(route('donations.thank-you', ['locale' => $locale, 'campaignSlug' => $campaign->slug]));
     const stripeMock = @json($stripeMock);
+    const isRecurring = form?.dataset.recurring === '1';
+    const recurringAck = document.getElementById('recurring_cancel_ack');
     let stripe = null;
     let elements = null;
     let paymentElement = null;
@@ -376,6 +415,12 @@
         const amountCents = resolveAmountCents();
         if (!amountCents) {
             showError(@json(__('Seleziona o inserisci un importo.')));
+            submitButton.disabled = false;
+            return;
+        }
+
+        if (isRecurring && recurringAck && ! recurringAck.checked) {
+            showError(@json(__('site.donations.cancel_ack_required')));
             submitButton.disabled = false;
             return;
         }

@@ -21,6 +21,17 @@
             {{ $thankYouBody }}
         </p>
 
+        @if (! empty($isRecurring))
+            <aside class="mx-auto mt-8 max-w-xl rounded-2xl border border-safehouse-primary/35 bg-safehouse-primary/10 p-4 text-start sm:p-5" role="note">
+                <h2 class="mb-2 text-sm font-semibold text-safehouse-primary">
+                    {{ __('site.donations.thank_you_cancel_title') }}
+                </h2>
+                <p class="text-sm leading-relaxed text-safehouse-muted">
+                    {{ __('site.donations.thank_you_cancel_body') }}
+                </p>
+            </aside>
+        @endif
+
         @if (! empty($paymentIntentId))
             <div class="mx-auto mt-8 max-w-xl rounded-2xl border border-white/10 bg-safehouse-page/80 p-4 text-start">
                 <p class="mb-2 text-xs font-medium uppercase tracking-wide text-safehouse-muted">
