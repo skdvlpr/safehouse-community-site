@@ -43,6 +43,7 @@ class MockStripePaymentService extends StripePaymentService
             'currency' => strtolower($campaign->currency),
             'metadata' => $this->metadata($campaign, $donorName, $donorType, $comment, $donorEmail, $donorPhone),
             'status' => 'requires_payment_method',
+            'created' => now('UTC')->timestamp,
         ]);
 
         return [

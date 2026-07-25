@@ -81,7 +81,46 @@ class StripeWebhookDonationTest extends TestCase
                 && ($payload['beneficiaryPartyId'] ?? '') === 'acc-safe-house'
                 && ($payload['beneficiaryPartyType'] ?? '') === 'Account'
                 && ($payload['financingId'] ?? '') === 'opp-webhook'
+                && ($payload['transactionDate'] ?? '') === '2026-07-02'
                 && ! array_key_exists('createSubjectAccount', $payload);
+        });
+    }
+
+    public function test_delayed_webhook_uses_payment_intent_created_date_not_now(): void
+    {
+        Carbon::setTestNow('2026-07-10T18:00:00+00:00');
+
+        $campaign = DonationCampaign::factory()->create([
+            'espocrm_finanziamento_name' => 'Raccolta Safe House 2026',
+        ]);
+
+        $intent = $this->paymentIntent([
+            'id' => 'pi_delayed_date',
+            'amount' => 2500,
+            'amount_received' => 2500,
+            'created' => Carbon::parse('2026-07-01T09:15:00+00:00')->timestamp,
+            'metadata' => [
+                'campaign_id' => (string) $campaign->id,
+                'donor_name' => 'Delayed Donor',
+                'donor_type' => 'individual',
+                'donor_email' => 'delayed@example.com',
+            ],
+        ]);
+
+        $this->fakeCrmForSuccessfulIngest('opp-delayed', 'pn-delayed', subjectContactMatches: 0, beneficiaryAccountId: 'acc-safe-house');
+        $this->mockStripeWebhook($intent);
+
+        $this->postStripeWebhook('{"id":"evt_delayed"}', 'sig_test')->assertOk();
+
+        Http::assertSent(function ($request): bool {
+            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota')) {
+                return false;
+            }
+
+            $payload = $request->data();
+
+            return ($payload['donationPaymentReference'] ?? '') === '#pi_delayed_date'
+                && ($payload['transactionDate'] ?? '') === '2026-07-01';
         });
     }
 
@@ -256,6 +295,7 @@ class StripeWebhookDonationTest extends TestCase
             'amount' => 1000,
             'amount_received' => 1000,
             'currency' => 'eur',
+            'created' => Carbon::parse('2026-07-02T12:00:00+00:00')->timestamp,
             'metadata' => [],
         ], $overrides));
     }
