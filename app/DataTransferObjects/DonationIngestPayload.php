@@ -9,7 +9,10 @@ readonly class DonationIngestPayload
     public function __construct(
         public string $provider,
         public string $externalId,
-        public float $amount,
+        public float $amountGross,
+        public float $commissionAmount,
+        public float $commissionPercent,
+        public float $netAmount,
         public string $currency,
         public string $campaignTitle,
         public string $donorName,
@@ -20,6 +23,42 @@ readonly class DonationIngestPayload
         public ?string $donorEmail = null,
         public ?string $donorPhone = null,
     ) {}
+
+    /**
+     * Backward-compatible helper for tests: zero Stripe fee, net = gross.
+     */
+    public static function withGrossOnly(
+        string $provider,
+        string $externalId,
+        float $gross,
+        string $currency,
+        string $campaignTitle,
+        string $donorName,
+        ?string $comment,
+        ?string $donorType,
+        string $donatedAt,
+        ?float $financingGoalAmount = null,
+        ?string $donorEmail = null,
+        ?string $donorPhone = null,
+    ): self {
+        return new self(
+            provider: $provider,
+            externalId: $externalId,
+            amountGross: $gross,
+            commissionAmount: 0.0,
+            commissionPercent: 0.0,
+            netAmount: $gross,
+            currency: $currency,
+            campaignTitle: $campaignTitle,
+            donorName: $donorName,
+            comment: $comment,
+            donorType: $donorType,
+            donatedAt: $donatedAt,
+            financingGoalAmount: $financingGoalAmount,
+            donorEmail: $donorEmail,
+            donorPhone: $donorPhone,
+        );
+    }
 
     public function platformLabel(): string
     {

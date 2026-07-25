@@ -70,6 +70,9 @@ class DonationIngestServiceTest extends TestCase
                 && ! array_key_exists('description', $payload)
                 && ($payload['entryType'] ?? '') === 'Income'
                 && ($payload['amount'] ?? null) === 15.0
+                && ($payload['amountGross'] ?? null) === 15.0
+                && ($payload['commissionAmount'] ?? null) === 0.0
+                && ($payload['commissionPercent'] ?? null) === 0.0
                 && ($payload['subjectName'] ?? '') === 'Anna Bianchi'
                 && ($payload['createSubjectAccount'] ?? false) === true
                 && ($payload['subjectEmailAddress'] ?? '') === 'anna@example.com'
@@ -97,7 +100,10 @@ class DonationIngestServiceTest extends TestCase
         app(DonationIngestService::class)->ingest(new DonationIngestPayload(
             provider: 'stripe',
             externalId: 'pi_repeat_contact',
-            amount: 5,
+            amountGross: 5,
+            commissionAmount: 0,
+            commissionPercent: 0,
+            netAmount: 5,
             currency: 'EUR',
             campaignTitle: 'Camp',
             donorName: 'Luigi Verdi',
@@ -168,7 +174,10 @@ class DonationIngestServiceTest extends TestCase
         $result = app(DonationIngestService::class)->ingest(new DonationIngestPayload(
             provider: 'stripe',
             externalId: 'pi_goal_fin',
-            amount: 10,
+            amountGross: 10,
+            commissionAmount: 0,
+            commissionPercent: 0,
+            netAmount: 10,
             currency: 'EUR',
             campaignTitle: 'Nuova raccolta',
             donorName: 'Paolo Neri',
@@ -230,7 +239,10 @@ class DonationIngestServiceTest extends TestCase
         $result = app(DonationIngestService::class)->ingest(new DonationIngestPayload(
             provider: 'stripe',
             externalId: 'pi_missing_fin',
-            amount: 10,
+            amountGross: 10,
+            commissionAmount: 0,
+            commissionPercent: 0,
+            netAmount: 10,
             currency: 'EUR',
             campaignTitle: 'Nuova raccolta',
             donorName: 'Paolo Neri',
@@ -261,7 +273,10 @@ class DonationIngestServiceTest extends TestCase
         $result = app(DonationIngestService::class)->ingest(new DonationIngestPayload(
             provider: 'stripe',
             externalId: 'pi_dup',
-            amount: 5,
+            amountGross: 5,
+            commissionAmount: 0,
+            commissionPercent: 0,
+            netAmount: 5,
             currency: 'EUR',
             campaignTitle: 'Any',
             donorName: 'Repeat',
@@ -287,7 +302,10 @@ class DonationIngestServiceTest extends TestCase
         app(DonationIngestService::class)->ingest(new DonationIngestPayload(
             provider: 'stripe',
             externalId: 'pi_anon',
-            amount: 5,
+            amountGross: 5,
+            commissionAmount: 0,
+            commissionPercent: 0,
+            netAmount: 5,
             currency: 'EUR',
             campaignTitle: 'Anon raccolta',
             donorName: '   ',
@@ -322,7 +340,10 @@ class DonationIngestServiceTest extends TestCase
         return app(DonationIngestService::class)->ingest(new DonationIngestPayload(
             provider: 'stripe',
             externalId: 'pi_abc',
-            amount: 15,
+            amountGross: 15,
+            commissionAmount: 0,
+            commissionPercent: 0,
+            netAmount: 15,
             currency: 'EUR',
             campaignTitle: 'Raccolta fondi per Safe House',
             donorName: 'Anna Bianchi',

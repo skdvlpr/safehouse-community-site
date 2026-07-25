@@ -72,6 +72,11 @@ class MockStripePaymentService extends StripePaymentService
         }
 
         $stored['status'] = 'succeeded';
+        // Mock Stripe SoT: fee/net must be explicit on the stored intent (default fee 0 — never invent %).
+        $grossCents = (int) ($stored['amount_cents'] ?? 0);
+        $feeCents = (int) ($stored['fee_cents'] ?? 0);
+        $stored['fee_cents'] = $feeCents;
+        $stored['net_cents'] = (int) ($stored['net_cents'] ?? max(0, $grossCents - $feeCents));
         $this->storeIntent($paymentIntentId, $stored);
 
         return $mapper->fromMockStoredIntent($stored);

@@ -20,7 +20,10 @@ class DonationIngestPayloadTest extends TestCase
         $payload = new DonationIngestPayload(
             provider: 'stripe',
             externalId: 'pi_test_123',
-            amount: 25.5,
+            amountGross: 25.5,
+            commissionAmount: 0,
+            commissionPercent: 0,
+            netAmount: 25.5,
             currency: 'EUR',
             campaignTitle: 'Raccolta fondi',
             donorName: 'Mario Rossi',
@@ -45,7 +48,10 @@ class DonationIngestPayloadTest extends TestCase
         $payload = new DonationIngestPayload(
             provider: 'stripe',
             externalId: 'pi_anon',
-            amount: 10,
+            amountGross: 10,
+            commissionAmount: 0,
+            commissionPercent: 0,
+            netAmount: 10,
             currency: 'EUR',
             campaignTitle: 'Raccolta',
             donorName: '',

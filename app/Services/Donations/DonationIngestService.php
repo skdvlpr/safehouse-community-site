@@ -41,8 +41,13 @@ class DonationIngestService
         $createPayload = array_merge(
             [
                 'entryType' => (string) config('espocrm.prima_nota.entry_type'),
-                'amount' => $payload->amount,
+                'amount' => $payload->netAmount,
                 'amountCurrency' => $payload->currency,
+                'amountGross' => $payload->amountGross,
+                'amountGrossCurrency' => $payload->currency,
+                'commissionAmount' => $payload->commissionAmount,
+                'commissionAmountCurrency' => $payload->currency,
+                'commissionPercent' => $payload->commissionPercent,
                 'internalClassification' => (string) config('espocrm.prima_nota.internal_classification'),
                 'transactionDate' => Carbon::parse($payload->donatedAt)->toDateString(),
                 'financingId' => $financingId,

@@ -70,6 +70,9 @@ class StripeWebhookDonationTest extends TestCase
                 && ! array_key_exists('description', $payload)
                 && ($payload['entryType'] ?? '') === 'Income'
                 && ($payload['amount'] ?? null) === 50.0
+                && ($payload['amountGross'] ?? null) === 50.0
+                && ($payload['commissionAmount'] ?? null) === 0.0
+                && ($payload['commissionPercent'] ?? null) === 0.0
                 && ($payload['amountCurrency'] ?? '') === 'EUR'
                 && ($payload['internalClassification'] ?? '') === 'Donation'
                 && ($payload['subjectName'] ?? '') === 'Luigi Verdi'
@@ -194,6 +197,54 @@ class StripeWebhookDonationTest extends TestCase
             ->assertSee('CRM ingest failed');
     }
 
+    public function test_payment_intent_succeeded_writes_stripe_fee_fields_to_crm(): void
+    {
+        Carbon::setTestNow('2026-07-02T12:00:00+00:00');
+
+        $campaign = DonationCampaign::factory()->create([
+            'espocrm_finanziamento_name' => 'Raccolta Safe House 2026',
+        ]);
+
+        $intent = $this->paymentIntent([
+            'id' => 'pi_webhook_fee',
+            'amount' => 10000,
+            'amount_received' => 10000,
+            'metadata' => [
+                'campaign_id' => (string) $campaign->id,
+                'donor_name' => 'Fee Donor',
+                'donor_type' => 'individual',
+            ],
+        ]);
+
+        $this->fakeCrmForSuccessfulIngest('opp-fee', 'pn-fee', subjectContactMatches: 0, beneficiaryAccountId: 'acc-safe-house');
+        $this->mockStripeWebhook(
+            $intent,
+            \App\DataTransferObjects\StripeSettlementAmounts::fromCents([
+                'gross_cents' => 10000,
+                'fee_cents' => 290,
+                'net_cents' => 9710,
+                'currency' => 'eur',
+            ]),
+        );
+
+        $this->postStripeWebhook('{"id":"evt_fee"}', 'sig_test')
+            ->assertOk();
+
+        Http::assertSent(function ($request): bool {
+            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota')) {
+                return false;
+            }
+
+            $payload = $request->data();
+
+            return ($payload['amountGross'] ?? null) === 100.0
+                && ($payload['commissionAmount'] ?? null) === 2.9
+                && ($payload['commissionPercent'] ?? null) === 2.9
+                && ($payload['amount'] ?? null) === 97.1
+                && ($payload['donationPaymentProvider'] ?? '') === 'Stripe';
+        });
+    }
+
     /**
      * @param  array<string, mixed>  $overrides
      */
@@ -265,17 +316,28 @@ class StripeWebhookDonationTest extends TestCase
         });
     }
 
-    private function mockStripeWebhook(PaymentIntent $intent): void
-    {
+    private function mockStripeWebhook(
+        PaymentIntent $intent,
+        ?\App\DataTransferObjects\StripeSettlementAmounts $settlement = null,
+    ): void {
         $event = Event::constructFrom([
             'id' => 'evt_test',
             'type' => 'payment_intent.succeeded',
             'data' => ['object' => $intent->toArray()],
         ]);
 
+        $settlement ??= \App\DataTransferObjects\StripeSettlementAmounts::fromCents([
+            'gross_cents' => (int) ($intent->amount_received ?? $intent->amount),
+            'fee_cents' => 0,
+            'net_cents' => (int) ($intent->amount_received ?? $intent->amount),
+            'currency' => (string) $intent->currency,
+        ]);
+
         $mock = Mockery::mock(StripePaymentService::class);
         $mock->shouldReceive('constructWebhookEvent')->andReturn($event);
         $mock->shouldReceive('paymentIntentFromEvent')->with($event)->andReturn($intent);
+        $mock->shouldReceive('retrieveSettledPaymentIntent')->with($intent->id)->andReturn($intent);
+        $mock->shouldReceive('settlementFromPaymentIntent')->andReturn($settlement);
         $this->instance(StripePaymentService::class, $mock);
     }
 

@@ -57,6 +57,15 @@ class StripeDonationThankYouSyncTest extends TestCase
             ->once()
             ->with('pi_local_thank_you')
             ->andReturn($intent);
+        $mock->shouldReceive('settlementFromPaymentIntent')
+            ->once()
+            ->with($intent)
+            ->andReturn(\App\DataTransferObjects\StripeSettlementAmounts::fromCents([
+                'gross_cents' => 100,
+                'fee_cents' => 0,
+                'net_cents' => 100,
+                'currency' => 'eur',
+            ]));
         $this->instance(StripePaymentService::class, $mock);
 
         Http::fake(function ($request) {
@@ -126,6 +135,15 @@ class StripeDonationThankYouSyncTest extends TestCase
             ->once()
             ->with('pi_prod_fallback')
             ->andReturn($intent);
+        $mock->shouldReceive('settlementFromPaymentIntent')
+            ->once()
+            ->with($intent)
+            ->andReturn(\App\DataTransferObjects\StripeSettlementAmounts::fromCents([
+                'gross_cents' => 500,
+                'fee_cents' => 0,
+                'net_cents' => 500,
+                'currency' => 'eur',
+            ]));
         $this->instance(StripePaymentService::class, $mock);
 
         Http::fake(function ($request) {

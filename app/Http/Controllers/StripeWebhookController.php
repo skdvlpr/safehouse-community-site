@@ -30,13 +30,14 @@ class StripeWebhookController extends Controller
             return response($exception->getMessage(), 400);
         }
 
-        $intent = $this->stripePaymentService->paymentIntentFromEvent($event);
-        if ($intent === null) {
-            return response('Ignored', 200);
-        }
-
         try {
-            $this->donationIngestService->ingest($this->payloadMapper->fromPaymentIntent($intent));
+            $intent = $this->stripePaymentService->paymentIntentFromEvent($event);
+            if ($intent === null) {
+                return response('Ignored', 200);
+            }
+
+            $settledIntent = $this->stripePaymentService->retrieveSettledPaymentIntent($intent->id);
+            $this->donationIngestService->ingest($this->payloadMapper->fromPaymentIntent($settledIntent));
         } catch (RuntimeException $exception) {
             report($exception);
 

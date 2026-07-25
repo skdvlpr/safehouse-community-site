@@ -2,6 +2,7 @@
 
 namespace App\Services\Payments;
 
+use App\DataTransferObjects\StripeSettlementAmounts;
 use App\Models\DonationCampaign;
 use App\Support\IntegrationConfig;
 use RuntimeException;
@@ -91,12 +92,22 @@ class StripePaymentService
 
     public function retrievePaymentIntent(string $paymentIntentId): PaymentIntent
     {
+        return $this->retrieveSettledPaymentIntent($paymentIntentId);
+    }
+
+    /**
+     * PaymentIntent with latest_charge.balance_transaction expanded — Stripe fee/net SoT.
+     */
+    public function retrieveSettledPaymentIntent(string $paymentIntentId): PaymentIntent
+    {
         if ($this->client === null) {
             throw new RuntimeException('Stripe client is not configured.');
         }
 
         try {
-            $intent = $this->client->paymentIntents->retrieve($paymentIntentId);
+            $intent = $this->client->paymentIntents->retrieve($paymentIntentId, [
+                'expand' => ['latest_charge.balance_transaction'],
+            ]);
         } catch (ApiErrorException $exception) {
             throw new RuntimeException('Stripe payment intent lookup failed: '.$exception->getMessage(), 0, $exception);
         }
@@ -106,6 +117,71 @@ class StripePaymentService
         }
 
         return $intent;
+    }
+
+    /**
+     * Gross / fee / net from Stripe BalanceTransaction (never invented locally).
+     */
+    public function settlementFromPaymentIntent(PaymentIntent $intent): StripeSettlementAmounts
+    {
+        $grossCents = (int) ($intent->amount_received ?? $intent->amount);
+        $currency = (string) $intent->currency;
+        $feeCents = 0;
+        $netCents = $grossCents;
+
+        $charge = $intent->latest_charge;
+        if (is_string($charge) && $charge !== '' && $this->client !== null) {
+            try {
+                $charge = $this->client->charges->retrieve($charge, [
+                    'expand' => ['balance_transaction'],
+                ]);
+            } catch (ApiErrorException $exception) {
+                throw new RuntimeException('Stripe charge lookup failed: '.$exception->getMessage(), 0, $exception);
+            }
+        }
+
+        if (is_object($charge)) {
+            $balanceTransaction = $charge->balance_transaction ?? null;
+            if (is_string($balanceTransaction) && $balanceTransaction !== '' && $this->client !== null) {
+                try {
+                    $balanceTransaction = $this->client->balanceTransactions->retrieve($balanceTransaction);
+                } catch (ApiErrorException $exception) {
+                    throw new RuntimeException('Stripe balance transaction lookup failed: '.$exception->getMessage(), 0, $exception);
+                }
+            }
+            if (is_object($balanceTransaction)) {
+                $feeCents = (int) ($balanceTransaction->fee ?? 0);
+                $netCents = (int) ($balanceTransaction->net ?? ($grossCents - $feeCents));
+            }
+        }
+
+        return StripeSettlementAmounts::fromCents([
+            'gross_cents' => $grossCents,
+            'fee_cents' => $feeCents,
+            'net_cents' => $netCents,
+            'currency' => $currency,
+        ]);
+    }
+
+    /**
+     * Mock settlement: fee_cents/net_cents must come from the mock store (Stripe stand-in), never guessed %.
+     *
+     * @param  array<string, mixed>  $stored
+     */
+    public function settlementFromMockStoredIntent(array $stored): StripeSettlementAmounts
+    {
+        $grossCents = (int) ($stored['amount_cents'] ?? 0);
+        $feeCents = (int) ($stored['fee_cents'] ?? 0);
+        $netCents = array_key_exists('net_cents', $stored)
+            ? (int) $stored['net_cents']
+            : max(0, $grossCents - $feeCents);
+
+        return StripeSettlementAmounts::fromCents([
+            'gross_cents' => $grossCents,
+            'fee_cents' => $feeCents,
+            'net_cents' => $netCents,
+            'currency' => (string) ($stored['currency'] ?? 'eur'),
+        ]);
     }
 
     public function constructWebhookEvent(string $payload, ?string $signature): \Stripe\Event

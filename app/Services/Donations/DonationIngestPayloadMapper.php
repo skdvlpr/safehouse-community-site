@@ -3,31 +3,39 @@
 namespace App\Services\Donations;
 
 use App\DataTransferObjects\DonationIngestPayload;
+use App\DataTransferObjects\StripeSettlementAmounts;
 use App\Models\DonationCampaign;
+use App\Services\Payments\StripePaymentService;
 use App\Support\DonorContact;
 use Stripe\PaymentIntent;
 
 class DonationIngestPayloadMapper
 {
+    public function __construct(
+        private readonly StripePaymentService $stripePaymentService,
+    ) {}
+
     /**
-     * @param  array<string, mixed>  $metadata
+     * @param  array<string, mixed>  $stored
      */
     public function fromMockStoredIntent(array $stored): DonationIngestPayload
     {
+        $settlement = $this->stripePaymentService->settlementFromMockStoredIntent($stored);
+
         return $this->build(
             externalId: (string) $stored['payment_intent_id'],
-            amountCents: (int) $stored['amount_cents'],
-            currency: (string) $stored['currency'],
+            settlement: $settlement,
             metadata: (array) ($stored['metadata'] ?? []),
         );
     }
 
     public function fromPaymentIntent(PaymentIntent $intent): DonationIngestPayload
     {
+        $settlement = $this->stripePaymentService->settlementFromPaymentIntent($intent);
+
         return $this->build(
             externalId: $intent->id,
-            amountCents: (int) ($intent->amount_received ?? $intent->amount),
-            currency: (string) $intent->currency,
+            settlement: $settlement,
             metadata: $intent->metadata->toArray(),
         );
     }
@@ -35,7 +43,7 @@ class DonationIngestPayloadMapper
     /**
      * @param  array<string, mixed>  $metadata
      */
-    private function build(string $externalId, int $amountCents, string $currency, array $metadata): DonationIngestPayload
+    private function build(string $externalId, StripeSettlementAmounts $settlement, array $metadata): DonationIngestPayload
     {
         $campaignTitle = (string) ($metadata['campaign_title'] ?? 'Donazioni online');
         $financingGoalAmount = null;
@@ -51,8 +59,11 @@ class DonationIngestPayloadMapper
         return new DonationIngestPayload(
             provider: 'stripe',
             externalId: $externalId,
-            amount: $amountCents / 100,
-            currency: strtoupper($currency),
+            amountGross: $settlement->gross,
+            commissionAmount: $settlement->fee,
+            commissionPercent: $settlement->feePercent,
+            netAmount: $settlement->net,
+            currency: $settlement->currency,
             campaignTitle: $campaignTitle,
             donorName: (string) ($metadata['donor_name'] ?? ''),
             comment: isset($metadata['comment']) ? (string) $metadata['comment'] : null,
