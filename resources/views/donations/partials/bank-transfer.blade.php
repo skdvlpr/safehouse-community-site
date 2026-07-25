@@ -6,8 +6,8 @@
 @endphp
 
 @if ($donationSettings->bankTransferEnabled() && ($iban !== '' || $beneficiary !== ''))
-    <section class="donation-bank-transfer safehouse-glass mb-10 rounded-2xl p-6 md:p-8" aria-labelledby="bank-transfer-heading">
-        <h2 id="bank-transfer-heading" class="mb-3 text-xl font-semibold">
+    <section class="donation-feature-card donation-bank-transfer mb-8 rounded-2xl border border-safehouse-primary/40 bg-gradient-to-br from-safehouse-primary/20 via-safehouse-primary/5 to-transparent p-6 transition hover:border-safehouse-primary md:p-8" aria-labelledby="bank-transfer-heading">
+        <h2 id="bank-transfer-heading" class="mb-3 text-2xl font-semibold md:text-3xl">
             {{ $donationSettings->localized($bank, 'heading') }}
         </h2>
 
