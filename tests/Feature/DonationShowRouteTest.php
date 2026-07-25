@@ -29,12 +29,16 @@ class DonationShowRouteTest extends TestCase
             'is_active' => true,
         ]);
 
+        config()->set('stripe.customer_portal_login_url', 'https://billing.stripe.com/p/login/test_example');
+
         $this->get('/it/donazioni/donazione-ricorrente')
             ->assertOk()
             ->assertSee(__('site.donations.recurring_frequency_badge'), false)
             ->assertSee(__('site.donations.cancel_notice_title'), false)
             ->assertSee(__('site.donations.cancel_ack_label'), false)
             ->assertSee(__('site.donations.continue_monthly_payment'), false)
+            ->assertSee('https://billing.stripe.com/p/login/test_example', false)
+            ->assertSee(__('site.donations.cancel_portal_cta'), false)
             ->assertSee('data-recurring="1"', false);
     }
 
@@ -83,6 +87,8 @@ class DonationShowRouteTest extends TestCase
             'is_active' => true,
         ]);
 
+        config()->set('stripe.customer_portal_login_url', 'https://billing.stripe.com/p/login/test_thanks');
+
         $this->mock(StripeDonationThankYouSync::class, function ($mock): void {
             $mock->shouldReceive('ingestSucceededPaymentIntent')
                 ->once()
@@ -92,6 +98,8 @@ class DonationShowRouteTest extends TestCase
         $this->get('/it/donazioni/grazie-ricorrente/grazie?payment_intent=pi_recurring_1&donor_name=Anna')
             ->assertOk()
             ->assertSee(__('site.donations.thank_you_cancel_title'), false)
-            ->assertSee(__('site.donations.thank_you_cancel_body'), false);
+            ->assertSee(__('site.donations.thank_you_cancel_body'), false)
+            ->assertSee('https://billing.stripe.com/p/login/test_thanks', false)
+            ->assertSee(__('site.donations.thank_you_cancel_portal_cta'), false);
     }
 }

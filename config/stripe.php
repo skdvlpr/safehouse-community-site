@@ -29,6 +29,13 @@ return [
     'account_name' => env('STRIPE_ACCOUNT_NAME'),
 
     /*
+     * Public Customer Portal login page (Dashboard → Settings → Billing → Customer portal).
+     * Example: https://billing.stripe.com/p/login/test_… (test) or …/p/login/… (live).
+     * Shown on recurring donation form + thank-you for self-serve cancel.
+     */
+    'customer_portal_login_url' => env('STRIPE_CUSTOMER_PORTAL_LOGIN_URL'),
+
+    /*
      * Public webhook URL for production registration in Stripe Dashboard.
      * Local dev: use `stripe listen --forward-to …` instead.
      */

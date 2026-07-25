@@ -47,6 +47,9 @@
                 <p class="text-sm leading-relaxed text-safehouse-muted">
                     {{ __('site.donations.cancel_notice_body') }}
                 </p>
+                @include('donations.partials.stripe-customer-portal-link', [
+                    'customerPortalLoginUrl' => $customerPortalLoginUrl ?? null,
+                ])
             </aside>
         @endif
 

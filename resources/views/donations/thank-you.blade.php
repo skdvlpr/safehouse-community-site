@@ -29,6 +29,10 @@
                 <p class="text-sm leading-relaxed text-safehouse-muted">
                     {{ __('site.donations.thank_you_cancel_body') }}
                 </p>
+                @include('donations.partials.stripe-customer-portal-link', [
+                    'customerPortalLoginUrl' => $customerPortalLoginUrl ?? null,
+                    'ctaLabel' => __('site.donations.thank_you_cancel_portal_cta'),
+                ])
             </aside>
         @endif
 

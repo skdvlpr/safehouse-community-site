@@ -125,6 +125,12 @@ class ManageIntegrations extends Page
                             ->placeholder('Safe House Donorbox')
                             ->helperText(__('cms.helpers.stripe_account_name'))
                             ->maxLength(255),
+                        \Filament\Forms\Components\TextInput::make('stripe.customer_portal_login_url')
+                            ->label(__('cms.fields.customer_portal_login_url'))
+                            ->helperText(__('cms.helpers.customer_portal_login_url'))
+                            ->url()
+                            ->placeholder('https://billing.stripe.com/p/login/…')
+                            ->maxLength(500),
                     ]),
                 ]),
                 Tab::make(__('cms.integrations.espocrm'))->schema([

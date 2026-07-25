@@ -63,9 +63,14 @@ class StripePaymentService
                 'amount' => $amountCents,
                 'currency' => strtolower($campaign->currency),
                 'automatic_payment_methods' => ['enabled' => true],
-                'setup_future_usage' => 'off_session',
                 'metadata' => $this->metadata($campaign, $donorName, $donorType, $comment, $donorEmail, $donorPhone),
             ];
+
+            // Only recurring campaigns may ask Stripe to save the method for later invoices.
+            // Satispay and other redirect wallets often reject setup_future_usage on one-time PIs.
+            if ($campaign->allowsRecurring()) {
+                $payload['setup_future_usage'] = 'off_session';
+            }
 
             if ($donorEmail !== null && $donorEmail !== '') {
                 $payload['receipt_email'] = $donorEmail;

@@ -8,6 +8,7 @@ use App\Services\Donations\StripeDonationThankYouSync;
 use App\Services\DonationSettingsService;
 use App\Services\Payments\StripePaymentService;
 use App\Services\RecurringDonationCampaignService;
+use App\Support\IntegrationConfig;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -56,6 +57,7 @@ class DonationCampaignController extends Controller
             'fundraisingProgress' => $campaign->allowsRecurring()
                 ? null
                 : $progressService->forCampaign($campaign),
+            'customerPortalLoginUrl' => $this->customerPortalLoginUrl(),
         ]);
     }
 
@@ -94,6 +96,14 @@ class DonationCampaignController extends Controller
             'thankYouHeading' => $campaign->thankYouHeading($donorName),
             'thankYouBody' => $campaign->thankYouBody($locale),
             'isRecurring' => $campaign->allowsRecurring(),
+            'customerPortalLoginUrl' => $this->customerPortalLoginUrl(),
         ]);
+    }
+
+    private function customerPortalLoginUrl(): ?string
+    {
+        $url = trim(IntegrationConfig::string('stripe.customer_portal_login_url'));
+
+        return $url !== '' ? $url : null;
     }
 }

@@ -54,6 +54,12 @@ return [
             'encrypted' => false,
             'config' => 'stripe.account_name',
         ],
+        'stripe.customer_portal_login_url' => [
+            'label' => 'Stripe Customer Portal login URL',
+            'group' => 'stripe',
+            'encrypted' => false,
+            'config' => 'stripe.customer_portal_login_url',
+        ],
         'espocrm.base_url' => [
             'label' => 'CRM base URL',
             'group' => 'espocrm',
