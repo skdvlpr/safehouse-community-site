@@ -6,9 +6,9 @@ use App\Models\DonationCampaign;
 use App\Services\Donations\CampaignFundraisingProgressService;
 use App\Services\Donations\StripeDonationThankYouSync;
 use App\Services\DonationSettingsService;
+use App\Services\Payments\StripeCustomerPortalService;
 use App\Services\Payments\StripePaymentService;
 use App\Services\RecurringDonationCampaignService;
-use App\Support\IntegrationConfig;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -102,8 +102,6 @@ class DonationCampaignController extends Controller
 
     private function customerPortalLoginUrl(): ?string
     {
-        $url = trim(IntegrationConfig::string('stripe.customer_portal_login_url'));
-
-        return $url !== '' ? $url : null;
+        return StripeCustomerPortalService::fromConfig()->loginUrl();
     }
 }
