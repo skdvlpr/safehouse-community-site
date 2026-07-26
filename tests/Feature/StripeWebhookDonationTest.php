@@ -256,7 +256,7 @@ class StripeWebhookDonationTest extends TestCase
         });
     }
 
-    public function test_webhook_marks_prima_nota_cancelled_on_charge_refunded(): void
+    public function test_webhook_marks_prima_nota_refunded_on_charge_refunded(): void
     {
         Http::fake([
             'https://crm.test/api/v1/PrimaNota*' => Http::sequence()
@@ -266,7 +266,7 @@ class StripeWebhookDonationTest extends TestCase
                         ['id' => 'pn-ch-1', 'paymentStatus' => 'Paid'],
                     ],
                 ], 200)
-                ->push(['id' => 'pn-ch-1', 'paymentStatus' => 'Cancelled'], 200),
+                ->push(['id' => 'pn-ch-1', 'paymentStatus' => 'Refunded'], 200),
         ]);
 
         $event = Event::constructFrom([
@@ -291,7 +291,45 @@ class StripeWebhookDonationTest extends TestCase
         Http::assertSent(function ($request): bool {
             return $request->method() === 'PUT'
                 && str_contains($request->url(), '/api/v1/PrimaNota/pn-ch-1')
-                && ($request->data()['paymentStatus'] ?? null) === 'Cancelled';
+                && ($request->data()['paymentStatus'] ?? null) === 'Refunded';
+        });
+    }
+
+    public function test_webhook_marks_prima_nota_disputed_on_dispute_created(): void
+    {
+        Http::fake([
+            'https://crm.test/api/v1/PrimaNota*' => Http::sequence()
+                ->push([
+                    'total' => 1,
+                    'list' => [
+                        ['id' => 'pn-dsp-1', 'paymentStatus' => 'Paid'],
+                    ],
+                ], 200)
+                ->push(['id' => 'pn-dsp-1', 'paymentStatus' => 'Disputed'], 200),
+        ]);
+
+        $event = Event::constructFrom([
+            'id' => 'evt_dispute',
+            'type' => 'charge.dispute.created',
+            'data' => ['object' => [
+                'id' => 'dp_1',
+                'charge' => 'ch_dispute_1',
+                'status' => 'needs_response',
+            ]],
+        ]);
+
+        $mock = Mockery::mock(StripePaymentService::class);
+        $mock->shouldReceive('constructWebhookEvent')->andReturn($event);
+        $this->instance(StripePaymentService::class, $mock);
+
+        $this->postStripeWebhook('{}', 'sig')
+            ->assertOk()
+            ->assertSee('OK');
+
+        Http::assertSent(function ($request): bool {
+            return $request->method() === 'PUT'
+                && str_contains($request->url(), '/api/v1/PrimaNota/pn-dsp-1')
+                && ($request->data()['paymentStatus'] ?? null) === 'Disputed';
         });
     }
 

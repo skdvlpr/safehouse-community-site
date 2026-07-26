@@ -80,7 +80,6 @@ class UserResource extends Resource
                 ->label(__('cms.fields.role'))
                 ->options($roleOptions)
                 ->required()
-                ->dehydrated(false)
                 ->default(fn (?User $record): ?string => $record?->roles->first()?->name),
         ]);
     }

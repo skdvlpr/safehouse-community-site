@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Stripe\Event;
 
 /**
- * Maps Stripe cancel / failure / refund events onto PrimaNota.paymentStatus.
+ * Maps Stripe cancel / failure / refund / dispute events onto PrimaNota.paymentStatus.
  */
 class PrimaNotaPaymentStatusService
 {
@@ -16,6 +16,10 @@ class PrimaNotaPaymentStatusService
     public const STATUS_PAID = 'Paid';
 
     public const STATUS_CANCELLED = 'Cancelled';
+
+    public const STATUS_REFUNDED = 'Refunded';
+
+    public const STATUS_DISPUTED = 'Disputed';
 
     public const STATUS_PROBLEMATIC = 'Problematic';
 
@@ -50,6 +54,11 @@ class PrimaNotaPaymentStatusService
             ),
             'invoice.payment_failed' => $this->handleInvoicePaymentFailed($object),
             'charge.refunded' => $this->handleChargeRefunded($object),
+            'charge.dispute.created',
+            'charge.dispute.updated',
+            'charge.dispute.funds_withdrawn' => $this->handleDisputeOpen($object),
+            'charge.dispute.closed' => $this->handleDisputeClosed($object),
+            'charge.dispute.funds_reinstated' => $this->handleDisputeFundsReinstated($object),
             default => $this->result(false, 0, null, 'unhandled_type'),
         };
     }
@@ -77,7 +86,7 @@ class PrimaNotaPaymentStatusService
         $amount = (int) ($charge->amount ?? 0);
         $status = ($amount > 0 && $amountRefunded > 0 && $amountRefunded < $amount)
             ? self::STATUS_PROBLEMATIC
-            : self::STATUS_CANCELLED;
+            : self::STATUS_REFUNDED;
 
         if ($chargeId !== '') {
             $updated = $this->updateByAttributeEquals('stripeChargeId', $chargeId, $status);
@@ -91,6 +100,46 @@ class PrimaNotaPaymentStatusService
         }
 
         return $this->result(true, 0, $status, 'no_match_key');
+    }
+
+    private function handleDisputeOpen(object $dispute): array
+    {
+        return $this->updateByDisputeCharge($dispute, self::STATUS_DISPUTED);
+    }
+
+    private function handleDisputeClosed(object $dispute): array
+    {
+        $status = (string) ($dispute->status ?? '');
+
+        // won / warning_closed → money kept → Paid again
+        // lost → funds stay with cardholder → Disputed (terminal loss)
+        $paymentStatus = match ($status) {
+            'won', 'warning_closed' => self::STATUS_PAID,
+            'lost' => self::STATUS_DISPUTED,
+            default => self::STATUS_DISPUTED,
+        };
+
+        return $this->updateByDisputeCharge($dispute, $paymentStatus);
+    }
+
+    private function handleDisputeFundsReinstated(object $dispute): array
+    {
+        return $this->updateByDisputeCharge($dispute, self::STATUS_PAID);
+    }
+
+    /**
+     * @return array{handled: bool, updated: int, status: ?string, reason: ?string}
+     */
+    private function updateByDisputeCharge(object $dispute, string $status): array
+    {
+        $chargeId = (string) ($dispute->charge ?? '');
+        if ($chargeId === '') {
+            return $this->result(true, 0, $status, 'empty_charge');
+        }
+
+        $updated = $this->updateByAttributeEquals('stripeChargeId', $chargeId, $status);
+
+        return $this->result(true, $updated, $status, $updated > 0 ? null : 'not_found');
     }
 
     /**
