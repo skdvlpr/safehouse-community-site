@@ -1,5 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
+$__root = dirname(__DIR__);
+$__real = realpath($__root) ?: $__root;
+if (str_starts_with($__real, '/var/www/safehouse-community-site')) {
+    fwrite(STDERR, "REFUSED: blocked on production site.\n");
+    exit(78);
+}
+$__env = $__root . '/.env';
+if (is_file($__env) && preg_match('/(?m)^APP_URL=.*safehouse\.community/i', (string) file_get_contents($__env))) {
+    fwrite(STDERR, "REFUSED: blocked on production site (APP_URL).\n");
+    exit(78);
+}
+
+
+
 require __DIR__.'/../vendor/autoload.php';
 
 $app = require __DIR__.'/../bootstrap/app.php';
