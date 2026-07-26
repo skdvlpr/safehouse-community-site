@@ -366,6 +366,15 @@ class StripePaymentService
                 }
             }
 
+            // CRM stores method as enum — unknown Stripe types map to "other".
+            $allowedMethods = [
+                'card', 'link', 'bancontact', 'eps', 'ideal', 'sepa_debit',
+                'paypal', 'amazon_pay', 'satispay', 'mb_way', 'klarna', 'other',
+            ];
+            if ($methodType !== null && $methodType !== '' && ! in_array($methodType, $allowedMethods, true)) {
+                $methodType = 'other';
+            }
+
             $billing = $charge->billing_details ?? null;
             if (is_object($billing)) {
                 $billingEmail = isset($billing->email) && is_string($billing->email) ? $billing->email : null;
@@ -375,6 +384,9 @@ class StripePaymentService
             $outcome = $charge->outcome ?? null;
             if (is_object($outcome) && isset($outcome->risk_level) && is_string($outcome->risk_level)) {
                 $riskLevel = $outcome->risk_level;
+                if (! in_array($riskLevel, ['normal', 'elevated', 'highest'], true)) {
+                    $riskLevel = null;
+                }
             }
         }
 
