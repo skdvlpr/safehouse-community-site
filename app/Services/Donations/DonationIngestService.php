@@ -27,11 +27,18 @@ class DonationIngestService
         if ($existing !== null) {
             $existingId = (string) ($existing['id'] ?? '');
             if ($existingId !== '' && $this->shouldBackfillIncompleteStripeRow($existing, $payload)) {
-                $this->client->update(
-                    (string) config('espocrm.prima_nota.entity'),
-                    $existingId,
-                    $this->settlementAndEnrichmentPayload($payload),
-                );
+                $existingChargeId = trim((string) ($existing['stripeChargeId'] ?? ''));
+                $updatePayload = $existingChargeId === ''
+                    ? $this->settlementAndEnrichmentPayload($payload)
+                    : $this->gapFillEnrichmentPayload($existing, $payload);
+
+                if ($updatePayload !== []) {
+                    $this->client->update(
+                        (string) config('espocrm.prima_nota.entity'),
+                        $existingId,
+                        $updatePayload,
+                    );
+                }
 
                 return [
                     'status' => 'backfilled',
@@ -180,6 +187,56 @@ class DonationIngestService
             && trim($payload->donorPhone) !== ''
         ) {
             return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Only attributes that are empty on the existing row and present on the payload.
+     * Never re-sends money/settlement fields once charge id exists.
+     *
+     * @param  array<string, mixed>  $existing
+     * @return array<string, mixed>
+     */
+    private function gapFillEnrichmentPayload(array $existing, DonationIngestPayload $payload): array
+    {
+        $fields = [];
+        $incoming = $payload->stripeEnrichment?->toPrimaNotaFields() ?? [];
+
+        foreach ($incoming as $field => $value) {
+            if ($this->isBlank($existing[$field] ?? null) && ! $this->isBlank($value)) {
+                $fields[$field] = $value;
+            }
+        }
+
+        if (
+            $this->isBlank($existing['subjectEmailAddress'] ?? null)
+            && $payload->donorEmail !== null
+            && trim($payload->donorEmail) !== ''
+        ) {
+            $fields['subjectEmailAddress'] = trim($payload->donorEmail);
+        }
+
+        if (
+            $this->isBlank($existing['subjectPhoneNumber'] ?? null)
+            && $payload->donorPhone !== null
+            && trim($payload->donorPhone) !== ''
+        ) {
+            $fields['subjectPhoneNumber'] = trim($payload->donorPhone);
+        }
+
+        return $fields;
+    }
+
+    private function isBlank(mixed $value): bool
+    {
+        if ($value === null) {
+            return true;
+        }
+
+        if (is_string($value)) {
+            return trim($value) === '';
         }
 
         return false;
