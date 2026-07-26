@@ -3,11 +3,14 @@
 namespace Tests\Feature;
 
 use App\Enums\ArticleSection;
+use App\Filament\Resources\EditorialArticleCategoryResource\Pages\CreateEditorialArticleCategory;
 use App\Models\Article;
 use App\Models\ArticleCategory;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class EditorialArticleTest extends TestCase
@@ -87,6 +90,90 @@ class EditorialArticleTest extends TestCase
         $this->actingAs($journalist)
             ->get('/cms-safehouse/articles')
             ->assertForbidden();
+    }
+
+    public function test_journalist_can_create_and_list_shared_editorial_categories(): void
+    {
+        $this->seed(RoleSeeder::class);
+
+        $shared = ArticleCategory::factory()->create([
+            'section' => ArticleSection::Editorial,
+            'name' => ['it' => 'Categoria condivisa'],
+            'slug' => ['it' => 'categoria-condivisa'],
+        ]);
+
+        $journalist = User::factory()->create();
+        $journalist->assignRole('journalist');
+
+        $this->actingAs($journalist)
+            ->get('/cms-safehouse/editorial-article-categories')
+            ->assertOk()
+            ->assertSee('Categoria condivisa', false);
+
+        $this->actingAs($journalist)
+            ->get('/cms-safehouse/editorial-article-categories/create')
+            ->assertOk();
+
+        Filament::setCurrentPanel(Filament::getPanel('cms-safehouse'));
+
+        Livewire::actingAs($journalist)
+            ->test(CreateEditorialArticleCategory::class)
+            ->fillForm([
+                'name' => ['it' => 'Nuova del giornalista', 'ru' => '', 'en' => ''],
+                'slug' => ['it' => 'nuova-del-giornalista', 'ru' => '', 'en' => ''],
+                'description' => ['it' => '', 'ru' => '', 'en' => ''],
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('article_categories', [
+            'section' => ArticleSection::Editorial->value,
+        ]);
+        $this->assertTrue(
+            ArticleCategory::query()
+                ->where('section', ArticleSection::Editorial)
+                ->get()
+                ->contains(fn (ArticleCategory $c): bool => ($c->getTranslation('slug', 'it') ?? '') === 'nuova-del-giornalista')
+        );
+
+        $this->actingAs($journalist)
+            ->get('/cms-safehouse/editorial-article-categories/'.$shared->id.'/edit')
+            ->assertForbidden();
+
+        $this->actingAs($journalist)
+            ->get('/cms-safehouse/article-categories')
+            ->assertForbidden();
+    }
+
+    public function test_journalist_can_assign_category_created_by_someone_else(): void
+    {
+        $this->seed(RoleSeeder::class);
+
+        $category = ArticleCategory::factory()->create([
+            'section' => ArticleSection::Editorial,
+            'name' => ['it' => 'Di un altro'],
+            'slug' => ['it' => 'di-un-altro'],
+        ]);
+
+        $journalist = User::factory()->create();
+        $journalist->assignRole('journalist');
+
+        $article = Article::factory()->editorial()->create([
+            'author_id' => $journalist->id,
+            'article_category_id' => null,
+            'title' => ['it' => 'Mio articolo'],
+            'slug' => ['it' => 'mio-articolo'],
+            'body' => ['it' => '<p>Test</p>'],
+        ]);
+
+        $article->update(['article_category_id' => $category->id]);
+
+        $this->assertSame($category->id, $article->fresh()->article_category_id);
+
+        $this->actingAs($journalist)
+            ->get('/cms-safehouse/editorial-articles/'.$article->id.'/edit')
+            ->assertOk()
+            ->assertSee('Di un altro', false);
     }
 
     public function test_journalist_cannot_edit_another_authors_editorial_article(): void

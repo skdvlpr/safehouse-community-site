@@ -130,7 +130,8 @@ class EditorialArticleCategoryResource extends Resource
     {
         $user = auth()->user();
 
-        return $user instanceof User && $user->isAdminLike();
+        // Shared category pool: journalists may list + create + pick any category.
+        return $user instanceof User && ($user->isAdminLike() || $user->isJournalist());
     }
 
     public static function canCreate(): bool
@@ -140,12 +141,21 @@ class EditorialArticleCategoryResource extends Resource
 
     public static function canEdit(Model $record): bool
     {
-        return static::canViewAny();
+        $user = auth()->user();
+
+        return $user instanceof User && $user->isAdminLike();
     }
 
     public static function canDelete(Model $record): bool
     {
-        return static::canViewAny();
+        return static::canEdit($record);
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        $user = auth()->user();
+
+        return $user instanceof User && $user->isAdminLike();
     }
 
     public static function getPages(): array
