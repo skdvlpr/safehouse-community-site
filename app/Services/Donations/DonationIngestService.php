@@ -204,14 +204,32 @@ class DonationIngestService
         $fields = [];
         $incoming = $payload->stripeEnrichment?->toPrimaNotaFields() ?? [];
 
-        foreach ($incoming as $field => $value) {
-            if ($this->isBlank($existing[$field] ?? null) && ! $this->isBlank($value)) {
-                $fields[$field] = $value;
+        // Only fields we selected on the existing row — never "fill" attrs we did not load
+        // (missing key looks blank and would re-PUT already-set Stripe values → CRM lock).
+        $candidates = [
+            'stripeBillingEmail',
+            'stripeReceiptEmail',
+            'stripeBillingPhone',
+            'stripeReceiptUrl',
+            'stripePaymentMethodType',
+            'stripeBalanceTransactionId',
+            'stripeStatementDescriptor',
+            'stripeRadarRiskLevel',
+        ];
+
+        foreach ($candidates as $field) {
+            if (! array_key_exists($field, $existing)) {
+                continue;
+            }
+            $want = $incoming[$field] ?? null;
+            if ($this->isBlank($existing[$field] ?? null) && ! $this->isBlank($want)) {
+                $fields[$field] = $want;
             }
         }
 
         if (
-            $this->isBlank($existing['subjectEmailAddress'] ?? null)
+            array_key_exists('subjectEmailAddress', $existing)
+            && $this->isBlank($existing['subjectEmailAddress'] ?? null)
             && $payload->donorEmail !== null
             && trim($payload->donorEmail) !== ''
         ) {
@@ -219,7 +237,8 @@ class DonationIngestService
         }
 
         if (
-            $this->isBlank($existing['subjectPhoneNumber'] ?? null)
+            array_key_exists('subjectPhoneNumber', $existing)
+            && $this->isBlank($existing['subjectPhoneNumber'] ?? null)
             && $payload->donorPhone !== null
             && trim($payload->donorPhone) !== ''
         ) {
