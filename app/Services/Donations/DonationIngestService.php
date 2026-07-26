@@ -99,7 +99,7 @@ class DonationIngestService
     private function findPrimaNotaByExternalId(string $externalId): ?array
     {
         $result = $this->client->search((string) config('espocrm.prima_nota.entity'), [
-            'select' => 'id,donationPaymentReference,financingId,stripeChargeId,commissionAmount,amount,amountGross',
+            'select' => 'id,donationPaymentReference,financingId,stripeChargeId,commissionAmount,amount,amountGross,stripeBillingEmail,stripeReceiptEmail,stripeBillingPhone,subjectEmailAddress,subjectPhoneNumber',
             'maxSize' => 1,
             'where' => [
                 [
@@ -125,18 +125,64 @@ class DonationIngestService
         }
 
         $existingChargeId = trim((string) ($existing['stripeChargeId'] ?? ''));
-        if ($existingChargeId !== '') {
-            return false;
+        if ($existingChargeId === '') {
+            $incomingChargeId = trim((string) ($payload->stripeEnrichment?->stripeChargeId ?? ''));
+            if ($incomingChargeId !== '') {
+                return true;
+            }
+
+            // Fee arrived later (BalanceTransaction) even if charge id still missing.
+            return $payload->commissionAmount > 0
+                && (float) ($existing['commissionAmount'] ?? 0) <= 0;
         }
 
-        $incomingChargeId = trim((string) ($payload->stripeEnrichment?->stripeChargeId ?? ''));
-        if ($incomingChargeId !== '') {
+        return $this->shouldGapFillStripeEnrichment($existing, $payload);
+    }
+
+    /**
+     * After charge id is set, still allow PUT when enrichment/channel snapshot
+     * fields are empty in CRM but present on the Stripe payload.
+     *
+     * @param  array<string, mixed>  $existing
+     */
+    private function shouldGapFillStripeEnrichment(array $existing, DonationIngestPayload $payload): bool
+    {
+        $incoming = $payload->stripeEnrichment?->toPrimaNotaFields() ?? [];
+
+        foreach ([
+            'stripeBillingEmail',
+            'stripeReceiptEmail',
+            'stripeBillingPhone',
+            'stripeReceiptUrl',
+            'stripePaymentMethodType',
+            'stripeBalanceTransactionId',
+            'stripeStatementDescriptor',
+            'stripeRadarRiskLevel',
+        ] as $field) {
+            $have = trim((string) ($existing[$field] ?? ''));
+            $want = trim((string) ($incoming[$field] ?? ''));
+            if ($have === '' && $want !== '') {
+                return true;
+            }
+        }
+
+        if (
+            trim((string) ($existing['subjectEmailAddress'] ?? '')) === ''
+            && $payload->donorEmail !== null
+            && trim($payload->donorEmail) !== ''
+        ) {
             return true;
         }
 
-        // Fee arrived later (BalanceTransaction) even if charge id still missing.
-        return $payload->commissionAmount > 0
-            && (float) ($existing['commissionAmount'] ?? 0) <= 0;
+        if (
+            trim((string) ($existing['subjectPhoneNumber'] ?? '')) === ''
+            && $payload->donorPhone !== null
+            && trim($payload->donorPhone) !== ''
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
