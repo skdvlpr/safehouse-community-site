@@ -83,10 +83,12 @@ Developers → [Webhooks](https://dashboard.stripe.com/webhooks) → Add endpoin
 | Field | Value |
 |-------|--------|
 | URL | `https://safehouse.community/api/webhooks/stripe` |
-| Events | `payment_intent.succeeded`, **`invoice.paid`** |
+| Events | `payment_intent.succeeded`, `invoice.paid`, `customer.subscription.deleted`, `charge.refunded`, `payment_intent.canceled`, `invoice.payment_failed`, `payment_intent.payment_failed` |
 
-- `payment_intent.succeeded` — one-time donations (+ first subscription invoice PI)
-- `invoice.paid` — monthly renewals (idempotent with the first payment via PaymentIntent id)
+- `payment_intent.succeeded` — one-time donations (+ first subscription invoice PI) → PrimaNota `paymentStatus=Paid`
+- `invoice.paid` — monthly renewals (idempotent via PaymentIntent id) → `Paid`
+- `customer.subscription.deleted` / `payment_intent.canceled` / full `charge.refunded` → `Cancelled`
+- `invoice.payment_failed` / `payment_intent.payment_failed` / partial refund → `Problematic`
 
 Copy **Signing secret** → `STRIPE_WEBHOOK_SECRET` on the server.
 

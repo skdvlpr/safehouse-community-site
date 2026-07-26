@@ -107,6 +107,7 @@ readonly class DonationIngestPayload
             'donationPaymentProvider' => $this->platformLabel(),
             'donationPaymentReference' => $this->orderReference(),
             'donationFrequency' => $this->normalizedDonationFrequency(),
+            'paymentStatus' => 'Paid',
         ];
 
         $donorCategory = $this->donorTypeLabel();
