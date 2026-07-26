@@ -199,6 +199,43 @@ class StripePaymentService
     }
 
     /**
+     * Raw PaymentIntent lookup (no succeeded status check) — e.g. thank-you portal session.
+     */
+    public function retrievePaymentIntentRecord(string $paymentIntentId): PaymentIntent
+    {
+        if ($this->client === null) {
+            throw new RuntimeException('Stripe client is not configured.');
+        }
+
+        try {
+            return $this->client->paymentIntents->retrieve($paymentIntentId);
+        } catch (ApiErrorException $exception) {
+            throw new RuntimeException('Stripe payment intent lookup failed: '.$exception->getMessage(), 0, $exception);
+        }
+    }
+
+    public function customerIdFromPaymentIntent(PaymentIntent $intent): ?string
+    {
+        $customer = $intent->customer ?? null;
+        if (is_string($customer) && $customer !== '') {
+            return $customer;
+        }
+        if (is_object($customer) && isset($customer->id)) {
+            return (string) $customer->id;
+        }
+
+        $fromMeta = null;
+        if (isset($intent->metadata) && is_object($intent->metadata)) {
+            $candidate = $intent->metadata['stripe_customer_id'] ?? null;
+            if (is_string($candidate) && $candidate !== '') {
+                $fromMeta = $candidate;
+            }
+        }
+
+        return $fromMeta;
+    }
+
+    /**
      * PaymentIntent with latest_charge.balance_transaction expanded — Stripe fee/net SoT.
      */
     public function retrieveSettledPaymentIntent(string $paymentIntentId): PaymentIntent

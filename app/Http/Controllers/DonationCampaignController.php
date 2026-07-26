@@ -88,6 +88,7 @@ class DonationCampaignController extends Controller
         $stripeDonationThankYouSync->ingestSucceededPaymentIntent($paymentIntentId);
 
         $donorName = trim((string) $request->query('donor_name', ''));
+        $returnUrl = route('donations.show', ['locale' => $locale, 'campaignSlug' => $campaignSlug]);
 
         return view('donations.thank-you', [
             'campaign' => $campaign,
@@ -96,12 +97,45 @@ class DonationCampaignController extends Controller
             'thankYouHeading' => $campaign->thankYouHeading($donorName),
             'thankYouBody' => $campaign->thankYouBody($locale),
             'isRecurring' => $campaign->allowsRecurring(),
-            'customerPortalLoginUrl' => $this->customerPortalLoginUrl(),
+            'customerPortalLoginUrl' => $this->customerPortalUrlForThankYou(
+                $campaign,
+                $paymentIntentId,
+                $returnUrl,
+            ),
         ]);
     }
 
     private function customerPortalLoginUrl(): ?string
     {
         return StripeCustomerPortalService::fromConfig()->loginUrl();
+    }
+
+    private function customerPortalUrlForThankYou(
+        DonationCampaign $campaign,
+        string $paymentIntentId,
+        string $returnUrl,
+    ): ?string {
+        $loginUrl = $this->customerPortalLoginUrl();
+
+        if (! $campaign->allowsRecurring() || StripePaymentService::mockModeEnabled()) {
+            return $loginUrl;
+        }
+
+        try {
+            $stripe = StripePaymentService::fromConfig();
+            $intent = $stripe->retrievePaymentIntentRecord($paymentIntentId);
+            $customerId = $stripe->customerIdFromPaymentIntent($intent);
+            if ($customerId === null) {
+                return $loginUrl;
+            }
+
+            $sessionUrl = StripeCustomerPortalService::fromConfig()->sessionUrl($customerId, $returnUrl);
+
+            return $sessionUrl ?? $loginUrl;
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return $loginUrl;
+        }
     }
 }

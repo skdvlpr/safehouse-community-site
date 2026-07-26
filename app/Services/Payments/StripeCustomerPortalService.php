@@ -61,6 +61,34 @@ class StripeCustomerPortalService
         Cache::forget(self::CACHE_KEY);
     }
 
+    /**
+     * One-time Customer Portal session URL (preferred after a successful recurring payment).
+     */
+    public function sessionUrl(string $customerId, string $returnUrl): ?string
+    {
+        if ($this->client === null || trim($customerId) === '') {
+            return null;
+        }
+
+        try {
+            $session = $this->client->billingPortal->sessions->create([
+                'customer' => $customerId,
+                'return_url' => $returnUrl,
+            ]);
+        } catch (ApiErrorException $exception) {
+            Log::warning('Unable to create Stripe Customer Portal session.', [
+                'message' => $exception->getMessage(),
+                'customer_id' => $customerId,
+            ]);
+
+            return null;
+        }
+
+        $url = trim((string) ($session->url ?? ''));
+
+        return $url !== '' ? $url : null;
+    }
+
     private function fetchOrEnableLoginUrl(): ?string
     {
         if ($this->client === null) {

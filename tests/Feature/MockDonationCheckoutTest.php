@@ -74,6 +74,82 @@ class MockDonationCheckoutTest extends TestCase
             ->assertJsonPath('message', 'Mock payment intent already completed.');
     }
 
+    public function test_mock_recurring_subscription_and_complete_flow(): void
+    {
+        $campaign = DonationCampaign::factory()->recurring()->create([
+            'slug' => 'donazione-ricorrente',
+            'title' => ['it' => 'Donazione ricorrente'],
+            'allow_custom_amount' => true,
+            'min_amount_cents' => 100,
+            'espocrm_finanziamento_name' => 'Donazione ricorrente',
+        ]);
+
+        Http::fake(function ($request) use ($campaign) {
+            $url = $request->url();
+            $method = $request->method();
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/PrimaNota')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Finanziamento')) {
+                return Http::response([
+                    'total' => 1,
+                    'list' => [['id' => 'fin-recurring', 'name' => $campaign->finanziamentoTitle()]],
+                ]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Contact')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Account')) {
+                return Http::response([
+                    'total' => 1,
+                    'list' => [['id' => 'acc-safehouse', 'name' => 'Safe House']],
+                ]);
+            }
+
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+                return Http::response(['id' => 'pn-recurring-mock']);
+            }
+
+            return Http::response(['message' => 'Unexpected '.$method.' '.$url], 500);
+        });
+
+        $intentResponse = $this->postJson('/api/donations/intents/donazione-ricorrente', [
+            'amount_cents' => 1500,
+            'donor_name' => 'Anna Mensile',
+            'donor_type' => 'individual',
+            'donor_email' => 'anna.mensile@example.com',
+        ])->assertOk();
+
+        $intentResponse
+            ->assertJsonPath('mock', true)
+            ->assertJsonPath('subscription_id', fn ($id) => is_string($id) && str_starts_with($id, 'sub_mock_'));
+
+        $paymentIntentId = $intentResponse->json('payment_intent_id');
+        $subscriptionId = $intentResponse->json('subscription_id');
+        $completeUrl = $intentResponse->json('complete_url');
+
+        $this->postJson(parse_url($completeUrl, PHP_URL_PATH))
+            ->assertOk()
+            ->assertJsonPath('status', 'created')
+            ->assertJsonPath('prima_nota_id', 'pn-recurring-mock');
+
+        Http::assertSent(function ($request) use ($paymentIntentId, $subscriptionId): bool {
+            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota')) {
+                return false;
+            }
+
+            $payload = $request->data();
+
+            return ($payload['donationPaymentReference'] ?? '') === '#'.$paymentIntentId
+                && ($payload['donationFrequency'] ?? '') === 'Recurring'
+                && ($payload['stripeSubscriptionId'] ?? '') === $subscriptionId;
+        });
+    }
+
     public function test_mock_complete_returns_404_when_mock_disabled(): void
     {
         config()->set('stripe.mock', false);
