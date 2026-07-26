@@ -237,6 +237,8 @@ class StripePaymentService
 
     /**
      * PaymentIntent with latest_charge.balance_transaction expanded — Stripe fee/net SoT.
+     * Retries briefly when the charge exists but BalanceTransaction is not ready yet
+     * (common race: thank-you page vs webhook right after payment_intent.succeeded).
      */
     public function retrieveSettledPaymentIntent(string $paymentIntentId): PaymentIntent
     {
@@ -244,19 +246,45 @@ class StripePaymentService
             throw new RuntimeException('Stripe client is not configured.');
         }
 
-        try {
-            $intent = $this->client->paymentIntents->retrieve($paymentIntentId, [
-                'expand' => ['latest_charge.balance_transaction'],
-            ]);
-        } catch (ApiErrorException $exception) {
-            throw new RuntimeException('Stripe payment intent lookup failed: '.$exception->getMessage(), 0, $exception);
+        $attempts = max(1, (int) config('stripe.settlement_retries', 5));
+        $sleepMs = max(0, (int) config('stripe.settlement_retry_ms', 400));
+        $lastIntent = null;
+
+        for ($attempt = 1; $attempt <= $attempts; $attempt++) {
+            try {
+                $intent = $this->client->paymentIntents->retrieve($paymentIntentId, [
+                    'expand' => ['latest_charge.balance_transaction'],
+                ]);
+            } catch (ApiErrorException $exception) {
+                throw new RuntimeException('Stripe payment intent lookup failed: '.$exception->getMessage(), 0, $exception);
+            }
+
+            if ($intent->status !== 'succeeded') {
+                throw new RuntimeException('Stripe payment intent has not succeeded yet.');
+            }
+
+            $lastIntent = $intent;
+            if ($this->hasUsableBalanceTransaction($intent)) {
+                return $intent;
+            }
+
+            if ($attempt < $attempts && $sleepMs > 0) {
+                usleep($sleepMs * 1000);
+            }
         }
 
-        if ($intent->status !== 'succeeded') {
-            throw new RuntimeException('Stripe payment intent has not succeeded yet.');
+        return $lastIntent;
+    }
+
+    private function hasUsableBalanceTransaction(PaymentIntent $intent): bool
+    {
+        [$charge, $balanceTransaction] = $this->resolveChargeAndBalanceTransaction($intent);
+
+        if (! is_object($charge)) {
+            return false;
         }
 
-        return $intent;
+        return is_object($balanceTransaction) && isset($balanceTransaction->fee);
     }
 
     /**

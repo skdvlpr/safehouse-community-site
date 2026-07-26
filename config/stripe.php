@@ -49,4 +49,12 @@ return [
 
     'mock_publishable_key' => env('STRIPE_MOCK_PUBLISHABLE_KEY', 'pk_test_mock'),
 
+    /*
+     * After payment_intent.succeeded, BalanceTransaction can lag a few hundred ms.
+     * retrieveSettledPaymentIntent retries expand until fee/net is available.
+     */
+    'settlement_retries' => (int) env('STRIPE_SETTLEMENT_RETRIES', 5),
+
+    'settlement_retry_ms' => (int) env('STRIPE_SETTLEMENT_RETRY_MS', 400),
+
 ];

@@ -266,7 +266,12 @@ class DonationIngestServiceTest extends TestCase
         Http::fake([
             'https://crm.test/api/v1/PrimaNota*' => Http::response([
                 'total' => 1,
-                'list' => [['id' => 'pn-existing', 'donationPaymentReference' => '#pi_dup']],
+                'list' => [[
+                    'id' => 'pn-existing',
+                    'donationPaymentReference' => '#pi_dup',
+                    'stripeChargeId' => 'ch_already',
+                    'commissionAmount' => 0.5,
+                ]],
             ]),
         ]);
 
@@ -287,6 +292,62 @@ class DonationIngestServiceTest extends TestCase
 
         $this->assertSame('duplicate', $result['status']);
         Http::assertSentCount(1);
+    }
+
+    public function test_ingest_backfills_incomplete_stripe_row_without_charge_id(): void
+    {
+        Http::fake([
+            'https://crm.test/api/v1/PrimaNota*' => Http::sequence()
+                ->push([
+                    'total' => 1,
+                    'list' => [[
+                        'id' => 'pn-incomplete',
+                        'donationPaymentReference' => '#pi_incomplete',
+                        'stripeChargeId' => null,
+                        'commissionAmount' => 0,
+                        'amount' => 5,
+                        'amountGross' => 5,
+                        'financingId' => 'opp-1',
+                    ]],
+                ], 200)
+                ->push([
+                    'id' => 'pn-incomplete',
+                    'commissionAmount' => 0.33,
+                    'stripeChargeId' => 'ch_backfill',
+                ], 200),
+        ]);
+
+        $result = app(DonationIngestService::class)->ingest(new DonationIngestPayload(
+            provider: 'stripe',
+            externalId: 'pi_incomplete',
+            amountGross: 5,
+            commissionAmount: 0.33,
+            commissionPercent: 6.6,
+            netAmount: 4.67,
+            currency: 'EUR',
+            campaignTitle: 'Any',
+            donorName: 'Backfill',
+            comment: null,
+            donorType: 'individual',
+            donatedAt: now()->toIso8601String(),
+            stripeEnrichment: new \App\DataTransferObjects\StripeEnrichmentFields(
+                stripeChargeId: 'ch_backfill',
+                stripeBalanceTransactionId: 'txn_backfill',
+                stripePaymentMethodType: 'link',
+            ),
+        ));
+
+        $this->assertSame('backfilled', $result['status']);
+        $this->assertSame('pn-incomplete', $result['prima_nota_id']);
+
+        Http::assertSent(function ($request): bool {
+            return $request->method() === 'PUT'
+                && str_contains($request->url(), '/api/v1/PrimaNota/pn-incomplete')
+                && ($request->data()['commissionAmount'] ?? null) === 0.33
+                && ($request->data()['amount'] ?? null) === 4.67
+                && ($request->data()['stripeChargeId'] ?? null) === 'ch_backfill'
+                && ($request->data()['stripePaymentMethodType'] ?? null) === 'link';
+        });
     }
 
     public function test_ingest_creates_contact_for_anonymous_individual_donor(): void

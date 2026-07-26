@@ -23,8 +23,23 @@ class DonationIngestService
      */
     public function ingest(DonationIngestPayload $payload): array
     {
-        $existingId = $this->findPrimaNotaIdByExternalId($payload->idempotencySearchValue());
-        if ($existingId !== null) {
+        $existing = $this->findPrimaNotaByExternalId($payload->idempotencySearchValue());
+        if ($existing !== null) {
+            $existingId = (string) ($existing['id'] ?? '');
+            if ($existingId !== '' && $this->shouldBackfillIncompleteStripeRow($existing, $payload)) {
+                $this->client->update(
+                    (string) config('espocrm.prima_nota.entity'),
+                    $existingId,
+                    $this->settlementAndEnrichmentPayload($payload),
+                );
+
+                return [
+                    'status' => 'backfilled',
+                    'prima_nota_id' => $existingId,
+                    'financing_id' => (string) ($existing['financingId'] ?? ''),
+                ];
+            }
+
             return [
                 'status' => 'duplicate',
                 'prima_nota_id' => $existingId,
@@ -78,10 +93,13 @@ class DonationIngestService
         ];
     }
 
-    private function findPrimaNotaIdByExternalId(string $externalId): ?string
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function findPrimaNotaByExternalId(string $externalId): ?array
     {
         $result = $this->client->search((string) config('espocrm.prima_nota.entity'), [
-            'select' => 'id,donationPaymentReference',
+            'select' => 'id,donationPaymentReference,financingId,stripeChargeId,commissionAmount,amount,amountGross',
             'maxSize' => 1,
             'where' => [
                 [
@@ -92,8 +110,52 @@ class DonationIngestService
             ],
         ]);
 
-        $id = $result['list'][0]['id'] ?? null;
+        $row = $result['list'][0] ?? null;
 
-        return is_string($id) && $id !== '' ? $id : null;
+        return is_array($row) ? $row : null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $existing
+     */
+    private function shouldBackfillIncompleteStripeRow(array $existing, DonationIngestPayload $payload): bool
+    {
+        if (strtolower($payload->provider) !== 'stripe') {
+            return false;
+        }
+
+        $existingChargeId = trim((string) ($existing['stripeChargeId'] ?? ''));
+        if ($existingChargeId !== '') {
+            return false;
+        }
+
+        $incomingChargeId = trim((string) ($payload->stripeEnrichment?->stripeChargeId ?? ''));
+        if ($incomingChargeId !== '') {
+            return true;
+        }
+
+        // Fee arrived later (BalanceTransaction) even if charge id still missing.
+        return $payload->commissionAmount > 0
+            && (float) ($existing['commissionAmount'] ?? 0) <= 0;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function settlementAndEnrichmentPayload(DonationIngestPayload $payload): array
+    {
+        return array_merge(
+            [
+                'amount' => $payload->netAmount,
+                'amountCurrency' => $payload->currency,
+                'amountGross' => $payload->amountGross,
+                'amountGrossCurrency' => $payload->currency,
+                'commissionAmount' => $payload->commissionAmount,
+                'commissionAmountCurrency' => $payload->currency,
+                'commissionPercent' => $payload->commissionPercent,
+                'paymentStatus' => 'Paid',
+            ],
+            $payload->stripeEnrichment?->toPrimaNotaFields() ?? [],
+        );
     }
 }
