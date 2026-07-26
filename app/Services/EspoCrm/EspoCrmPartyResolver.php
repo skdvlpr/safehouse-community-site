@@ -112,11 +112,13 @@ class EspoCrmPartyResolver
         if ($count === 1) {
             $this->backfillMissingChannels($entityType, $matches[0], $email, $phone);
 
-            return [
+            return array_filter([
                 $prefix.'Name' => $name,
                 $prefix.'PartyId' => $matches[0]['id'],
                 $prefix.'PartyType' => $entityType,
-            ];
+                $prefix.'EmailAddress' => $email,
+                $prefix.'PhoneNumber' => $phone,
+            ], fn ($value) => $value !== null && $value !== '');
         }
 
         if ($entityType === 'Account') {

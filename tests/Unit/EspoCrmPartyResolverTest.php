@@ -37,6 +37,7 @@ class EspoCrmPartyResolverTest extends TestCase
             'subjectName' => 'Mario Rossi',
             'subjectPartyId' => 'contact-by-email',
             'subjectPartyType' => 'Contact',
+            'subjectEmailAddress' => 'mario@example.com',
         ], $resolver->resolveSubjectPartyFields($this->payload(
             donorName: 'Mario Rossi',
             donorType: 'individual',
@@ -70,6 +71,8 @@ class EspoCrmPartyResolverTest extends TestCase
             'subjectName' => 'Mario Rossi',
             'subjectPartyId' => 'contact-email-only',
             'subjectPartyType' => 'Contact',
+            'subjectEmailAddress' => 'mario@example.com',
+            'subjectPhoneNumber' => '+393331112222',
         ], $resolver->resolveSubjectPartyFields($this->payload(
             donorName: 'Mario Rossi',
             donorType: 'individual',
@@ -125,6 +128,7 @@ class EspoCrmPartyResolverTest extends TestCase
             'subjectName' => 'Different Spelling',
             'subjectPartyId' => 'contact-by-phone',
             'subjectPartyType' => 'Contact',
+            'subjectPhoneNumber' => '+393331112222',
         ], $resolver->resolveSubjectPartyFields($this->payload(
             donorName: 'Different Spelling',
             donorType: 'individual',

@@ -123,6 +123,7 @@ class DonationIngestServiceTest extends TestCase
             return ($payload['subjectPartyId'] ?? '') === 'contact-existing'
                 && ($payload['subjectPartyType'] ?? '') === 'Contact'
                 && ($payload['subjectName'] ?? '') === 'Luigi Verdi'
+                && ($payload['subjectEmailAddress'] ?? '') === 'luigi@example.com'
                 && ! array_key_exists('createSubjectContact', $payload)
                 && ($payload['beneficiaryName'] ?? '') === 'Safe House'
                 && ($payload['beneficiaryPartyId'] ?? '') === 'acc-safe-house';

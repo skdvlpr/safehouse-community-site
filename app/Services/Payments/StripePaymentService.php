@@ -356,6 +356,14 @@ class StripePaymentService
                     $cardBrand = isset($card->brand) ? (string) $card->brand : null;
                     $cardLast4 = isset($card->last4) ? (string) $card->last4 : null;
                 }
+                // Link / wallets may nest card under link/card
+                if ($cardBrand === null && isset($details->link) && is_object($details->link)) {
+                    $linkCard = $details->link->card ?? null;
+                    if (is_object($linkCard)) {
+                        $cardBrand = isset($linkCard->brand) ? (string) $linkCard->brand : null;
+                        $cardLast4 = isset($linkCard->last4) ? (string) $linkCard->last4 : null;
+                    }
+                }
             }
 
             $billing = $charge->billing_details ?? null;
@@ -367,6 +375,32 @@ class StripePaymentService
             $outcome = $charge->outcome ?? null;
             if (is_object($outcome) && isset($outcome->risk_level) && is_string($outcome->risk_level)) {
                 $riskLevel = $outcome->risk_level;
+            }
+        }
+
+        // PaymentIntent-level fallbacks (metadata / Link flows often leave charge.receipt_email empty).
+        if (($receiptEmail === null || $receiptEmail === '') && isset($intent->receipt_email) && is_string($intent->receipt_email)) {
+            $receiptEmail = $intent->receipt_email;
+        }
+        if (($billingEmail === null || $billingEmail === '') && isset($intent->receipt_email) && is_string($intent->receipt_email)) {
+            $billingEmail = $intent->receipt_email;
+        }
+        if (($statementDescriptor === null || $statementDescriptor === '') && isset($intent->statement_descriptor_suffix) && is_string($intent->statement_descriptor_suffix)) {
+            $statementDescriptor = $intent->statement_descriptor_suffix;
+        }
+        if (($statementDescriptor === null || $statementDescriptor === '') && isset($intent->statement_descriptor) && is_string($intent->statement_descriptor)) {
+            $statementDescriptor = $intent->statement_descriptor;
+        }
+        if (($billingEmail === null || $billingEmail === '') && isset($intent->metadata) && is_object($intent->metadata)) {
+            $metaEmail = $intent->metadata['donor_email'] ?? null;
+            if (is_string($metaEmail) && $metaEmail !== '') {
+                $billingEmail = $metaEmail;
+            }
+        }
+        if (($billingPhone === null || $billingPhone === '') && isset($intent->metadata) && is_object($intent->metadata)) {
+            $metaPhone = $intent->metadata['donor_phone'] ?? null;
+            if (is_string($metaPhone) && $metaPhone !== '') {
+                $billingPhone = $metaPhone;
             }
         }
 

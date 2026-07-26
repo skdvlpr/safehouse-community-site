@@ -144,7 +144,7 @@ class DonationIngestService
      */
     private function settlementAndEnrichmentPayload(DonationIngestPayload $payload): array
     {
-        return array_merge(
+        $fields = array_merge(
             [
                 'amount' => $payload->netAmount,
                 'amountCurrency' => $payload->currency,
@@ -157,5 +157,15 @@ class DonationIngestService
             ],
             $payload->stripeEnrichment?->toPrimaNotaFields() ?? [],
         );
+
+        // Snapshot donor channels onto PrimaNota even when Contact was linked earlier.
+        if ($payload->donorEmail !== null && trim($payload->donorEmail) !== '') {
+            $fields['subjectEmailAddress'] = trim($payload->donorEmail);
+        }
+        if ($payload->donorPhone !== null && trim($payload->donorPhone) !== '') {
+            $fields['subjectPhoneNumber'] = trim($payload->donorPhone);
+        }
+
+        return $fields;
     }
 }
