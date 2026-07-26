@@ -28,6 +28,7 @@ readonly class StripeEnrichmentFields
         public ?string $stripeRadarRiskLevel = null,
         public ?string $stripeStatementDescriptor = null,
         public ?string $stripeCustomerId = null,
+        public ?string $stripeSubscriptionId = null,
     ) {}
 
     /**
@@ -56,6 +57,11 @@ readonly class StripeEnrichmentFields
             stripeRadarRiskLevel: null,
             stripeStatementDescriptor: isset($stored['statement_descriptor']) ? (string) $stored['statement_descriptor'] : null,
             stripeCustomerId: isset($stored['customer_id']) ? (string) $stored['customer_id'] : null,
+            stripeSubscriptionId: isset($stored['subscription_id'])
+                ? (string) $stored['subscription_id']
+                : (isset($stored['metadata']['stripe_subscription_id'])
+                    ? (string) $stored['metadata']['stripe_subscription_id']
+                    : null),
         );
     }
 
@@ -80,6 +86,7 @@ readonly class StripeEnrichmentFields
             'stripeRadarRiskLevel' => $this->stripeRadarRiskLevel,
             'stripeStatementDescriptor' => $this->stripeStatementDescriptor,
             'stripeCustomerId' => $this->stripeCustomerId,
+            'stripeSubscriptionId' => $this->stripeSubscriptionId,
         ];
 
         return array_filter(

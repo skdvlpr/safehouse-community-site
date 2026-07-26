@@ -22,6 +22,7 @@ readonly class DonationIngestPayload
         public ?float $financingGoalAmount = null,
         public ?string $donorEmail = null,
         public ?string $donorPhone = null,
+        public string $donationFrequency = 'OneTime',
         public ?StripeEnrichmentFields $stripeEnrichment = null,
     ) {}
 
@@ -41,6 +42,7 @@ readonly class DonationIngestPayload
         ?float $financingGoalAmount = null,
         ?string $donorEmail = null,
         ?string $donorPhone = null,
+        string $donationFrequency = 'OneTime',
         ?StripeEnrichmentFields $stripeEnrichment = null,
     ): self {
         return new self(
@@ -59,6 +61,7 @@ readonly class DonationIngestPayload
             financingGoalAmount: $financingGoalAmount,
             donorEmail: $donorEmail,
             donorPhone: $donorPhone,
+            donationFrequency: $donationFrequency,
             stripeEnrichment: $stripeEnrichment,
         );
     }
@@ -103,6 +106,7 @@ readonly class DonationIngestPayload
         $fields = [
             'donationPaymentProvider' => $this->platformLabel(),
             'donationPaymentReference' => $this->orderReference(),
+            'donationFrequency' => $this->normalizedDonationFrequency(),
         ];
 
         $donorCategory = $this->donorTypeLabel();
@@ -119,6 +123,11 @@ readonly class DonationIngestPayload
         }
 
         return $fields;
+    }
+
+    public function normalizedDonationFrequency(): string
+    {
+        return $this->donationFrequency === 'Recurring' ? 'Recurring' : 'OneTime';
     }
 
     /** Soggetto pagamento — payer / donor name. */

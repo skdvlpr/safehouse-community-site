@@ -32,6 +32,10 @@ class MockStripePaymentService extends StripePaymentService
         ?string $donorEmail = null,
         ?string $donorPhone = null,
     ): array {
+        if ($campaign->allowsRecurring()) {
+            throw new RuntimeException('Recurring campaigns must use Stripe Subscriptions.');
+        }
+
         $this->assertDonationIntentAllowed($campaign, $amountCents);
 
         $paymentIntentId = 'pi_mock_'.Str::lower(Str::ulid());
@@ -41,7 +45,7 @@ class MockStripePaymentService extends StripePaymentService
             'payment_intent_id' => $paymentIntentId,
             'amount_cents' => $amountCents,
             'currency' => strtolower($campaign->currency),
-            'metadata' => $this->metadata($campaign, $donorName, $donorType, $comment, $donorEmail, $donorPhone),
+            'metadata' => $this->metadata($campaign, $donorName, $donorType, $comment, $donorEmail, $donorPhone, 'OneTime'),
             'status' => 'requires_payment_method',
             'created' => now('UTC')->timestamp,
         ]);
@@ -49,6 +53,57 @@ class MockStripePaymentService extends StripePaymentService
         return [
             'client_secret' => $clientSecret,
             'payment_intent_id' => $paymentIntentId,
+        ];
+    }
+
+    /**
+     * @return array{client_secret: string, payment_intent_id: string, subscription_id: string, customer_id: string}
+     */
+    public function createDonationSubscription(
+        DonationCampaign $campaign,
+        int $amountCents,
+        string $donorName,
+        string $donorType,
+        ?string $comment,
+        ?string $donorEmail = null,
+        ?string $donorPhone = null,
+    ): array {
+        if (! $campaign->allowsRecurring()) {
+            throw new RuntimeException('One-time campaigns must use PaymentIntents.');
+        }
+
+        $this->assertDonationIntentAllowed($campaign, $amountCents);
+
+        $paymentIntentId = 'pi_mock_'.Str::lower(Str::ulid());
+        $subscriptionId = 'sub_mock_'.Str::lower(Str::ulid());
+        $customerId = 'cus_mock_'.Str::lower(Str::ulid());
+        $clientSecret = $paymentIntentId.'_secret_mock_'.Str::lower(Str::random(24));
+
+        $metadata = array_merge(
+            $this->metadata($campaign, $donorName, $donorType, $comment, $donorEmail, $donorPhone, 'Recurring'),
+            [
+                'stripe_subscription_id' => $subscriptionId,
+                'stripe_customer_id' => $customerId,
+            ],
+        );
+
+        $this->storeIntent($paymentIntentId, [
+            'payment_intent_id' => $paymentIntentId,
+            'amount_cents' => $amountCents,
+            'currency' => strtolower($campaign->currency),
+            'metadata' => $metadata,
+            'status' => 'requires_payment_method',
+            'created' => now('UTC')->timestamp,
+            'customer_id' => $customerId,
+            'subscription_id' => $subscriptionId,
+            'payment_method_type' => 'card',
+        ]);
+
+        return [
+            'client_secret' => $clientSecret,
+            'payment_intent_id' => $paymentIntentId,
+            'subscription_id' => $subscriptionId,
+            'customer_id' => $customerId,
         ];
     }
 

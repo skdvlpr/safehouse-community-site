@@ -66,6 +66,10 @@ class StripeDonationThankYouSyncTest extends TestCase
                 'net_cents' => 100,
                 'currency' => 'eur',
             ]));
+        $mock->shouldReceive('donationMetadataFromPaymentIntent')
+            ->once()
+            ->with($intent)
+            ->andReturn($intent->metadata->toArray());
         $mock->shouldReceive('enrichmentFromPaymentIntent')
             ->once()
             ->with($intent)
@@ -153,6 +157,10 @@ class StripeDonationThankYouSyncTest extends TestCase
                 'net_cents' => 500,
                 'currency' => 'eur',
             ]));
+        $mock->shouldReceive('donationMetadataFromPaymentIntent')
+            ->once()
+            ->with($intent)
+            ->andReturn($intent->metadata->toArray());
         $mock->shouldReceive('enrichmentFromPaymentIntent')
             ->once()
             ->with($intent)

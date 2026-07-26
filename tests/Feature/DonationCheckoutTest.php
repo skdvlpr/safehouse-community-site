@@ -45,6 +45,7 @@ class DonationCheckoutTest extends TestCase
                     'client_secret' => 'cs_test_secret',
                     'payment_intent_id' => 'pi_test_checkout',
                 ]);
+            $mock->shouldNotReceive('createDonationSubscription');
         });
 
         $this->postJson('/api/donations/intents/raccolta-test', [
@@ -58,6 +59,51 @@ class DonationCheckoutTest extends TestCase
             ->assertJson([
                 'client_secret' => 'cs_test_secret',
                 'payment_intent_id' => 'pi_test_checkout',
+                'publishable_key' => 'pk_test_mock',
+                'subscription_id' => null,
+            ]);
+    }
+
+    public function test_store_creates_subscription_for_recurring_campaign(): void
+    {
+        $campaign = DonationCampaign::factory()->recurring()->create([
+            'slug' => 'donazione-ricorrente',
+            'allow_custom_amount' => true,
+            'min_amount_cents' => 50,
+        ]);
+
+        $this->mockStripeService(function (MockInterface $mock) use ($campaign): void {
+            $mock->shouldReceive('createDonationSubscription')
+                ->once()
+                ->with(
+                    Mockery::on(fn ($model) => $model->is($campaign)),
+                    1500,
+                    'Anna Mensile',
+                    'individual',
+                    null,
+                    'anna@example.com',
+                    null,
+                )
+                ->andReturn([
+                    'client_secret' => 'cs_sub_secret',
+                    'payment_intent_id' => 'pi_sub_checkout',
+                    'subscription_id' => 'sub_checkout',
+                    'customer_id' => 'cus_checkout',
+                ]);
+            $mock->shouldNotReceive('createDonationIntent');
+        });
+
+        $this->postJson('/api/donations/intents/donazione-ricorrente', [
+            'amount_cents' => 1500,
+            'donor_name' => 'Anna Mensile',
+            'donor_type' => 'individual',
+            'donor_email' => 'anna@example.com',
+        ])
+            ->assertOk()
+            ->assertJson([
+                'client_secret' => 'cs_sub_secret',
+                'payment_intent_id' => 'pi_sub_checkout',
+                'subscription_id' => 'sub_checkout',
                 'publishable_key' => 'pk_test_mock',
             ]);
     }

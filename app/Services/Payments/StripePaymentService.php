@@ -43,6 +43,9 @@ class StripePaymentService
             && IntegrationConfig::string('stripe.secret') === '';
     }
 
+    /**
+     * @return array{client_secret: string, payment_intent_id: string}
+     */
     public function createDonationIntent(
         DonationCampaign $campaign,
         int $amountCents,
@@ -56,6 +59,10 @@ class StripePaymentService
             throw new RuntimeException('Stripe client is not configured.');
         }
 
+        if ($campaign->allowsRecurring()) {
+            throw new RuntimeException('Recurring campaigns must use Stripe Subscriptions.');
+        }
+
         $this->assertDonationIntentAllowed($campaign, $amountCents);
 
         try {
@@ -63,14 +70,8 @@ class StripePaymentService
                 'amount' => $amountCents,
                 'currency' => strtolower($campaign->currency),
                 'automatic_payment_methods' => ['enabled' => true],
-                'metadata' => $this->metadata($campaign, $donorName, $donorType, $comment, $donorEmail, $donorPhone),
+                'metadata' => $this->metadata($campaign, $donorName, $donorType, $comment, $donorEmail, $donorPhone, 'OneTime'),
             ];
-
-            // Only recurring campaigns may ask Stripe to save the method for later invoices.
-            // Satispay and other redirect wallets often reject setup_future_usage on one-time PIs.
-            if ($campaign->allowsRecurring()) {
-                $payload['setup_future_usage'] = 'off_session';
-            }
 
             if ($donorEmail !== null && $donorEmail !== '') {
                 $payload['receipt_email'] = $donorEmail;
@@ -94,6 +95,101 @@ class StripePaymentService
         return [
             'client_secret' => $clientSecret,
             'payment_intent_id' => $intent->id,
+        ];
+    }
+
+    /**
+     * Monthly Subscription; first invoice PaymentIntent drives Payment Element.
+     *
+     * @return array{client_secret: string, payment_intent_id: string, subscription_id: string, customer_id: string}
+     */
+    public function createDonationSubscription(
+        DonationCampaign $campaign,
+        int $amountCents,
+        string $donorName,
+        string $donorType,
+        ?string $comment,
+        ?string $donorEmail = null,
+        ?string $donorPhone = null,
+    ): array {
+        if ($this->client === null) {
+            throw new RuntimeException('Stripe client is not configured.');
+        }
+
+        if (! $campaign->allowsRecurring()) {
+            throw new RuntimeException('One-time campaigns must use PaymentIntents.');
+        }
+
+        $this->assertDonationIntentAllowed($campaign, $amountCents);
+
+        $metadata = $this->metadata($campaign, $donorName, $donorType, $comment, $donorEmail, $donorPhone, 'Recurring');
+
+        try {
+            $customerPayload = array_filter([
+                'name' => trim($donorName),
+                'email' => $donorEmail !== null && $donorEmail !== '' ? $donorEmail : null,
+                'phone' => $donorPhone !== null && $donorPhone !== '' ? $donorPhone : null,
+                'metadata' => $metadata,
+            ], static fn ($value) => $value !== null && $value !== '');
+
+            $customer = $this->client->customers->create($customerPayload);
+
+            $price = $this->client->prices->create([
+                'currency' => strtolower($campaign->currency),
+                'unit_amount' => $amountCents,
+                'recurring' => ['interval' => 'month'],
+                'product_data' => [
+                    'name' => mb_substr($campaign->finanziamentoTitle(), 0, 250),
+                    'metadata' => [
+                        'campaign_id' => (string) $campaign->id,
+                    ],
+                ],
+            ]);
+
+            $subscription = $this->client->subscriptions->create([
+                'customer' => $customer->id,
+                'items' => [['price' => $price->id]],
+                'payment_behavior' => 'default_incomplete',
+                'payment_settings' => [
+                    'save_default_payment_method' => 'on_subscription',
+                    'payment_method_types' => ['card'],
+                ],
+                'expand' => ['latest_invoice.payment_intent'],
+                'metadata' => $metadata,
+            ]);
+        } catch (ApiErrorException $exception) {
+            throw new RuntimeException('Stripe subscription failed: '.$exception->getMessage(), 0, $exception);
+        }
+
+        $invoice = $subscription->latest_invoice ?? null;
+        $intent = is_object($invoice) ? ($invoice->payment_intent ?? null) : null;
+        if (! is_object($intent) || ! isset($intent->id)) {
+            throw new RuntimeException('Stripe subscription did not return a payment intent.');
+        }
+
+        $subscriptionMetadata = array_merge($metadata, [
+            'stripe_subscription_id' => $subscription->id,
+            'stripe_customer_id' => $customer->id,
+        ]);
+
+        try {
+            $this->client->paymentIntents->update($intent->id, [
+                'metadata' => $subscriptionMetadata,
+            ]);
+        } catch (ApiErrorException $exception) {
+            throw new RuntimeException('Stripe payment intent metadata update failed: '.$exception->getMessage(), 0, $exception);
+        }
+
+        $clientSecret = $intent->client_secret ?? null;
+        if (! is_string($clientSecret) || $clientSecret === '') {
+            throw new RuntimeException('Stripe did not return a subscription client secret.');
+        }
+
+        return [
+            'client_secret' => $clientSecret,
+            'payment_intent_id' => (string) $intent->id,
+            'subscription_id' => $subscription->id,
+            'customer_id' => $customer->id,
         ];
     }
 
@@ -228,6 +324,8 @@ class StripePaymentService
             $customerId = (string) $customer->id;
         }
 
+        $subscriptionId = $this->resolveSubscriptionId($intent);
+
         return new StripeEnrichmentFields(
             stripePaymentCreatedAt: $createdAt,
             stripeChargeId: $chargeId,
@@ -244,7 +342,76 @@ class StripePaymentService
             stripeRadarRiskLevel: $riskLevel,
             stripeStatementDescriptor: $statementDescriptor,
             stripeCustomerId: $customerId,
+            stripeSubscriptionId: $subscriptionId,
         );
+    }
+
+    /**
+     * Merge PaymentIntent metadata with parent Subscription metadata (renewals).
+     *
+     * @return array<string, string>
+     */
+    public function donationMetadataFromPaymentIntent(PaymentIntent $intent): array
+    {
+        $meta = [];
+        if (isset($intent->metadata) && is_object($intent->metadata)) {
+            $meta = $intent->metadata->toArray();
+        }
+
+        $subscriptionId = $this->resolveSubscriptionId($intent);
+        if ($subscriptionId !== null && $this->client !== null) {
+            try {
+                $subscription = $this->client->subscriptions->retrieve($subscriptionId);
+                if (isset($subscription->metadata) && is_object($subscription->metadata)) {
+                    $meta = array_merge($subscription->metadata->toArray(), $meta);
+                }
+            } catch (ApiErrorException) {
+                // Keep PaymentIntent metadata only.
+            }
+            $meta['stripe_subscription_id'] = $subscriptionId;
+        }
+
+        return array_filter(
+            $meta,
+            static fn ($value) => is_string($value) && $value !== '',
+        );
+    }
+
+    public function resolveSubscriptionId(PaymentIntent $intent): ?string
+    {
+        $fromMeta = null;
+        if (isset($intent->metadata) && is_object($intent->metadata)) {
+            $candidate = $intent->metadata['stripe_subscription_id'] ?? $intent->metadata['subscription_id'] ?? null;
+            if (is_string($candidate) && $candidate !== '') {
+                $fromMeta = $candidate;
+            }
+        }
+        if ($fromMeta !== null) {
+            return $fromMeta;
+        }
+
+        $invoice = $intent->invoice ?? null;
+        if (is_string($invoice) && $invoice !== '' && $this->client !== null) {
+            try {
+                $invoice = $this->client->invoices->retrieve($invoice);
+            } catch (ApiErrorException) {
+                return null;
+            }
+        }
+
+        if (! is_object($invoice)) {
+            return null;
+        }
+
+        $subscription = $invoice->subscription ?? null;
+        if (is_string($subscription) && $subscription !== '') {
+            return $subscription;
+        }
+        if (is_object($subscription) && isset($subscription->id)) {
+            return (string) $subscription->id;
+        }
+
+        return null;
     }
 
     /**
@@ -339,7 +506,10 @@ class StripePaymentService
         ?string $comment,
         ?string $donorEmail = null,
         ?string $donorPhone = null,
+        string $donationFrequency = 'OneTime',
     ): array {
+        $frequency = $donationFrequency === 'Recurring' ? 'Recurring' : 'OneTime';
+
         return array_filter([
             'campaign_id' => (string) $campaign->id,
             'campaign_title' => mb_substr($campaign->finanziamentoTitle(), 0, 500),
@@ -348,6 +518,7 @@ class StripePaymentService
             'donor_email' => $donorEmail !== null ? mb_substr($donorEmail, 0, 500) : null,
             'donor_phone' => $donorPhone !== null ? mb_substr($donorPhone, 0, 500) : null,
             'comment' => $comment !== null ? mb_substr(trim($comment), 0, 500) : null,
+            'donation_frequency' => $frequency,
         ], fn ($value) => $value !== null && $value !== '');
     }
 
@@ -360,6 +531,37 @@ class StripePaymentService
         $intent = $event->data->object;
 
         return $intent instanceof PaymentIntent ? $intent : null;
+    }
+
+    /**
+     * Resolve PaymentIntent id from payment_intent.succeeded or invoice.paid (renewals).
+     */
+    public function paymentIntentIdFromWebhookEvent(\Stripe\Event $event): ?string
+    {
+        if ($event->type === 'payment_intent.succeeded') {
+            $intent = $this->paymentIntentFromEvent($event);
+
+            return $intent?->id;
+        }
+
+        if ($event->type !== 'invoice.paid') {
+            return null;
+        }
+
+        $invoice = $event->data->object ?? null;
+        if (! is_object($invoice)) {
+            return null;
+        }
+
+        $paymentIntent = $invoice->payment_intent ?? null;
+        if (is_string($paymentIntent) && $paymentIntent !== '') {
+            return $paymentIntent;
+        }
+        if (is_object($paymentIntent) && isset($paymentIntent->id)) {
+            return (string) $paymentIntent->id;
+        }
+
+        return null;
     }
 
     public static function statementDescriptorSuffix(): string

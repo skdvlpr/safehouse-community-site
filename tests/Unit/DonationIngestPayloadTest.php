@@ -36,6 +36,7 @@ class DonationIngestPayloadTest extends TestCase
         $this->assertSame([
             'donationPaymentProvider' => 'Stripe',
             'donationPaymentReference' => '#pi_test_123',
+            'donationFrequency' => 'OneTime',
             'donationDonorCategory' => 'Individual',
             'donationComment' => 'Grazie',
         ], $payload->primaNotaDonationFields());
@@ -65,6 +66,7 @@ class DonationIngestPayloadTest extends TestCase
         $this->assertSame([
             'donationPaymentProvider' => 'Stripe',
             'donationPaymentReference' => '#pi_anon',
+            'donationFrequency' => 'OneTime',
         ], $payload->primaNotaDonationFields());
     }
 

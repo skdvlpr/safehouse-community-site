@@ -212,7 +212,7 @@ class StripeWebhookDonationTest extends TestCase
 
         $mock = Mockery::mock(StripePaymentService::class);
         $mock->shouldReceive('constructWebhookEvent')->andReturn($event);
-        $mock->shouldReceive('paymentIntentFromEvent')->with($event)->andReturn(null);
+        $mock->shouldReceive('paymentIntentIdFromWebhookEvent')->with($event)->andReturn(null);
         $this->instance(StripePaymentService::class, $mock);
 
         $this->postStripeWebhook('{}', 'sig')
@@ -281,8 +281,89 @@ class StripeWebhookDonationTest extends TestCase
                 && ($payload['commissionPercent'] ?? null) === 2.9
                 && ($payload['amount'] ?? null) === 97.1
                 && ($payload['donationPaymentProvider'] ?? '') === 'Stripe'
+                && ($payload['donationFrequency'] ?? '') === 'OneTime'
                 && ($payload['stripePaymentMethodType'] ?? '') === 'card'
                 && ($payload['stripeChargeId'] ?? '') === 'ch_test';
+        });
+    }
+
+    public function test_invoice_paid_recurring_writes_subscription_fields(): void
+    {
+        Carbon::setTestNow('2026-07-02T12:00:00+00:00');
+
+        $campaign = DonationCampaign::factory()->recurring()->create([
+            'espocrm_finanziamento_name' => 'Donazione ricorrente',
+        ]);
+
+        $intent = $this->paymentIntent([
+            'id' => 'pi_sub_invoice_1',
+            'amount' => 2000,
+            'amount_received' => 2000,
+            'metadata' => [
+                'campaign_id' => (string) $campaign->id,
+                'donor_name' => 'Anna Mensile',
+                'donor_type' => 'individual',
+                'donor_email' => 'anna@example.com',
+                'donation_frequency' => 'Recurring',
+                'stripe_subscription_id' => 'sub_test_recurring',
+                'stripe_customer_id' => 'cus_test_recurring',
+            ],
+        ]);
+
+        $event = Event::constructFrom([
+            'id' => 'evt_invoice_paid',
+            'type' => 'invoice.paid',
+            'data' => [
+                'object' => [
+                    'id' => 'in_test_1',
+                    'object' => 'invoice',
+                    'payment_intent' => 'pi_sub_invoice_1',
+                    'subscription' => 'sub_test_recurring',
+                ],
+            ],
+        ]);
+
+        $settlement = \App\DataTransferObjects\StripeSettlementAmounts::fromCents([
+            'gross_cents' => 2000,
+            'fee_cents' => 0,
+            'net_cents' => 2000,
+            'currency' => 'eur',
+        ]);
+
+        $mock = Mockery::mock(StripePaymentService::class);
+        $mock->shouldReceive('constructWebhookEvent')->andReturn($event);
+        $mock->shouldReceive('paymentIntentIdFromWebhookEvent')->with($event)->andReturn('pi_sub_invoice_1');
+        $mock->shouldReceive('retrieveSettledPaymentIntent')->with('pi_sub_invoice_1')->andReturn($intent);
+        $mock->shouldReceive('settlementFromPaymentIntent')->andReturn($settlement);
+        $mock->shouldReceive('donationMetadataFromPaymentIntent')->andReturn($intent->metadata->toArray());
+        $mock->shouldReceive('enrichmentFromPaymentIntent')->andReturn(
+            \App\DataTransferObjects\StripeEnrichmentFields::fromMockStoredIntent([
+                'created' => (int) $intent->created,
+                'charge_id' => 'ch_sub',
+                'customer_id' => 'cus_test_recurring',
+                'subscription_id' => 'sub_test_recurring',
+                'payment_method_type' => 'card',
+            ])
+        );
+        $this->instance(StripePaymentService::class, $mock);
+
+        $this->fakeCrmForSuccessfulIngest('opp-recurring', 'pn-recurring', subjectContactMatches: 0, beneficiaryAccountId: 'acc-safe-house');
+
+        $this->postStripeWebhook('{"id":"evt_invoice_paid"}', 'sig_test')
+            ->assertOk()
+            ->assertSee('OK');
+
+        Http::assertSent(function ($request): bool {
+            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota')) {
+                return false;
+            }
+
+            $payload = $request->data();
+
+            return ($payload['donationPaymentReference'] ?? '') === '#pi_sub_invoice_1'
+                && ($payload['donationFrequency'] ?? '') === 'Recurring'
+                && ($payload['stripeSubscriptionId'] ?? '') === 'sub_test_recurring'
+                && ($payload['stripeCustomerId'] ?? '') === 'cus_test_recurring';
         });
     }
 
@@ -377,9 +458,12 @@ class StripeWebhookDonationTest extends TestCase
 
         $mock = Mockery::mock(StripePaymentService::class);
         $mock->shouldReceive('constructWebhookEvent')->andReturn($event);
-        $mock->shouldReceive('paymentIntentFromEvent')->with($event)->andReturn($intent);
+        $mock->shouldReceive('paymentIntentIdFromWebhookEvent')->with($event)->andReturn($intent->id);
         $mock->shouldReceive('retrieveSettledPaymentIntent')->with($intent->id)->andReturn($intent);
         $mock->shouldReceive('settlementFromPaymentIntent')->andReturn($settlement);
+        $mock->shouldReceive('donationMetadataFromPaymentIntent')->andReturn(
+            is_object($intent->metadata ?? null) ? $intent->metadata->toArray() : (array) ($intent->metadata ?? [])
+        );
         $mock->shouldReceive('enrichmentFromPaymentIntent')->andReturn(
             \App\DataTransferObjects\StripeEnrichmentFields::fromMockStoredIntent([
                 'created' => (int) ($intent->created ?? time()),
@@ -388,6 +472,8 @@ class StripeWebhookDonationTest extends TestCase
                 'payment_method_type' => 'card',
                 'card_brand' => 'visa',
                 'card_last4' => '4242',
+                'subscription_id' => $intent->metadata['stripe_subscription_id'] ?? null,
+                'customer_id' => $intent->metadata['stripe_customer_id'] ?? null,
             ])
         );
         $this->instance(StripePaymentService::class, $mock);

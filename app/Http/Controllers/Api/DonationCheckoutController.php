@@ -26,15 +26,30 @@ class DonationCheckoutController extends Controller
 
         try {
             $contact = $request->donorContact();
-            $result = $this->stripePaymentService->createDonationIntent(
-                $campaign,
-                (int) $request->validated('amount_cents'),
-                (string) $request->validated('donor_name'),
-                (string) $request->validated('donor_type'),
-                $request->validated('comment'),
-                $contact->email,
-                $contact->phone,
-            );
+            $amountCents = (int) $request->validated('amount_cents');
+            $donorName = (string) $request->validated('donor_name');
+            $donorType = (string) $request->validated('donor_type');
+            $comment = $request->validated('comment');
+
+            $result = $campaign->allowsRecurring()
+                ? $this->stripePaymentService->createDonationSubscription(
+                    $campaign,
+                    $amountCents,
+                    $donorName,
+                    $donorType,
+                    $comment,
+                    $contact->email,
+                    $contact->phone,
+                )
+                : $this->stripePaymentService->createDonationIntent(
+                    $campaign,
+                    $amountCents,
+                    $donorName,
+                    $donorType,
+                    $comment,
+                    $contact->email,
+                    $contact->phone,
+                );
         } catch (RuntimeException $exception) {
             report($exception);
 
@@ -44,6 +59,7 @@ class DonationCheckoutController extends Controller
         return response()->json([
             'client_secret' => $result['client_secret'],
             'payment_intent_id' => $result['payment_intent_id'],
+            'subscription_id' => $result['subscription_id'] ?? null,
             'publishable_key' => IntegrationConfig::string('stripe.key') ?: config('stripe.mock_publishable_key'),
             'mock' => StripePaymentService::mockModeEnabled(),
             'complete_url' => StripePaymentService::mockModeEnabled()

@@ -38,11 +38,12 @@ class DonationIngestPayloadMapper
     {
         $settlement = $this->stripePaymentService->settlementFromPaymentIntent($intent);
         $enrichment = $this->stripePaymentService->enrichmentFromPaymentIntent($intent);
+        $metadata = $this->stripePaymentService->donationMetadataFromPaymentIntent($intent);
 
         return $this->build(
             externalId: $intent->id,
             settlement: $settlement,
-            metadata: $intent->metadata->toArray(),
+            metadata: $metadata,
             donatedAt: $this->donatedAtFromPaymentIntent($intent),
             enrichment: $enrichment,
         );
@@ -89,6 +90,7 @@ class DonationIngestPayloadMapper
     ): DonationIngestPayload {
         $campaignTitle = (string) ($metadata['campaign_title'] ?? 'Donazioni online');
         $financingGoalAmount = null;
+        $campaign = null;
 
         if (isset($metadata['campaign_id'])) {
             $campaign = DonationCampaign::query()->find($metadata['campaign_id']);
@@ -114,7 +116,31 @@ class DonationIngestPayloadMapper
             financingGoalAmount: $financingGoalAmount,
             donorEmail: isset($metadata['donor_email']) ? DonorContact::normalizeEmail((string) $metadata['donor_email']) : null,
             donorPhone: isset($metadata['donor_phone']) ? DonorContact::normalizePhone((string) $metadata['donor_phone']) : null,
+            donationFrequency: $this->resolveDonationFrequency($metadata, $campaign, $enrichment),
             stripeEnrichment: $enrichment,
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $metadata
+     */
+    private function resolveDonationFrequency(
+        array $metadata,
+        ?DonationCampaign $campaign,
+        ?StripeEnrichmentFields $enrichment,
+    ): string {
+        if (($enrichment?->stripeSubscriptionId ?? null) !== null && $enrichment->stripeSubscriptionId !== '') {
+            return 'Recurring';
+        }
+
+        if (($metadata['donation_frequency'] ?? '') === 'Recurring') {
+            return 'Recurring';
+        }
+
+        if ($campaign !== null && $campaign->allowsRecurring()) {
+            return 'Recurring';
+        }
+
+        return 'OneTime';
     }
 }
