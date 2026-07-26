@@ -166,6 +166,9 @@ class DonationIngestService
             'stripeStatementDescriptor',
             'stripeRadarRiskLevel',
         ] as $field) {
+            if (! array_key_exists($field, $existing)) {
+                continue;
+            }
             $have = trim((string) ($existing[$field] ?? ''));
             $want = trim((string) ($incoming[$field] ?? ''));
             if ($have === '' && $want !== '') {
@@ -174,7 +177,8 @@ class DonationIngestService
         }
 
         if (
-            trim((string) ($existing['subjectEmailAddress'] ?? '')) === ''
+            array_key_exists('subjectEmailAddress', $existing)
+            && trim((string) ($existing['subjectEmailAddress'] ?? '')) === ''
             && $payload->donorEmail !== null
             && trim($payload->donorEmail) !== ''
         ) {
@@ -182,7 +186,8 @@ class DonationIngestService
         }
 
         if (
-            trim((string) ($existing['subjectPhoneNumber'] ?? '')) === ''
+            array_key_exists('subjectPhoneNumber', $existing)
+            && trim((string) ($existing['subjectPhoneNumber'] ?? '')) === ''
             && $payload->donorPhone !== null
             && trim($payload->donorPhone) !== ''
         ) {
