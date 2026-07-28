@@ -86,12 +86,6 @@ class DonationCampaignResource extends Resource
         }
 
         return $schema->schema([
-            TextInput::make('slug')
-                ->label(__('cms.fields.slug'))
-                ->required()
-                ->unique(ignoreRecord: true)
-                ->alphaDash()
-                ->maxLength(255),
             Tabs::make(__('cms.sections.translations'))->tabs($tabs)->columnSpanFull(),
             TagsInput::make('preset_amounts')
                 ->label(__('cms.fields.preset_amounts'))

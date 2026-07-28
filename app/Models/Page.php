@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\SyncsUrlSlugFromLabel;
 use Database\Factories\PageFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Spatie\Translatable\HasTranslations;
 class Page extends Model
 {
     /** @use HasFactory<PageFactory> */
-    use HasFactory, HasTranslations;
+    use HasFactory, HasTranslations, SyncsUrlSlugFromLabel;
 
     /**
      * @var list<string>

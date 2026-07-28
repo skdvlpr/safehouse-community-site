@@ -120,15 +120,11 @@ class EditorialArticleTest extends TestCase
             ->test(CreateEditorialArticleCategory::class)
             ->fillForm([
                 'name' => ['it' => 'Nuova del giornalista', 'ru' => '', 'en' => ''],
-                'slug' => ['it' => 'nuova-del-giornalista', 'ru' => '', 'en' => ''],
                 'description' => ['it' => '', 'ru' => '', 'en' => ''],
             ])
             ->call('create')
             ->assertHasNoFormErrors();
 
-        $this->assertDatabaseHas('article_categories', [
-            'section' => ArticleSection::Editorial->value,
-        ]);
         $this->assertTrue(
             ArticleCategory::query()
                 ->where('section', ArticleSection::Editorial)

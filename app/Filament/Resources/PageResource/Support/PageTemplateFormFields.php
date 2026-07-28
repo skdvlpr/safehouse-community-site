@@ -24,13 +24,6 @@ class PageTemplateFormFields
             ->required($isPrimaryLocale)
             ->maxLength(255);
 
-        $fields[] = TextInput::make("slug.{$locale}")
-            ->label(__('cms.fields.slug'))
-            ->required(fn (Get $get): bool => $isPrimaryLocale && $get('template') !== 'home')
-            ->maxLength(255)
-            ->alphaDash()
-            ->visible(fn (Get $get): bool => $get('template') !== 'home');
-
         $fields[] = RichEditor::make("body.{$locale}")
             ->label(fn (Get $get): string => static::bodyLabel($get('template')))
             ->helperText(fn (Get $get): ?string => static::bodyHelper($get('template')))

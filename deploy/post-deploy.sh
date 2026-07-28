@@ -52,6 +52,9 @@ php artisan optimize:clear --no-interaction
 # updateOrCreate/updateMany and would wipe production edits on every deploy.
 php artisan db:seed --class=RoleSeeder --force --no-interaction
 
+# Sanitize / refresh URL path slugs from name/title (skips slogan fields & recurring campaign slug).
+php artisan cms:regenerate-url-slugs --no-interaction 2>/dev/null || true
+
 php artisan permission:cache-reset --no-interaction 2>/dev/null || true
 
 php artisan storage:link --force 2>/dev/null || true

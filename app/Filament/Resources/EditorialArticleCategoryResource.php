@@ -64,12 +64,6 @@ class EditorialArticleCategoryResource extends Resource
                         ->required($locale === 'it')
                         ->maxLength(255),
 
-                    TextInput::make("slug.{$locale}")
-                        ->label(__('cms.fields.slug'))
-                        ->required($locale === 'it')
-                        ->maxLength(255)
-                        ->alphaDash(),
-
                     Textarea::make("description.{$locale}")
                         ->label(__('cms.fields.description'))
                         ->rows(3)

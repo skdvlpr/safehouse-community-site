@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ArticleSection;
+use App\Models\Concerns\SyncsUrlSlugFromLabel;
 use Database\Factories\ArticleCategoryFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Spatie\Translatable\HasTranslations;
 class ArticleCategory extends Model
 {
     /** @use HasFactory<ArticleCategoryFactory> */
-    use HasFactory, HasTranslations;
+    use HasFactory, HasTranslations, SyncsUrlSlugFromLabel;
 
     /**
      * @var list<string>
