@@ -7,8 +7,11 @@ use App\Services\EspoCrm\EspoCrmClient;
 use App\Services\EspoCrm\EspoCrmFinanziamentoService;
 use App\Services\EspoCrm\EspoCrmPartyResolver;
 use App\Support\IntegrationConfig;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 class DonationIngestService
 {
@@ -22,6 +25,35 @@ class DonationIngestService
      * @return array{status: string, prima_nota_id: string, financing_id: string}
      */
     public function ingest(DonationIngestPayload $payload): array
+    {
+        $lockKey = 'donation-ingest:'.sha1($payload->idempotencySearchValue());
+
+        try {
+            return Cache::lock($lockKey, 30)->block(15, function () use ($payload): array {
+                return $this->ingestUnderLock($payload);
+            });
+        } catch (LockTimeoutException $exception) {
+            $existing = $this->findPrimaNotaByExternalId($payload->idempotencySearchValue());
+            if ($existing !== null) {
+                return [
+                    'status' => 'duplicate',
+                    'prima_nota_id' => (string) ($existing['id'] ?? ''),
+                    'financing_id' => (string) ($existing['financingId'] ?? ''),
+                ];
+            }
+
+            throw new RuntimeException(
+                'Donation ingest lock timeout for '.$payload->externalId,
+                0,
+                $exception,
+            );
+        }
+    }
+
+    /**
+     * @return array{status: string, prima_nota_id: string, financing_id: string}
+     */
+    private function ingestUnderLock(DonationIngestPayload $payload): array
     {
         $existing = $this->findPrimaNotaByExternalId($payload->idempotencySearchValue());
         if ($existing !== null) {
@@ -105,14 +137,16 @@ class DonationIngestService
      */
     private function findPrimaNotaByExternalId(string $externalId): ?array
     {
+        $reference = str_starts_with($externalId, '#') ? $externalId : '#'.$externalId;
+
         $result = $this->client->search((string) config('espocrm.prima_nota.entity'), [
             'select' => 'id,donationPaymentReference,financingId,stripeChargeId,commissionAmount,amount,amountGross,stripeBillingEmail,stripeReceiptEmail,stripeBillingPhone,subjectEmailAddress,subjectPhoneNumber',
-            'maxSize' => 1,
+            'maxSize' => 5,
             'where' => [
                 [
-                    'type' => 'contains',
+                    'type' => 'equals',
                     'attribute' => 'donationPaymentReference',
-                    'value' => $externalId,
+                    'value' => $reference,
                 ],
             ],
         ]);

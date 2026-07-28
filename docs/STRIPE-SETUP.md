@@ -102,7 +102,7 @@ Copy **Signing secret** → `STRIPE_WEBHOOK_SECRET` on the server.
 
 Dedicated CMS tab **Donazioni ricorrenti** (`allows_recurring=true`, no fundraising goal).
 
-Checkout creates a Stripe **Customer + Subscription** (`payment_behavior=default_incomplete`); the Payment Element confirms the first invoice PaymentIntent. Renewals arrive as `invoice.paid` → PrimaNota with `donationFrequency=Recurring` + `stripeSubscriptionId`.
+Checkout creates a Stripe **Customer + Subscription** (`payment_behavior=default_incomplete`); the first invoice uses **`confirmation_secret.client_secret`** (Stripe API ≥ `2025-03-31.basil`; `Invoice.payment_intent` was removed) for the Payment Element. Renewals arrive as `invoice.paid` → PrimaNota with `donationFrequency=Recurring` + `stripeSubscriptionId`.
 
 Subscription Payment Element is **card-only** today (wallets like Satispay stay one-time).
 

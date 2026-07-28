@@ -125,4 +125,24 @@ class StripeSettlementAmountsTest extends TestCase
         $this->assertFalse($fields['stripeLivemode']);
         $this->assertStringContainsString('stripe_fee', (string) $fields['stripeFeeDetailsJson']);
     }
+
+    public function test_settlement_from_payment_intent_without_balance_transaction_uses_zero_fee(): void
+    {
+        $intent = PaymentIntent::constructFrom([
+            'id' => 'pi_no_bt',
+            'amount' => 10000,
+            'amount_received' => 10000,
+            'currency' => 'eur',
+            'latest_charge' => [
+                'id' => 'ch_no_bt',
+                'object' => 'charge',
+            ],
+        ]);
+
+        $settlement = (new StripePaymentService(null))->settlementFromPaymentIntent($intent);
+
+        $this->assertSame(100.0, $settlement->gross);
+        $this->assertSame(0.0, $settlement->fee);
+        $this->assertSame(100.0, $settlement->net);
+    }
 }

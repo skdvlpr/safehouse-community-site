@@ -154,16 +154,16 @@ class StripePaymentService
                     'save_default_payment_method' => 'on_subscription',
                     'payment_method_types' => ['card'],
                 ],
-                'expand' => ['latest_invoice.payment_intent'],
+                // API >= 2025-03-31.basil removed Invoice.payment_intent; use confirmation_secret.
+                'expand' => ['latest_invoice.confirmation_secret'],
                 'metadata' => $metadata,
             ]);
         } catch (ApiErrorException $exception) {
             throw new RuntimeException('Stripe subscription failed: '.$exception->getMessage(), 0, $exception);
         }
 
-        $invoice = $subscription->latest_invoice ?? null;
-        $intent = is_object($invoice) ? ($invoice->payment_intent ?? null) : null;
-        if (! is_object($intent) || ! isset($intent->id)) {
+        $credentials = $this->firstInvoicePaymentCredentials($subscription->latest_invoice ?? null);
+        if ($credentials === null) {
             throw new RuntimeException('Stripe subscription did not return a payment intent.');
         }
 
@@ -173,21 +173,16 @@ class StripePaymentService
         ]);
 
         try {
-            $this->client->paymentIntents->update($intent->id, [
+            $this->client->paymentIntents->update($credentials['payment_intent_id'], [
                 'metadata' => $subscriptionMetadata,
             ]);
         } catch (ApiErrorException $exception) {
             throw new RuntimeException('Stripe payment intent metadata update failed: '.$exception->getMessage(), 0, $exception);
         }
 
-        $clientSecret = $intent->client_secret ?? null;
-        if (! is_string($clientSecret) || $clientSecret === '') {
-            throw new RuntimeException('Stripe did not return a subscription client secret.');
-        }
-
         return [
-            'client_secret' => $clientSecret,
-            'payment_intent_id' => (string) $intent->id,
+            'client_secret' => $credentials['client_secret'],
+            'payment_intent_id' => $credentials['payment_intent_id'],
             'subscription_id' => $subscription->id,
             'customer_id' => $customer->id,
         ];
@@ -248,7 +243,6 @@ class StripePaymentService
 
         $attempts = max(1, (int) config('stripe.settlement_retries', 5));
         $sleepMs = max(0, (int) config('stripe.settlement_retry_ms', 400));
-        $lastIntent = null;
 
         for ($attempt = 1; $attempt <= $attempts; $attempt++) {
             try {
@@ -263,7 +257,6 @@ class StripePaymentService
                 throw new RuntimeException('Stripe payment intent has not succeeded yet.');
             }
 
-            $lastIntent = $intent;
             if ($this->hasUsableBalanceTransaction($intent)) {
                 return $intent;
             }
@@ -273,7 +266,12 @@ class StripePaymentService
             }
         }
 
-        return $lastIntent;
+        // Never return a succeeded PaymentIntent without BalanceTransaction fee SoT —
+        // callers would otherwise persist commissionAmount=0 / net=gross.
+        throw new RuntimeException(
+            'Stripe BalanceTransaction not ready for payment intent '.$paymentIntentId
+            .' after '.$attempts.' attempt(s).'
+        );
     }
 
     private function hasUsableBalanceTransaction(PaymentIntent $intent): bool
@@ -664,15 +662,149 @@ class StripePaymentService
             return null;
         }
 
-        $paymentIntent = $invoice->payment_intent ?? null;
-        if (is_string($paymentIntent) && $paymentIntent !== '') {
-            return $paymentIntent;
+        return self::paymentIntentIdFromInvoiceObject($invoice);
+    }
+
+    /**
+     * Resolve the first PaymentIntent id on an Invoice (legacy payment_intent + Basil payments[]).
+     */
+    public static function paymentIntentIdFromInvoiceObject(object $invoice): ?string
+    {
+        $legacy = $invoice->payment_intent ?? null;
+        if (is_string($legacy) && $legacy !== '') {
+            return $legacy;
         }
-        if (is_object($paymentIntent) && isset($paymentIntent->id)) {
-            return (string) $paymentIntent->id;
+        if (is_object($legacy) && isset($legacy->id) && is_string($legacy->id) && $legacy->id !== '') {
+            return $legacy->id;
+        }
+
+        $payments = [];
+        if (isset($invoice->payments) && is_object($invoice->payments)) {
+            $data = $invoice->payments->data ?? [];
+            if (is_array($data) || $data instanceof \Traversable) {
+                $payments = $data;
+            }
+        }
+
+        foreach ($payments as $invoicePayment) {
+            if (! is_object($invoicePayment)) {
+                continue;
+            }
+            $payment = $invoicePayment->payment ?? null;
+            if (! is_object($payment)) {
+                continue;
+            }
+            $pi = $payment->payment_intent ?? null;
+            if (is_string($pi) && $pi !== '') {
+                return $pi;
+            }
+            if (is_object($pi) && isset($pi->id) && is_string($pi->id) && $pi->id !== '') {
+                return $pi->id;
+            }
+        }
+
+        $confirmation = $invoice->confirmation_secret ?? null;
+        $clientSecret = is_object($confirmation) ? (string) ($confirmation->client_secret ?? '') : '';
+        if ($clientSecret !== '') {
+            $fromSecret = strstr($clientSecret, '_secret_', true);
+
+            return is_string($fromSecret) && str_starts_with($fromSecret, 'pi_') ? $fromSecret : null;
         }
 
         return null;
+    }
+
+    /**
+     * First invoice PaymentIntent credentials for Payment Element (Subscription checkout).
+     *
+     * @return array{payment_intent_id: string, client_secret: string}|null
+     */
+    private function firstInvoicePaymentCredentials(mixed $invoice): ?array
+    {
+        if ($this->client === null) {
+            return null;
+        }
+
+        if (is_string($invoice) && $invoice !== '') {
+            try {
+                $invoice = $this->client->invoices->retrieve($invoice, [
+                    'expand' => ['confirmation_secret', 'payments.data.payment.payment_intent'],
+                ]);
+            } catch (ApiErrorException) {
+                return null;
+            }
+        }
+
+        if (! is_object($invoice)) {
+            return null;
+        }
+
+        $legacy = $invoice->payment_intent ?? null;
+        if (is_object($legacy) && isset($legacy->id)) {
+            $secret = (string) ($legacy->client_secret ?? '');
+            if ($secret !== '') {
+                return [
+                    'payment_intent_id' => (string) $legacy->id,
+                    'client_secret' => $secret,
+                ];
+            }
+        }
+        if (is_string($legacy) && $legacy !== '') {
+            try {
+                $intent = $this->client->paymentIntents->retrieve($legacy);
+                $secret = (string) ($intent->client_secret ?? '');
+                if ($secret !== '') {
+                    return [
+                        'payment_intent_id' => (string) $intent->id,
+                        'client_secret' => $secret,
+                    ];
+                }
+            } catch (ApiErrorException) {
+                return null;
+            }
+        }
+
+        $confirmation = $invoice->confirmation_secret ?? null;
+        $clientSecret = is_object($confirmation) ? (string) ($confirmation->client_secret ?? '') : '';
+
+        $paymentIntentId = self::paymentIntentIdFromInvoiceObject($invoice);
+        if (($paymentIntentId === null || $clientSecret === '') && isset($invoice->id) && is_string($invoice->id)) {
+            // Create response may omit payments[]; re-fetch invoice with Basil expands.
+            try {
+                $fetched = $this->client->invoices->retrieve($invoice->id, [
+                    'expand' => ['confirmation_secret', 'payments.data.payment.payment_intent'],
+                ]);
+            } catch (ApiErrorException) {
+                $fetched = null;
+            }
+            if (is_object($fetched)) {
+                $confirmation = $fetched->confirmation_secret ?? $confirmation;
+                $clientSecret = is_object($confirmation) ? (string) ($confirmation->client_secret ?? '') : $clientSecret;
+                $paymentIntentId = self::paymentIntentIdFromInvoiceObject($fetched) ?? $paymentIntentId;
+                if ($clientSecret === '' && $paymentIntentId !== null) {
+                    try {
+                        $intent = $this->client->paymentIntents->retrieve($paymentIntentId);
+                        $clientSecret = (string) ($intent->client_secret ?? '');
+                    } catch (ApiErrorException) {
+                        return null;
+                    }
+                }
+            }
+        }
+
+        if ($paymentIntentId === null && $clientSecret !== '') {
+            $fromSecret = strstr($clientSecret, '_secret_', true);
+            $paymentIntentId = is_string($fromSecret) && str_starts_with($fromSecret, 'pi_') ? $fromSecret : null;
+        }
+
+        if ($paymentIntentId === null || $clientSecret === '') {
+            return null;
+        }
+
+        return [
+            'payment_intent_id' => $paymentIntentId,
+            'client_secret' => $clientSecret,
+        ];
     }
 
     public static function statementDescriptorSuffix(): string

@@ -293,6 +293,107 @@ class DonationIngestServiceTest extends TestCase
 
         $this->assertSame('duplicate', $result['status']);
         Http::assertSentCount(1);
+
+        Http::assertSent(function ($request): bool {
+            if ($request->method() !== 'GET' || ! str_contains($request->url(), '/api/v1/PrimaNota')) {
+                return false;
+            }
+
+            $where = $request->data()['where'] ?? [];
+            if (is_string($where)) {
+                $where = json_decode($where, true) ?? [];
+            }
+
+            $clause = $where[0] ?? [];
+
+            return ($clause['type'] ?? null) === 'equals'
+                && ($clause['attribute'] ?? null) === 'donationPaymentReference'
+                && ($clause['value'] ?? null) === '#pi_dup';
+        });
+    }
+
+    public function test_ingest_second_parallel_path_becomes_duplicate_not_second_create(): void
+    {
+        // Simulates webhook + thank-you both calling ingest: first creates, second
+        // must re-check under lock and skip POST create.
+        Http::fake(function (\Illuminate\Http\Client\Request $request) {
+            $method = $request->method();
+            $url = $request->url();
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/PrimaNota')) {
+                static $lookups = 0;
+                $lookups++;
+
+                if ($lookups === 1) {
+                    return Http::response(['total' => 0, 'list' => []], 200);
+                }
+
+                return Http::response([
+                    'total' => 1,
+                    'list' => [[
+                        'id' => 'pn-first',
+                        'donationPaymentReference' => '#pi_race',
+                        'stripeChargeId' => 'ch_race',
+                        'commissionAmount' => 0.5,
+                        'financingId' => 'opp-race',
+                    ]],
+                ], 200);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Opportunity')) {
+                return Http::response([
+                    'total' => 1,
+                    'list' => [['id' => 'opp-race', 'name' => 'Race campaign']],
+                ], 200);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Contact')) {
+                return Http::response(['total' => 0, 'list' => []], 200);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Account')) {
+                return Http::response(['total' => 0, 'list' => []], 200);
+            }
+
+            if ($method === 'POST' && str_contains($url, '/api/v1/Contact')) {
+                return Http::response(['id' => 'c-race'], 200);
+            }
+
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+                return Http::response(['id' => 'pn-first', 'financingId' => 'opp-race'], 200);
+            }
+
+            return Http::response(['message' => 'Unexpected '.$method.' '.$url], 500);
+        });
+
+        $payload = new DonationIngestPayload(
+            provider: 'stripe',
+            externalId: 'pi_race',
+            amountGross: 10,
+            commissionAmount: 0.5,
+            commissionPercent: 5,
+            netAmount: 9.5,
+            currency: 'EUR',
+            campaignTitle: 'Race campaign',
+            donorName: 'Race Donor',
+            comment: null,
+            donorType: 'individual',
+            donatedAt: now()->toIso8601String(),
+            donorEmail: 'race@example.invalid',
+        );
+
+        $first = app(DonationIngestService::class)->ingest($payload);
+        $second = app(DonationIngestService::class)->ingest($payload);
+
+        $this->assertSame('created', $first['status']);
+        $this->assertSame('duplicate', $second['status']);
+        $this->assertSame('pn-first', $second['prima_nota_id']);
+
+        $createPosts = collect(Http::recorded())
+            ->filter(fn ($pair) => $pair[0]->method() === 'POST' && str_contains($pair[0]->url(), '/api/v1/PrimaNota'))
+            ->count();
+
+        $this->assertSame(1, $createPosts);
     }
 
     public function test_ingest_backfills_incomplete_stripe_row_without_charge_id(): void

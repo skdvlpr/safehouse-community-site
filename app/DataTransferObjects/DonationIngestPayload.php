@@ -77,7 +77,7 @@ readonly class DonationIngestPayload
     }
 
     /**
-     * Value for GET PrimaNota idempotency search (contains on donationPaymentReference).
+     * Value for GET PrimaNota idempotency search (equals on donationPaymentReference = #externalId).
      */
     public function idempotencySearchValue(): string
     {

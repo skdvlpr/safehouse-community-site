@@ -70,7 +70,7 @@ class PrimaNotaPaymentStatusService
             return $this->updateBySubscriptionId($subscriptionId, self::STATUS_PROBLEMATIC);
         }
 
-        $paymentIntentId = (string) ($invoice->payment_intent ?? '');
+        $paymentIntentId = \App\Services\Payments\StripePaymentService::paymentIntentIdFromInvoiceObject($invoice) ?? '';
         if ($paymentIntentId !== '') {
             return $this->updateByPaymentIntentId($paymentIntentId, self::STATUS_PROBLEMATIC);
         }
