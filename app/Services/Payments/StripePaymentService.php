@@ -523,6 +523,11 @@ class StripePaymentService
                 'limit' => 100,
             ]);
         } catch (ApiErrorException $exception) {
+            // Manual payouts cannot be filtered by payout ID — Safehouse supports automatic only.
+            if (str_contains($exception->getMessage(), 'automatic transfers')) {
+                return [];
+            }
+
             throw new RuntimeException(
                 'Stripe payout balance transactions lookup failed: '.$exception->getMessage(),
                 0,

@@ -75,6 +75,9 @@ class PrimaNotaPaymentStatusService
     /**
      * When Stripe pays the NGO bank account, mark each included charge as Inviato.
      *
+     * Supported: automatic payouts only (Stripe links BTs via ?payout=po_…).
+     * Manual payouts are ignored — Stripe cannot identify included charges.
+     *
      * @return array{handled: bool, updated: int, status: ?string, reason: ?string}
      */
     private function handlePayoutPaid(object $payout): array
@@ -82,6 +85,14 @@ class PrimaNotaPaymentStatusService
         $payoutId = trim((string) ($payout->id ?? ''));
         if ($payoutId === '') {
             return $this->result(true, 0, self::STATUS_INVIATO, 'empty_payout');
+        }
+
+        if (($payout->automatic ?? null) === false) {
+            Log::warning('Ignoring Stripe manual payout for PrimaNota status (automatic payouts only).', [
+                'payout_id' => $payoutId,
+            ]);
+
+            return $this->result(true, 0, self::STATUS_INVIATO, 'manual_payout_unsupported');
         }
 
         $paidAt = $this->formatPayoutPaidAt($payout);

@@ -647,6 +647,7 @@ class StripeWebhookDonationTest extends TestCase
             'data' => ['object' => [
                 'id' => 'po_test_1',
                 'object' => 'payout',
+                'automatic' => true,
                 'arrival_date' => 1722470400,
                 'created' => 1722470400,
                 'status' => 'paid',
@@ -680,6 +681,36 @@ class StripeWebhookDonationTest extends TestCase
                 && ($data['stripePayoutId'] ?? null) === 'po_test_1'
                 && ! empty($data['stripePayoutPaidAt'] ?? null);
         });
+    }
+
+    public function test_webhook_ignores_manual_payout_for_prima_nota_status(): void
+    {
+        Http::fake();
+
+        $event = Event::constructFrom([
+            'id' => 'evt_payout_manual',
+            'type' => 'payout.paid',
+            'data' => ['object' => [
+                'id' => 'po_manual_1',
+                'object' => 'payout',
+                'automatic' => false,
+                'amount' => 1062,
+                'arrival_date' => 1722470400,
+                'created' => 1722470400,
+                'status' => 'paid',
+            ]],
+        ]);
+
+        $mock = Mockery::mock(StripePaymentService::class);
+        $mock->shouldReceive('constructWebhookEvent')->andReturn($event);
+        $mock->shouldNotReceive('listBalanceTransactionsForPayout');
+        $this->instance(StripePaymentService::class, $mock);
+
+        $this->postStripeWebhook('{}', 'sig')
+            ->assertOk()
+            ->assertSee('OK');
+
+        Http::assertNothingSent();
     }
 
     private function postStripeWebhook(string $payload, string $signature): \Illuminate\Testing\TestResponse

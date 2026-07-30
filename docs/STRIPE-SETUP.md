@@ -87,7 +87,7 @@ Developers → [Webhooks](https://dashboard.stripe.com/webhooks) → Add endpoin
 
 - `payment_intent.succeeded` — one-time donations (+ first subscription invoice PI) → PrimaNota `paymentStatus=Planned` (awaiting bank payout)
 - `invoice.paid` — monthly renewals (idempotent via PaymentIntent id) → `Planned`
-- `payout.paid` — Stripe bank payout → `Inviato` + `stripePayoutId` / `stripePayoutPaidAt` (CRM cash totals count only Inviato)
+- `payout.paid` — **automatic** Stripe bank payout → `Inviato` + `stripePayoutId` / `stripePayoutPaidAt` (CRM cash totals count only Inviato). Manual payouts are ignored (Stripe cannot list included charges).
 - `customer.subscription.deleted` / `payment_intent.canceled` → `Cancelled`
 - full `charge.refunded` → `Refunded`
 - `charge.dispute.created` / `updated` / `funds_withdrawn` → `Disputed`
