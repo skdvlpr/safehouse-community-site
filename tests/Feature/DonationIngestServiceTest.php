@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\DataTransferObjects\DonationIngestPayload;
 use App\Models\DonationCampaign;
 use App\Services\Donations\DonationIngestService;
+use App\Services\Payments\MockStripePaymentService;
+use App\Services\Payments\StripePaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -24,6 +26,8 @@ class DonationIngestServiceTest extends TestCase
         config()->set('espocrm.finanziamento.default_close_date', '2026-12-31');
         config()->set('espocrm.prima_nota.default_subject_name', 'Donatore');
         config()->set('espocrm.prima_nota.default_beneficiary_name', 'Safe House');
+        config()->set('stripe.mock', true);
+        $this->app->instance(StripePaymentService::class, MockStripePaymentService::make());
     }
 
     public function test_ingest_creates_prima_nota_for_stripe_payment(): void
@@ -41,6 +45,50 @@ class DonationIngestServiceTest extends TestCase
         $this->assertSame('created', $result['status']);
         $this->assertSame('pn-new', $result['prima_nota_id']);
         $this->assertSame('opp-existing', $result['financing_id']);
+    }
+
+    public function test_ingest_attaches_crm_link_metadata_on_mock_stripe_intent(): void
+    {
+        $mock = MockStripePaymentService::make();
+        $this->app->instance(StripePaymentService::class, $mock);
+
+        $campaign = DonationCampaign::factory()->create([
+            'espocrm_finanziamento_name' => 'Raccolta fondi per Safe House',
+        ]);
+        $created = $mock->createDonationIntent($campaign, 1500, 'Anna Bianchi', 'organization', 'Test', 'anna@example.com');
+
+        $this->fakeCrmIngest(
+            financingId: 'opp-existing',
+            financingName: 'Raccolta fondi per Safe House',
+            subjectAccountMatches: 0,
+            beneficiaryAccountMatches: 1,
+            beneficiaryAccountId: 'acc-safe-house',
+        );
+
+        app(DonationIngestService::class)->ingest(new DonationIngestPayload(
+            provider: 'stripe',
+            externalId: $created['payment_intent_id'],
+            amountGross: 15,
+            commissionAmount: 0,
+            commissionPercent: 0,
+            netAmount: 15,
+            currency: 'EUR',
+            campaignTitle: 'Raccolta fondi per Safe House',
+            donorName: 'Anna Bianchi',
+            comment: 'Test',
+            donorType: 'organization',
+            donatedAt: '2026-06-29T12:00:00+00:00',
+            donorEmail: 'anna@example.com',
+        ));
+
+        $stored = \Illuminate\Support\Facades\Cache::get('stripe_mock_intent:'.$created['payment_intent_id']);
+        $this->assertIsArray($stored);
+        $this->assertSame('pn-new', $stored['metadata']['crm_prima_nota_id'] ?? null);
+        $this->assertSame(
+            'https://crm.test/#PrimaNota/view/pn-new',
+            $stored['metadata']['crm_prima_nota_url'] ?? null,
+        );
+        $this->assertNotSame('', trim((string) ($stored['description'] ?? '')));
     }
 
     public function test_ingest_posts_party_linked_prima_nota_fields_to_crm(): void

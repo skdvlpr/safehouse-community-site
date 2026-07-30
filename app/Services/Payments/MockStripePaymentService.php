@@ -45,6 +45,7 @@ class MockStripePaymentService extends StripePaymentService
             'payment_intent_id' => $paymentIntentId,
             'amount_cents' => $amountCents,
             'currency' => strtolower($campaign->currency),
+            'description' => $this->donationDescription($campaign, $donorName, 'OneTime'),
             'metadata' => $this->metadata($campaign, $donorName, $donorType, $comment, $donorEmail, $donorPhone, 'OneTime'),
             'status' => 'requires_payment_method',
             'created' => now('UTC')->timestamp,
@@ -91,6 +92,7 @@ class MockStripePaymentService extends StripePaymentService
             'payment_intent_id' => $paymentIntentId,
             'amount_cents' => $amountCents,
             'currency' => strtolower($campaign->currency),
+            'description' => $this->donationDescription($campaign, $donorName, 'Recurring'),
             'metadata' => $metadata,
             'status' => 'requires_payment_method',
             'created' => now('UTC')->timestamp,
@@ -105,6 +107,52 @@ class MockStripePaymentService extends StripePaymentService
             'subscription_id' => $subscriptionId,
             'customer_id' => $customerId,
         ];
+    }
+
+    public function attachPrimaNotaLinkToPaymentIntent(string $paymentIntentId, string $primaNotaId): array
+    {
+        $paymentIntentId = trim($paymentIntentId);
+        $primaNotaId = trim($primaNotaId);
+        if ($paymentIntentId === '' || $primaNotaId === '') {
+            return ['updated' => false, 'reason' => 'invalid_ids'];
+        }
+
+        $stored = $this->loadIntent($paymentIntentId);
+        if ($stored === null) {
+            return ['updated' => false, 'reason' => 'not_found'];
+        }
+
+        $url = self::primaNotaCrmUrl($primaNotaId);
+        $meta = is_array($stored['metadata'] ?? null) ? $stored['metadata'] : [];
+        $meta['crm_prima_nota_id'] = $primaNotaId;
+        if ($url !== '') {
+            $meta['crm_prima_nota_url'] = $url;
+        }
+        $stored['metadata'] = $meta;
+        if (trim((string) ($stored['description'] ?? '')) === '') {
+            $stored['description'] = $this->donationDescriptionFromStoredMeta($meta);
+        }
+        $this->storeIntent($paymentIntentId, $stored);
+
+        return ['updated' => true, 'reason' => null];
+    }
+
+    /**
+     * @param  array<string, mixed>  $meta
+     */
+    private function donationDescriptionFromStoredMeta(array $meta): string
+    {
+        $campaignTitle = (string) ($meta['campaign_title'] ?? 'Donazione');
+        $donorName = (string) ($meta['donor_name'] ?? '');
+        $freq = (($meta['donation_frequency'] ?? '') === 'Recurring') ? 'ricorrente' : 'una tantum';
+
+        return mb_substr(
+            $donorName !== ''
+                ? sprintf('Donazione %s — %s — %s', $freq, $campaignTitle, $donorName)
+                : sprintf('Donazione %s — %s', $freq, $campaignTitle),
+            0,
+            1000,
+        );
     }
 
     public function constructWebhookEvent(string $payload, ?string $signature): \Stripe\Event
@@ -148,5 +196,15 @@ class MockStripePaymentService extends StripePaymentService
             $data,
             now()->addHours(self::CACHE_TTL_HOURS),
         );
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function loadIntent(string $paymentIntentId): ?array
+    {
+        $stored = Cache::get(self::CACHE_PREFIX.$paymentIntentId);
+
+        return is_array($stored) ? $stored : null;
     }
 }

@@ -29,6 +29,8 @@ readonly class StripeEnrichmentFields
         public ?string $stripeStatementDescriptor = null,
         public ?string $stripeCustomerId = null,
         public ?string $stripeSubscriptionId = null,
+        public ?string $stripeInvoiceId = null,
+        public ?string $stripeInvoiceNumber = null,
     ) {}
 
     /**
@@ -62,6 +64,8 @@ readonly class StripeEnrichmentFields
                 : (isset($stored['metadata']['stripe_subscription_id'])
                     ? (string) $stored['metadata']['stripe_subscription_id']
                     : null),
+            stripeInvoiceId: isset($stored['invoice_id']) ? (string) $stored['invoice_id'] : null,
+            stripeInvoiceNumber: isset($stored['invoice_number']) ? (string) $stored['invoice_number'] : null,
         );
     }
 
@@ -87,6 +91,8 @@ readonly class StripeEnrichmentFields
             'stripeStatementDescriptor' => $this->stripeStatementDescriptor,
             'stripeCustomerId' => $this->stripeCustomerId,
             'stripeSubscriptionId' => $this->stripeSubscriptionId,
+            'stripeInvoiceId' => $this->stripeInvoiceId,
+            'stripeInvoiceNumber' => $this->stripeInvoiceNumber,
         ];
 
         return array_filter(

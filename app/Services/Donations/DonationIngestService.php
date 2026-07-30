@@ -19,6 +19,7 @@ class DonationIngestService
         private readonly EspoCrmClient $client,
         private readonly EspoCrmPartyResolver $partyResolver,
         private readonly EspoCrmFinanziamentoService $finanziamentoService,
+        private readonly \App\Services\Payments\StripePaymentService $stripePaymentService,
     ) {}
 
     /**
@@ -51,6 +52,31 @@ class DonationIngestService
     }
 
     /**
+     * Best-effort: stamp Stripe PI description + CRM deep link after ingest.
+     */
+    private function syncStripeCrmLink(DonationIngestPayload $payload, string $primaNotaId): void
+    {
+        if ($primaNotaId === '' || strtolower($payload->provider) !== 'stripe') {
+            return;
+        }
+
+        $piId = ltrim($payload->externalId, '#');
+        if ($piId === '' || ! str_starts_with($piId, 'pi_')) {
+            return;
+        }
+
+        try {
+            $this->stripePaymentService->attachPrimaNotaLinkToPaymentIntent($piId, $primaNotaId);
+        } catch (\Throwable $exception) {
+            Log::warning('Stripe CRM link sync failed after PrimaNota ingest.', [
+                'payment_intent_id' => $piId,
+                'prima_nota_id' => $primaNotaId,
+                'error' => $exception->getMessage(),
+            ]);
+        }
+    }
+
+    /**
      * @return array{status: string, prima_nota_id: string, financing_id: string}
      */
     private function ingestUnderLock(DonationIngestPayload $payload): array
@@ -72,11 +98,17 @@ class DonationIngestService
                     );
                 }
 
+                $this->syncStripeCrmLink($payload, $existingId);
+
                 return [
                     'status' => 'backfilled',
                     'prima_nota_id' => $existingId,
                     'financing_id' => (string) ($existing['financingId'] ?? ''),
                 ];
+            }
+
+            if ($existingId !== '') {
+                $this->syncStripeCrmLink($payload, $existingId);
             }
 
             return [
@@ -125,9 +157,12 @@ class DonationIngestService
             $createPayload,
         );
 
+        $primaNotaId = (string) ($primaNota['id'] ?? '');
+        $this->syncStripeCrmLink($payload, $primaNotaId);
+
         return [
             'status' => 'created',
-            'prima_nota_id' => (string) ($primaNota['id'] ?? ''),
+            'prima_nota_id' => $primaNotaId,
             'financing_id' => $financingId,
         ];
     }
@@ -254,6 +289,8 @@ class DonationIngestService
             'stripeBalanceTransactionId',
             'stripeStatementDescriptor',
             'stripeRadarRiskLevel',
+            'stripeInvoiceId',
+            'stripeInvoiceNumber',
         ];
 
         foreach ($candidates as $field) {
@@ -314,7 +351,7 @@ class DonationIngestService
                 'commissionAmount' => $payload->commissionAmount,
                 'commissionAmountCurrency' => $payload->currency,
                 'commissionPercent' => $payload->commissionPercent,
-                'paymentStatus' => 'Paid',
+                'paymentStatus' => 'Planned',
             ],
             $payload->stripeEnrichment?->toPrimaNotaFields() ?? [],
         );

@@ -37,7 +37,7 @@ class DonationIngestPayloadTest extends TestCase
             'donationPaymentProvider' => 'Stripe',
             'donationPaymentReference' => '#pi_test_123',
             'donationFrequency' => 'OneTime',
-            'paymentStatus' => 'Paid',
+            'paymentStatus' => 'Planned',
             'donationDonorCategory' => 'Individual',
             'donationComment' => 'Grazie',
         ], $payload->primaNotaDonationFields());
@@ -68,7 +68,7 @@ class DonationIngestPayloadTest extends TestCase
             'donationPaymentProvider' => 'Stripe',
             'donationPaymentReference' => '#pi_anon',
             'donationFrequency' => 'OneTime',
-            'paymentStatus' => 'Paid',
+            'paymentStatus' => 'Planned',
         ], $payload->primaNotaDonationFields());
     }
 

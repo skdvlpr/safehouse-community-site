@@ -229,7 +229,7 @@ class StripeWebhookDonationTest extends TestCase
                 ->push([
                     'total' => 1,
                     'list' => [
-                        ['id' => 'pn-sub-1', 'paymentStatus' => 'Paid'],
+                        ['id' => 'pn-sub-1', 'paymentStatus' => 'Planned'],
                     ],
                 ], 200)
                 ->push(['id' => 'pn-sub-1', 'paymentStatus' => 'Cancelled'], 200),
@@ -263,7 +263,7 @@ class StripeWebhookDonationTest extends TestCase
                 ->push([
                     'total' => 1,
                     'list' => [
-                        ['id' => 'pn-ch-1', 'paymentStatus' => 'Paid'],
+                        ['id' => 'pn-ch-1', 'paymentStatus' => 'Planned'],
                     ],
                 ], 200)
                 ->push(['id' => 'pn-ch-1', 'paymentStatus' => 'Refunded'], 200),
@@ -302,7 +302,7 @@ class StripeWebhookDonationTest extends TestCase
                 ->push([
                     'total' => 1,
                     'list' => [
-                        ['id' => 'pn-dsp-1', 'paymentStatus' => 'Paid'],
+                        ['id' => 'pn-dsp-1', 'paymentStatus' => 'Planned'],
                     ],
                 ], 200)
                 ->push(['id' => 'pn-dsp-1', 'paymentStatus' => 'Disputed'], 200),
@@ -340,7 +340,7 @@ class StripeWebhookDonationTest extends TestCase
                 ->push([
                     'total' => 1,
                     'list' => [
-                        ['id' => 'pn-fail-1', 'paymentStatus' => 'Paid'],
+                        ['id' => 'pn-fail-1', 'paymentStatus' => 'Planned'],
                     ],
                 ], 200)
                 ->push(['id' => 'pn-fail-1', 'paymentStatus' => 'Problematic'], 200),
@@ -430,7 +430,7 @@ class StripeWebhookDonationTest extends TestCase
                 && ($payload['amount'] ?? null) === 97.1
                 && ($payload['donationPaymentProvider'] ?? '') === 'Stripe'
                 && ($payload['donationFrequency'] ?? '') === 'OneTime'
-                && ($payload['paymentStatus'] ?? '') === 'Paid'
+                && ($payload['paymentStatus'] ?? '') === 'Planned'
                 && ($payload['stripePaymentMethodType'] ?? '') === 'card'
                 && ($payload['stripeChargeId'] ?? '') === 'ch_test';
         });
@@ -626,6 +626,60 @@ class StripeWebhookDonationTest extends TestCase
             ])
         );
         $this->instance(StripePaymentService::class, $mock);
+    }
+
+    public function test_webhook_marks_prima_nota_inviato_on_payout_paid(): void
+    {
+        Http::fake([
+            'https://crm.test/api/v1/PrimaNota*' => Http::sequence()
+                ->push([
+                    'total' => 1,
+                    'list' => [
+                        ['id' => 'pn-po-1', 'paymentStatus' => 'Planned'],
+                    ],
+                ], 200)
+                ->push(['id' => 'pn-po-1', 'paymentStatus' => 'Inviato'], 200),
+        ]);
+
+        $event = Event::constructFrom([
+            'id' => 'evt_payout',
+            'type' => 'payout.paid',
+            'data' => ['object' => [
+                'id' => 'po_test_1',
+                'object' => 'payout',
+                'arrival_date' => 1722470400,
+                'created' => 1722470400,
+                'status' => 'paid',
+            ]],
+        ]);
+
+        $bt = (object) [
+            'id' => 'txn_po_1',
+            'type' => 'charge',
+            'source' => 'ch_po_1',
+        ];
+
+        $mock = Mockery::mock(StripePaymentService::class);
+        $mock->shouldReceive('constructWebhookEvent')->andReturn($event);
+        $mock->shouldReceive('listBalanceTransactionsForPayout')
+            ->once()
+            ->with('po_test_1')
+            ->andReturn([$bt]);
+        $this->instance(StripePaymentService::class, $mock);
+
+        $this->postStripeWebhook('{}', 'sig')
+            ->assertOk()
+            ->assertSee('OK');
+
+        Http::assertSent(function ($request): bool {
+            $data = $request->data();
+
+            return $request->method() === 'PUT'
+                && str_contains($request->url(), '/api/v1/PrimaNota/pn-po-1')
+                && ($data['paymentStatus'] ?? null) === 'Inviato'
+                && ($data['stripePayoutId'] ?? null) === 'po_test_1'
+                && ! empty($data['stripePayoutPaidAt'] ?? null);
+        });
     }
 
     private function postStripeWebhook(string $payload, string $signature): \Illuminate\Testing\TestResponse

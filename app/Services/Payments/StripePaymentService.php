@@ -7,6 +7,7 @@ use App\DataTransferObjects\StripeSettlementAmounts;
 use App\Models\DonationCampaign;
 use App\Support\IntegrationConfig;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
@@ -70,6 +71,7 @@ class StripePaymentService
                 'amount' => $amountCents,
                 'currency' => strtolower($campaign->currency),
                 'automatic_payment_methods' => ['enabled' => true],
+                'description' => $this->donationDescription($campaign, $donorName, 'OneTime'),
                 'metadata' => $this->metadata($campaign, $donorName, $donorType, $comment, $donorEmail, $donorPhone, 'OneTime'),
             ];
 
@@ -174,6 +176,7 @@ class StripePaymentService
 
         try {
             $this->client->paymentIntents->update($credentials['payment_intent_id'], [
+                'description' => $this->donationDescription($campaign, $donorName, 'Recurring'),
                 'metadata' => $subscriptionMetadata,
             ]);
         } catch (ApiErrorException $exception) {
@@ -435,6 +438,8 @@ class StripePaymentService
 
         $subscriptionId = $this->resolveSubscriptionId($intent);
 
+        [$invoiceId, $invoiceNumber] = $this->resolveInvoiceIdAndNumber($intent);
+
         return new StripeEnrichmentFields(
             stripePaymentCreatedAt: $createdAt,
             stripeChargeId: $chargeId,
@@ -452,7 +457,85 @@ class StripePaymentService
             stripeStatementDescriptor: $statementDescriptor,
             stripeCustomerId: $customerId,
             stripeSubscriptionId: $subscriptionId,
+            stripeInvoiceId: $invoiceId,
+            stripeInvoiceNumber: $invoiceNumber,
         );
+    }
+
+    /**
+     * @return array{0: ?string, 1: ?string}
+     */
+    private function resolveInvoiceIdAndNumber(PaymentIntent $intent): array
+    {
+        $invoice = $intent->invoice ?? null;
+        $invoiceId = null;
+
+        if (is_string($invoice) && $invoice !== '') {
+            $invoiceId = $invoice;
+        } elseif (is_object($invoice) && isset($invoice->id)) {
+            $invoiceId = (string) $invoice->id;
+        }
+
+        $invoiceNumber = null;
+        if (is_object($invoice) && isset($invoice->number) && is_string($invoice->number) && $invoice->number !== '') {
+            $invoiceNumber = $invoice->number;
+        }
+
+        if (
+            $invoiceId !== null
+            && $invoiceNumber === null
+            && $this->client !== null
+        ) {
+            try {
+                $fetched = $this->client->invoices->retrieve($invoiceId);
+                if (isset($fetched->number) && is_string($fetched->number) && $fetched->number !== '') {
+                    $invoiceNumber = $fetched->number;
+                }
+            } catch (ApiErrorException) {
+                // Keep id only.
+            }
+        }
+
+        return [$invoiceId, $invoiceNumber];
+    }
+
+    /**
+     * Balance transactions included in a bank payout (charge/payment legs).
+     *
+     * @return list<object>
+     */
+    public function listBalanceTransactionsForPayout(string $payoutId): array
+    {
+        if ($this->client === null) {
+            throw new RuntimeException('Stripe client is not configured.');
+        }
+
+        $payoutId = trim($payoutId);
+        if ($payoutId === '') {
+            return [];
+        }
+
+        try {
+            $collection = $this->client->balanceTransactions->all([
+                'payout' => $payoutId,
+                'limit' => 100,
+            ]);
+        } catch (ApiErrorException $exception) {
+            throw new RuntimeException(
+                'Stripe payout balance transactions lookup failed: '.$exception->getMessage(),
+                0,
+                $exception
+            );
+        }
+
+        $rows = [];
+        foreach ($collection->data ?? [] as $row) {
+            if (is_object($row)) {
+                $rows[] = $row;
+            }
+        }
+
+        return $rows;
     }
 
     /**
@@ -603,6 +686,106 @@ class StripePaymentService
         if (! $campaign->allow_custom_amount && ! in_array($amountCents, $campaign->presetAmountCents(), true)) {
             throw new RuntimeException('Custom amounts are not allowed for this campaign.');
         }
+    }
+
+    /**
+     * Human-readable Stripe Dashboard "Description" (PaymentIntent.description).
+     */
+    public function donationDescription(
+        DonationCampaign $campaign,
+        string $donorName,
+        string $donationFrequency = 'OneTime',
+    ): string {
+        $title = trim($campaign->finanziamentoTitle());
+        if ($title === '') {
+            $title = 'Donazione';
+        }
+
+        $freq = $donationFrequency === 'Recurring' ? 'ricorrente' : 'una tantum';
+        $donor = trim($donorName);
+        $base = $donor !== ''
+            ? sprintf('Donazione %s — %s — %s', $freq, $title, $donor)
+            : sprintf('Donazione %s — %s', $freq, $title);
+
+        return mb_substr($base, 0, 1000);
+    }
+
+    /**
+     * Deep link to PrimaNota in EspoCRM (test or prod via ESPOCRM_BASE_URL).
+     */
+    public static function primaNotaCrmUrl(string $primaNotaId): string
+    {
+        $base = rtrim((string) config('espocrm.base_url', ''), '/');
+        $id = trim($primaNotaId);
+        if ($base === '' || $id === '') {
+            return '';
+        }
+
+        return $base.'/#PrimaNota/view/'.$id;
+    }
+
+    /**
+     * After CRM ingest: stamp PaymentIntent description (if empty) + CRM link metadata.
+     *
+     * @return array{updated: bool, reason: ?string}
+     */
+    public function attachPrimaNotaLinkToPaymentIntent(string $paymentIntentId, string $primaNotaId): array
+    {
+        if ($this->client === null) {
+            return ['updated' => false, 'reason' => 'no_client'];
+        }
+
+        $paymentIntentId = trim($paymentIntentId);
+        $primaNotaId = trim($primaNotaId);
+        if ($paymentIntentId === '' || $primaNotaId === '' || ! str_starts_with($paymentIntentId, 'pi_')) {
+            return ['updated' => false, 'reason' => 'invalid_ids'];
+        }
+
+        $url = self::primaNotaCrmUrl($primaNotaId);
+        if ($url === '') {
+            return ['updated' => false, 'reason' => 'empty_crm_base_url'];
+        }
+
+        try {
+            $intent = $this->client->paymentIntents->retrieve($paymentIntentId);
+            $existingMeta = [];
+            if (isset($intent->metadata) && is_object($intent->metadata)) {
+                $existingMeta = $intent->metadata->toArray();
+            }
+
+            $payload = [
+                'metadata' => array_merge($existingMeta, [
+                    'crm_prima_nota_id' => $primaNotaId,
+                    'crm_prima_nota_url' => $url,
+                ]),
+            ];
+
+            $currentDescription = trim((string) ($intent->description ?? ''));
+            if ($currentDescription === '') {
+                $campaignTitle = (string) ($existingMeta['campaign_title'] ?? 'Donazione');
+                $donorName = (string) ($existingMeta['donor_name'] ?? '');
+                $freq = (($existingMeta['donation_frequency'] ?? '') === 'Recurring') ? 'ricorrente' : 'una tantum';
+                $payload['description'] = mb_substr(
+                    $donorName !== ''
+                        ? sprintf('Donazione %s — %s — %s', $freq, $campaignTitle, $donorName)
+                        : sprintf('Donazione %s — %s', $freq, $campaignTitle),
+                    0,
+                    1000,
+                );
+            }
+
+            $this->client->paymentIntents->update($paymentIntentId, $payload);
+        } catch (ApiErrorException $exception) {
+            Log::warning('Failed to attach PrimaNota link to Stripe PaymentIntent.', [
+                'payment_intent_id' => $paymentIntentId,
+                'prima_nota_id' => $primaNotaId,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return ['updated' => false, 'reason' => 'stripe_api_error'];
+        }
+
+        return ['updated' => true, 'reason' => null];
     }
 
     /**

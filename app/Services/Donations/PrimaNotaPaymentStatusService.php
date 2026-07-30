@@ -3,17 +3,24 @@
 namespace App\Services\Donations;
 
 use App\Services\EspoCrm\EspoCrmClient;
+use App\Services\Payments\StripePaymentService;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Stripe\Event;
 
 /**
- * Maps Stripe cancel / failure / refund / dispute events onto PrimaNota.paymentStatus.
+ * Maps Stripe cancel / failure / refund / dispute / payout events onto PrimaNota.paymentStatus.
+ *
+ * Status model:
+ * - Planned — Stripe charge settled, awaiting bank payout (not counted in cash totals)
+ * - Inviato — counted (manual entries + Stripe after payout.paid)
+ * - Cancelled / Refunded / Disputed / Problematic — excluded from totals
  */
 class PrimaNotaPaymentStatusService
 {
     public const STATUS_PLANNED = 'Planned';
 
-    public const STATUS_PAID = 'Paid';
+    public const STATUS_INVIATO = 'Inviato';
 
     public const STATUS_CANCELLED = 'Cancelled';
 
@@ -25,6 +32,7 @@ class PrimaNotaPaymentStatusService
 
     public function __construct(
         private readonly EspoCrmClient $client,
+        private readonly StripePaymentService $stripePaymentService,
     ) {}
 
     /**
@@ -59,8 +67,118 @@ class PrimaNotaPaymentStatusService
             'charge.dispute.funds_withdrawn' => $this->handleDisputeOpen($object),
             'charge.dispute.closed' => $this->handleDisputeClosed($object),
             'charge.dispute.funds_reinstated' => $this->handleDisputeFundsReinstated($object),
+            'payout.paid' => $this->handlePayoutPaid($object),
             default => $this->result(false, 0, null, 'unhandled_type'),
         };
+    }
+
+    /**
+     * When Stripe pays the NGO bank account, mark each included charge as Inviato.
+     *
+     * @return array{handled: bool, updated: int, status: ?string, reason: ?string}
+     */
+    private function handlePayoutPaid(object $payout): array
+    {
+        $payoutId = trim((string) ($payout->id ?? ''));
+        if ($payoutId === '') {
+            return $this->result(true, 0, self::STATUS_INVIATO, 'empty_payout');
+        }
+
+        $paidAt = $this->formatPayoutPaidAt($payout);
+
+        try {
+            $balanceTransactions = $this->stripePaymentService->listBalanceTransactionsForPayout($payoutId);
+        } catch (\Throwable $exception) {
+            Log::warning('Failed to list Stripe balance transactions for payout.', [
+                'payout_id' => $payoutId,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return $this->result(true, 0, self::STATUS_INVIATO, 'bt_lookup_failed');
+        }
+
+        $updated = 0;
+
+        foreach ($balanceTransactions as $bt) {
+            $type = (string) ($bt->type ?? '');
+            if (! in_array($type, ['charge', 'payment'], true)) {
+                continue;
+            }
+
+            $btId = isset($bt->id) ? (string) $bt->id : '';
+            $source = $bt->source ?? null;
+            $chargeId = is_string($source) && str_starts_with($source, 'ch_')
+                ? $source
+                : (is_object($source) && isset($source->id) ? (string) $source->id : '');
+
+            $updated += $this->markInviatoFromPayout(
+                balanceTransactionId: $btId,
+                chargeId: $chargeId,
+                payoutId: $payoutId,
+                paidAt: $paidAt,
+            );
+        }
+
+        return $this->result(
+            true,
+            $updated,
+            self::STATUS_INVIATO,
+            $updated > 0 ? null : 'not_found',
+        );
+    }
+
+    private function formatPayoutPaidAt(object $payout): string
+    {
+        if (is_numeric($payout->arrival_date ?? null)) {
+            return Carbon::createFromTimestamp((int) $payout->arrival_date, 'UTC')->format('Y-m-d H:i:s');
+        }
+
+        if (is_numeric($payout->created ?? null)) {
+            return Carbon::createFromTimestamp((int) $payout->created, 'UTC')->format('Y-m-d H:i:s');
+        }
+
+        return Carbon::now('UTC')->format('Y-m-d H:i:s');
+    }
+
+    private function markInviatoFromPayout(
+        string $balanceTransactionId,
+        string $chargeId,
+        string $payoutId,
+        string $paidAt,
+    ): int {
+        $extra = [
+            'stripePayoutId' => $payoutId,
+            'stripePayoutPaidAt' => $paidAt,
+            'paymentStatus' => self::STATUS_INVIATO,
+        ];
+
+        // Only advance Planned (or legacy empty) — never overwrite Refunded/Disputed/etc.
+        $onlyFrom = [self::STATUS_PLANNED, '', 'Paid', 'PaidOut'];
+
+        if ($balanceTransactionId !== '') {
+            $n = $this->updateMatches([
+                [
+                    'type' => 'equals',
+                    'attribute' => 'stripeBalanceTransactionId',
+                    'value' => $balanceTransactionId,
+                ],
+            ], self::STATUS_INVIATO, $extra, onlyFromStatuses: $onlyFrom);
+            if ($n > 0) {
+                return $n;
+            }
+        }
+
+        if ($chargeId !== '') {
+            return $this->updateMatches([
+                [
+                    'type' => 'equals',
+                    'attribute' => 'stripeChargeId',
+                    'value' => $chargeId,
+                ],
+            ], self::STATUS_INVIATO, $extra, onlyFromStatuses: $onlyFrom);
+        }
+
+        return 0;
     }
 
     private function handleInvoicePaymentFailed(object $invoice): array
@@ -111,10 +229,10 @@ class PrimaNotaPaymentStatusService
     {
         $status = (string) ($dispute->status ?? '');
 
-        // won / warning_closed → money kept → Paid again
-        // lost → funds stay with cardholder → Disputed (terminal loss)
+        // won / warning_closed → funds kept on Stripe balance → Planned until next payout
+        // lost → funds stay with cardholder → Disputed
         $paymentStatus = match ($status) {
-            'won', 'warning_closed' => self::STATUS_PAID,
+            'won', 'warning_closed' => self::STATUS_PLANNED,
             'lost' => self::STATUS_DISPUTED,
             default => self::STATUS_DISPUTED,
         };
@@ -124,7 +242,7 @@ class PrimaNotaPaymentStatusService
 
     private function handleDisputeFundsReinstated(object $dispute): array
     {
-        return $this->updateByDisputeCharge($dispute, self::STATUS_PAID);
+        return $this->updateByDisputeCharge($dispute, self::STATUS_PLANNED);
     }
 
     /**
@@ -196,9 +314,15 @@ class PrimaNotaPaymentStatusService
 
     /**
      * @param  list<array<string, mixed>>  $where
+     * @param  array<string, mixed>  $extraFields
+     * @param  list<string>|null  $onlyFromStatuses
      */
-    private function updateMatches(array $where, string $status): int
-    {
+    private function updateMatches(
+        array $where,
+        string $status,
+        array $extraFields = [],
+        ?array $onlyFromStatuses = null,
+    ): int {
         $entity = (string) config('espocrm.prima_nota.entity', 'PrimaNota');
         $result = $this->client->search($entity, [
             'select' => 'id,paymentStatus',
@@ -228,10 +352,16 @@ class PrimaNotaPaymentStatusService
                 continue;
             }
 
+            if ($onlyFromStatuses !== null && ! in_array($current, $onlyFromStatuses, true)) {
+                continue;
+            }
+
+            $payload = array_merge($extraFields, [
+                'paymentStatus' => $status,
+            ]);
+
             try {
-                $this->client->update($entity, $id, [
-                    'paymentStatus' => $status,
-                ]);
+                $this->client->update($entity, $id, $payload);
                 $updated++;
             } catch (\Throwable $exception) {
                 Log::warning('Failed to update PrimaNota paymentStatus from Stripe event.', [
