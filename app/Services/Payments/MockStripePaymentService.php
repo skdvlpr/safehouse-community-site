@@ -8,6 +8,7 @@ use App\Services\Donations\DonationIngestPayloadMapper;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Stripe\Event;
 
 class MockStripePaymentService extends StripePaymentService
 {
@@ -155,7 +156,7 @@ class MockStripePaymentService extends StripePaymentService
         );
     }
 
-    public function constructWebhookEvent(string $payload, ?string $signature): \Stripe\Event
+    public function constructWebhookEvent(string $payload, ?string $signature): Event
     {
         throw new RuntimeException('Stripe webhooks are disabled in mock mode. Use the mock complete endpoint.');
     }

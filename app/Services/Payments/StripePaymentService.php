@@ -9,9 +9,11 @@ use App\Support\IntegrationConfig;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
+use Stripe\Event;
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
 use Stripe\StripeClient;
+use Stripe\Webhook;
 
 class StripePaymentService
 {
@@ -663,7 +665,7 @@ class StripePaymentService
         return StripeEnrichmentFields::fromMockStoredIntent($stored);
     }
 
-    public function constructWebhookEvent(string $payload, ?string $signature): \Stripe\Event
+    public function constructWebhookEvent(string $payload, ?string $signature): Event
     {
         if ($this->client === null) {
             throw new RuntimeException('Stripe client is not configured.');
@@ -674,7 +676,7 @@ class StripePaymentService
             throw new RuntimeException('Stripe webhook is not configured.');
         }
 
-        return \Stripe\Webhook::constructEvent($payload, $signature, $secret);
+        return Webhook::constructEvent($payload, $signature, $secret);
     }
 
     protected function assertDonationIntentAllowed(DonationCampaign $campaign, int $amountCents): void
@@ -814,7 +816,7 @@ class StripePaymentService
         ], fn ($value) => $value !== null && $value !== '');
     }
 
-    public function paymentIntentFromEvent(\Stripe\Event $event): ?PaymentIntent
+    public function paymentIntentFromEvent(Event $event): ?PaymentIntent
     {
         if ($event->type !== 'payment_intent.succeeded') {
             return null;
@@ -828,7 +830,7 @@ class StripePaymentService
     /**
      * Resolve PaymentIntent id from payment_intent.succeeded or invoice.paid (renewals).
      */
-    public function paymentIntentIdFromWebhookEvent(\Stripe\Event $event): ?string
+    public function paymentIntentIdFromWebhookEvent(Event $event): ?string
     {
         if ($event->type === 'payment_intent.succeeded') {
             $intent = $this->paymentIntentFromEvent($event);

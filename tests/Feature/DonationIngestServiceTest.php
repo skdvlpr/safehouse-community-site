@@ -3,13 +3,15 @@
 namespace Tests\Feature;
 
 use App\DataTransferObjects\DonationIngestPayload;
+use App\DataTransferObjects\StripeEnrichmentFields;
 use App\Models\DonationCampaign;
 use App\Services\Donations\DonationIngestService;
 use App\Services\Payments\MockStripePaymentService;
 use App\Services\Payments\StripePaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use RuntimeException;
 use Tests\TestCase;
 
 class DonationIngestServiceTest extends TestCase
@@ -81,7 +83,7 @@ class DonationIngestServiceTest extends TestCase
             donorEmail: 'anna@example.com',
         ));
 
-        $stored = \Illuminate\Support\Facades\Cache::get('stripe_mock_intent:'.$created['payment_intent_id']);
+        $stored = Cache::get('stripe_mock_intent:'.$created['payment_intent_id']);
         $this->assertIsArray($stored);
         $this->assertSame('pn-new', $stored['metadata']['crm_prima_nota_id'] ?? null);
         $this->assertSame(
@@ -364,7 +366,7 @@ class DonationIngestServiceTest extends TestCase
     {
         // Simulates webhook + thank-you both calling ingest: first creates, second
         // must re-check under lock and skip POST create.
-        Http::fake(function (\Illuminate\Http\Client\Request $request) {
+        Http::fake(function (Request $request) {
             $method = $request->method();
             $url = $request->url();
 
@@ -480,7 +482,7 @@ class DonationIngestServiceTest extends TestCase
             comment: null,
             donorType: 'individual',
             donatedAt: now()->toIso8601String(),
-            stripeEnrichment: new \App\DataTransferObjects\StripeEnrichmentFields(
+            stripeEnrichment: new StripeEnrichmentFields(
                 stripeChargeId: 'ch_backfill',
                 stripeBalanceTransactionId: 'txn_backfill',
                 stripePaymentMethodType: 'link',

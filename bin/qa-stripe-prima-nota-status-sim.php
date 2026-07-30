@@ -1,4 +1,5 @@
 <?php
+
 /**
  * QA: simulate Stripe payout / refund / cancel against existing DDEV PrimaNota rows,
  * then print dashlet summary before/after for manual verification.
@@ -27,9 +28,9 @@ use Illuminate\Contracts\Console\Kernel;
 use Stripe\Event;
 use Stripe\StripeClient;
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
-$app = require __DIR__ . '/../bootstrap/app.php';
+$app = require __DIR__.'/../bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 
 if (app()->environment('production')) {
@@ -103,8 +104,8 @@ function snapshotCrmSummary(): array
         return ['error' => 'crm_root_missing'];
     }
 
-    $full = 'cd ' . escapeshellarg($crmRoot)
-        . ' && ddev exec php bin/print-prima-nota-summary.php 2>/dev/null';
+    $full = 'cd '.escapeshellarg($crmRoot)
+        .' && ddev exec php bin/print-prima-nota-summary.php 2>/dev/null';
     $out = @shell_exec($full);
     if (! is_string($out) || trim($out) === '') {
         return ['error' => 'crm_snapshot_failed_use_host_wrapper'];
@@ -123,7 +124,7 @@ function snapshotCrmSummary(): array
 
 $rows = fetchPlannedStripeRows($crm, $entity);
 if (count($rows) < 4) {
-    fwrite(STDERR, 'Need at least 4 Planned Stripe PrimaNota rows, got ' . count($rows) . "\n");
+    fwrite(STDERR, 'Need at least 4 Planned Stripe PrimaNota rows, got '.count($rows)."\n");
     exit(1);
 }
 
@@ -156,13 +157,13 @@ foreach ($bal->available as $bucket) {
     }
 }
 echo "Stripe available EUR cents: {$availableEur}\n";
-echo 'Payout targets: ' . implode(', ', array_column($payoutTargets, 'id')) . "\n";
-echo 'Refund targets: ' . implode(', ', array_column($refundTargets, 'id')) . "\n";
-echo 'Cancel targets: ' . implode(', ', array_column($cancelTargets, 'id')) . "\n";
+echo 'Payout targets: '.implode(', ', array_column($payoutTargets, 'id'))."\n";
+echo 'Refund targets: '.implode(', ', array_column($refundTargets, 'id'))."\n";
+echo 'Cancel targets: '.implode(', ', array_column($cancelTargets, 'id'))."\n";
 
 $before = snapshotCrmSummary();
 echo "\n--- BEFORE dashlet summary ---\n";
-echo json_encode($before, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
+echo json_encode($before, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)."\n";
 
 $expectedPayoutNet = 0.0;
 foreach ($payoutTargets as $row) {
@@ -179,16 +180,16 @@ foreach ($cancelTargets as $row) {
 
 echo "\nExpected deltas (approx):\n";
 echo "  cashBalance / month.amountIn  += {$expectedPayoutNet} (payout→Inviato)\n";
-echo "  month.plannedAmountIn         -= " . ($expectedPayoutNet + $expectedRefundPlannedDrop + $expectedCancelPlannedDrop) . "\n";
+echo '  month.plannedAmountIn         -= '.($expectedPayoutNet + $expectedRefundPlannedDrop + $expectedCancelPlannedDrop)."\n";
 echo "  Refunded/Cancelled leave cash unchanged\n";
 
-echo "\nEXPECT_JSON=" . json_encode([
+echo "\nEXPECT_JSON=".json_encode([
     'payoutNet' => round($expectedPayoutNet, 2),
     'plannedDrop' => round($expectedPayoutNet + $expectedRefundPlannedDrop + $expectedCancelPlannedDrop, 2),
     'payoutIds' => array_column($payoutTargets, 'id'),
     'refundIds' => array_column($refundTargets, 'id'),
     'cancelIds' => array_column($cancelTargets, 'id'),
-], JSON_UNESCAPED_UNICODE) . "\n";
+], JSON_UNESCAPED_UNICODE)."\n";
 
 if ($dryRun) {
     echo "\nDry-run only — no Stripe/CRM mutations.\n";
@@ -208,7 +209,7 @@ if ($availableEur >= 100) {
         ]);
         $realPayoutId = (string) $payout->id;
         $event = Event::constructFrom([
-            'id' => 'evt_qa_payout_' . uniqid(),
+            'id' => 'evt_qa_payout_'.uniqid(),
             'type' => 'payout.paid',
             'data' => ['object' => $payout->toArray()],
         ]);
@@ -223,7 +224,7 @@ if ($availableEur >= 100) {
     }
 }
 
-$simPayoutId = $realPayoutId ?: ('po_qa_sim_' . date('YmdHis'));
+$simPayoutId = $realPayoutId ?: ('po_qa_sim_'.date('YmdHis'));
 $simPaidAt = gmdate('Y-m-d H:i:s');
 
 foreach ($payoutTargets as $row) {
@@ -244,6 +245,7 @@ foreach ($payoutTargets as $row) {
     $curStatus = (string) (($current['list'][0]['paymentStatus'] ?? '') ?: '');
     if ($curStatus === 'Inviato' && ! empty($current['list'][0]['stripePayoutId'] ?? null)) {
         $actions[] = ['type' => 'payout_skip_already_inviato', 'id' => $id];
+
         continue;
     }
 
@@ -267,6 +269,7 @@ foreach ($refundTargets as $row) {
     $chargeId = trim((string) ($row['stripeChargeId'] ?? ''));
     if ($id === '' || $chargeId === '') {
         $actions[] = ['type' => 'refund_skip', 'id' => $id, 'reason' => 'missing_charge'];
+
         continue;
     }
 
@@ -277,7 +280,7 @@ foreach ($refundTargets as $row) {
         ]);
         $charge = $stripe->charges->retrieve($chargeId);
         $event = Event::constructFrom([
-            'id' => 'evt_qa_refund_' . uniqid(),
+            'id' => 'evt_qa_refund_'.uniqid(),
             'type' => 'charge.refunded',
             'data' => ['object' => $charge->toArray()],
         ]);
@@ -306,11 +309,12 @@ foreach ($cancelTargets as $row) {
     $piId = ltrim($ref, '#');
     if ($id === '' || $piId === '' || ! str_starts_with($piId, 'pi_')) {
         $actions[] = ['type' => 'cancel_skip', 'id' => $id, 'reason' => 'missing_pi'];
+
         continue;
     }
 
     $event = Event::constructFrom([
-        'id' => 'evt_qa_cancel_' . uniqid(),
+        'id' => 'evt_qa_cancel_'.uniqid(),
         'type' => 'payment_intent.canceled',
         'data' => ['object' => [
             'id' => $piId,
@@ -330,10 +334,10 @@ foreach ($cancelTargets as $row) {
 $after = snapshotCrmSummary();
 
 echo "\n--- ACTIONS ---\n";
-echo json_encode($actions, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
+echo json_encode($actions, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)."\n";
 
 echo "\n--- AFTER dashlet summary ---\n";
-echo json_encode($after, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
+echo json_encode($after, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)."\n";
 
 if (isset($before['error']) || isset($after['error'])) {
     echo "\nNOTE: in-container CRM snapshot unavailable — use host wrapper bin/qa-run-stripe-status-sim.sh for assertions.\n";
@@ -355,15 +359,15 @@ echo "\n--- DELTAS ---\n";
 echo "cashBalance: {$beforeCash} → {$afterCash} (Δ {$cashDelta}); expected ~+{$expectedPayoutNet}\n";
 echo "month.amountIn: {$beforeMonthIn} → {$afterMonthIn} (Δ {$monthInDelta}); expected ~+{$expectedPayoutNet}\n";
 echo "month.plannedAmountIn: {$beforePin} → {$afterPin} (Δ {$pinDelta}); expected ~-"
-    . ($expectedPayoutNet + $expectedRefundPlannedDrop + $expectedCancelPlannedDrop) . "\n";
+    .($expectedPayoutNet + $expectedRefundPlannedDrop + $expectedCancelPlannedDrop)."\n";
 
 $cashOk = abs($cashDelta - $expectedPayoutNet) < 0.05;
 $monthOk = abs($monthInDelta - $expectedPayoutNet) < 0.05;
 $pinOk = abs($pinDelta + ($expectedPayoutNet + $expectedRefundPlannedDrop + $expectedCancelPlannedDrop)) < 0.05;
 
 echo "\n--- ASSERTIONS ---\n";
-echo ($cashOk ? 'PASS' : 'FAIL') . " cashBalance rose by payout net\n";
-echo ($monthOk ? 'PASS' : 'FAIL') . " month.amountIn rose by payout net\n";
-echo ($pinOk ? 'PASS' : 'FAIL') . " month.plannedAmountIn dropped by payout+refund+cancel nets\n";
+echo ($cashOk ? 'PASS' : 'FAIL')." cashBalance rose by payout net\n";
+echo ($monthOk ? 'PASS' : 'FAIL')." month.amountIn rose by payout net\n";
+echo ($pinOk ? 'PASS' : 'FAIL')." month.plannedAmountIn dropped by payout+refund+cancel nets\n";
 
 exit(($cashOk && $monthOk && $pinOk) ? 0 : 1);

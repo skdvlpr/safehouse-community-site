@@ -6,6 +6,7 @@ use App\DataTransferObjects\DonationIngestPayload;
 use App\Services\EspoCrm\EspoCrmClient;
 use App\Services\EspoCrm\EspoCrmFinanziamentoService;
 use App\Services\EspoCrm\EspoCrmPartyResolver;
+use App\Services\Payments\StripePaymentService;
 use App\Support\IntegrationConfig;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Carbon;
@@ -19,7 +20,7 @@ class DonationIngestService
         private readonly EspoCrmClient $client,
         private readonly EspoCrmPartyResolver $partyResolver,
         private readonly EspoCrmFinanziamentoService $finanziamentoService,
-        private readonly \App\Services\Payments\StripePaymentService $stripePaymentService,
+        private readonly StripePaymentService $stripePaymentService,
     ) {}
 
     /**
