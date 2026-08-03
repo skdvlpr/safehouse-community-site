@@ -341,8 +341,8 @@ class DonationIngestServiceTest extends TestCase
             donatedAt: now()->toIso8601String(),
         ));
 
-        $this->assertSame('duplicate', $result['status']);
-        Http::assertSentCount(1);
+        $this->assertSame('updated', $result['status']);
+        Http::assertSentCount(2);
 
         Http::assertSent(function ($request): bool {
             if ($request->method() !== 'GET' || ! str_contains($request->url(), '/api/v1/PrimaNota')) {
@@ -436,7 +436,7 @@ class DonationIngestServiceTest extends TestCase
         $second = app(DonationIngestService::class)->ingest($payload);
 
         $this->assertSame('created', $first['status']);
-        $this->assertSame('duplicate', $second['status']);
+        $this->assertSame('updated', $second['status']);
         $this->assertSame('pn-first', $second['prima_nota_id']);
 
         $createPosts = collect(Http::recorded())
@@ -489,7 +489,7 @@ class DonationIngestServiceTest extends TestCase
             ),
         ));
 
-        $this->assertSame('backfilled', $result['status']);
+        $this->assertSame('updated', $result['status']);
         $this->assertSame('pn-incomplete', $result['prima_nota_id']);
 
         Http::assertSent(function ($request): bool {

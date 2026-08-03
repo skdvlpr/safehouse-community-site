@@ -199,6 +199,83 @@ class StripePaymentService
     }
 
     /**
+     * @return object Stripe BalanceTransaction
+     */
+    public function retrieveBalanceTransaction(string $balanceTransactionId): object
+    {
+        if ($this->client === null) {
+            throw new RuntimeException('Stripe client is not configured.');
+        }
+
+        $balanceTransactionId = trim($balanceTransactionId);
+        if ($balanceTransactionId === '') {
+            throw new RuntimeException('Stripe balance transaction id is empty.');
+        }
+
+        try {
+            return $this->client->balanceTransactions->retrieve($balanceTransactionId);
+        } catch (ApiErrorException $exception) {
+            throw new RuntimeException(
+                'Stripe balance transaction lookup failed: '.$exception->getMessage(),
+                0,
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @return object Stripe Payout
+     */
+    public function retrievePayout(string $payoutId): object
+    {
+        if ($this->client === null) {
+            throw new RuntimeException('Stripe client is not configured.');
+        }
+
+        $payoutId = trim($payoutId);
+        if ($payoutId === '') {
+            throw new RuntimeException('Stripe payout id is empty.');
+        }
+
+        try {
+            return $this->client->payouts->retrieve($payoutId);
+        } catch (ApiErrorException $exception) {
+            throw new RuntimeException(
+                'Stripe payout lookup failed: '.$exception->getMessage(),
+                0,
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @return object Stripe Charge
+     */
+    public function retrieveCharge(string $chargeId, array $expand = []): object
+    {
+        if ($this->client === null) {
+            throw new RuntimeException('Stripe client is not configured.');
+        }
+
+        $chargeId = trim($chargeId);
+        if ($chargeId === '') {
+            throw new RuntimeException('Stripe charge id is empty.');
+        }
+
+        try {
+            $params = $expand === [] ? [] : ['expand' => $expand];
+
+            return $this->client->charges->retrieve($chargeId, $params);
+        } catch (ApiErrorException $exception) {
+            throw new RuntimeException(
+                'Stripe charge lookup failed: '.$exception->getMessage(),
+                0,
+                $exception
+            );
+        }
+    }
+
+    /**
      * Raw PaymentIntent lookup (no succeeded status check) — e.g. thank-you portal session.
      */
     public function retrievePaymentIntentRecord(string $paymentIntentId): PaymentIntent
@@ -543,6 +620,74 @@ class StripePaymentService
         }
 
         return $rows;
+    }
+
+    /**
+     * Some payment-type balance transactions keep payout=null even after inclusion
+     * in an automatic payout. Reverse-scan recent paid automatic payouts.
+     *
+     * @return object|null Stripe Payout
+     */
+    public function findPaidAutomaticPayoutForPayment(
+        string $balanceTransactionId,
+        string $sourceId = '',
+        int $payoutLimit = 25,
+    ): ?object {
+        if ($this->client === null) {
+            throw new RuntimeException('Stripe client is not configured.');
+        }
+
+        $balanceTransactionId = trim($balanceTransactionId);
+        $sourceId = trim($sourceId);
+        if ($balanceTransactionId === '' && $sourceId === '') {
+            return null;
+        }
+
+        try {
+            $collection = $this->client->payouts->all([
+                'status' => 'paid',
+                'limit' => max(1, min(100, $payoutLimit)),
+            ]);
+        } catch (ApiErrorException $exception) {
+            throw new RuntimeException(
+                'Stripe payout list failed: '.$exception->getMessage(),
+                0,
+                $exception
+            );
+        }
+
+        foreach ($collection->data ?? [] as $payout) {
+            if (! is_object($payout)) {
+                continue;
+            }
+
+            if (($payout->automatic ?? null) === false) {
+                continue;
+            }
+
+            $payoutId = trim((string) ($payout->id ?? ''));
+            if ($payoutId === '') {
+                continue;
+            }
+
+            foreach ($this->listBalanceTransactionsForPayout($payoutId) as $bt) {
+                $btId = trim((string) ($bt->id ?? ''));
+                $source = $bt->source ?? null;
+                $btSourceId = is_string($source)
+                    ? $source
+                    : (is_object($source) && isset($source->id) ? (string) $source->id : '');
+
+                if ($balanceTransactionId !== '' && $btId === $balanceTransactionId) {
+                    return $payout;
+                }
+
+                if ($sourceId !== '' && $btSourceId === $sourceId) {
+                    return $payout;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**

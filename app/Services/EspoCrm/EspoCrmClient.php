@@ -73,6 +73,15 @@ class EspoCrmClient
     }
 
     /**
+     * @param  array<string, mixed>  $query
+     * @return array<string, mixed>
+     */
+    public function find(string $entityType, string $id, array $query = []): array
+    {
+        return $this->request('get', $entityType.'/'.$id, $query);
+    }
+
+    /**
      * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
      */

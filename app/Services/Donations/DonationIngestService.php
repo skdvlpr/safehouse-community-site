@@ -85,6 +85,33 @@ class DonationIngestService
         $existing = $this->findPrimaNotaByExternalId($payload->idempotencySearchValue());
         if ($existing !== null) {
             $existingId = (string) ($existing['id'] ?? '');
+            if ($existingId !== '' && strtolower($payload->provider) === 'stripe') {
+                // Keep CRM money + Stripe enrichment current on every webhook/ingest hit.
+                $resyncPayload = $this->forceResyncStripeSnapshotPayload($payload);
+                if ($resyncPayload !== []) {
+                    try {
+                        $this->client->update(
+                            (string) config('espocrm.prima_nota.entity'),
+                            $existingId,
+                            $resyncPayload,
+                        );
+                    } catch (\Throwable $exception) {
+                        Log::warning('Stripe PrimaNota force resync failed on duplicate ingest.', [
+                            'prima_nota_id' => $existingId,
+                            'error' => $exception->getMessage(),
+                        ]);
+                    }
+                }
+
+                $this->syncStripeCrmLink($payload, $existingId);
+
+                return [
+                    'status' => 'updated',
+                    'prima_nota_id' => $existingId,
+                    'financing_id' => (string) ($existing['financingId'] ?? ''),
+                ];
+            }
+
             if ($existingId !== '' && $this->shouldBackfillIncompleteStripeRow($existing, $payload)) {
                 $existingChargeId = trim((string) ($existing['stripeChargeId'] ?? ''));
                 $updatePayload = $existingChargeId === ''
@@ -339,10 +366,17 @@ class DonationIngestService
     }
 
     /**
+     * Full settlement + enrichment overwrite for an existing Stripe PrimaNota.
+     * Does NOT touch paymentStatus (status machine owns that).
+     *
      * @return array<string, mixed>
      */
-    private function settlementAndEnrichmentPayload(DonationIngestPayload $payload): array
+    public function forceResyncStripeSnapshotPayload(DonationIngestPayload $payload): array
     {
+        if (strtolower($payload->provider) !== 'stripe') {
+            return [];
+        }
+
         $fields = array_merge(
             [
                 'amount' => $payload->netAmount,
@@ -352,18 +386,42 @@ class DonationIngestService
                 'commissionAmount' => $payload->commissionAmount,
                 'commissionAmountCurrency' => $payload->currency,
                 'commissionPercent' => $payload->commissionPercent,
-                'paymentStatus' => 'Planned',
+                'transactionDate' => Carbon::parse($payload->donatedAt)->toDateString(),
+                'donationFrequency' => $payload->normalizedDonationFrequency(),
             ],
             $payload->stripeEnrichment?->toPrimaNotaFields() ?? [],
         );
 
-        // Snapshot donor channels onto PrimaNota even when Contact was linked earlier.
+        if ($payload->comment !== null && trim($payload->comment) !== '') {
+            $fields['donationComment'] = trim($payload->comment);
+        }
+
+        $donorCategory = $payload->donorTypeLabel();
+        if ($donorCategory !== '') {
+            $fields['donationDonorCategory'] = $donorCategory;
+        }
+
         if ($payload->donorEmail !== null && trim($payload->donorEmail) !== '') {
             $fields['subjectEmailAddress'] = trim($payload->donorEmail);
         }
         if ($payload->donorPhone !== null && trim($payload->donorPhone) !== '') {
             $fields['subjectPhoneNumber'] = trim($payload->donorPhone);
         }
+
+        return $fields;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function settlementAndEnrichmentPayload(DonationIngestPayload $payload): array
+    {
+        $fields = array_merge(
+            $this->forceResyncStripeSnapshotPayload($payload),
+            [
+                'paymentStatus' => 'Planned',
+            ],
+        );
 
         return $fields;
     }

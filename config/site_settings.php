@@ -72,6 +72,12 @@ return [
             'encrypted' => true,
             'config' => 'espocrm.api_key',
         ],
+        'crm.sync_token' => [
+            'label' => 'CRM sync token (PrimaNota refresh)',
+            'group' => 'espocrm',
+            'encrypted' => true,
+            'config' => 'crm.sync_token',
+        ],
         'espocrm.assigned_user_id' => [
             'label' => 'CRM assigned user id',
             'group' => 'espocrm',

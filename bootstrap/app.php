@@ -27,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'setlocale' => SetLocale::class,
+            'crm.sync' => \App\Http\Middleware\VerifyCrmSyncToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

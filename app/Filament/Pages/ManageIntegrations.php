@@ -144,6 +144,12 @@ class ManageIntegrations extends Page
                             ->password()
                             ->revealable()
                             ->dehydrated(fn (?string $state): bool => filled($state)),
+                        \Filament\Forms\Components\TextInput::make('crm.sync_token')
+                            ->label('CRM sync token (PrimaNota refresh)')
+                            ->password()
+                            ->revealable()
+                            ->helperText('Shared secret for CRM → site «Aggiorna da Stripe».')
+                            ->dehydrated(fn (?string $state): bool => filled($state)),
                         \Filament\Forms\Components\TextInput::make('espocrm.assigned_user_id')
                             ->label(__('cms.fields.assigned_user_id'))
                             ->helperText(__('cms.helpers.espocrm_assigned_user')),
