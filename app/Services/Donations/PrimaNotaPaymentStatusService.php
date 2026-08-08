@@ -38,6 +38,173 @@ class PrimaNotaPaymentStatusService
     ) {}
 
     /**
+     * Bulk: mark only Planned Stripe PrimaNota rows as Inviato when found in recent
+     * paid automatic payouts. Does not re-run settlement snapshots (those are slow).
+     *
+     * @return array{payoutsScanned: int, markedInviato: int, plannedLoaded: int}
+     */
+    public function syncInviatoFromRecentPaidPayouts(int $payoutLimit = 25): array
+    {
+        $entity = (string) config('espocrm.prima_nota.entity', 'PrimaNota');
+
+        try {
+            $plannedSearch = $this->client->search($entity, [
+                'select' => 'id,paymentStatus,stripeChargeId,stripeBalanceTransactionId',
+                'maxSize' => 200,
+                'where' => [
+                    [
+                        'type' => 'and',
+                        'value' => [
+                            [
+                                'type' => 'equals',
+                                'attribute' => 'donationPaymentProvider',
+                                'value' => 'Stripe',
+                            ],
+                            [
+                                'type' => 'equals',
+                                'attribute' => 'paymentStatus',
+                                'value' => self::STATUS_PLANNED,
+                            ],
+                        ],
+                    ],
+                ],
+            ]);
+        } catch (\Throwable $exception) {
+            Log::warning('Bulk payout status sync: failed to load Planned PrimaNota rows.', [
+                'error' => $exception->getMessage(),
+            ]);
+
+            return [
+                'payoutsScanned' => 0,
+                'markedInviato' => 0,
+                'plannedLoaded' => 0,
+            ];
+        }
+
+        $byBt = [];
+        $byCharge = [];
+        foreach (($plannedSearch['list'] ?? []) as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+            $id = trim((string) ($row['id'] ?? ''));
+            if ($id === '') {
+                continue;
+            }
+            $btId = trim((string) ($row['stripeBalanceTransactionId'] ?? ''));
+            $chargeId = trim((string) ($row['stripeChargeId'] ?? ''));
+            if ($btId !== '') {
+                $byBt[$btId] = $id;
+            }
+            if ($chargeId !== '') {
+                $byCharge[$chargeId] = $id;
+            }
+        }
+
+        $plannedLoaded = count(array_unique(array_merge(array_values($byBt), array_values($byCharge))));
+        if ($plannedLoaded === 0) {
+            return [
+                'payoutsScanned' => 0,
+                'markedInviato' => 0,
+                'plannedLoaded' => 0,
+            ];
+        }
+
+        try {
+            $payouts = $this->stripePaymentService->listPaidPayouts($payoutLimit);
+        } catch (\Throwable $exception) {
+            Log::warning('Bulk payout status sync: failed to list paid payouts.', [
+                'error' => $exception->getMessage(),
+            ]);
+
+            return [
+                'payoutsScanned' => 0,
+                'markedInviato' => 0,
+                'plannedLoaded' => $plannedLoaded,
+            ];
+        }
+
+        $payoutsScanned = 0;
+        $markedInviato = 0;
+        $updatedIds = [];
+
+        foreach ($payouts as $payout) {
+            if (! is_object($payout)) {
+                continue;
+            }
+
+            if (($payout->automatic ?? null) === false) {
+                continue;
+            }
+
+            $payoutId = trim((string) ($payout->id ?? ''));
+            if ($payoutId === '') {
+                continue;
+            }
+
+            $payoutsScanned++;
+            $paidAt = $this->formatPayoutPaidAt($payout);
+
+            try {
+                $balanceTransactions = $this->stripePaymentService->listBalanceTransactionsForPayout($payoutId);
+            } catch (\Throwable $exception) {
+                Log::warning('Bulk payout status sync: BT list failed.', [
+                    'payout_id' => $payoutId,
+                    'error' => $exception->getMessage(),
+                ]);
+
+                continue;
+            }
+
+            foreach ($balanceTransactions as $bt) {
+                $type = (string) ($bt->type ?? '');
+                if (! in_array($type, ['charge', 'payment'], true)) {
+                    continue;
+                }
+
+                $btId = isset($bt->id) ? trim((string) $bt->id) : '';
+                $source = $bt->source ?? null;
+                $chargeId = is_string($source) && str_starts_with($source, 'ch_')
+                    ? $source
+                    : (is_object($source) && isset($source->id) ? (string) $source->id : '');
+
+                $primaNotaId = null;
+                if ($btId !== '' && isset($byBt[$btId])) {
+                    $primaNotaId = $byBt[$btId];
+                } elseif ($chargeId !== '' && isset($byCharge[$chargeId])) {
+                    $primaNotaId = $byCharge[$chargeId];
+                }
+
+                if ($primaNotaId === null || isset($updatedIds[$primaNotaId])) {
+                    continue;
+                }
+
+                try {
+                    $this->client->update($entity, $primaNotaId, [
+                        'paymentStatus' => self::STATUS_INVIATO,
+                        'stripePayoutId' => $payoutId,
+                        'stripePayoutPaidAt' => $paidAt,
+                    ]);
+                    $updatedIds[$primaNotaId] = true;
+                    $markedInviato++;
+                } catch (\Throwable $exception) {
+                    Log::warning('Bulk payout status sync: failed to mark Inviato.', [
+                        'prima_nota_id' => $primaNotaId,
+                        'payout_id' => $payoutId,
+                        'error' => $exception->getMessage(),
+                    ]);
+                }
+            }
+        }
+
+        return [
+            'payoutsScanned' => $payoutsScanned,
+            'markedInviato' => $markedInviato,
+            'plannedLoaded' => $plannedLoaded,
+        ];
+    }
+
+    /**
      * Pull current Stripe charge/payout state for one PrimaNota and apply paymentStatus.
      *
      * Also force-resync settlement + enrichment fields from Stripe (full snapshot).
@@ -281,17 +448,9 @@ class PrimaNotaPaymentStatusService
             }
 
             if ((string) ($payout->status ?? '') === 'paid') {
-                if (($payout->automatic ?? null) === false) {
-                    return $this->refreshResult(
-                        false,
-                        $previous,
-                        $previous,
-                        'manual_payout_unsupported',
-                        $payoutId,
-                        $snapshot,
-                    );
-                }
-
+                // Per-record refresh: BT/charge already points at this payout, so we can
+                // advance Planned → Inviato for both automatic and manual bank payouts.
+                // (Webhook fan-out for manual payouts still cannot list included BTs.)
                 $paidAt = $this->formatPayoutPaidAt($payout);
                 $n = $this->markInviatoFromPayout($btId, $chargeId, $payoutId, $paidAt);
 
@@ -310,12 +469,15 @@ class PrimaNotaPaymentStatusService
                 }
 
                 $newStatus = $n > 0 ? self::STATUS_INVIATO : $previous;
+                $reason = $n > 0
+                    ? ((($payout->automatic ?? null) === false) ? 'manual_payout_paid' : 'payout_paid')
+                    : ($previous === self::STATUS_INVIATO ? 'already_inviato' : 'payout_paid_not_applied');
 
                 return $this->refreshResult(
                     $n > 0 || $previous === self::STATUS_INVIATO,
                     $newStatus === '' ? null : $newStatus,
                     $previous,
-                    $n > 0 ? 'payout_paid' : ($previous === self::STATUS_INVIATO ? 'already_inviato' : 'payout_paid_not_applied'),
+                    $reason,
                     $payoutId,
                     $snapshot,
                 );

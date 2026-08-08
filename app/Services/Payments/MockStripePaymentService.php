@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Stripe\Event;
+use Stripe\PaymentIntent;
 
 class MockStripePaymentService extends StripePaymentService
 {
@@ -197,6 +198,17 @@ class MockStripePaymentService extends StripePaymentService
             $data,
             now()->addHours(self::CACHE_TTL_HOURS),
         );
+
+        $index = Cache::get(self::CACHE_PREFIX.'index', []);
+        if (! is_array($index)) {
+            $index = [];
+        }
+        $index[$paymentIntentId] = true;
+        Cache::put(
+            self::CACHE_PREFIX.'index',
+            $index,
+            now()->addHours(self::CACHE_TTL_HOURS),
+        );
     }
 
     /**
@@ -207,5 +219,95 @@ class MockStripePaymentService extends StripePaymentService
         $stored = Cache::get(self::CACHE_PREFIX.$paymentIntentId);
 
         return is_array($stored) ? $stored : null;
+    }
+
+    /**
+     * @return array{items: list<\Stripe\PaymentIntent>, has_more: bool}
+     */
+    public function listPaymentIntentsPage(?int $createdGte, ?string $startingAfter = null, int $limit = 100): array
+    {
+        $index = Cache::get(self::CACHE_PREFIX.'index', []);
+        if (! is_array($index)) {
+            $index = [];
+        }
+
+        $rows = [];
+        foreach (array_keys($index) as $paymentIntentId) {
+            if (! is_string($paymentIntentId) || $paymentIntentId === '') {
+                continue;
+            }
+            $stored = $this->loadIntent($paymentIntentId);
+            if ($stored === null) {
+                continue;
+            }
+            $created = (int) ($stored['created'] ?? 0);
+            if ($createdGte !== null && $createdGte > 0 && $created < $createdGte) {
+                continue;
+            }
+            $rows[] = $stored;
+        }
+
+        usort($rows, static fn (array $a, array $b): int => ((int) ($b['created'] ?? 0)) <=> ((int) ($a['created'] ?? 0)));
+
+        $limit = max(1, min(100, $limit));
+        $offset = 0;
+        if (is_string($startingAfter) && $startingAfter !== '') {
+            foreach ($rows as $i => $row) {
+                if ((string) ($row['payment_intent_id'] ?? '') === $startingAfter) {
+                    $offset = $i + 1;
+                    break;
+                }
+            }
+        }
+
+        $slice = array_slice($rows, $offset, $limit);
+        $hasMore = ($offset + count($slice)) < count($rows);
+
+        $items = [];
+        foreach ($slice as $stored) {
+            $items[] = PaymentIntent::constructFrom([
+                'id' => (string) ($stored['payment_intent_id'] ?? ''),
+                'object' => 'payment_intent',
+                'amount' => (int) ($stored['amount_cents'] ?? 0),
+                'currency' => (string) ($stored['currency'] ?? 'eur'),
+                'status' => (string) ($stored['status'] ?? 'requires_payment_method'),
+                'created' => (int) ($stored['created'] ?? time()),
+                'metadata' => is_array($stored['metadata'] ?? null) ? $stored['metadata'] : [],
+                'description' => (string) ($stored['description'] ?? ''),
+                'latest_charge' => [
+                    'id' => 'ch_mock_'.(string) ($stored['payment_intent_id'] ?? 'x'),
+                    'object' => 'charge',
+                    'balance_transaction' => [
+                        'id' => 'txn_mock_'.(string) ($stored['payment_intent_id'] ?? 'x'),
+                        'object' => 'balance_transaction',
+                        'fee' => (int) ($stored['fee_cents'] ?? 0),
+                        'net' => (int) ($stored['net_cents'] ?? max(0, ((int) ($stored['amount_cents'] ?? 0)) - ((int) ($stored['fee_cents'] ?? 0)))),
+                        'amount' => (int) ($stored['amount_cents'] ?? 0),
+                        'currency' => (string) ($stored['currency'] ?? 'eur'),
+                    ],
+                ],
+            ]);
+        }
+
+        return [
+            'items' => $items,
+            'has_more' => $hasMore,
+        ];
+    }
+
+    /**
+     * @return list<object>
+     */
+    public function listPaidPayouts(int $limit = 40): array
+    {
+        return [];
+    }
+
+    /**
+     * @return list<object>
+     */
+    public function listBalanceTransactionsForPayout(string $payoutId): array
+    {
+        return [];
     }
 }

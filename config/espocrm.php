@@ -30,6 +30,15 @@ return [
         'beneficiary_party_entity' => 'Account',
     ],
 
+    /*
+     * Must stay aligned with EspoCRM Administration → Currency → currencyList.
+     * Payments in other currencies are skipped (not hard-failed) on ingest/bulk pull.
+     */
+    'allowed_currencies' => array_values(array_filter(array_map(
+        static fn (string $c): string => strtoupper(trim($c)),
+        explode(',', (string) env('ESPOCRM_ALLOWED_CURRENCIES', 'EUR'))
+    ))),
+
     'reporting' => [
         'meal_count_summary_path' => 'NonprofitEspocrm/reporting/meal-count/summary',
         'association_meal_count_summary_path' => 'NonprofitEspocrm/reporting/association-meal-count/summary',

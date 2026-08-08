@@ -3,6 +3,7 @@
 namespace App\Services\Donations;
 
 use App\DataTransferObjects\DonationIngestPayload;
+use App\Exceptions\UnsupportedCurrencyException;
 use App\Services\EspoCrm\EspoCrmClient;
 use App\Services\EspoCrm\EspoCrmFinanziamentoService;
 use App\Services\EspoCrm\EspoCrmPartyResolver;
@@ -24,15 +25,16 @@ class DonationIngestService
     ) {}
 
     /**
+     * @param  array{bulkSkipForceResync?: bool}  $options
      * @return array{status: string, prima_nota_id: string, financing_id: string}
      */
-    public function ingest(DonationIngestPayload $payload): array
+    public function ingest(DonationIngestPayload $payload, array $options = []): array
     {
         $lockKey = 'donation-ingest:'.sha1($payload->idempotencySearchValue());
 
         try {
-            return Cache::lock($lockKey, 30)->block(15, function () use ($payload): array {
-                return $this->ingestUnderLock($payload);
+            return Cache::lock($lockKey, 30)->block(15, function () use ($payload, $options): array {
+                return $this->ingestUnderLock($payload, $options);
             });
         } catch (LockTimeoutException $exception) {
             $existing = $this->findPrimaNotaByExternalId($payload->idempotencySearchValue());
@@ -53,39 +55,26 @@ class DonationIngestService
     }
 
     /**
-     * Best-effort: stamp Stripe PI description + CRM deep link after ingest.
-     */
-    private function syncStripeCrmLink(DonationIngestPayload $payload, string $primaNotaId): void
-    {
-        if ($primaNotaId === '' || strtolower($payload->provider) !== 'stripe') {
-            return;
-        }
-
-        $piId = ltrim($payload->externalId, '#');
-        if ($piId === '' || ! str_starts_with($piId, 'pi_')) {
-            return;
-        }
-
-        try {
-            $this->stripePaymentService->attachPrimaNotaLinkToPaymentIntent($piId, $primaNotaId);
-        } catch (\Throwable $exception) {
-            Log::warning('Stripe CRM link sync failed after PrimaNota ingest.', [
-                'payment_intent_id' => $piId,
-                'prima_nota_id' => $primaNotaId,
-                'error' => $exception->getMessage(),
-            ]);
-        }
-    }
-
-    /**
+     * @param  array{bulkSkipForceResync?: bool}  $options
      * @return array{status: string, prima_nota_id: string, financing_id: string}
      */
-    private function ingestUnderLock(DonationIngestPayload $payload): array
+    private function ingestUnderLock(DonationIngestPayload $payload, array $options = []): array
     {
+        $this->assertCurrencyAllowed($payload);
+
         $existing = $this->findPrimaNotaByExternalId($payload->idempotencySearchValue());
         if ($existing !== null) {
             $existingId = (string) ($existing['id'] ?? '');
             if ($existingId !== '' && strtolower($payload->provider) === 'stripe') {
+                $existingChargeId = trim((string) ($existing['stripeChargeId'] ?? ''));
+                if (! empty($options['bulkSkipForceResync']) && $existingChargeId !== '') {
+                    return [
+                        'status' => 'duplicate',
+                        'prima_nota_id' => $existingId,
+                        'financing_id' => (string) ($existing['financingId'] ?? ''),
+                    ];
+                }
+
                 // Keep CRM money + Stripe enrichment current on every webhook/ingest hit.
                 $resyncPayload = $this->forceResyncStripeSnapshotPayload($payload);
                 if ($resyncPayload !== []) {
@@ -414,6 +403,50 @@ class DonationIngestService
         }
 
         return $fields;
+    }
+
+    private function assertCurrencyAllowed(DonationIngestPayload $payload): void
+    {
+        $currency = strtoupper(trim($payload->currency));
+        $allowed = array_values(array_filter(array_map(
+            static fn ($c): string => strtoupper(trim((string) $c)),
+            (array) config('espocrm.allowed_currencies', ['EUR'])
+        )));
+
+        if ($allowed === []) {
+            $allowed = ['EUR'];
+        }
+
+        if ($currency === '' || ! in_array($currency, $allowed, true)) {
+            throw new UnsupportedCurrencyException(
+                "Currency {$currency} is not enabled in CRM (allowed: ".implode(', ', $allowed).').'
+            );
+        }
+    }
+
+    /**
+     * Best-effort: stamp Stripe PI description + CRM deep link after ingest.
+     */
+    private function syncStripeCrmLink(DonationIngestPayload $payload, string $primaNotaId): void
+    {
+        if ($primaNotaId === '' || strtolower($payload->provider) !== 'stripe') {
+            return;
+        }
+
+        $piId = ltrim($payload->externalId, '#');
+        if ($piId === '' || ! str_starts_with($piId, 'pi_')) {
+            return;
+        }
+
+        try {
+            $this->stripePaymentService->attachPrimaNotaLinkToPaymentIntent($piId, $primaNotaId);
+        } catch (\Throwable $exception) {
+            Log::warning('Stripe CRM link sync failed after PrimaNota ingest.', [
+                'payment_intent_id' => $piId,
+                'prima_nota_id' => $primaNotaId,
+                'error' => $exception->getMessage(),
+            ]);
+        }
     }
 
     /**

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\UnsupportedCurrencyException;
 use App\Services\Donations\DonationIngestPayloadMapper;
 use App\Services\Donations\DonationIngestService;
 use App\Services\Donations\PrimaNotaPaymentStatusService;
 use App\Services\Payments\StripePaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class StripeWebhookController extends Controller
@@ -45,6 +47,12 @@ class StripeWebhookController extends Controller
 
             $settledIntent = $this->stripePaymentService->retrieveSettledPaymentIntent($intentId);
             $this->donationIngestService->ingest($this->payloadMapper->fromPaymentIntent($settledIntent));
+        } catch (UnsupportedCurrencyException $exception) {
+            Log::info('Stripe webhook donation skipped: unsupported currency.', [
+                'error' => $exception->getMessage(),
+            ]);
+
+            return response('Skipped unsupported currency', 200);
         } catch (RuntimeException $exception) {
             report($exception);
 

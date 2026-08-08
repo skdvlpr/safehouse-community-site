@@ -579,6 +579,40 @@ class StripePaymentService
     }
 
     /**
+     * Recent paid payouts (newest first).
+     *
+     * @return list<object>
+     */
+    public function listPaidPayouts(int $limit = 40): array
+    {
+        if ($this->client === null) {
+            throw new RuntimeException('Stripe client is not configured.');
+        }
+
+        try {
+            $collection = $this->client->payouts->all([
+                'status' => 'paid',
+                'limit' => max(1, min(100, $limit)),
+            ]);
+        } catch (ApiErrorException $exception) {
+            throw new RuntimeException(
+                'Stripe payout list failed: '.$exception->getMessage(),
+                0,
+                $exception
+            );
+        }
+
+        $rows = [];
+        foreach ($collection->data ?? [] as $row) {
+            if (is_object($row)) {
+                $rows[] = $row;
+            }
+        }
+
+        return $rows;
+    }
+
+    /**
      * Balance transactions included in a bank payout (charge/payment legs).
      *
      * @return list<object>
@@ -1147,5 +1181,53 @@ class StripePaymentService
         $descriptor = trim(IntegrationConfig::string('stripe.statement_descriptor', 'SAFE HOUSE'));
 
         return $descriptor === '' ? '' : mb_substr($descriptor, 0, 22);
+    }
+
+    /**
+     * Paginate PaymentIntents (newest first). Caller filters status.
+     *
+     * @return array{items: list<PaymentIntent>, has_more: bool}
+     */
+    public function listPaymentIntentsPage(?int $createdGte, ?string $startingAfter = null, int $limit = 100): array
+    {
+        if ($this->client === null) {
+            throw new RuntimeException('Stripe client is not configured.');
+        }
+
+        $limit = max(1, min(100, $limit));
+        $params = [
+            'limit' => $limit,
+            'expand' => ['data.latest_charge.balance_transaction'],
+        ];
+
+        if ($createdGte !== null && $createdGte > 0) {
+            $params['created'] = ['gte' => $createdGte];
+        }
+
+        if (is_string($startingAfter) && $startingAfter !== '') {
+            $params['starting_after'] = $startingAfter;
+        }
+
+        try {
+            $collection = $this->client->paymentIntents->all($params);
+        } catch (ApiErrorException $exception) {
+            throw new RuntimeException(
+                'Stripe payment intent list failed: '.$exception->getMessage(),
+                0,
+                $exception
+            );
+        }
+
+        $items = [];
+        foreach ($collection->data ?? [] as $intent) {
+            if ($intent instanceof PaymentIntent) {
+                $items[] = $intent;
+            }
+        }
+
+        return [
+            'items' => $items,
+            'has_more' => (bool) ($collection->has_more ?? false),
+        ];
     }
 }
