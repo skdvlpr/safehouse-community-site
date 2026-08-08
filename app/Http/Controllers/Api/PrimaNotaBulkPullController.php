@@ -31,6 +31,12 @@ class PrimaNotaBulkPullController extends Controller
             return response()->json(['message' => 'currencies must be an array.'], 422);
         }
 
+        $startingAfter = $request->input('startingAfter');
+        $startingAfter = is_string($startingAfter) ? trim($startingAfter) : null;
+        if ($startingAfter === '') {
+            $startingAfter = null;
+        }
+
         try {
             @set_time_limit(600);
             $result = $this->bulkPullService->pull(
@@ -39,6 +45,7 @@ class PrimaNotaBulkPullController extends Controller
                 $fromDate,
                 $maxItems,
                 is_array($currencies) ? $currencies : null,
+                $startingAfter,
             );
         } catch (InvalidArgumentException $exception) {
             return response()->json([

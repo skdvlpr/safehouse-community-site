@@ -51,7 +51,8 @@ class PrimaNotaBulkPullService
      *     errors: list<array{provider: string, externalId: string, message: string}>,
      *     unsupportedProviders: list<string>,
      *     skippedCurrencies: list<string>,
-     *     log: list<string>
+     *     log: list<string>,
+     *     nextStartingAfter: ?string
      * }
      */
     public function pull(
@@ -60,6 +61,7 @@ class PrimaNotaBulkPullService
         ?string $fromDate,
         int $maxItems = 200,
         ?array $currencies = null,
+        ?string $startingAfter = null,
     ): array {
         $providers = array_values(array_unique(array_filter(
             array_map(static fn ($p) => trim((string) $p), $providers),
@@ -109,7 +111,13 @@ class PrimaNotaBulkPullService
             'unsupportedProviders' => [],
             'skippedCurrencies' => [],
             'log' => [],
+            'nextStartingAfter' => null,
         ];
+
+        $startingAfter = is_string($startingAfter) ? trim($startingAfter) : '';
+        if ($startingAfter === '') {
+            $startingAfter = null;
+        }
 
         $this->logStep(
             $result,
@@ -117,11 +125,12 @@ class PrimaNotaBulkPullService
             .' mode='.$mode
             .($fromDateNormalized ? ' fromDate='.$fromDateNormalized : '')
             .' maxItems='.$maxItems
+            .($startingAfter ? ' startingAfter='.$startingAfter : '')
         );
 
         foreach ($providers as $provider) {
             if ($provider === self::PROVIDER_STRIPE) {
-                $this->pullStripe($createdGte, $maxItems, $selectedCurrencies, $result);
+                $this->pullStripe($createdGte, $maxItems, $selectedCurrencies, $result, $startingAfter);
                 $this->syncStatusesAfterStripePull($result);
 
                 continue;
@@ -246,13 +255,18 @@ class PrimaNotaBulkPullService
      *     log: list<string>
      * }  $result
      */
-    private function pullStripe(?int $createdGte, int $maxItems, array $selectedCurrencies, array &$result): void
-    {
+    private function pullStripe(
+        ?int $createdGte,
+        int $maxItems,
+        array $selectedCurrencies,
+        array &$result,
+        ?string $startingAfter = null,
+    ): void {
         $this->logStep($result, 'STRIPE request list PaymentIntents (succeeded only will be ingested)');
 
-        $startingAfter = null;
         $processed = 0;
         $pageIndex = 0;
+        $lastExternalId = null;
 
         while ($processed < $maxItems) {
             $pageLimit = min(100, $maxItems - $processed);
@@ -270,6 +284,7 @@ class PrimaNotaBulkPullService
             $this->logStep(
                 $result,
                 'STRIPE response page='.$pageIndex.' items='.count($items).' hasMore='.($hasMore ? 'yes' : 'no')
+                .($startingAfter ? ' after='.$startingAfter : '')
             );
 
             if ($items === []) {
@@ -285,6 +300,9 @@ class PrimaNotaBulkPullService
                 $result['scanned']++;
                 $processed++;
                 $externalId = (string) ($intent->id ?? '');
+                if ($externalId !== '') {
+                    $lastExternalId = $externalId;
+                }
 
                 if ($externalId === '') {
                     $result['skipped']++;
@@ -381,7 +399,7 @@ class PrimaNotaBulkPullService
             }
 
             if ($processed >= $maxItems) {
-                if ($hasMore) {
+                if ($hasMore || count($items) >= $pageLimit) {
                     $result['truncated'] = true;
                 }
                 break;
@@ -395,6 +413,10 @@ class PrimaNotaBulkPullService
             }
         }
 
+        if ($result['truncated'] && is_string($lastExternalId) && $lastExternalId !== '') {
+            $result['nextStartingAfter'] = $lastExternalId;
+        }
+
         $this->logStep(
             $result,
             'STRIPE ingest finished scanned='.$result['scanned']
@@ -403,6 +425,7 @@ class PrimaNotaBulkPullService
             .' duplicate='.$result['duplicate']
             .' skipped='.$result['skipped']
             .' failed='.$result['failed']
+            .($result['nextStartingAfter'] ? ' nextStartingAfter='.$result['nextStartingAfter'] : '')
         );
     }
 
