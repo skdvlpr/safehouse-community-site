@@ -392,6 +392,11 @@ class DonationIngestService
             $payload->stripeEnrichment?->toPrimaNotaFields() ?? [],
         );
 
+        $subjectName = trim($payload->subjectName());
+        if ($subjectName !== '') {
+            $fields['subjectName'] = $subjectName;
+        }
+
         if ($payload->comment !== null && trim($payload->comment) !== '') {
             $fields['donationComment'] = trim($payload->comment);
         }
