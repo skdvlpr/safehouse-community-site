@@ -361,6 +361,8 @@ class PrimaNotaPaymentStatusService
         ?string $stripePayoutId,
         array $snapshot = [],
     ): array {
+        $applyError = $this->consumeLastUpdateError();
+
         return [
             'updated' => $updated,
             'paymentStatus' => $paymentStatus,
@@ -369,6 +371,7 @@ class PrimaNotaPaymentStatusService
             'stripePayoutId' => $stripePayoutId,
             'snapshotSynced' => (bool) ($snapshot['synced'] ?? false),
             'snapshotFieldCount' => (int) ($snapshot['fieldCount'] ?? 0),
+            'applyError' => $applyError,
         ];
     }
 
@@ -778,10 +781,23 @@ class PrimaNotaPaymentStatusService
                     'payment_status' => $status,
                     'error' => $exception->getMessage(),
                 ]);
+
+                // Surface last ACL/API failure for refresh callers (not silent forever).
+                $this->lastUpdateError = $exception->getMessage();
             }
         }
 
         return $updated;
+    }
+
+    private ?string $lastUpdateError = null;
+
+    public function consumeLastUpdateError(): ?string
+    {
+        $error = $this->lastUpdateError;
+        $this->lastUpdateError = null;
+
+        return $error;
     }
 
     /**
