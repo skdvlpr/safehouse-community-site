@@ -253,9 +253,10 @@ class EspoCrmPartyResolver
                 ],
             ]);
         } catch (RuntimeException $exception) {
-            if (str_contains($exception->getMessage(), 'No read access')) {
-                Log::warning("EspoCRM API user cannot read {$entityType} by {$attribute}.", [
+            if ($this->isSoftMatchFailure($exception)) {
+                Log::warning("EspoCRM API user cannot match {$entityType} by {$attribute}; creating party inline.", [
                     'value' => $value,
+                    'error' => $exception->getMessage(),
                 ]);
 
                 return [];
@@ -265,6 +266,14 @@ class EspoCrmPartyResolver
         }
 
         return $this->extractMatches($result);
+    }
+
+    private function isSoftMatchFailure(RuntimeException $exception): bool
+    {
+        $message = $exception->getMessage();
+
+        return str_contains($message, 'No read access')
+            || str_contains($message, 'Forbidden attribute');
     }
 
     /**
@@ -324,9 +333,10 @@ class EspoCrmPartyResolver
                 ],
             ]);
         } catch (RuntimeException $exception) {
-            if (str_contains($exception->getMessage(), 'No read access')) {
-                Log::warning("EspoCRM API user cannot read {$entityType}; creating party inline.", [
+            if ($this->isSoftMatchFailure($exception)) {
+                Log::warning("EspoCRM API user cannot match {$entityType} by name; creating party inline.", [
                     'name' => $name,
+                    'error' => $exception->getMessage(),
                 ]);
 
                 return [];
