@@ -102,6 +102,7 @@ class PrimaNotaBulkPullService
             'created' => 0,
             'updated' => 0,
             'duplicate' => 0,
+            'restored' => 0,
             'skipped' => 0,
             'failed' => 0,
             'markedInviato' => 0,
@@ -349,6 +350,9 @@ class PrimaNotaBulkPullService
 
                     if ($status === 'created') {
                         $result['created']++;
+                    } elseif ($status === 'restored') {
+                        $result['created']++;
+                        $result['restored']++;
                     } elseif ($status === 'updated') {
                         $result['updated']++;
                     } elseif ($status === 'duplicate') {

@@ -91,6 +91,17 @@ class EspoCrmClient
     }
 
     /**
+     * POST /api/v1/{EntityType}/action/{action}
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    public function action(string $entityType, string $action, array $payload = []): array
+    {
+        return $this->request('post', $entityType.'/action/'.$action, $payload);
+    }
+
+    /**
      * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
      */

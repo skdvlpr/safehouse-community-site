@@ -37,10 +37,11 @@ class DonationIngestService
                 return $this->ingestUnderLock($payload, $options);
             });
         } catch (LockTimeoutException $exception) {
-            $existing = $this->findPrimaNotaByExternalId($payload->idempotencySearchValue());
+            $lookup = $this->findOrRestorePrimaNotaByExternalId($payload->idempotencySearchValue());
+            $existing = $lookup['row'];
             if ($existing !== null) {
                 return [
-                    'status' => 'duplicate',
+                    'status' => $lookup['restored'] ? 'restored' : 'duplicate',
                     'prima_nota_id' => (string) ($existing['id'] ?? ''),
                     'financing_id' => (string) ($existing['financingId'] ?? ''),
                 ];
@@ -62,12 +63,14 @@ class DonationIngestService
     {
         $this->assertCurrencyAllowed($payload);
 
-        $existing = $this->findPrimaNotaByExternalId($payload->idempotencySearchValue());
+        $lookup = $this->findOrRestorePrimaNotaByExternalId($payload->idempotencySearchValue());
+        $existing = $lookup['row'];
+        $justRestored = $lookup['restored'];
         if ($existing !== null) {
             $existingId = (string) ($existing['id'] ?? '');
             if ($existingId !== '' && strtolower($payload->provider) === 'stripe') {
                 $existingChargeId = trim((string) ($existing['stripeChargeId'] ?? ''));
-                if (! empty($options['bulkSkipForceResync']) && $existingChargeId !== '') {
+                if (! empty($options['bulkSkipForceResync']) && $existingChargeId !== '' && ! $justRestored) {
                     return [
                         'status' => 'duplicate',
                         'prima_nota_id' => $existingId,
@@ -95,7 +98,7 @@ class DonationIngestService
                 $this->syncStripeCrmLink($payload, $existingId);
 
                 return [
-                    'status' => 'updated',
+                    'status' => $justRestored ? 'restored' : 'updated',
                     'prima_nota_id' => $existingId,
                     'financing_id' => (string) ($existing['financingId'] ?? ''),
                 ];
@@ -187,10 +190,64 @@ class DonationIngestService
     /**
      * @return array<string, mixed>|null
      */
-    private function findPrimaNotaByExternalId(string $externalId): ?array
+    /**
+     * @return array{row: ?array<string, mixed>, restored: bool}
+     */
+    private function findOrRestorePrimaNotaByExternalId(string $externalId): array
     {
         $reference = str_starts_with($externalId, '#') ? $externalId : '#'.$externalId;
+        $existing = $this->findLivePrimaNotaByReference($reference);
+        if ($existing !== null) {
+            return ['row' => $existing, 'restored' => false];
+        }
 
+        // Soft-deleted rows are invisible to list API; CRM restores via ORM withDeleted.
+        try {
+            $restored = $this->client->action(
+                (string) config('espocrm.prima_nota.entity'),
+                'restoreByDonationPaymentReference',
+                ['donationPaymentReference' => $reference],
+            );
+        } catch (\Throwable $exception) {
+            // NotFound / no soft-deleted match → fall through to create path.
+            Log::info('PrimaNota soft-delete restore lookup miss.', [
+                'reference' => $reference,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return ['row' => null, 'restored' => false];
+        }
+
+        $id = trim((string) ($restored['id'] ?? ''));
+        $wasRestored = ! empty($restored['restored']);
+        if ($id === '') {
+            return ['row' => null, 'restored' => false];
+        }
+
+        $row = $this->findLivePrimaNotaByReference($reference);
+        if ($row === null) {
+            $row = [
+                'id' => $id,
+                'donationPaymentReference' => $reference,
+                'financingId' => $restored['financingId'] ?? null,
+            ];
+        }
+
+        if ($wasRestored) {
+            Log::info('Restored soft-deleted PrimaNota for donation ingest.', [
+                'reference' => $reference,
+                'prima_nota_id' => $id,
+            ]);
+        }
+
+        return ['row' => $row, 'restored' => $wasRestored];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function findLivePrimaNotaByReference(string $reference): ?array
+    {
         $result = $this->client->search((string) config('espocrm.prima_nota.entity'), [
             'select' => 'id,donationPaymentReference,financingId,stripeChargeId,commissionAmount,amount,amountGross,stripeBillingEmail,stripeReceiptEmail,stripeBillingPhone,subjectEmailAddress,subjectPhoneNumber',
             'maxSize' => 5,
@@ -206,6 +263,15 @@ class DonationIngestService
         $row = $result['list'][0] ?? null;
 
         return is_array($row) ? $row : null;
+    }
+
+    /**
+     * @deprecated Use findOrRestorePrimaNotaByExternalId
+     * @return array<string, mixed>|null
+     */
+    private function findPrimaNotaByExternalId(string $externalId): ?array
+    {
+        return $this->findOrRestorePrimaNotaByExternalId($externalId)['row'];
     }
 
     /**
