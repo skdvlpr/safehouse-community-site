@@ -6,7 +6,7 @@ namespace Database\Seeders\Data;
 
 /**
  * Operational Privacy + Cookie policy copy for Safe House ETS.
- * Source of truth for LegalPagesSeeder / PageSeeder.
+ * Consumed once by LegalPagesSeeder (self-deletes after successful non-test run).
  * Pending counsel review — facts may be refined (address, DPO, exact Aruba email product).
  */
 final class LegalPagesContent

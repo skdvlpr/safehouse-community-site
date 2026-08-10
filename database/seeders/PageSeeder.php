@@ -211,7 +211,13 @@ class PageSeeder extends Seeder
             ],
         );
 
-        $this->call(LegalPagesSeeder::class);
+        // LegalPagesSeeder is ephemeral: after a successful non-test run it deletes
+        // itself so CMS edits are not overwritten by a later accidental seed.
+        if (is_file(__DIR__.'/LegalPagesSeeder.php')) {
+            $this->call(LegalPagesSeeder::class);
+        } else {
+            $this->seedLegalPageStubsIfMissing();
+        }
 
         Page::query()->updateOrCreate(
             ['key' => 'demo-landing'],
@@ -325,6 +331,40 @@ class PageSeeder extends Seeder
         }
 
         return app()->environment(['local', 'testing']);
+    }
+
+    private function seedLegalPageStubsIfMissing(): void
+    {
+        foreach (['privacy', 'cookie'] as $key) {
+            if (Page::query()->where('key', $key)->exists()) {
+                continue;
+            }
+
+            $isPrivacy = $key === 'privacy';
+
+            Page::withoutEvents(function () use ($key, $isPrivacy): void {
+                Page::query()->create([
+                    'key' => $key,
+                    'template' => 'legal',
+                    'is_published' => true,
+                    'title' => [
+                        'it' => $isPrivacy ? 'Privacy policy' : 'Cookie policy',
+                        'en' => $isPrivacy ? 'Privacy policy' : 'Cookie policy',
+                        'ru' => $isPrivacy ? 'Политика конфиденциальности' : 'Политика cookie',
+                    ],
+                    'slug' => [
+                        'it' => $isPrivacy ? 'privacy-policy' : 'cookie-policy',
+                        'en' => $isPrivacy ? 'privacy-policy' : 'cookie-policy',
+                        'ru' => $isPrivacy ? 'privacy-policy' : 'cookie-policy',
+                    ],
+                    'body' => [
+                        'it' => '<p>Contenuto da impostare in CMS (oneshot legale già applicato o rimosso).</p>',
+                        'en' => '<p>Set content in CMS (legal oneshot already applied or removed).</p>',
+                        'ru' => '<p>Заполните текст в CMS (legal oneshot уже применён или удалён).</p>',
+                    ],
+                ]);
+            });
+        }
     }
 
     /**
