@@ -9,7 +9,7 @@ use Throwable;
 
 class HomeImpactStatsService
 {
-    private const CACHE_KEY = 'home_impact_stats_snapshot_v4';
+    private const CACHE_KEY = 'home_impact_stats_snapshot_v5';
 
     public function __construct(
         private readonly EspoCrmClient $client,
@@ -44,6 +44,7 @@ class HomeImpactStatsService
         return new HomeImpactStatsSnapshot(
             distributedMeals: $this->loadDistributedMeals(),
             interventions: $this->loadInterventionCount(),
+            partnersDisplay: $this->formatPartnersDisplay($this->loadPartnerCount()),
         );
     }
 
@@ -97,6 +98,40 @@ class HomeImpactStatsService
 
             return null;
         }
+    }
+
+    private function loadPartnerCount(): ?int
+    {
+        try {
+            $response = $this->client->search('Account', [
+                'maxSize' => 1,
+                'select' => 'id',
+                'where' => [
+                    [
+                        'type' => 'equals',
+                        'attribute' => 'type',
+                        'value' => 'Partner',
+                    ],
+                ],
+            ]);
+
+            return max(0, (int) ($response['total'] ?? 0));
+        } catch (Throwable $exception) {
+            Log::warning('Unable to load partner Account count from EspoCRM.', [
+                'reason' => $exception->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
+
+    private function formatPartnersDisplay(?int $count): string
+    {
+        if ($count === null) {
+            return '—';
+        }
+
+        return number_format($count, 0, ',', '.');
     }
 
     private function sumInterventionCountsFromSearch(): int
