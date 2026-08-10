@@ -47,8 +47,8 @@ class CmsPagesTest extends TestCase
             ->assertSee('data-page-template="contact"', false)
             ->assertSee('id="contact-name"', false)
             ->assertSee('info@safehouse.community', false);
-        $this->get('/it/privacy')->assertOk()->assertSee('data-page-template="legal"', false);
-        $this->get('/it/cookie')->assertOk();
+        $this->get('/it/privacy-policy')->assertOk()->assertSee('data-page-template="legal"', false);
+        $this->get('/it/cookie-policy')->assertOk();
     }
 
     public function test_demo_templates_are_distinct(): void
@@ -90,8 +90,25 @@ class CmsPagesTest extends TestCase
 
     public function test_page_without_carousel_omits_gallery_markup(): void
     {
-        $this->get('/it/privacy')
+        $this->get('/it/privacy-policy')
             ->assertOk()
             ->assertDontSee('data-page-carousel', false);
+    }
+
+    public function test_privacy_policy_covers_controller_and_google_apis(): void
+    {
+        $this->get('/en/privacy-policy')
+            ->assertOk()
+            ->assertSee('Safe House ETS', false)
+            ->assertSee('96629270586', false)
+            ->assertSee('id="google-api-services"', false)
+            ->assertSee('drive.file', false)
+            ->assertSee('Google Calendar', false)
+            ->assertSee('crm.safehouse.community', false);
+
+        $this->get('/it/cookie-policy')
+            ->assertOk()
+            ->assertSee('sh_cookie_consent', false)
+            ->assertSee('Non in uso', false);
     }
 }

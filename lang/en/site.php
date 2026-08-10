@@ -69,7 +69,7 @@ return [
     ],
     'pages' => [
         'about_values_heading' => 'Our values',
-        'legal_lead' => 'Legal notice — final text pending counsel review.',
+        'legal_lead' => 'Operational notice for Safe House ETS (GDPR / ePrivacy). May be refined after legal review.',
         'legal_document' => 'Legal document',
         'legal_updated' => 'Updated: :date',
         'contact_lead' => 'We are available for questions and partnerships.',
@@ -167,7 +167,7 @@ return [
     ],
     'cookie' => [
         'title' => 'Cookies and privacy',
-        'message' => 'We use essential cookies for the site to work and, with your consent, analytics cookies. You can accept all cookies or only those required.',
+        'message' => 'We use essential cookies for the site to work. Analytics cookies are not active yet; if we enable them, we will ask for consent. You can accept all categories or essential cookies only.',
         'accept_all' => 'Accept all',
         'essential_only' => 'Essential only',
         'manage' => 'Preferences',
@@ -175,7 +175,7 @@ return [
         'essential_label' => 'Essential cookies',
         'essential_note' => 'Session, security, and preferences — always on.',
         'analytics_label' => 'Analytics cookies',
-        'analytics_note' => 'Anonymous usage statistics (when enabled).',
+        'analytics_note' => 'Anonymous statistics — not active yet; no trackers load until configured.',
         'save' => 'Save preferences',
         'close' => 'Close',
     ],

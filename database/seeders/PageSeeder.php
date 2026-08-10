@@ -211,51 +211,7 @@ class PageSeeder extends Seeder
             ],
         );
 
-        Page::query()->updateOrCreate(
-            ['key' => 'privacy'],
-            [
-                'template' => 'legal',
-                'is_published' => true,
-                'title' => [
-                    'it' => 'Privacy policy',
-                    'en' => 'Privacy policy',
-                    'ru' => 'Политика конфиденциальности',
-                ],
-                'slug' => [
-                    'it' => 'privacy',
-                    'en' => 'privacy',
-                    'ru' => 'privacy',
-                ],
-                'body' => [
-                    'it' => '<p>Questa pagina descrive come Safe House ETS tratta i dati personali raccolti tramite il sito web. Testo completo da approvare con il consulente privacy — bozza CMS.</p>',
-                    'en' => '<p>This page describes how Safe House ETS processes personal data collected through this website. Full legal text pending counsel review — CMS draft.</p>',
-                    'ru' => '<p>Как Safe House ETS обрабатывает персональные данные на сайте. Полный юридический текст — после согласования с консультантом.</p>',
-                ],
-            ],
-        );
-
-        Page::query()->updateOrCreate(
-            ['key' => 'cookie'],
-            [
-                'template' => 'legal',
-                'is_published' => true,
-                'title' => [
-                    'it' => 'Cookie policy',
-                    'en' => 'Cookie policy',
-                    'ru' => 'Политика cookie',
-                ],
-                'slug' => [
-                    'it' => 'cookie',
-                    'en' => 'cookie',
-                    'ru' => 'cookie',
-                ],
-                'body' => [
-                    'it' => '<p>Questo sito utilizza cookie necessari per il funzionamento (sessione, sicurezza) e, previo consenso, cookie analitici. Puoi gestire le preferenze dal banner cookie o contattarci per maggiori informazioni.</p>',
-                    'en' => '<p>This site uses essential cookies (session, security) and, with your consent, analytics cookies. Manage preferences from the cookie banner or contact us for more information.</p>',
-                    'ru' => '<p>На сайте используются необходимые cookie (сессия, безопасность) и, с вашего согласия, аналитические cookie. Настройки — в баннере cookie или по запросу.</p>',
-                ],
-            ],
-        );
+        $this->call(LegalPagesSeeder::class);
 
         Page::query()->updateOrCreate(
             ['key' => 'demo-landing'],

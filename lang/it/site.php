@@ -69,7 +69,7 @@ return [
     ],
     'pages' => [
         'about_values_heading' => 'I nostri valori',
-        'legal_lead' => 'Informativa legale — testo da approvare con il consulente.',
+        'legal_lead' => 'Informativa operativa Safe House ETS (GDPR / ePrivacy). Può essere raffinata dopo revisione legale.',
         'legal_document' => 'Documento legale',
         'legal_updated' => 'Aggiornato: :date',
         'contact_lead' => 'Siamo disponibili per informazioni e collaborazioni.',
@@ -167,7 +167,7 @@ return [
     ],
     'cookie' => [
         'title' => 'Cookie e privacy',
-        'message' => 'Usiamo cookie necessari per il funzionamento del sito e, con il tuo consenso, cookie analitici. Puoi accettare tutti i cookie o solo quelli necessari.',
+        'message' => 'Usiamo cookie necessari per il funzionamento del sito. Cookie analitici non sono attivi al momento; se li attiveremo, chiederemo il consenso. Puoi accettare tutte le categorie o solo i cookie necessari.',
         'accept_all' => 'Accetta tutti',
         'essential_only' => 'Solo necessari',
         'manage' => 'Preferenze',
@@ -175,7 +175,7 @@ return [
         'essential_label' => 'Cookie necessari',
         'essential_note' => 'Sessione, sicurezza e preferenze — sempre attivi.',
         'analytics_label' => 'Cookie analitici',
-        'analytics_note' => 'Statistiche anonime sull\'uso del sito (quando attivi).',
+        'analytics_note' => 'Statistiche anonime — attualmente non attivi; nessun tracker viene caricato finché non saranno configurati.',
         'save' => 'Salva preferenze',
         'close' => 'Chiudi',
     ],
