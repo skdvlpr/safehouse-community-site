@@ -5,7 +5,7 @@
     $labels = ['it' => 'IT', 'ru' => 'RU', 'en' => 'EN'];
 @endphp
 
-<nav class="flex items-center gap-1 rounded-md border border-white/10 p-0.5 text-xs font-semibold uppercase tracking-wide"
+<nav class="locale-switcher"
      aria-label="Language">
     @foreach (config('locales.available', []) as $code)
         @if ($code === $currentLocale)

@@ -47,6 +47,7 @@ html[data-theme='dark'] {
     --color-safehouse-modal: #1c1c21;
     --safehouse-glass-bg: rgb(20 20 26 / 42%);
     --safehouse-glass-border: rgb(255 255 255 / 12%);
+    --safehouse-control-border: rgb(255 255 255 / 14%);
     --safehouse-bg-color: #050505;
     --safehouse-bg-image: url('/images/bg.svg');
     --safehouse-page-veil: linear-gradient(rgb(0 0 0 / 48%), rgb(0 0 0 / 55%));
@@ -69,6 +70,7 @@ html[data-theme='light'] {
     --color-safehouse-modal: #fcfdfe;
     --safehouse-glass-bg: rgb(255 255 255 / 55%);
     --safehouse-glass-border: rgb(0 0 0 / 10%);
+    --safehouse-control-border: rgb(0 0 0 / 16%);
     --safehouse-bg-color: #dfe1e6;
     --safehouse-bg-image: url('/images/bg-light.svg');
     --safehouse-page-veil: linear-gradient(rgb(223 225 230 / 35%), rgb(223 225 230 / 55%));
@@ -1286,19 +1288,33 @@ html[data-theme='light'] header.sticky {
     background-color: rgb(223 225 230 / 88%);
 }
 
+.safehouse-segmented {
+    @apply flex items-center gap-0.5 rounded-md p-0.5;
+    border: 1px solid var(--safehouse-control-border);
+}
+
 .theme-switcher {
-    @apply flex items-center gap-0.5 rounded-md border border-white/10 p-0.5;
+    @apply safehouse-segmented;
 }
 
 .theme-switcher__option {
-    @apply inline-flex h-8 w-8 items-center justify-center rounded text-safehouse-muted transition hover:bg-white/5 hover:text-safehouse-text;
+    @apply inline-flex h-8 w-8 items-center justify-center rounded border border-transparent text-safehouse-muted transition hover:bg-white/5 hover:text-safehouse-text;
+}
+
+.theme-switcher__option:focus-visible {
+    outline: 2px solid var(--color-safehouse-primary);
+    outline-offset: 1px;
 }
 
 .theme-switcher__option[aria-checked='true'] {
-    @apply bg-safehouse-primary text-white hover:bg-safehouse-primary hover:text-white;
+    @apply border-transparent bg-safehouse-primary text-white hover:bg-safehouse-primary hover:text-white;
 }
 
 .theme-switcher__icon {
     @apply h-4 w-4 shrink-0;
+}
+
+.locale-switcher {
+    @apply safehouse-segmented text-xs font-semibold tracking-wide uppercase;
 }
 
