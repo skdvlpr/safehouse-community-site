@@ -4,7 +4,6 @@ namespace App\Services\EspoCrm;
 
 use App\Models\ContactSubmission;
 use App\Support\ContactDeskOptions;
-use App\Support\IntegrationConfig;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
@@ -186,9 +185,9 @@ class EspoCrmContactIntakeService
             ])),
         ];
 
-        $assignedUserId = IntegrationConfig::string('espocrm.assigned_user_id');
+        $assignedUserId = app(EspoCrmAssignedUserResolver::class)->resolveUsing($this->client());
 
-        if ($assignedUserId !== '') {
+        if ($assignedUserId !== null) {
             $payload['assignedUserId'] = $assignedUserId;
         }
 

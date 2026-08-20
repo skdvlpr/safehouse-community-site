@@ -4,11 +4,11 @@ namespace App\Services\Donations;
 
 use App\DataTransferObjects\DonationIngestPayload;
 use App\Exceptions\UnsupportedCurrencyException;
+use App\Services\EspoCrm\EspoCrmAssignedUserResolver;
 use App\Services\EspoCrm\EspoCrmClient;
 use App\Services\EspoCrm\EspoCrmFinanziamentoService;
 use App\Services\EspoCrm\EspoCrmPartyResolver;
 use App\Services\Payments\StripePaymentService;
-use App\Support\IntegrationConfig;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -163,7 +163,7 @@ class DonationIngestService
             $this->partyResolver->resolveBeneficiaryPartyFields($payload),
         );
 
-        $assignedUserId = $this->resolveAssignedUserId();
+        $assignedUserId = app(EspoCrmAssignedUserResolver::class)->resolveUsing($this->client);
         if ($assignedUserId !== null) {
             $createPayload['assignedUserId'] = $assignedUserId;
         } else {
@@ -470,39 +470,6 @@ class DonationIngestService
         }
 
         return $fields;
-    }
-
-    /**
-     * Prefer CMS/env assigned user when the API key can read that User.
-     * Otherwise fall back to the API user itself (avoids Espo cannotRelateForbidden).
-     */
-    private function resolveAssignedUserId(): ?string
-    {
-        $configured = trim(IntegrationConfig::string('espocrm.assigned_user_id'));
-        if ($configured === '') {
-            return null;
-        }
-
-        try {
-            $this->client->userById($configured);
-
-            return $configured;
-        } catch (\Throwable $exception) {
-            Log::warning('Configured EspoCRM assignedUserId is not readable by the API user; falling back to API user.', [
-                'configured_assigned_user_id' => $configured,
-                'error' => $exception->getMessage(),
-            ]);
-        }
-
-        try {
-            return $this->client->apiUserId();
-        } catch (\Throwable $exception) {
-            Log::warning('Could not resolve EspoCRM API user id for PrimaNota assignedUser fallback.', [
-                'error' => $exception->getMessage(),
-            ]);
-
-            return null;
-        }
     }
 
     private function assertCurrencyAllowed(DonationIngestPayload $payload): void

@@ -2,9 +2,13 @@
 
 namespace App\Filament\Pages;
 
+use App\Services\EspoCrm\EspoCrmAssignedUserOptions;
 use App\Services\SiteSettingsService;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -91,41 +95,41 @@ class ManageIntegrations extends Page
             Tabs::make('IntegrationTabs')->tabs([
                 Tab::make(__('cms.integrations.stripe'))->schema([
                     Section::make(__('cms.sections.stripe_payments'))->schema([
-                        \Filament\Forms\Components\TextInput::make('stripe.key')
+                        TextInput::make('stripe.key')
                             ->label(__('cms.fields.publishable_key'))
                             ->helperText(__('cms.helpers.stripe_publishable'))
                             ->maxLength(255),
-                        \Filament\Forms\Components\TextInput::make('stripe.secret')
+                        TextInput::make('stripe.secret')
                             ->label(__('cms.fields.secret_key'))
                             ->password()
                             ->revealable()
                             ->helperText(__('cms.helpers.stripe_secret'))
                             ->dehydrated(fn (?string $state): bool => filled($state)),
-                        \Filament\Forms\Components\TextInput::make('stripe.webhook_secret')
+                        TextInput::make('stripe.webhook_secret')
                             ->label(__('cms.fields.webhook_secret'))
                             ->password()
                             ->revealable()
                             ->helperText(__('cms.helpers.stripe_webhook_live'))
                             ->dehydrated(fn (?string $state): bool => filled($state)),
-                        \Filament\Forms\Components\TextInput::make('stripe.currency')
+                        TextInput::make('stripe.currency')
                             ->label(__('cms.fields.default_currency'))
                             ->default('EUR')
                             ->maxLength(3),
-                        \Filament\Forms\Components\TextInput::make('stripe.statement_descriptor')
+                        TextInput::make('stripe.statement_descriptor')
                             ->label(__('cms.fields.statement_descriptor'))
                             ->helperText(__('cms.helpers.stripe_descriptor'))
                             ->maxLength(22),
-                        \Filament\Forms\Components\TextInput::make('stripe.account_id')
+                        TextInput::make('stripe.account_id')
                             ->label(__('cms.fields.account_id'))
                             ->placeholder('acct_…')
                             ->helperText(__('cms.helpers.stripe_account_id'))
                             ->maxLength(255),
-                        \Filament\Forms\Components\TextInput::make('stripe.account_name')
+                        TextInput::make('stripe.account_name')
                             ->label(__('cms.fields.account_name'))
                             ->placeholder('Safe House Donorbox')
                             ->helperText(__('cms.helpers.stripe_account_name'))
                             ->maxLength(255),
-                        \Filament\Forms\Components\TextInput::make('stripe.customer_portal_login_url')
+                        TextInput::make('stripe.customer_portal_login_url')
                             ->label(__('cms.fields.customer_portal_login_url'))
                             ->helperText(__('cms.helpers.customer_portal_login_url'))
                             ->url()
@@ -135,31 +139,42 @@ class ManageIntegrations extends Page
                 ]),
                 Tab::make(__('cms.integrations.espocrm'))->schema([
                     Section::make(__('cms.sections.crm_api'))->schema([
-                        \Filament\Forms\Components\TextInput::make('espocrm.base_url')
+                        TextInput::make('espocrm.base_url')
                             ->label(__('cms.fields.base_url'))
                             ->url()
                             ->placeholder('https://crm.safehouse.community'),
-                        \Filament\Forms\Components\TextInput::make('espocrm.api_key')
+                        TextInput::make('espocrm.api_key')
                             ->label(__('cms.fields.api_key'))
                             ->password()
                             ->revealable()
                             ->dehydrated(fn (?string $state): bool => filled($state)),
-                        \Filament\Forms\Components\TextInput::make('crm.sync_token')
+                        TextInput::make('crm.sync_token')
                             ->label('CRM sync token (PrimaNota refresh)')
                             ->password()
                             ->revealable()
                             ->helperText('Shared secret for CRM → site «Aggiorna da Stripe».')
                             ->dehydrated(fn (?string $state): bool => filled($state)),
-                        \Filament\Forms\Components\TextInput::make('espocrm.assigned_user_id')
+                        Select::make('espocrm.assigned_user_id')
                             ->label(__('cms.fields.assigned_user_id'))
-                            ->helperText(__('cms.helpers.espocrm_assigned_user')),
+                            ->helperText(__('cms.helpers.espocrm_assigned_user'))
+                            ->options(fn (EspoCrmAssignedUserOptions $options): array => $options->optionsForSelect())
+                            ->searchable()
+                            ->nullable()
+                            ->placeholder(__('cms.fields.assigned_user_none'))
+                            ->createOptionForm([
+                                TextInput::make('user_id')
+                                    ->label(__('cms.fields.assigned_user_manual_id'))
+                                    ->required()
+                                    ->maxLength(64),
+                            ])
+                            ->createOptionUsing(fn (array $data): string => trim((string) ($data['user_id'] ?? ''))),
                     ]),
                     Section::make(__('cms.sections.prima_nota_defaults'))->schema([
-                        \Filament\Forms\Components\TextInput::make('espocrm.prima_nota.default_beneficiary_name')
+                        TextInput::make('espocrm.prima_nota.default_beneficiary_name')
                             ->label(__('cms.fields.beneficiary_name'))
                             ->helperText(__('cms.helpers.beneficiary_name'))
                             ->maxLength(255),
-                        \Filament\Forms\Components\TextInput::make('espocrm.prima_nota.default_subject_name')
+                        TextInput::make('espocrm.prima_nota.default_subject_name')
                             ->label(__('cms.fields.default_payer_name'))
                             ->helperText(__('cms.helpers.default_payer_name'))
                             ->maxLength(255),
@@ -167,7 +182,7 @@ class ManageIntegrations extends Page
                 ]),
                 Tab::make(__('cms.integrations.mail'))->schema([
                     Section::make(__('cms.sections.smtp'))->schema([
-                        \Filament\Forms\Components\Select::make('mail.provider_preset')
+                        Select::make('mail.provider_preset')
                             ->label(__('cms.fields.smtp_provider_preset'))
                             ->options($this->mailProviderOptions())
                             ->placeholder(__('cms.fields.smtp_provider_custom'))
@@ -178,17 +193,17 @@ class ManageIntegrations extends Page
                                 ->label(__('cms.actions.apply_smtp_preset'))
                                 ->action('applyMailProviderPreset'),
                         ]),
-                        \Filament\Forms\Components\TextInput::make('mail.host')
+                        TextInput::make('mail.host')
                             ->label(__('cms.fields.smtp_host'))
                             ->placeholder('smtp.example.com')
                             ->helperText(__('cms.helpers.smtp_host'))
                             ->maxLength(255),
-                        \Filament\Forms\Components\TextInput::make('mail.port')
+                        TextInput::make('mail.port')
                             ->label(__('cms.fields.smtp_port'))
                             ->numeric()
                             ->default(587)
                             ->helperText(__('cms.helpers.smtp_port')),
-                        \Filament\Forms\Components\Select::make('mail.encryption')
+                        Select::make('mail.encryption')
                             ->label(__('cms.fields.smtp_encryption'))
                             ->options([
                                 'tls' => 'TLS (STARTTLS, porta 587)',
@@ -196,10 +211,10 @@ class ManageIntegrations extends Page
                                 'none' => __('cms.fields.smtp_encryption_none'),
                             ])
                             ->default('tls'),
-                        \Filament\Forms\Components\TextInput::make('mail.username')
+                        TextInput::make('mail.username')
                             ->label(__('cms.fields.smtp_username'))
                             ->maxLength(255),
-                        \Filament\Forms\Components\TextInput::make('mail.password')
+                        TextInput::make('mail.password')
                             ->label(__('cms.fields.smtp_password'))
                             ->password()
                             ->revealable()
@@ -207,29 +222,29 @@ class ManageIntegrations extends Page
                             ->dehydrated(fn (?string $state): bool => filled($state)),
                     ]),
                     Section::make(__('cms.sections.mail_sender'))->schema([
-                        \Filament\Forms\Components\TextInput::make('mail.from_address')
+                        TextInput::make('mail.from_address')
                             ->label(__('cms.fields.from_address'))
                             ->email()
                             ->placeholder('noreply@safehouse.community')
                             ->helperText(__('cms.helpers.from_address'))
                             ->maxLength(255),
-                        \Filament\Forms\Components\TextInput::make('mail.from_name')
+                        TextInput::make('mail.from_name')
                             ->label(__('cms.fields.from_name'))
                             ->placeholder('Safe House')
                             ->maxLength(255),
                     ]),
                     Section::make(__('cms.sections.contact_notifications'))->schema([
-                        \Filament\Forms\Components\Placeholder::make('sportelli_config_link')
+                        Placeholder::make('sportelli_config_link')
                             ->label(__('cms.fields.sportelli_config_link'))
                             ->content(__('cms.helpers.sportelli_config_link'))
                             ->columnSpanFull(),
-                        \Filament\Forms\Components\TextInput::make('contact.website_from_address')
+                        TextInput::make('contact.website_from_address')
                             ->label(__('cms.fields.contact_website_from_address'))
                             ->email()
                             ->placeholder('website@safehouse.community')
                             ->helperText(__('cms.helpers.contact_website_from_address'))
                             ->maxLength(255),
-                        \Filament\Forms\Components\TextInput::make('contact.website_from_name')
+                        TextInput::make('contact.website_from_name')
                             ->label(__('cms.fields.contact_website_from_name'))
                             ->placeholder('Safe House — sito web')
                             ->maxLength(255),
@@ -248,6 +263,8 @@ class ManageIntegrations extends Page
         }
 
         $settings->updateFromFormState($state);
+
+        app(EspoCrmAssignedUserOptions::class)->forgetCache();
 
         $values = $settings->nestedFormValues();
         $this->form->fill($values);

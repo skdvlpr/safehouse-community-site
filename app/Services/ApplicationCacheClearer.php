@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Services\EspoCrm\EspoCrmAssignedUserOptions;
+use App\Services\EspoCrm\EspoCrmCaseTypeOptions;
 use App\Services\EspoCrm\HomeImpactStatsService;
 use App\Services\EspoCrm\HomeMealStatsService;
 use Illuminate\Support\Facades\Artisan;
@@ -21,6 +23,8 @@ class ApplicationCacheClearer
         private SocialLinksSettings $socialLinks,
         private HomeImpactStatsService $homeImpactStats,
         private HomeMealStatsService $homeMealStats,
+        private EspoCrmAssignedUserOptions $assignedUserOptions,
+        private EspoCrmCaseTypeOptions $caseTypeOptions,
     ) {}
 
     public function clearAll(): void
@@ -33,6 +37,8 @@ class ApplicationCacheClearer
         $this->socialLinks->forgetCache();
         $this->homeImpactStats->forgetCache();
         $this->homeMealStats->forgetCache();
+        $this->assignedUserOptions->forgetCache();
+        $this->caseTypeOptions->forgetCache();
 
         Cache::flush();
 

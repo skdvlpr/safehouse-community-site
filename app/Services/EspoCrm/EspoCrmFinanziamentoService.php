@@ -2,7 +2,6 @@
 
 namespace App\Services\EspoCrm;
 
-use App\Support\IntegrationConfig;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
@@ -92,8 +91,8 @@ class EspoCrmFinanziamentoService
             'amountCurrency' => $currency ?? (string) config('espocrm.finanziamento.default_currency', 'EUR'),
         ];
 
-        $assignedUserId = IntegrationConfig::string('espocrm.assigned_user_id');
-        if ($assignedUserId !== '') {
+        $assignedUserId = app(EspoCrmAssignedUserResolver::class)->resolveUsing($this->client);
+        if ($assignedUserId !== null) {
             $payload['assignedUserId'] = $assignedUserId;
         }
 
