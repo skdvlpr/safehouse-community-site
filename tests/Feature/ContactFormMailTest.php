@@ -104,6 +104,50 @@ class ContactFormMailTest extends TestCase
         Mail::assertSent(ContactSubmissionMail::class, fn (ContactSubmissionMail $mail): bool => $mail->hasTo('giovani@safehouse.community'));
     }
 
+    public function test_contact_form_still_sends_mail_when_espocrm_is_not_configured(): void
+    {
+        Mail::fake();
+        Bus::fake([LinkSportelloContactSubmissionToCrmJob::class]);
+
+        config()->set('espocrm.base_url', '');
+        config()->set('espocrm.api_key', '');
+
+        app(SiteSettingsService::class)->updateMany([
+            'mail.host' => 'smtp.test',
+            'mail.port' => '587',
+            'mail.encryption' => 'tls',
+            'mail.username' => 'website@safehouse.community',
+            'mail.password' => 'secret',
+            'contact.website_from_address' => 'website@safehouse.community',
+            'espocrm.base_url' => '',
+            'espocrm.api_key' => '',
+        ]);
+
+        app(ContactDeskSettings::class)->save([
+            [
+                'key' => 'generic_desk',
+                'label' => 'Richiesta generica',
+                'inbox' => 'info@safehouse.community',
+                'case_type' => 'RichiestaGenerica',
+            ],
+        ]);
+
+        $this->post('/it/contact', [
+            'name' => 'Luca Bianchi',
+            'email' => 'luca@example.com',
+            'message' => 'Richiesta generica senza CRM.',
+            'desk' => 'generic_desk',
+            'gdpr_consent' => '1',
+        ])->assertRedirect();
+
+        Mail::assertSent(ContactSubmissionMail::class, function (ContactSubmissionMail $mail): bool {
+            return $mail->hasTo('info@safehouse.community')
+                && $mail->submission->desk === 'generic_desk';
+        });
+
+        Bus::assertDispatched(LinkSportelloContactSubmissionToCrmJob::class);
+    }
+
     public function test_contact_form_skips_mail_when_smtp_is_not_configured(): void
     {
         Mail::fake();

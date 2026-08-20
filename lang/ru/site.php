@@ -21,6 +21,9 @@ return [
         'tagline' => 'Сообщество гостеприимства и солидарности.',
         'rights' => '© :year Safe House Community',
     ],
+    'social' => [
+        'nav_label' => 'Соцсети',
+    ],
     'home' => [
         'title' => 'Safe House Community',
         'eyebrow' => 'Сообщество гостеприимства',
@@ -28,6 +31,18 @@ return [
         'cta_donate' => 'Поддержать сбор',
         'cta_volunteer' => 'Стать волонтёром',
         'cta_contact' => 'Связаться с нами',
+        'manifesto' => [
+            'quote' => "НИ ОДНА ЛИНИЯ, ПРОВЕДЁННАЯ ПРАВИТЕЛЬСТВОМ, НЕ МОЖЕТ ОТМЕНИТЬ\nПРАВО ЧЕЛОВЕКА ИСКАТЬ СВОЁ БУДУЩЕЕ.\nНИ ОДИН ЧЕЛОВЕК НЕ НЕЛЕГАЛЕН — ГРАНИЦЫ ЭТО ЛИНИИ НА\nКАРТАХ, А СВОБОДА — ЭТО ПРАВО.\nМЫ НЕ СОБСТВЕННОСТЬ ПРАВИТЕЛЬСТВ",
+            'author' => 'Matteo Grossi — основатель Safe House',
+            'slogan' => [
+                'welcome' => 'Принимать',
+                'include' => 'ВКЛЮЧАТЬ',
+                'change' => 'Менять',
+                'smile' => 'УЛЫБАТЬСЯ',
+            ],
+            'email' => 'theprojectsafehouse@gmail.com',
+            'brand' => 'SAFE HOUSE',
+        ],
         'stats' => [
             'heading' => 'Наш вклад',
             'lead' => 'Данные из CRM в реальном времени.',

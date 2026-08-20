@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\EspoCrm\EspoCrmClient;
+use App\Services\EspoCrm\EspoCrmContactIntakeService;
 use App\Services\EspoCrm\EspoCrmFinanziamentoService;
 use App\Services\Payments\MockStripePaymentService;
 use App\Services\Payments\StripePaymentService;
@@ -19,7 +20,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(EspoCrmClient::class, fn () => EspoCrmClient::fromConfig());
+        $this->app->singleton(EspoCrmClient::class, function (): EspoCrmClient {
+            $client = EspoCrmClient::tryFromConfig();
+
+            if ($client === null) {
+                throw new \RuntimeException('EspoCRM base URL and API key must be configured.');
+            }
+
+            return $client;
+        });
+        $this->app->singleton(EspoCrmContactIntakeService::class, fn () => EspoCrmContactIntakeService::fromConfig());
         $this->app->singleton(EspoCrmFinanziamentoService::class, fn () => new EspoCrmFinanziamentoService(app(EspoCrmClient::class)));
         $this->app->singleton(StripePaymentService::class, function (): StripePaymentService {
             if (StripePaymentService::mockModeEnabled()) {

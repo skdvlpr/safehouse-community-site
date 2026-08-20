@@ -57,7 +57,7 @@ class StripeWebhookDonationTest extends TestCase
             ->assertSee('OK');
 
         Http::assertSent(function ($request): bool {
-            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota')) {
+            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota') || str_contains($request->url(), '/action/')) {
                 return false;
             }
 
@@ -113,7 +113,7 @@ class StripeWebhookDonationTest extends TestCase
         $this->postStripeWebhook('{"id":"evt_delayed"}', 'sig_test')->assertOk();
 
         Http::assertSent(function ($request): bool {
-            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota')) {
+            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota') || str_contains($request->url(), '/action/')) {
                 return false;
             }
 
@@ -164,7 +164,7 @@ class StripeWebhookDonationTest extends TestCase
                 ]);
             }
 
-            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota') && ! str_contains($url, '/action/')) {
                 return Http::response(['id' => 'pn-1']);
             }
 
@@ -418,7 +418,7 @@ class StripeWebhookDonationTest extends TestCase
             ->assertOk();
 
         Http::assertSent(function ($request): bool {
-            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota')) {
+            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota') || str_contains($request->url(), '/action/')) {
                 return false;
             }
 
@@ -503,7 +503,7 @@ class StripeWebhookDonationTest extends TestCase
             ->assertSee('OK');
 
         Http::assertSent(function ($request): bool {
-            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota')) {
+            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota') || str_contains($request->url(), '/action/')) {
                 return false;
             }
 
@@ -580,7 +580,7 @@ class StripeWebhookDonationTest extends TestCase
                 ]);
             }
 
-            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota') && ! str_contains($url, '/action/')) {
                 return Http::response(['id' => $primaNotaId, 'financingId' => $financingId]);
             }
 

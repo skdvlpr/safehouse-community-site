@@ -34,20 +34,38 @@ class MockDonationCheckoutTest extends TestCase
             'min_amount_cents' => 100,
         ]);
 
-        Http::fake([
-            'espocrm.test/api/v1/PrimaNota*' => Http::sequence()
-                ->push(['total' => 0, 'list' => []])
-                ->push(['id' => 'pn-mock-1']),
-            'espocrm.test/api/v1/Finanziamento*' => Http::response([
-                'total' => 1,
-                'list' => [['id' => 'fin-1', 'name' => $campaign->finanziamentoTitle()]],
-            ]),
-            'espocrm.test/api/v1/Contact*' => Http::response(['total' => 0, 'list' => []]),
-            'espocrm.test/api/v1/Account*' => Http::response([
-                'total' => 1,
-                'list' => [['id' => 'acc-safehouse', 'name' => 'Safe House']],
-            ]),
-        ]);
+        Http::fake(function ($request) use ($campaign) {
+            $url = $request->url();
+            $method = $request->method();
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/PrimaNota')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Finanziamento')) {
+                return Http::response([
+                    'total' => 1,
+                    'list' => [['id' => 'fin-1', 'name' => $campaign->finanziamentoTitle()]],
+                ]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Contact')) {
+                return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/Account')) {
+                return Http::response([
+                    'total' => 1,
+                    'list' => [['id' => 'acc-safehouse', 'name' => 'Safe House']],
+                ]);
+            }
+
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota') && ! str_contains($url, '/action/')) {
+                return Http::response(['id' => 'pn-mock-1']);
+            }
+
+            return Http::response(['message' => 'Unexpected '.$method.' '.$url], 500);
+        });
 
         $intentResponse = $this->postJson('/api/donations/intents/mock-campaign', [
             'amount_cents' => 5000,
@@ -110,7 +128,7 @@ class MockDonationCheckoutTest extends TestCase
                 ]);
             }
 
-            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota') && ! str_contains($url, '/action/')) {
                 return Http::response(['id' => 'pn-recurring-mock']);
             }
 
@@ -138,7 +156,7 @@ class MockDonationCheckoutTest extends TestCase
             ->assertJsonPath('prima_nota_id', 'pn-recurring-mock');
 
         Http::assertSent(function ($request) use ($paymentIntentId, $subscriptionId): bool {
-            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota')) {
+            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota') || str_contains($request->url(), '/action/')) {
                 return false;
             }
 

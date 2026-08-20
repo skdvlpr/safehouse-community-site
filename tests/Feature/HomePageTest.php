@@ -11,7 +11,7 @@ class HomePageTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_home_renders_hero_and_impact_stats(): void
+    public function test_home_renders_hero_impact_cards_and_manifesto(): void
     {
         $this->seed(\Database\Seeders\PageSeeder::class);
         $this->seed(\Database\Seeders\DeploySiteContentSeeder::class);
@@ -19,7 +19,11 @@ class HomePageTest extends TestCase
         $this->get('/it')
             ->assertOk()
             ->assertSee('Safe House Community', false)
-            ->assertSee('Il nostro impatto', false)
+            ->assertSee('NESSUN ESSERE UMANO È ILLEGALE', false)
+            ->assertSee('Matteo Grossi', false)
+            ->assertSee('theprojectsafehouse@gmail.com', false)
+            ->assertSee('images/logo.png', false)
+            ->assertDontSee('Dati aggiornati — collegamento al CRM in arrivo', false)
             ->assertSee('Pasti distribuiti', false)
             ->assertSee('Interventi sul territorio', false)
             ->assertSee('I nostri partner', false)

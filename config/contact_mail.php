@@ -33,6 +33,12 @@ return [
             'inbox' => env('CONTACT_DESK_LEGAL_INBOX', 'sportello.legale@safehouse.community'),
             'case_type' => 'SportelloLegale',
         ],
+        [
+            'key' => 'generic_desk',
+            'label' => 'Richiesta generica',
+            'inbox' => env('CONTACT_DESK_GENERIC_INBOX', 'info@safehouse.community'),
+            'case_type' => 'RichiestaGenerica',
+        ],
     ],
 
 ];

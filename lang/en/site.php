@@ -21,6 +21,9 @@ return [
         'tagline' => 'A community of welcome and solidarity.',
         'rights' => '© :year Safe House Community',
     ],
+    'social' => [
+        'nav_label' => 'Social',
+    ],
     'home' => [
         'title' => 'Safe House Community',
         'eyebrow' => 'A welcoming community',
@@ -28,6 +31,18 @@ return [
         'cta_donate' => 'Support a campaign',
         'cta_volunteer' => 'Become a volunteer',
         'cta_contact' => 'Contact us',
+        'manifesto' => [
+            'quote' => "NO LINE DRAWN BY A GOVERNMENT CAN ERASE\nA HUMAN BEING'S RIGHT TO SEEK THEIR OWN FUTURE.\nNO HUMAN BEING IS ILLEGAL — BORDERS ARE LINES ON\nMAPS; FREEDOM IS A RIGHT.\nWE ARE NOT THE PROPERTY OF GOVERNMENTS",
+            'author' => 'Matteo Grossi — Founder of Safe House',
+            'slogan' => [
+                'welcome' => 'Welcome',
+                'include' => 'INCLUDE',
+                'change' => 'Change',
+                'smile' => 'SMILE',
+            ],
+            'email' => 'theprojectsafehouse@gmail.com',
+            'brand' => 'SAFE HOUSE',
+        ],
         'stats' => [
             'heading' => 'Our impact',
             'lead' => 'Live figures from the CRM.',

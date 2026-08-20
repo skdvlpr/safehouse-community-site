@@ -5,12 +5,14 @@ namespace App\Filament\Pages;
 use App\Filament\Support\CmsLocaleTabs;
 use App\Services\ContactDeskSettings;
 use App\Services\ContactSportelloMailSettings;
+use App\Services\EspoCrm\EspoCrmCaseTypeOptions;
 use App\Services\SiteSettingsService;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -156,12 +158,25 @@ class ManageSportelliConfig extends Page
                                     ->required()
                                     ->placeholder('sportello.digitale@safehouse.community')
                                     ->maxLength(255),
-                                TextInput::make('case_type')
+                                Select::make('case_type')
                                     ->label(__('cms.fields.contact_desk_case_type'))
-                                    ->helperText(__('cms.helpers.contact_desk_case_type'))
+                                    ->helperText(function (EspoCrmCaseTypeOptions $caseTypes): string {
+                                        return $caseTypes->isLoadedFromCrm()
+                                            ? __('cms.helpers.contact_desk_case_type_crm')
+                                            : __('cms.helpers.contact_desk_case_type');
+                                    })
+                                    ->options(fn (EspoCrmCaseTypeOptions $caseTypes): array => $caseTypes->optionsForSelect())
+                                    ->searchable()
                                     ->required()
-                                    ->placeholder('SportelloDigitale')
-                                    ->maxLength(64),
+                                    ->native(false)
+                                    ->createOptionForm([
+                                        TextInput::make('case_type')
+                                            ->label(__('cms.fields.contact_desk_case_type'))
+                                            ->required()
+                                            ->maxLength(64)
+                                            ->alphaDash(),
+                                    ])
+                                    ->createOptionUsing(fn (array $data): string => trim((string) ($data['case_type'] ?? ''))),
                             ])
                             ->minItems(1)
                             ->reorderable()

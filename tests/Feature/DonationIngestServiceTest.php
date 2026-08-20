@@ -106,7 +106,7 @@ class DonationIngestServiceTest extends TestCase
         $this->ingestSamplePayment();
 
         Http::assertSent(function ($request): bool {
-            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota')) {
+            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota') || str_contains($request->url(), '/action/')) {
                 return false;
             }
 
@@ -164,7 +164,7 @@ class DonationIngestServiceTest extends TestCase
         ));
 
         Http::assertSent(function ($request): bool {
-            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota')) {
+            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota') || str_contains($request->url(), '/action/')) {
                 return false;
             }
 
@@ -215,7 +215,7 @@ class DonationIngestServiceTest extends TestCase
                 ]);
             }
 
-            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota') && ! str_contains($url, '/action/')) {
                 return Http::response(['id' => 'pn-new', 'financingId' => 'opp-goal']);
             }
 
@@ -280,7 +280,7 @@ class DonationIngestServiceTest extends TestCase
                 ]);
             }
 
-            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota') && ! str_contains($url, '/action/')) {
                 return Http::response(['id' => 'pn-new', 'financingId' => 'opp-created']);
             }
 
@@ -409,7 +409,7 @@ class DonationIngestServiceTest extends TestCase
                 return Http::response(['id' => 'c-race'], 200);
             }
 
-            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota') && ! str_contains($url, '/action/')) {
                 return Http::response(['id' => 'pn-first', 'financingId' => 'opp-race'], 200);
             }
 
@@ -440,7 +440,7 @@ class DonationIngestServiceTest extends TestCase
         $this->assertSame('pn-first', $second['prima_nota_id']);
 
         $createPosts = collect(Http::recorded())
-            ->filter(fn ($pair) => $pair[0]->method() === 'POST' && str_contains($pair[0]->url(), '/api/v1/PrimaNota'))
+            ->filter(fn ($pair) => $pair[0]->method() === 'POST' && str_contains($pair[0]->url(), '/api/v1/PrimaNota') && ! str_contains($pair[0]->url(), '/action/'))
             ->count();
 
         $this->assertSame(1, $createPosts);
@@ -639,7 +639,7 @@ class DonationIngestServiceTest extends TestCase
                 return Http::response(['total' => 0, 'list' => []]);
             }
 
-            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota') && ! str_contains($url, '/action/')) {
                 return Http::response(['id' => 'pn-new', 'financingId' => $financingId]);
             }
 

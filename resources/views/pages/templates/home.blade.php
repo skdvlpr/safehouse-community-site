@@ -6,10 +6,6 @@
     @php
         $pages = app(\App\Services\PageService::class);
         $eyebrow = $pages->localizedMeta($page->meta, 'eyebrow', $locale);
-        $statsHeading = $pages->localizedMeta($page->meta, 'stats_heading', $locale)
-            ?: __('site.home.stats.heading');
-        $statsLead = $pages->localizedMeta($page->meta, 'stats_lead', $locale)
-            ?: __('site.home.stats.lead');
         $ctaDonate = $pages->localizedMeta($page->meta, 'cta_donate', $locale)
             ?: __('site.home.cta_donate');
         $ctaVolunteer = $pages->localizedMeta($page->meta, 'cta_volunteer', $locale)
@@ -53,26 +49,10 @@
             </div>
         </section>
 
-        <section aria-labelledby="home-stats-heading">
-            @include('pages.partials.section-label', [
-                'page' => $page,
-                'locale' => $locale,
-                'fallbackKey' => 'site.home.stats.heading',
-                'variant' => 'eyebrow',
-            ])
-
-            <div class="mb-6 flex items-end justify-between gap-4">
-                <div>
-                    <h2 id="home-stats-heading" class="text-xl font-semibold tracking-tight md:text-2xl">
-                        {{ $statsHeading }}
-                    </h2>
-                    @if ($statsLead)
-                        <p class="mt-1 text-sm text-safehouse-muted">{{ $statsLead }}</p>
-                    @endif
-                </div>
-            </div>
-
+        <section class="mb-10" aria-label="{{ __('site.home.stats.heading') }}">
             @include('pages.partials.home-impact-stats', ['impactStats' => $impactStats])
         </section>
+
+        @include('pages.partials.home-manifesto-banner')
     </x-page-template-shell>
 @endsection

@@ -11,23 +11,37 @@ use RuntimeException;
 class EspoCrmContactIntakeService
 {
     public function __construct(
-        private readonly EspoCrmClient $client,
+        private readonly ?EspoCrmClient $client = null,
     ) {}
 
     public static function fromConfig(): self
     {
-        return new self(EspoCrmClient::fromConfig());
+        return new self(EspoCrmClient::tryFromConfig());
     }
 
     public function isConfigured(): bool
     {
-        try {
-            EspoCrmClient::fromConfig();
+        return $this->resolveClient() !== null;
+    }
 
-            return true;
-        } catch (RuntimeException) {
-            return false;
+    private function resolveClient(): ?EspoCrmClient
+    {
+        if ($this->client !== null) {
+            return $this->client;
         }
+
+        return EspoCrmClient::tryFromConfig();
+    }
+
+    private function client(): EspoCrmClient
+    {
+        $client = $this->resolveClient();
+
+        if ($client === null) {
+            throw new RuntimeException('EspoCRM base URL and API key must be configured.');
+        }
+
+        return $client;
     }
 
     /**
@@ -64,7 +78,7 @@ class EspoCrmContactIntakeService
             ],
         ] as $where) {
             try {
-                $response = $this->client->search('Case', [
+                $response = $this->client()->search('Case', [
                     'where' => $where,
                     'maxSize' => 1,
                     'orderBy' => 'createdAt',
@@ -126,7 +140,7 @@ class EspoCrmContactIntakeService
      */
     private function searchEmail(array $where): ?array
     {
-        $response = $this->client->search('Email', [
+        $response = $this->client()->search('Email', [
             'where' => $where,
             'maxSize' => 1,
             'orderBy' => 'createdAt',
@@ -178,12 +192,12 @@ class EspoCrmContactIntakeService
             $payload['assignedUserId'] = $assignedUserId;
         }
 
-        return $this->client->create('Lead', $payload);
+        return $this->client()->create('Lead', $payload);
     }
 
     public function linkCaseToLead(string $caseId, string $leadId, string $caseType, ContactSubmission $submission): void
     {
-        $this->client->update('Case', $caseId, [
+        $this->client()->update('Case', $caseId, [
             'parentType' => 'Lead',
             'parentId' => $leadId,
             'type' => $caseType,
@@ -208,7 +222,7 @@ class EspoCrmContactIntakeService
         }
 
         try {
-            $this->client->update('Case', $caseId, $metadata);
+            $this->client()->update('Case', $caseId, $metadata);
         } catch (RuntimeException $exception) {
             Log::warning('Sportello CRM case metadata update skipped', [
                 'case_id' => $caseId,

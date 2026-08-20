@@ -21,6 +21,9 @@ return [
         'tagline' => 'Comunità di accoglienza e solidarietà.',
         'rights' => '© :year Safe House Community',
     ],
+    'social' => [
+        'nav_label' => 'Social',
+    ],
     'home' => [
         'title' => 'Safe House Community',
         'eyebrow' => 'Comunità di accoglienza',
@@ -28,6 +31,18 @@ return [
         'cta_donate' => 'Sostieni una raccolta',
         'cta_volunteer' => 'Diventa volontario',
         'cta_contact' => 'Contattaci',
+        'manifesto' => [
+            'quote' => "NESSUNA LINEA TRACCIATA DA UN GOVERNO PUÒ CANCELLARE IL\nDIRITTO DI UN ESSERE UMANO A CERCARE IL PROPRIO FUTURO.\nNESSUN ESSERE UMANO È ILLEGALE, I CONFINI SONO LINEE SULLE\nMAPPE, LA LIBERTÀ INVECE È UN DIRITTO.\nNON SIAMO PROPRIETÀ DEI GOVERNI",
+            'author' => 'Matteo Grossi — Fondatore Safe House',
+            'slogan' => [
+                'welcome' => 'Accogliere',
+                'include' => 'INCLUDERE',
+                'change' => 'Cambiare',
+                'smile' => 'SORRIDERE',
+            ],
+            'email' => 'theprojectsafehouse@gmail.com',
+            'brand' => 'SAFE HOUSE',
+        ],
         'stats' => [
             'heading' => 'Il nostro impatto',
             'lead' => 'Dati aggiornati dal CRM.',

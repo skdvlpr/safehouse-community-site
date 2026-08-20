@@ -109,6 +109,70 @@
         @apply text-end whitespace-nowrap text-safehouse-muted transition hover:text-safehouse-link;
     }
 
+    .site-footer {
+        @apply mt-auto border-t border-white/10 bg-safehouse-modal/55;
+    }
+
+    .site-footer__inner {
+        @apply flex flex-col items-center gap-3 py-4;
+        @apply md:flex-row md:flex-nowrap md:items-center md:justify-between md:gap-4 md:py-3.5;
+    }
+
+    .site-footer__brand {
+        @apply flex w-full shrink-0 items-center justify-center gap-3;
+        @apply md:w-auto md:min-w-0 md:flex-1 md:justify-start;
+    }
+
+    .site-footer__brand > a {
+        @apply shrink-0;
+    }
+
+    .site-footer__brand .brand-emblem {
+        @apply h-8 w-8 sm:h-9 sm:w-9;
+    }
+
+    .site-footer__brand .brand-wordmark--footer {
+        @apply text-base sm:text-lg;
+    }
+
+    .site-footer__tagline {
+        @apply m-0 hidden min-w-0 truncate text-xs text-safehouse-muted xl:block xl:max-w-[16rem] 2xl:max-w-sm xl:text-sm;
+    }
+
+    .site-footer__social {
+        @apply flex w-full shrink-0 justify-center md:w-auto;
+    }
+
+    .site-footer__social .social-links__list {
+        @apply justify-center gap-2;
+    }
+
+    .site-footer__social .social-links__item {
+        @apply h-9 w-9;
+    }
+
+    .site-footer__social .social-links__icon {
+        @apply h-4 w-4;
+    }
+
+    .site-footer__legal {
+        @apply flex w-full shrink-0 flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-xs;
+        @apply md:w-auto md:text-sm;
+    }
+
+    .site-footer__legal-sep {
+        @apply select-none text-safehouse-muted/40;
+    }
+
+    .site-footer__legal-link {
+        @apply whitespace-nowrap text-safehouse-muted transition hover:text-safehouse-link;
+    }
+
+    .site-footer__copy {
+        @apply m-0 w-full text-center text-[11px] tracking-wide text-safehouse-muted/80;
+        @apply md:w-auto md:shrink-0 md:text-xs md:text-end;
+    }
+
     .nav-dropdown {
         @apply relative;
     }
@@ -978,5 +1042,145 @@
 
     .donation-phone-field .iti__dial-code {
         @apply text-safehouse-muted;
+    }
+
+    .home-manifesto {
+        @apply relative overflow-hidden rounded-2xl px-6 py-14 text-center md:px-14 md:py-20;
+        background:
+            linear-gradient(180deg, rgb(10 10 12 / 72%), rgb(8 8 10 / 88%)),
+            radial-gradient(ellipse 80% 60% at 50% 0%, rgb(220 38 38 / 12%), transparent 70%);
+        border: 1px solid var(--safehouse-glass-border);
+        backdrop-filter: blur(12px);
+    }
+
+    .home-manifesto__inner {
+        @apply relative mx-auto max-w-4xl;
+    }
+
+    .home-manifesto__quotes {
+        @apply mb-8 flex justify-between text-safehouse-text md:mb-10;
+        font-size: clamp(4.5rem, 14vw, 7.5rem);
+        line-height: 0.55;
+        font-weight: 700;
+        letter-spacing: -0.04em;
+    }
+
+    .home-manifesto__quote-mark {
+        @apply inline-block opacity-90;
+        animation: home-manifesto-mark 0.9s ease-out both;
+    }
+
+    .home-manifesto__quote-mark--open {
+        transform: translateY(0.35em);
+        animation-delay: 0.05s;
+    }
+
+    .home-manifesto__quote-mark--close {
+        transform: translateY(0.35em);
+        animation-delay: 0.18s;
+    }
+
+    .home-manifesto__quote {
+        @apply mx-auto mb-10 max-w-3xl text-lg font-semibold uppercase leading-relaxed tracking-wide text-safehouse-text sm:text-xl md:text-2xl md:leading-relaxed md:tracking-wider lg:text-[1.75rem];
+        animation: home-manifesto-rise 0.85s ease-out 0.12s both;
+    }
+
+    .home-manifesto__author {
+        @apply mb-8 text-lg text-safehouse-muted md:text-xl;
+        animation: home-manifesto-rise 0.85s ease-out 0.22s both;
+    }
+
+    .home-manifesto__divider {
+        @apply mx-auto mb-8 h-0.5 w-48 border-0 bg-safehouse-primary md:w-64;
+        animation: home-manifesto-rule 0.8s ease-out 0.28s both;
+        transform-origin: center;
+    }
+
+    .home-manifesto__slogan {
+        @apply mb-8 text-lg font-semibold tracking-wide text-safehouse-primary md:text-xl lg:text-2xl;
+        word-spacing: 0.4em;
+        animation: home-manifesto-rise 0.85s ease-out 0.34s both;
+    }
+
+    .home-manifesto__slogan strong {
+        @apply font-extrabold uppercase tracking-wider;
+    }
+
+    .home-manifesto__email {
+        @apply mb-12 inline-block text-base text-safehouse-muted transition hover:text-safehouse-link md:text-lg;
+        animation: home-manifesto-rise 0.85s ease-out 0.4s both;
+    }
+
+    .home-manifesto__brand {
+        @apply flex flex-col items-center gap-4;
+        animation: home-manifesto-rise 0.9s ease-out 0.48s both;
+    }
+
+    .home-manifesto__logo {
+        @apply h-28 w-28 object-contain opacity-95 md:h-32 md:w-32 lg:h-36 lg:w-36;
+    }
+
+    .home-manifesto__wordmark {
+        @apply text-2xl font-extrabold tracking-[0.14em] text-safehouse-primary uppercase md:text-3xl;
+    }
+
+    .social-links__list {
+        @apply m-0 flex list-none flex-wrap items-center justify-center gap-3 p-0;
+    }
+
+    .social-links__item {
+        @apply inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-safehouse-text transition hover:border-safehouse-primary/50 hover:bg-safehouse-primary/15 hover:text-safehouse-primary;
+    }
+
+    .social-links__icon {
+        @apply h-5 w-5;
+    }
+}
+
+@keyframes home-manifesto-rise {
+    from {
+        opacity: 0;
+        transform: translateY(0.85rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes home-manifesto-mark {
+    from {
+        opacity: 0;
+        transform: translateY(0.55em) scale(0.92);
+    }
+
+    to {
+        opacity: 0.9;
+        transform: translateY(0.35em) scale(1);
+    }
+}
+
+@keyframes home-manifesto-rule {
+    from {
+        opacity: 0;
+        transform: scaleX(0.35);
+    }
+
+    to {
+        opacity: 1;
+        transform: scaleX(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-manifesto__quote-mark,
+    .home-manifesto__quote,
+    .home-manifesto__author,
+    .home-manifesto__divider,
+    .home-manifesto__slogan,
+    .home-manifesto__email,
+    .home-manifesto__brand {
+        animation: none !important;
     }
 }

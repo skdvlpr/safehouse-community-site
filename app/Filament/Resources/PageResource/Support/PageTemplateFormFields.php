@@ -65,19 +65,6 @@ class PageTemplateFormFields
             ->visible(fn (Get $get): bool => $get('template') === 'about')
             ->columnSpanFull();
 
-        $fields[] = TextInput::make("meta.stats_heading.{$locale}")
-            ->label(__('cms.fields.stats_section_title'))
-            ->helperText(__('cms.helpers.stats_section_title'))
-            ->maxLength(255)
-            ->visible(fn (Get $get): bool => $get('template') === 'home')
-            ->columnSpanFull();
-
-        $fields[] = TextInput::make("meta.stats_lead.{$locale}")
-            ->label(__('cms.fields.stats_section_intro'))
-            ->helperText(__('cms.helpers.stats_section_intro'))
-            ->visible(fn (Get $get): bool => $get('template') === 'home')
-            ->columnSpanFull();
-
         $fields[] = TextInput::make("meta.cta_donate.{$locale}")
             ->label(__('cms.fields.donate_button'))
             ->maxLength(120)
@@ -91,47 +78,6 @@ class PageTemplateFormFields
             ->columnSpanFull();
 
         return $fields;
-    }
-
-    public static function homeStatsSection(): Section
-    {
-        $locales = config('locales.available', ['it', 'ru', 'en']);
-        $statFields = [];
-
-        foreach ($locales as $locale) {
-            $statFields[] = TextInput::make("label.{$locale}")
-                ->label(__('cms.fields.label_locale', ['locale' => strtoupper($locale)]))
-                ->maxLength(255);
-        }
-
-        $statFields[] = TextInput::make('value')
-            ->label(__('cms.fields.value'))
-            ->helperText(__('cms.helpers.stat_value'))
-            ->maxLength(32);
-
-        return Section::make(__('cms.sections.home_stats'))
-            ->description(__('cms.helpers.home_stats'))
-            ->visible(fn (Get $get): bool => $get('template') === 'home')
-            ->schema([
-                Repeater::make('meta.stats')
-                    ->label(__('cms.fields.stats'))
-                    ->reorderable()
-                    ->collapsible()
-                    ->itemLabel(function (array $state): string {
-                        foreach (config('locales.available', ['it', 'ru', 'en']) as $locale) {
-                            $label = $state['label'][$locale] ?? null;
-
-                            if (is_string($label) && $label !== '') {
-                                return $label;
-                            }
-                        }
-
-                        return __('cms.items.new_stat');
-                    })
-                    ->schema($statFields)
-                    ->columnSpanFull(),
-            ])
-            ->columnSpanFull();
     }
 
     public static function serviceCardsSection(): Section

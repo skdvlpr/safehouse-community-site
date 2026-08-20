@@ -109,7 +109,7 @@ class PrimaNotaBulkPullTest extends TestCase
                 return Http::response(['id' => 'a-bulk'], 200);
             }
 
-            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota') && ! str_contains($url, '/action/')) {
                 return Http::response(['id' => 'pn-bulk', 'financingId' => 'opp-bulk'], 200);
             }
 

@@ -9,7 +9,9 @@ class PageSeeder extends Seeder
 {
     public function run(): void
     {
-        Page::query()->updateOrCreate(
+        // Never updateOrCreate home — production CMS edits (CTA, eyebrow, carousel)
+        // must survive accidental seeds. Banner/social are code/lang/settings, not this row.
+        Page::query()->firstOrCreate(
             ['key' => 'home'],
             [
                 'template' => 'home',
@@ -34,21 +36,6 @@ class PageSeeder extends Seeder
                         'it' => 'Comunità di accoglienza',
                         'en' => 'A welcoming community',
                         'ru' => 'Сообщество гостеприимства',
-                    ],
-                    'section_label' => [
-                        'it' => 'Il nostro impatto',
-                        'en' => 'Our impact',
-                        'ru' => 'Наш вклад',
-                    ],
-                    'stats_heading' => [
-                        'it' => 'Il nostro impatto',
-                        'en' => 'Our impact',
-                        'ru' => 'Наш вклад',
-                    ],
-                    'stats_lead' => [
-                        'it' => 'Conteggi pasti aggiornati dal CRM.',
-                        'en' => 'Meal counts updated from the CRM.',
-                        'ru' => 'Счётчики питания обновляются из CRM.',
                     ],
                     'cta_donate' => [
                         'it' => 'Sostieni una raccolta',

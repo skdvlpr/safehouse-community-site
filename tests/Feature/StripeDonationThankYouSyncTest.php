@@ -107,7 +107,7 @@ class StripeDonationThankYouSyncTest extends TestCase
                 ]);
             }
 
-            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota')) {
+            if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota') && ! str_contains($url, '/action/')) {
                 return Http::response(['id' => 'pn-local-thank-you', 'financingId' => 'opp-local']);
             }
 
@@ -121,6 +121,7 @@ class StripeDonationThankYouSyncTest extends TestCase
         Http::assertSent(function ($request): bool {
             return $request->method() === 'POST'
                 && str_contains($request->url(), '/api/v1/PrimaNota')
+                && ! str_contains($request->url(), '/action/')
                 && ($request->data()['donationPaymentReference'] ?? '') === '#pi_local_thank_you';
         });
     }
@@ -191,7 +192,7 @@ class StripeDonationThankYouSyncTest extends TestCase
                 return Http::response(['total' => 0, 'list' => []]);
             }
 
-            if ($request->method() === 'POST' && str_contains($request->url(), '/api/v1/PrimaNota')) {
+            if ($request->method() === 'POST' && str_contains($request->url(), '/api/v1/PrimaNota') && ! str_contains($request->url(), '/action/')) {
                 return Http::response(['id' => 'pn-prod']);
             }
 
@@ -201,6 +202,7 @@ class StripeDonationThankYouSyncTest extends TestCase
         app(StripeDonationThankYouSync::class)->ingestSucceededPaymentIntent('pi_prod_fallback');
 
         Http::assertSent(fn ($request): bool => $request->method() === 'POST'
-            && str_contains($request->url(), '/api/v1/PrimaNota'));
+            && str_contains($request->url(), '/api/v1/PrimaNota')
+                && ! str_contains($request->url(), '/action/'));
     }
 }

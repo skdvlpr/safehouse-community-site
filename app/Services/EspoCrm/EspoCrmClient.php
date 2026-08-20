@@ -26,6 +26,23 @@ class EspoCrmClient
         return new self($baseUrl, $apiKey);
     }
 
+    public static function tryFromConfig(): ?self
+    {
+        try {
+            return self::fromConfig();
+        } catch (RuntimeException) {
+            return null;
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function metadata(string $key): array
+    {
+        return $this->request('get', 'Metadata', ['key' => $key]);
+    }
+
     /**
      * @param  array<string, mixed>  $query
      * @return array<string, mixed>

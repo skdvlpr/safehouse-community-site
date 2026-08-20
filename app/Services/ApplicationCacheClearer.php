@@ -18,6 +18,7 @@ class ApplicationCacheClearer
         private SiteContentService $siteContent,
         private ContactDeskSettings $contactDesk,
         private ContactSportelloMailSettings $sportelloMail,
+        private SocialLinksSettings $socialLinks,
         private HomeImpactStatsService $homeImpactStats,
         private HomeMealStatsService $homeMealStats,
     ) {}
@@ -29,6 +30,7 @@ class ApplicationCacheClearer
         $this->siteContent->forgetCache();
         $this->contactDesk->forgetCache();
         $this->sportelloMail->forgetCache();
+        $this->socialLinks->forgetCache();
         $this->homeImpactStats->forgetCache();
         $this->homeMealStats->forgetCache();
 
