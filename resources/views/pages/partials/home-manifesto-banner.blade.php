@@ -1,4 +1,4 @@
-<section class="home-manifesto mb-10" aria-labelledby="home-manifesto-quote">
+<section class="home-manifesto mb-6 md:mb-10" aria-labelledby="home-manifesto-quote">
     <div class="home-manifesto__inner">
         <div class="home-manifesto__quotes" aria-hidden="true">
             <span class="home-manifesto__quote-mark home-manifesto__quote-mark--open">&ldquo;</span>
@@ -31,13 +31,13 @@
                 src="{{ asset('images/logo.png') }}"
                 alt=""
                 class="home-manifesto__logo"
-                width="110"
-                height="110"
+                width="56"
+                height="56"
                 decoding="async"
                 aria-hidden="true"
             >
             <p class="home-manifesto__wordmark">{{ __('site.home.manifesto.brand') }}</p>
-            <x-social-links class="mt-6" />
+            <x-social-links />
         </div>
     </div>
 </section>

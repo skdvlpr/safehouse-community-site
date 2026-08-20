@@ -1045,7 +1045,7 @@
     }
 
     .home-manifesto {
-        @apply relative overflow-hidden rounded-2xl px-6 py-14 text-center md:px-14 md:py-20;
+        @apply relative overflow-hidden rounded-2xl px-5 py-7 text-center md:px-14 md:py-20;
         background:
             linear-gradient(180deg, rgb(10 10 12 / 72%), rgb(8 8 10 / 88%)),
             radial-gradient(ellipse 80% 60% at 50% 0%, rgb(220 38 38 / 12%), transparent 70%);
@@ -1058,9 +1058,9 @@
     }
 
     .home-manifesto__quotes {
-        @apply mb-8 flex justify-between text-safehouse-text md:mb-10;
-        font-size: clamp(4.5rem, 14vw, 7.5rem);
-        line-height: 0.55;
+        @apply mb-3 flex justify-between text-safehouse-text md:mb-10;
+        font-size: clamp(2.25rem, 9vw, 7.5rem);
+        line-height: 0.45;
         font-weight: 700;
         letter-spacing: -0.04em;
     }
@@ -1081,25 +1081,31 @@
     }
 
     .home-manifesto__quote {
-        @apply mx-auto mb-10 max-w-3xl text-lg font-semibold uppercase leading-relaxed tracking-wide text-safehouse-text sm:text-xl md:text-2xl md:leading-relaxed md:tracking-wider lg:text-[1.75rem];
+        @apply mx-auto mb-4 max-w-3xl text-[0.8rem] font-semibold uppercase leading-snug tracking-wide text-safehouse-text sm:text-sm md:mb-10 md:text-2xl md:leading-relaxed md:tracking-wider lg:text-[1.75rem];
         animation: home-manifesto-rise 0.85s ease-out 0.12s both;
     }
 
     .home-manifesto__author {
-        @apply mb-8 text-lg text-safehouse-muted md:text-xl;
+        @apply mb-4 text-sm text-safehouse-muted md:mb-8 md:text-xl;
         animation: home-manifesto-rise 0.85s ease-out 0.22s both;
     }
 
     .home-manifesto__divider {
-        @apply mx-auto mb-8 h-0.5 w-48 border-0 bg-safehouse-primary md:w-64;
+        @apply mx-auto mb-4 h-0.5 w-28 border-0 bg-safehouse-primary md:mb-8 md:w-64;
         animation: home-manifesto-rule 0.8s ease-out 0.28s both;
         transform-origin: center;
     }
 
     .home-manifesto__slogan {
-        @apply mb-8 text-lg font-semibold tracking-wide text-safehouse-primary md:text-xl lg:text-2xl;
-        word-spacing: 0.4em;
+        @apply mb-4 text-sm font-semibold tracking-wide text-safehouse-primary md:mb-8 md:text-xl lg:text-2xl;
+        word-spacing: 0.25em;
         animation: home-manifesto-rise 0.85s ease-out 0.34s both;
+    }
+
+    @media (min-width: 768px) {
+        .home-manifesto__slogan {
+            word-spacing: 0.4em;
+        }
     }
 
     .home-manifesto__slogan strong {
@@ -1107,21 +1113,25 @@
     }
 
     .home-manifesto__email {
-        @apply mb-12 inline-block text-base text-safehouse-muted transition hover:text-safehouse-link md:text-lg;
+        @apply mb-5 inline-block text-sm text-safehouse-muted transition hover:text-safehouse-link md:mb-12 md:text-lg;
         animation: home-manifesto-rise 0.85s ease-out 0.4s both;
     }
 
     .home-manifesto__brand {
-        @apply flex flex-col items-center gap-4;
+        @apply flex flex-col items-center gap-2 md:gap-4;
         animation: home-manifesto-rise 0.9s ease-out 0.48s both;
     }
 
     .home-manifesto__logo {
-        @apply h-28 w-28 object-contain opacity-95 md:h-32 md:w-32 lg:h-36 lg:w-36;
+        @apply h-14 w-14 object-contain opacity-95 md:h-32 md:w-32 lg:h-36 lg:w-36;
     }
 
     .home-manifesto__wordmark {
-        @apply text-2xl font-extrabold tracking-[0.14em] text-safehouse-primary uppercase md:text-3xl;
+        @apply text-lg font-extrabold tracking-[0.12em] text-safehouse-primary uppercase md:text-3xl md:tracking-[0.14em];
+    }
+
+    .home-manifesto__brand .social-links {
+        @apply mt-3 md:mt-6;
     }
 
     .social-links__list {
