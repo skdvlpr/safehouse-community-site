@@ -53,8 +53,9 @@ return [
      * After payment_intent.succeeded, BalanceTransaction can lag a few hundred ms.
      * retrieveSettledPaymentIntent retries expand until fee/net is available.
      */
-    'settlement_retries' => (int) env('STRIPE_SETTLEMENT_RETRIES', 5),
+    // Thank-you page often races Stripe BT readiness; keep retries long enough (~10s).
+    'settlement_retries' => (int) env('STRIPE_SETTLEMENT_RETRIES', 20),
 
-    'settlement_retry_ms' => (int) env('STRIPE_SETTLEMENT_RETRY_MS', 400),
+    'settlement_retry_ms' => (int) env('STRIPE_SETTLEMENT_RETRY_MS', 500),
 
 ];

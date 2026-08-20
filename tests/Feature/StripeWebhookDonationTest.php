@@ -2,13 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\DataTransferObjects\StripeEnrichmentFields;
+use App\DataTransferObjects\StripeSettlementAmounts;
 use App\Models\DonationCampaign;
 use App\Services\Payments\StripePaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Testing\TestResponse;
 use Mockery;
-use Mockery\MockInterface;
 use RuntimeException;
 use Stripe\Event;
 use Stripe\PaymentIntent;
@@ -164,6 +166,15 @@ class StripeWebhookDonationTest extends TestCase
                 ]);
             }
 
+            if ($method === 'GET' && str_contains($url, '/api/v1/User/')) {
+                $id = trim((string) basename(parse_url($url, PHP_URL_PATH) ?: ''));
+
+                return Http::response(['id' => $id !== '' ? $id : 'api-user-id', 'userName' => 'api']);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/App/user')) {
+                return Http::response(['user' => ['id' => 'api-user-id', 'userName' => 'api']]);
+            }
             if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota') && ! str_contains($url, '/action/')) {
                 return Http::response(['id' => 'pn-1']);
             }
@@ -406,7 +417,7 @@ class StripeWebhookDonationTest extends TestCase
         $this->fakeCrmForSuccessfulIngest('opp-fee', 'pn-fee', subjectContactMatches: 0, beneficiaryAccountId: 'acc-safe-house');
         $this->mockStripeWebhook(
             $intent,
-            \App\DataTransferObjects\StripeSettlementAmounts::fromCents([
+            StripeSettlementAmounts::fromCents([
                 'gross_cents' => 10000,
                 'fee_cents' => 290,
                 'net_cents' => 9710,
@@ -472,7 +483,7 @@ class StripeWebhookDonationTest extends TestCase
             ],
         ]);
 
-        $settlement = \App\DataTransferObjects\StripeSettlementAmounts::fromCents([
+        $settlement = StripeSettlementAmounts::fromCents([
             'gross_cents' => 2000,
             'fee_cents' => 0,
             'net_cents' => 2000,
@@ -486,7 +497,7 @@ class StripeWebhookDonationTest extends TestCase
         $mock->shouldReceive('settlementFromPaymentIntent')->andReturn($settlement);
         $mock->shouldReceive('donationMetadataFromPaymentIntent')->andReturn($intent->metadata->toArray());
         $mock->shouldReceive('enrichmentFromPaymentIntent')->andReturn(
-            \App\DataTransferObjects\StripeEnrichmentFields::fromMockStoredIntent([
+            StripeEnrichmentFields::fromMockStoredIntent([
                 'created' => (int) $intent->created,
                 'charge_id' => 'ch_sub',
                 'customer_id' => 'cus_test_recurring',
@@ -580,6 +591,15 @@ class StripeWebhookDonationTest extends TestCase
                 ]);
             }
 
+            if ($method === 'GET' && str_contains($url, '/api/v1/User/')) {
+                $id = trim((string) basename(parse_url($url, PHP_URL_PATH) ?: ''));
+
+                return Http::response(['id' => $id !== '' ? $id : 'api-user-id', 'userName' => 'api']);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/App/user')) {
+                return Http::response(['user' => ['id' => 'api-user-id', 'userName' => 'api']]);
+            }
             if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota') && ! str_contains($url, '/action/')) {
                 return Http::response(['id' => $primaNotaId, 'financingId' => $financingId]);
             }
@@ -590,7 +610,7 @@ class StripeWebhookDonationTest extends TestCase
 
     private function mockStripeWebhook(
         PaymentIntent $intent,
-        ?\App\DataTransferObjects\StripeSettlementAmounts $settlement = null,
+        ?StripeSettlementAmounts $settlement = null,
     ): void {
         $event = Event::constructFrom([
             'id' => 'evt_test',
@@ -598,7 +618,7 @@ class StripeWebhookDonationTest extends TestCase
             'data' => ['object' => $intent->toArray()],
         ]);
 
-        $settlement ??= \App\DataTransferObjects\StripeSettlementAmounts::fromCents([
+        $settlement ??= StripeSettlementAmounts::fromCents([
             'gross_cents' => (int) ($intent->amount_received ?? $intent->amount),
             'fee_cents' => 0,
             'net_cents' => (int) ($intent->amount_received ?? $intent->amount),
@@ -614,7 +634,7 @@ class StripeWebhookDonationTest extends TestCase
             is_object($intent->metadata ?? null) ? $intent->metadata->toArray() : (array) ($intent->metadata ?? [])
         );
         $mock->shouldReceive('enrichmentFromPaymentIntent')->andReturn(
-            \App\DataTransferObjects\StripeEnrichmentFields::fromMockStoredIntent([
+            StripeEnrichmentFields::fromMockStoredIntent([
                 'created' => (int) ($intent->created ?? time()),
                 'charge_id' => 'ch_test',
                 'balance_transaction_id' => 'txn_test',
@@ -713,7 +733,7 @@ class StripeWebhookDonationTest extends TestCase
         Http::assertNothingSent();
     }
 
-    private function postStripeWebhook(string $payload, string $signature): \Illuminate\Testing\TestResponse
+    private function postStripeWebhook(string $payload, string $signature): TestResponse
     {
         return $this->call(
             'POST',

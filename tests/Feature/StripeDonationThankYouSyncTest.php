@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\DataTransferObjects\StripeEnrichmentFields;
+use App\DataTransferObjects\StripeSettlementAmounts;
 use App\Models\DonationCampaign;
 use App\Services\Donations\StripeDonationThankYouSync;
 use App\Services\Payments\StripePaymentService;
@@ -60,7 +62,7 @@ class StripeDonationThankYouSyncTest extends TestCase
         $mock->shouldReceive('settlementFromPaymentIntent')
             ->once()
             ->with($intent)
-            ->andReturn(\App\DataTransferObjects\StripeSettlementAmounts::fromCents([
+            ->andReturn(StripeSettlementAmounts::fromCents([
                 'gross_cents' => 100,
                 'fee_cents' => 0,
                 'net_cents' => 100,
@@ -73,7 +75,7 @@ class StripeDonationThankYouSyncTest extends TestCase
         $mock->shouldReceive('enrichmentFromPaymentIntent')
             ->once()
             ->with($intent)
-            ->andReturn(\App\DataTransferObjects\StripeEnrichmentFields::fromMockStoredIntent([
+            ->andReturn(StripeEnrichmentFields::fromMockStoredIntent([
                 'created' => time(),
                 'payment_method_type' => 'card',
                 'card_brand' => 'visa',
@@ -107,6 +109,15 @@ class StripeDonationThankYouSyncTest extends TestCase
                 ]);
             }
 
+            if ($method === 'GET' && str_contains($url, '/api/v1/User/')) {
+                $id = trim((string) basename(parse_url($url, PHP_URL_PATH) ?: ''));
+
+                return Http::response(['id' => $id !== '' ? $id : 'api-user-id', 'userName' => 'api']);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/App/user')) {
+                return Http::response(['user' => ['id' => 'api-user-id', 'userName' => 'api']]);
+            }
             if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota') && ! str_contains($url, '/action/')) {
                 return Http::response(['id' => 'pn-local-thank-you', 'financingId' => 'opp-local']);
             }
@@ -152,7 +163,7 @@ class StripeDonationThankYouSyncTest extends TestCase
         $mock->shouldReceive('settlementFromPaymentIntent')
             ->once()
             ->with($intent)
-            ->andReturn(\App\DataTransferObjects\StripeSettlementAmounts::fromCents([
+            ->andReturn(StripeSettlementAmounts::fromCents([
                 'gross_cents' => 500,
                 'fee_cents' => 0,
                 'net_cents' => 500,
@@ -165,7 +176,7 @@ class StripeDonationThankYouSyncTest extends TestCase
         $mock->shouldReceive('enrichmentFromPaymentIntent')
             ->once()
             ->with($intent)
-            ->andReturn(\App\DataTransferObjects\StripeEnrichmentFields::fromMockStoredIntent([
+            ->andReturn(StripeEnrichmentFields::fromMockStoredIntent([
                 'created' => time(),
                 'payment_method_type' => 'card',
             ]));
@@ -190,6 +201,16 @@ class StripeDonationThankYouSyncTest extends TestCase
 
             if ($request->method() === 'GET' && str_contains($request->url(), '/api/v1/Account')) {
                 return Http::response(['total' => 0, 'list' => []]);
+            }
+
+            if ($request->method() === 'GET' && str_contains($request->url(), '/api/v1/User/')) {
+                $id = trim((string) basename(parse_url($request->url(), PHP_URL_PATH) ?: ''));
+
+                return Http::response(['id' => $id !== '' ? $id : 'api-user-id', 'userName' => 'api']);
+            }
+
+            if ($request->method() === 'GET' && str_contains($request->url(), '/api/v1/App/user')) {
+                return Http::response(['user' => ['id' => 'api-user-id', 'userName' => 'api']]);
             }
 
             if ($request->method() === 'POST' && str_contains($request->url(), '/api/v1/PrimaNota') && ! str_contains($request->url(), '/action/')) {

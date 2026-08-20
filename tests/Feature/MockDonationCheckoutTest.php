@@ -60,6 +60,15 @@ class MockDonationCheckoutTest extends TestCase
                 ]);
             }
 
+            if ($method === 'GET' && str_contains($url, '/api/v1/User/')) {
+                $id = trim((string) basename(parse_url($url, PHP_URL_PATH) ?: ''));
+
+                return Http::response(['id' => $id !== '' ? $id : 'api-user-id', 'userName' => 'api']);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/App/user')) {
+                return Http::response(['user' => ['id' => 'api-user-id', 'userName' => 'api']]);
+            }
             if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota') && ! str_contains($url, '/action/')) {
                 return Http::response(['id' => 'pn-mock-1']);
             }
@@ -128,6 +137,15 @@ class MockDonationCheckoutTest extends TestCase
                 ]);
             }
 
+            if ($method === 'GET' && str_contains($url, '/api/v1/User/')) {
+                $id = trim((string) basename(parse_url($url, PHP_URL_PATH) ?: ''));
+
+                return Http::response(['id' => $id !== '' ? $id : 'api-user-id', 'userName' => 'api']);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/api/v1/App/user')) {
+                return Http::response(['user' => ['id' => 'api-user-id', 'userName' => 'api']]);
+            }
             if ($method === 'POST' && str_contains($url, '/api/v1/PrimaNota') && ! str_contains($url, '/action/')) {
                 return Http::response(['id' => 'pn-recurring-mock']);
             }
