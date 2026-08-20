@@ -6,29 +6,43 @@
     ];
 @endphp
 
-<details class="theme-switcher" data-theme-switcher>
-    <summary
-        class="theme-switcher__trigger"
-        aria-label="{{ __('site.theme.label') }}"
-        title="{{ __('site.theme.label') }}"
+<nav class="theme-switcher" data-theme-switcher aria-label="{{ __('site.theme.label') }}">
+    <button
+        type="button"
+        class="theme-switcher__option"
+        data-theme-option="dark"
+        aria-checked="false"
+        aria-label="{{ $labels['dark'] }}"
+        title="{{ $labels['dark'] }}"
     >
         <svg class="theme-switcher__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1.5M12 19.5V21M4.5 12H3m18 0h-1.5M6.1 6.1 5 5m13 13-1.1-1.1M18 6.1 19.1 5M6.1 17.9 5 19M12 8.25A3.75 3.75 0 1 1 8.25 12 3.75 3.75 0 0 1 12 8.25Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 14.3A8.1 8.1 0 0 1 9.7 3 7.1 7.1 0 1 0 21 14.3Z" />
         </svg>
-        <span class="sr-only" data-theme-label
-              data-label-dark="{{ $labels['dark'] }}"
-              data-label-light="{{ $labels['light'] }}"
-              data-label-system="{{ $labels['system'] }}">{{ $labels['dark'] }}</span>
-    </summary>
-    <div class="theme-switcher__menu" role="listbox" aria-label="{{ __('site.theme.label') }}">
-        <button type="button" class="theme-switcher__option" role="option" data-theme-option="dark" aria-checked="false">
-            {{ $labels['dark'] }}
-        </button>
-        <button type="button" class="theme-switcher__option" role="option" data-theme-option="light" aria-checked="false">
-            {{ $labels['light'] }}
-        </button>
-        <button type="button" class="theme-switcher__option" role="option" data-theme-option="system" aria-checked="false">
-            {{ $labels['system'] }}
-        </button>
-    </div>
-</details>
+    </button>
+    <button
+        type="button"
+        class="theme-switcher__option"
+        data-theme-option="light"
+        aria-checked="false"
+        aria-label="{{ $labels['light'] }}"
+        title="{{ $labels['light'] }}"
+    >
+        <svg class="theme-switcher__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <circle cx="12" cy="12" r="3.6" />
+            <path stroke-linecap="round" d="M12 3.2v1.6M12 19.2v1.6M4.8 12H3.2M20.8 12h-1.6M6.4 6.4l-1.1-1.1M18.7 18.7l-1.1-1.1M17.6 6.4l1.1-1.1M6.4 17.6l-1.1 1.1" />
+        </svg>
+    </button>
+    <button
+        type="button"
+        class="theme-switcher__option"
+        data-theme-option="system"
+        aria-checked="false"
+        aria-label="{{ $labels['system'] }}"
+        title="{{ $labels['system'] }}"
+    >
+        <svg class="theme-switcher__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <rect x="3.5" y="4.5" width="17" height="12" rx="2" />
+            <path stroke-linecap="round" d="M8 19.5h8M12 16.5v3" />
+        </svg>
+    </button>
+</nav>

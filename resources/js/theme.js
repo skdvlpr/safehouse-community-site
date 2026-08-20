@@ -45,15 +45,6 @@ function syncSwitcherUi(preference = getThemePreference()) {
         const checked = value === preference;
         el.setAttribute('aria-checked', checked ? 'true' : 'false');
     });
-
-    document.querySelectorAll('[data-theme-label]').forEach((el) => {
-        const labels = {
-            dark: el.getAttribute('data-label-dark') || 'Dark',
-            light: el.getAttribute('data-label-light') || 'Light',
-            system: el.getAttribute('data-label-system') || 'System',
-        };
-        el.textContent = labels[preference] || labels.dark;
-    });
 }
 
 export function initThemeSwitcher() {
@@ -66,11 +57,6 @@ export function initThemeSwitcher() {
             const value = el.getAttribute('data-theme-option');
             if (value) {
                 setThemePreference(value);
-            }
-
-            const details = el.closest('details');
-            if (details) {
-                details.open = false;
             }
         });
     });

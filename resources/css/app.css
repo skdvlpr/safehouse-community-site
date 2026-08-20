@@ -1287,23 +1287,15 @@ html[data-theme='light'] header.sticky {
 }
 
 .theme-switcher {
-    @apply relative;
-}
-
-.theme-switcher__trigger {
-    @apply inline-flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-md border border-white/10 text-safehouse-muted transition hover:bg-white/5 hover:text-safehouse-text [&::-webkit-details-marker]:hidden;
-}
-
-.theme-switcher__menu {
-    @apply absolute right-0 z-50 mt-2 min-w-40 rounded-lg border border-white/10 bg-safehouse-modal p-1 shadow-lg;
+    @apply flex items-center gap-0.5 rounded-md border border-white/10 p-0.5;
 }
 
 .theme-switcher__option {
-    @apply flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-safehouse-muted transition hover:bg-white/5 hover:text-safehouse-text;
+    @apply inline-flex h-8 w-8 items-center justify-center rounded text-safehouse-muted transition hover:bg-white/5 hover:text-safehouse-text;
 }
 
 .theme-switcher__option[aria-checked='true'] {
-    @apply bg-safehouse-primary/15 font-medium text-safehouse-text;
+    @apply bg-safehouse-primary text-white hover:bg-safehouse-primary hover:text-white;
 }
 
 .theme-switcher__icon {
