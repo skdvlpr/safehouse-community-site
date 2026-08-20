@@ -1294,7 +1294,8 @@ html[data-theme='light'] header.sticky {
 }
 
 .theme-switcher {
-    @apply safehouse-segmented;
+    @apply flex items-center gap-0.5 rounded-md p-0.5;
+    border: 1px solid var(--safehouse-control-border);
 }
 
 .theme-switcher__option {
@@ -1315,6 +1316,7 @@ html[data-theme='light'] header.sticky {
 }
 
 .locale-switcher {
-    @apply safehouse-segmented text-xs font-semibold tracking-wide uppercase;
+    @apply flex items-center gap-0.5 rounded-md p-0.5 text-xs font-semibold tracking-wide uppercase;
+    border: 1px solid var(--safehouse-control-border);
 }
 
