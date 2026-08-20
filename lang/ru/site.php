@@ -24,6 +24,12 @@ return [
     'social' => [
         'nav_label' => 'Соцсети',
     ],
+    'theme' => [
+        'label' => 'Тема',
+        'dark' => 'Тёмная',
+        'light' => 'Светлая',
+        'system' => 'Системная',
+    ],
     'home' => [
         'title' => 'Safe House Community',
         'eyebrow' => 'Сообщество гостеприимства',

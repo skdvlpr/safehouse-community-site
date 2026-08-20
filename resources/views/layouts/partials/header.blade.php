@@ -20,6 +20,7 @@
         </nav>
 
         <div class="flex items-center gap-3 sm:gap-4">
+            @include('layouts.partials.theme-switcher')
             @include('layouts.partials.locale-switcher')
 
             <a href="{{ route('donations.index', ['locale' => $locale]) }}"

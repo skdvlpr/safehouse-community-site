@@ -24,6 +24,12 @@ return [
     'social' => [
         'nav_label' => 'Social',
     ],
+    'theme' => [
+        'label' => 'Theme',
+        'dark' => 'Dark',
+        'light' => 'Light',
+        'system' => 'System',
+    ],
     'home' => [
         'title' => 'Safe House Community',
         'eyebrow' => 'A welcoming community',

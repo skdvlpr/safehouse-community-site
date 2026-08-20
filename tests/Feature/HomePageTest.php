@@ -29,7 +29,11 @@ class HomePageTest extends TestCase
             ->assertSee('I nostri partner', false)
             ->assertSee(__('site.home.cta_contact', [], 'it'), false)
             ->assertSee('/it/contatti', false)
-            ->assertSee('favicon.svg', false);
+            ->assertSee('favicon.svg', false)
+            ->assertSee('data-theme-option="light"', false)
+            ->assertSee('data-theme-option="dark"', false)
+            ->assertSee('data-theme-option="system"', false)
+            ->assertSee('safehouse.theme', false);
     }
 
     public function test_home_impact_stats_use_crm_totals(): void
