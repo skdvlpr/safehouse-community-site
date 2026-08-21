@@ -30,10 +30,14 @@ class HomePageTest extends TestCase
             ->assertSee(__('site.home.cta_contact', [], 'it'), false)
             ->assertSee('/it/contatti', false)
             ->assertSee('favicon.svg', false)
+            ->assertSee('data-display-prefs', false)
             ->assertSee('data-theme-option="light"', false)
             ->assertSee('data-theme-option="dark"', false)
             ->assertSee('data-theme-option="system"', false)
-            ->assertSee('safehouse.theme', false);
+            ->assertSee('safehouse.theme', false)
+            ->assertSee('>IT</', false)
+            ->assertSee('>RU</', false)
+            ->assertSee('>EN</', false);
     }
 
     public function test_home_impact_stats_use_crm_totals(): void

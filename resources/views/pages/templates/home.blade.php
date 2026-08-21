@@ -29,7 +29,7 @@
             </h1>
 
             @if ($primaryTagline !== '')
-                <p class="mb-8 max-w-2xl text-lg text-safehouse-muted md:max-w-none md:text-xl md:whitespace-nowrap">
+                <p class="mb-8 max-w-2xl text-lg text-safehouse-muted lg:max-w-none lg:text-xl xl:whitespace-nowrap">
                     {{ $primaryTagline }}
                 </p>
             @endif

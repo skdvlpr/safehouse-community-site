@@ -5,8 +5,8 @@
     $navItems = config('navigation.header', []);
 @endphp
 
-<header class="sticky top-0 z-50 border-b border-white/10 bg-safehouse-page/90 backdrop-blur-md">
-    <div class="site-content flex items-center justify-between gap-4 py-4">
+<header class="site-header sticky top-0 z-50 border-b border-white/10 bg-safehouse-page/90 backdrop-blur-md">
+    <div class="site-content site-header__bar">
         @include('layouts.partials.brand-mark', [
             'locale' => $locale,
             'showWordmark' => true,
@@ -19,20 +19,19 @@
             @endforeach
         </nav>
 
-        <div class="flex items-center gap-3 sm:gap-4">
-            @include('layouts.partials.theme-switcher')
-            @include('layouts.partials.locale-switcher')
+        <div class="site-header__actions">
+            @include('layouts.partials.display-prefs')
 
             <a href="{{ route('donations.index', ['locale' => $locale]) }}"
                class="safehouse-btn-primary hidden whitespace-nowrap sm:inline-flex">
                 {{ __('site.nav.donate') }}
             </a>
 
-            <details class="relative md:hidden">
-                <summary class="cursor-pointer list-none rounded-md border border-white/10 px-3 py-2 text-sm text-safehouse-muted hover:text-safehouse-text [&::-webkit-details-marker]:hidden">
+            <details class="site-header__menu md:hidden">
+                <summary class="site-header__menu-trigger">
                     {{ __('site.nav.menu') }}
                 </summary>
-                <div class="absolute right-0 z-50 mt-2 min-w-48 rounded-lg border border-white/10 bg-safehouse-modal p-2 shadow-lg">
+                <div class="site-header__menu-panel">
                     @foreach ($navItems as $item)
                         @include('layouts.partials.nav-item-mobile', ['item' => $item, 'locale' => $locale])
                     @endforeach

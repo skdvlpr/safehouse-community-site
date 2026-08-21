@@ -30,6 +30,9 @@ return [
         'light' => 'Light',
         'system' => 'System',
     ],
+    'display_prefs' => [
+        'label' => 'Theme and language',
+    ],
     'home' => [
         'title' => 'Safe House Community',
         'eyebrow' => 'A welcoming community',

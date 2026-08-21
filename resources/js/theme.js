@@ -47,6 +47,14 @@ function syncSwitcherUi(preference = getThemePreference()) {
     });
 }
 
+function closeDisplayPrefs(except = null) {
+    document.querySelectorAll('details[data-display-prefs]').forEach((el) => {
+        if (el !== except) {
+            el.open = false;
+        }
+    });
+}
+
 export function initThemeSwitcher() {
     applyTheme();
     syncSwitcherUi();
@@ -59,6 +67,25 @@ export function initThemeSwitcher() {
                 setThemePreference(value);
             }
         });
+    });
+
+    document.querySelectorAll('details[data-display-prefs]').forEach((details) => {
+        details.addEventListener('toggle', () => {
+            if (details.open) {
+                closeDisplayPrefs(details);
+            }
+        });
+    });
+
+    document.addEventListener('pointerdown', (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) {
+            return;
+        }
+
+        if (!target.closest('details[data-display-prefs]')) {
+            closeDisplayPrefs();
+        }
     });
 
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {

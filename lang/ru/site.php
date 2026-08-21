@@ -30,6 +30,9 @@ return [
         'light' => 'Светлая',
         'system' => 'Системная',
     ],
+    'display_prefs' => [
+        'label' => 'Тема и язык',
+    ],
     'home' => [
         'title' => 'Safe House Community',
         'eyebrow' => 'Сообщество гостеприимства',
