@@ -4,7 +4,7 @@ Production website for **Safe House ETS** (Italy): humanitarian aid, human right
 
 | | |
 |---|---|
-| **Stack** | Laravel 13 · PHP 8.3 · Filament v4 (CMS) · Tailwind · Vite |
+| **Stack** | Laravel 13 · PHP 8.4 · Filament v4 (CMS) · Tailwind · Vite |
 | **Site** | https://safehouse.community (production) |
 | **CRM** | https://crm.safehouse.community |
 | **Repo** | https://github.com/skdvlpr/safehouse-community-site |
@@ -88,7 +88,7 @@ Run Vite inside DDEV; the app serves assets from the dev server when `public/hot
 
 | Setting | Value |
 |---------|--------|
-| PHP | 8.3 |
+| PHP | 8.4 |
 | Database | MariaDB 11.8 |
 | Web server | nginx-fpm |
 | Project name | `safehouse-community-site` |
@@ -100,7 +100,7 @@ Database host inside the app container: `db` (DDEV default). After `ddev start`,
 
 ## Production (Caddy + PHP-FPM)
 
-Production target matches **crm.safehouse.community**: **Caddy v2** as reverse proxy → **PHP-FPM 8.3** → Laravel `public/` docroot.
+Production target matches **crm.safehouse.community**: **Caddy v2** as reverse proxy → **PHP-FPM 8.4** → Laravel `public/` docroot.
 
 | Concern | Where handled |
 |---------|----------------|
@@ -115,7 +115,7 @@ Local dev uses **DDEV nginx-fpm** — that is expected; production is **Caddy**,
 
 Full rules: [`AGENTS.md`](AGENTS.md) (Section 7 — Security). Caddyfile template: task **P6-T03** → `deploy/Caddyfile.example` (not in repo yet). Reference deploy pattern: [noprofit-espocrm/deploy/DEPLOY.md](https://github.com/skdvlpr/noprofit-espocrm/blob/main/deploy/DEPLOY.md).
 
-**Planned stack on Aruba VPS:** Caddy → php8.3-fpm → `/var/www/safehouse-community-site/public`, Redis, MariaDB, GitHub Actions SSH deploy (same family as CRM).
+**Planned stack on Aruba VPS:** Caddy → php8.4-fpm → `/var/www/safehouse-community-site/public`, Redis, MariaDB, GitHub Actions SSH deploy (same family as CRM).
 
 ---
 

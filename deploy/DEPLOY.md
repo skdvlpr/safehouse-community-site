@@ -61,6 +61,17 @@ Repository → Settings → Secrets → Actions:
 
 Push to `main` → automatic deploy.
 
+## PHP runtime (shared VPS with CRM)
+
+Production runs **one** PHP version (**8.4**) for CRM and community site. Upgrade once
+as root (script lives in the CRM tree):
+
+```bash
+sudo bash /var/www/safehouse-crm/deploy/upgrade-php84.sh
+```
+
+Both repos' CI deploy jobs verify `php -v` is 8.4 before post-deploy.
+
 ## Manual deploy (from WSL)
 
 ```bash
@@ -156,7 +167,7 @@ php artisan route:clear
 php artisan config:clear
 sudo chown -R deploy:www-data storage bootstrap/cache
 sudo chmod -R ug+rwx storage bootstrap/cache
-sudo systemctl reload php8.3-fpm
+sudo systemctl reload php8.4-fpm
 sudo -u www-data php artisan cms:health
 ```
 

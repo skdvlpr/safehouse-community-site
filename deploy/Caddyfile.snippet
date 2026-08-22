@@ -14,7 +14,7 @@ safehouse.community, www.safehouse.community {
     }
     respond @blocked_cms 403
 
-    php_fastcgi unix//run/php/php8.3-fpm.sock
+    php_fastcgi unix//run/php/php8.4-fpm.sock
     try_files {path} {path}/ /index.php?{query}
     file_server
 

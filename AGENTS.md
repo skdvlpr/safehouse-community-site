@@ -81,7 +81,7 @@ ddev exec php artisan migrate --seed   # agents run automatically after migratio
 
 **Agent rule:** Never finish a task that touched `database/migrations/` or `database/seeders/` without running `ddev exec php artisan migrate` (or `migrate --seed`) in the same session. Do not ask the user to run migrations unless DDEV is down.
 
-PHP **8.3**, MariaDB **11.8**, webserver **nginx-fpm** (DDEV).
+PHP **8.4**, MariaDB **11.8**, webserver **nginx-fpm** (DDEV).
 
 **DDEV policy (user rule):** Starting the stack with `ddev start` is allowed. Do **not** stop, remove, or reconfigure DDEV (new projects, add-ons, extra containers, `config.yaml` service changes) unless the user explicitly asks.
 
