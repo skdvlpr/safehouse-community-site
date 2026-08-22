@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 
 class SetLocaleMiddlewareTest extends TestCase
@@ -39,7 +40,7 @@ class SetLocaleMiddlewareTest extends TestCase
     {
         $middleware = new SetLocale;
 
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
+        $this->expectException(NotFoundHttpException::class);
 
         $middleware->handle(
             Request::create('/xx/example', 'GET'),

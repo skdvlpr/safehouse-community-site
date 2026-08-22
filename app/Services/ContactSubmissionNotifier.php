@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Services\SportelloContactSubmissionNotifier;
 use App\Models\ContactSubmission;
 
 class ContactSubmissionNotifier

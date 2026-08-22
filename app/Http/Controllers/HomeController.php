@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\PageService;
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
     public function index(): View
     {
-        $pages = app(\App\Services\PageService::class);
+        $pages = app(PageService::class);
         $locale = app()->getLocale();
         $home = $pages->findByKey('home');
 

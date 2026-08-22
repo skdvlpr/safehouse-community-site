@@ -1,22 +1,25 @@
 <?php
 
 declare(strict_types=1);
+use App\Support\IntegrationConfig;
+use Illuminate\Contracts\Console\Kernel;
+use Stripe\StripeClient;
 
-require __DIR__ . '/lib/refuse-production.php';
+require __DIR__.'/lib/refuse-production.php';
 
 require __DIR__.'/../vendor/autoload.php';
 
 $app = require __DIR__.'/../bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel = $app->make(Kernel::class);
 $kernel->bootstrap();
 
-$secret = App\Support\IntegrationConfig::string('stripe.secret');
+$secret = IntegrationConfig::string('stripe.secret');
 if ($secret === '') {
     fwrite(STDERR, "empty secret\n");
     exit(1);
 }
 
-$client = new Stripe\StripeClient($secret);
+$client = new StripeClient($secret);
 $configs = $client->billingPortal->configurations->all(['limit' => 10]);
 
 if (count($configs->data) === 0) {
@@ -50,5 +53,5 @@ foreach ($configs->data as $config) {
     $url = (string) ($updated->login_page->url ?? '');
     echo "config={$updated->id}\n";
     echo "url={$url}\n";
-    echo "active=".(($updated->active ?? false) ? '1' : '0')."\n";
+    echo 'active='.(($updated->active ?? false) ? '1' : '0')."\n";
 }

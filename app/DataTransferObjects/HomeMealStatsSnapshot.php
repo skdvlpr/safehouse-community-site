@@ -4,10 +4,10 @@ namespace App\DataTransferObjects;
 
 readonly class HomeMealStatsSnapshot
 {
-  /** @var list<string> */
+    /** @var list<string> */
     public const MEAL_COUNT_METRICS = ['adults', 'minors', 'totalMeals', 'foodCost'];
 
-  /** @var list<string> */
+    /** @var list<string> */
     public const NETWORK_METRICS = ['portionCount'];
 
     public const MEAL_COUNT_PRIMARY = 'totalMeals';

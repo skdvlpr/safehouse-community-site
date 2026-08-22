@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ArticleResource\Pages;
 
+use App\Enums\ArticleSection;
 use App\Filament\Resources\ArticleResource;
 use App\Filament\Resources\ArticleResource\Concerns\FiltersTranslatableArticleFields;
 use App\Filament\Resources\ArticleResource\Concerns\NormalizesArticleCarouselMeta;
@@ -15,7 +16,7 @@ class CreateArticle extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['section'] = \App\Enums\ArticleSection::News;
+        $data['section'] = ArticleSection::News;
 
         return $this->normalizeArticleMeta($this->filterTranslatable($data));
     }

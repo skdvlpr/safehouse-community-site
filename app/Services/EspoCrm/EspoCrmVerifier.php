@@ -3,7 +3,6 @@
 namespace App\Services\EspoCrm;
 
 use App\Support\IntegrationConfig;
-use RuntimeException;
 use Throwable;
 
 class EspoCrmVerifier

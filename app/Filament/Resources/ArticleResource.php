@@ -9,6 +9,9 @@ use App\Filament\Resources\Concerns\ConfiguresArticleResourceForm;
 use App\Models\Article;
 use App\Models\User;
 use BackedEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -92,11 +95,11 @@ class ArticleResource extends Resource
             ->defaultSort('published_at', 'desc')
             ->actions([
                 PreviewArticleAction::make(),
-                \Filament\Actions\EditAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
+use App\Models\User;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateUser extends CreateRecord
@@ -22,7 +23,7 @@ class CreateUser extends CreateRecord
     protected function afterCreate(): void
     {
         if (is_string($this->selectedRole) && $this->selectedRole !== '') {
-            /** @var \App\Models\User $user */
+            /** @var User $user */
             $user = $this->record;
             $user->syncRoles([$this->selectedRole]);
         }

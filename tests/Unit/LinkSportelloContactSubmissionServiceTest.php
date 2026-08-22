@@ -3,9 +3,11 @@
 namespace Tests\Unit;
 
 use App\Models\ContactSubmission;
+use App\Services\ContactDeskSettings;
 use App\Services\EspoCrm\EspoCrmClient;
 use App\Services\EspoCrm\EspoCrmContactIntakeService;
 use App\Services\EspoCrm\LinkSportelloContactSubmissionService;
+use App\Services\SiteSettingsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -21,12 +23,12 @@ class LinkSportelloContactSubmissionServiceTest extends TestCase
         config()->set('espocrm.base_url', 'https://crm.test');
         config()->set('espocrm.api_key', 'secret');
 
-        app(\App\Services\SiteSettingsService::class)->updateMany([
+        app(SiteSettingsService::class)->updateMany([
             'espocrm.base_url' => 'https://crm.test',
             'espocrm.api_key' => 'secret',
         ]);
 
-        app(\App\Services\ContactDeskSettings::class)->save([
+        app(ContactDeskSettings::class)->save([
             [
                 'key' => 'digital_desk',
                 'label' => 'Sportello digitale',

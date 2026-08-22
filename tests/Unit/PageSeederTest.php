@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Models\Page;
 use Database\Seeders\PageSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -17,7 +18,7 @@ class PageSeederTest extends TestCase
 
         $this->seed(PageSeeder::class);
 
-        $about = \App\Models\Page::query()->where('key', 'about')->first();
+        $about = Page::query()->where('key', 'about')->first();
 
         $this->assertNotNull($about);
         $carousel = $about->meta['carousel'] ?? null;
@@ -31,7 +32,7 @@ class PageSeederTest extends TestCase
 
         $this->seed(PageSeeder::class);
 
-        $about = \App\Models\Page::query()->where('key', 'about')->first();
+        $about = Page::query()->where('key', 'about')->first();
 
         $this->assertCount(2, $about->meta['carousel'] ?? []);
         $this->assertSame('images/carousel-demo/slide-1.jpg', $about->meta['carousel'][0]['path']);

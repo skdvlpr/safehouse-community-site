@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DDEV QA: create N Stripe test PaymentIntents, settle, ingest into CRM, attach CRM link.
  *
@@ -21,9 +22,9 @@ use App\Support\IntegrationConfig;
 use Illuminate\Contracts\Console\Kernel;
 use Stripe\StripeClient;
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
-$app = require __DIR__ . '/../bootstrap/app.php';
+$app = require __DIR__.'/../bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 
 if (app()->environment('production')) {
@@ -65,7 +66,7 @@ $paymentMethod = $bypassPending ? 'pm_card_bypassPending' : 'pm_card_visa';
 $crmBase = rtrim((string) config('espocrm.base_url'), '/');
 echo "CRM base: {$crmBase}\n";
 echo "Creating {$count} Stripe sandbox donations…\n";
-echo "payment_method: {$paymentMethod}" . ($bypassPending ? " (instant available)\n" : "\n");
+echo "payment_method: {$paymentMethod}".($bypassPending ? " (instant available)\n" : "\n");
 
 $campaign = DonationCampaign::query()
     ->where('allows_recurring', false)
@@ -143,7 +144,7 @@ for ($i = 1; $i <= $count; $i++) {
         'amount_cents' => $amountCents,
     ];
     $created[] = $row;
-    echo json_encode($row, JSON_UNESCAPED_UNICODE) . "\n";
+    echo json_encode($row, JSON_UNESCAPED_UNICODE)."\n";
 
     if (($row['prima_nota_id'] ?? '') === '') {
         fwrite(STDERR, "FAIL: missing prima_nota_id\n");
@@ -159,6 +160,6 @@ for ($i = 1; $i <= $count; $i++) {
     }
 }
 
-echo "CREATED=" . count($created) . "\n";
-echo "IDS=" . implode(',', array_column($created, 'prima_nota_id')) . "\n";
+echo 'CREATED='.count($created)."\n";
+echo 'IDS='.implode(',', array_column($created, 'prima_nota_id'))."\n";
 exit(0);

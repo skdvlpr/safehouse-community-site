@@ -170,7 +170,6 @@ class PageCarousel
     }
 
     /**
-     * @param  mixed  $cards
      * @return list<array{title: array<string, string>, body: array<string, string>, stats: array<string, string>}>
      */
     private static function normalizeServiceCards(mixed $cards): array

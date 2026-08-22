@@ -1,4 +1,5 @@
 <?php
+
 /**
  * QA: apply payout.paid for an existing Stripe payout against local CRM.
  *
@@ -16,9 +17,9 @@ use Illuminate\Contracts\Console\Kernel;
 use Stripe\Event;
 use Stripe\StripeClient;
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
-$app = require __DIR__ . '/../bootstrap/app.php';
+$app = require __DIR__.'/../bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 
 if (app()->environment('production')) {
@@ -53,13 +54,13 @@ echo json_encode([
     'status' => $payout->status,
     'amount' => $payout->amount,
     'automatic' => $payout->automatic,
-], JSON_UNESCAPED_SLASHES) . "\n";
+], JSON_UNESCAPED_SLASHES)."\n";
 
 $event = Event::constructFrom([
-    'id' => 'evt_qa_apply_payout_' . uniqid(),
+    'id' => 'evt_qa_apply_payout_'.uniqid(),
     'type' => 'payout.paid',
     'data' => ['object' => $payout->toArray()],
 ]);
 
 $result = $status->applyFromStripeEvent($event);
-echo 'RESULT=' . json_encode($result, JSON_UNESCAPED_UNICODE) . "\n";
+echo 'RESULT='.json_encode($result, JSON_UNESCAPED_UNICODE)."\n";

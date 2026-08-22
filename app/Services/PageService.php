@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Models\Page;
 use App\Services\EspoCrm\HomeImpactStatsService;
+use App\Support\Navigation;
 use App\Support\PageCarousel;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 
@@ -42,15 +44,15 @@ class PageService
     /**
      * Published CMS pages that are not linked directly in the main navigation.
      *
-     * @return \Illuminate\Support\Collection<int, Page>
+     * @return Collection<int, Page>
      */
-    public function extraMenuPages(string $locale): \Illuminate\Support\Collection
+    public function extraMenuPages(string $locale): Collection
     {
         if (! Schema::hasTable('pages')) {
             return collect();
         }
 
-        $standardKeys = \App\Support\Navigation::standardPageKeys();
+        $standardKeys = Navigation::standardPageKeys();
 
         return Page::query()
             ->where('is_published', true)
@@ -244,7 +246,7 @@ class PageService
         return $resolved;
     }
 
-    public function sectionLabel(\App\Models\Page $page, string $locale, string $fallbackLangKey): string
+    public function sectionLabel(Page $page, string $locale, string $fallbackLangKey): string
     {
         $custom = $this->localizedMeta($page->meta, 'section_label', $locale);
 

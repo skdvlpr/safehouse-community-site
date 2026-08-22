@@ -7,6 +7,7 @@ use App\Filament\Resources\UserResource\Pages\CreateUser;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Filament\Facades\Filament;
+use Filament\Schemas\Schema;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -17,7 +18,7 @@ class CreateCmsUserRoleTest extends TestCase
 
     public function test_role_field_is_dehydrated_so_create_receives_it(): void
     {
-        $schema = UserResource::form(\Filament\Schemas\Schema::make());
+        $schema = UserResource::form(Schema::make());
         $components = collect($schema->getComponents());
 
         $role = $components->first(fn ($c) => method_exists($c, 'getName') && $c->getName() === 'role');

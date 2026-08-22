@@ -29,7 +29,7 @@ trait SyncsDonationCampaignFinanziamento
             }
         } catch (RuntimeException $exception) {
             Notification::make()
-            ->title(__('cms.notifications.espocrm_sync_failed'))
+                ->title(__('cms.notifications.espocrm_sync_failed'))
                 ->body($exception->getMessage())
                 ->danger()
                 ->persistent()

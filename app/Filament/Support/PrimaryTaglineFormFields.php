@@ -2,7 +2,6 @@
 
 namespace App\Filament\Support;
 
-use App\Filament\Support\CmsLocaleTabs;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;

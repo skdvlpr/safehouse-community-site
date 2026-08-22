@@ -1,13 +1,14 @@
 <?php
+
 declare(strict_types=1);
 
 use App\Support\IntegrationConfig;
 use Illuminate\Contracts\Console\Kernel;
 use Stripe\StripeClient;
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
-$app = require __DIR__ . '/../bootstrap/app.php';
+$app = require __DIR__.'/../bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 
 if (app()->environment('production')) {
@@ -34,9 +35,9 @@ if ($secret === '' || ! str_starts_with($secret, 'sk_test_')) {
 $balance = (new StripeClient($secret))->balance->retrieve();
 echo "available:\n";
 foreach ($balance->available as $row) {
-    echo json_encode($row) . "\n";
+    echo json_encode($row)."\n";
 }
 echo "pending:\n";
 foreach ($balance->pending as $row) {
-    echo json_encode($row) . "\n";
+    echo json_encode($row)."\n";
 }

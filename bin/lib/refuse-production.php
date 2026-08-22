@@ -31,7 +31,7 @@ declare(strict_types=1);
         $reasons[] = "filesystem path is production site ({$realRoot})";
     }
 
-    $envFile = $realRoot . '/.env';
+    $envFile = $realRoot.'/.env';
     if (is_file($envFile)) {
         $env = (string) file_get_contents($envFile);
         if (preg_match('/(?m)^APP_URL=.*safehouse\.community/i', $env) === 1) {
@@ -45,9 +45,9 @@ declare(strict_types=1);
 
     $script = $_SERVER['SCRIPT_FILENAME'] ?? ($_SERVER['argv'][0] ?? 'bin-script');
     fwrite(STDERR, "REFUSED: blocked on production.\n");
-    fwrite(STDERR, '  script: ' . $script . "\n");
+    fwrite(STDERR, '  script: '.$script."\n");
     foreach ($reasons as $reason) {
-        fwrite(STDERR, '  reason: ' . $reason . "\n");
+        fwrite(STDERR, '  reason: '.$reason."\n");
     }
     fwrite(STDERR, "  policy: run bin scripts only on local DDEV (or ephemeral oneshot with approval).\n");
     exit(78);

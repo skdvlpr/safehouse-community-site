@@ -222,7 +222,7 @@ class MockStripePaymentService extends StripePaymentService
     }
 
     /**
-     * @return array{items: list<\Stripe\PaymentIntent>, has_more: bool}
+     * @return array{items: list<PaymentIntent>, has_more: bool}
      */
     public function listPaymentIntentsPage(?int $createdGte, ?string $startingAfter = null, int $limit = 100): array
     {

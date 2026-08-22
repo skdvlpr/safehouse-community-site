@@ -63,7 +63,6 @@ readonly class HomeMealPeriod
     }
 
     /**
-     * @param  mixed  $period
      * @param  list<string>  $metricKeys
      */
     public static function fromApiPeriod(mixed $period, array $metricKeys): self

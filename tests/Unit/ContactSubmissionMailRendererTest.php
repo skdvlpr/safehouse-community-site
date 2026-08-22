@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\ContactSubmission;
+use App\Services\ContactDeskSettings;
 use App\Services\ContactSubmissionMailRenderer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -15,7 +16,7 @@ class ContactSubmissionMailRendererTest extends TestCase
     {
         parent::setUp();
 
-        app(\App\Services\ContactDeskSettings::class)->save([
+        app(ContactDeskSettings::class)->save([
             [
                 'key' => 'digital_desk',
                 'label' => 'Sportello digitale',

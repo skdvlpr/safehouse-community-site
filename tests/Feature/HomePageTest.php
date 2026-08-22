@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Services\EspoCrm\EspoCrmClient;
+use Database\Seeders\DeploySiteContentSeeder;
+use Database\Seeders\PageSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
@@ -13,8 +15,8 @@ class HomePageTest extends TestCase
 
     public function test_home_renders_hero_impact_cards_and_manifesto(): void
     {
-        $this->seed(\Database\Seeders\PageSeeder::class);
-        $this->seed(\Database\Seeders\DeploySiteContentSeeder::class);
+        $this->seed(PageSeeder::class);
+        $this->seed(DeploySiteContentSeeder::class);
 
         $this->get('/it')
             ->assertOk()
@@ -42,7 +44,7 @@ class HomePageTest extends TestCase
 
     public function test_home_impact_stats_use_crm_totals(): void
     {
-        $this->seed(\Database\Seeders\PageSeeder::class);
+        $this->seed(PageSeeder::class);
 
         $client = $this->createMock(EspoCrmClient::class);
         $client->method('reportingTotals')
@@ -70,7 +72,7 @@ class HomePageTest extends TestCase
 
     public function test_home_impact_stats_fall_back_when_crm_unavailable(): void
     {
-        $this->seed(\Database\Seeders\PageSeeder::class);
+        $this->seed(PageSeeder::class);
 
         $client = $this->createMock(EspoCrmClient::class);
         $client->method('reportingTotals')

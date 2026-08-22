@@ -51,7 +51,7 @@ function safehouse_ephemeral_oneshot_register(string $scriptPath): void
 }
 
 /**
- * @param list<string> $extraPaths Additional files to delete on success (e.g. content helpers).
+ * @param  list<string>  $extraPaths  Additional files to delete on success (e.g. content helpers).
  */
 function safehouse_ephemeral_oneshot_register_many(array $extraPaths): void
 {

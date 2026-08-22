@@ -3,6 +3,7 @@
 use App\Http\Middleware\DisableHttpCacheWhenEnabled;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
+use App\Http\Middleware\VerifyCrmSyncToken;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -27,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'setlocale' => SetLocale::class,
-            'crm.sync' => \App\Http\Middleware\VerifyCrmSyncToken::class,
+            'crm.sync' => VerifyCrmSyncToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -35,7 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*'),
         );
 
-        $exceptions->report(function (\Throwable $exception): void {
+        $exceptions->report(function (Throwable $exception): void {
             $request = request();
 
             if ($request === null || ! $request->is('cms-safehouse*')) {

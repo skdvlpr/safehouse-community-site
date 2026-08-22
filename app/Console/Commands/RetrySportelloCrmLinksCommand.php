@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\LinkSportelloContactSubmissionToCrmJob;
 use App\Models\ContactSubmission;
 use App\Services\EspoCrm\LinkSportelloContactSubmissionService;
 use Illuminate\Console\Command;

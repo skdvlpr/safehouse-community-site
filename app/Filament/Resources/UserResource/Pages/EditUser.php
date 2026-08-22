@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
+use App\Models\User;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
@@ -21,7 +22,7 @@ class EditUser extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $this->record;
         $data['role'] = $user->roles->first()?->name;
 
@@ -39,7 +40,7 @@ class EditUser extends EditRecord
     protected function afterSave(): void
     {
         if (is_string($this->selectedRole) && $this->selectedRole !== '') {
-            /** @var \App\Models\User $user */
+            /** @var User $user */
             $user = $this->record;
             $user->syncRoles([$this->selectedRole]);
         }

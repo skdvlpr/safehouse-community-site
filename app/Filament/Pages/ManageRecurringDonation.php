@@ -12,6 +12,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
@@ -110,7 +111,7 @@ class ManageRecurringDonation extends Page
 
     /**
      * @param  list<string>  $locales
-     * @return list<\Filament\Schemas\Components\Component>
+     * @return list<Component>
      */
     private function localeTabs(array $locales): array
     {

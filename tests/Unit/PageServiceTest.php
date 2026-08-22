@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Models\Page;
 use App\Services\PageService;
 use Tests\TestCase;
 
@@ -10,7 +11,7 @@ class PageServiceTest extends TestCase
     public function test_template_view_falls_back_to_default(): void
     {
         $service = new PageService;
-        $page = new \App\Models\Page(['template' => 'unknown-template']);
+        $page = new Page(['template' => 'unknown-template']);
 
         $this->assertSame('pages.templates.default', $service->templateView($page));
     }

@@ -4,6 +4,7 @@ namespace App\Services\Payments;
 
 use App\Support\IntegrationConfig;
 use RuntimeException;
+use Stripe\Account;
 use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
 
@@ -58,7 +59,7 @@ class StripeAccountVerifier
         try {
             $client = new StripeClient($secretKey);
             $balance = $client->balance->retrieve();
-            /** @var \Stripe\Account $account */
+            /** @var Account $account */
             $account = $client->request('get', '/v1/account', [], []);
         } catch (ApiErrorException $exception) {
             $checks[] = $this->fail('Stripe API / account', $exception->getMessage());
