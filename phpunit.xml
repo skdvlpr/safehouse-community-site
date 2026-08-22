@@ -33,5 +33,8 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <env name="ESPOCRM_BASE_URL" value="https://crm.test"/>
+        <env name="ESPOCRM_API_KEY" value="ci-test-key"/>
+        <env name="STRIPE_MOCK" value="true"/>
     </php>
 </phpunit>
