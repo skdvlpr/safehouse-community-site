@@ -4,7 +4,6 @@ namespace App\Support;
 
 use App\Models\Page;
 use App\Services\PageService;
-use App\Support\CanonicalSlug;
 use Illuminate\Support\Collection;
 
 class Navigation
