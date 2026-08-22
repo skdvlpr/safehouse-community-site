@@ -18,7 +18,7 @@ class UrlSlugTest extends TestCase
     {
         $this->assertSame('test-category', UrlSlug::from('Test Category!'));
         $this->assertSame('caffe-latte', UrlSlug::from('Caffè Latte', 'it'));
-        $this->assertSame('test-kategorii', UrlSlug::from('Тест категории', 'ru'));
+        $this->assertSame('privet-mir', UrlSlug::from('Привет мир', 'ru'));
         $this->assertSame('hello-world-co', UrlSlug::from('Hello / World & Co.', 'en'));
         $this->assertSame('', UrlSlug::from('!!!'));
     }
@@ -42,6 +42,7 @@ class UrlSlugTest extends TestCase
         ]);
 
         $this->assertSame('test-category', $category->fresh()->getTranslation('slug', 'it'));
+        $this->assertSame('test-category', $category->fresh()->getTranslation('slug', 'en'));
     }
 
     public function test_donation_campaign_keeps_explicit_valid_slug_on_create(): void
@@ -69,7 +70,7 @@ class UrlSlugTest extends TestCase
 
     public function test_recurring_campaign_slug_is_protected(): void
     {
-        $slug = (string) config('donations.recurring_campaign_slug', 'donazione-ricorrente');
+        $slug = (string) config('donations.recurring_campaign_slug', 'recurring-donation');
 
         $campaign = DonationCampaign::factory()->create([
             'slug' => $slug,

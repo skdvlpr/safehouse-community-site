@@ -16,6 +16,9 @@ class DesignTokensTest extends TestCase
         $this->assertStringContainsString('--safehouse-glass-bg:', $css);
         $this->assertStringContainsString("font-family: 'JetBrains Sans'", $css);
         $this->assertStringContainsString("url('/images/bg.svg')", $css);
+        $this->assertStringContainsString('.nav-dropdown__panel', $css);
+        $this->assertStringContainsString('bg-safehouse-modal/98', $css);
+        $this->assertStringNotContainsString('bg-[#050505]/98', $css);
     }
 
     public function test_polygon_background_asset_is_available(): void

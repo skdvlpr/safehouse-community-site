@@ -16,7 +16,7 @@ class RecurringDonationCampaignService
 {
     public function slug(): string
     {
-        return (string) config('donations.recurring_campaign_slug', 'donazione-ricorrente');
+        return (string) config('donations.recurring_campaign_slug', 'recurring-donation');
     }
 
     public function getOrCreate(): DonationCampaign

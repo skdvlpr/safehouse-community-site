@@ -40,7 +40,7 @@ class PageModelTest extends TestCase
 
         $this->assertSame('Chi siamo', $page->getTranslation('title', 'it'));
         $this->assertSame('About us', $page->getTranslation('title', 'en'));
-        $this->assertSame('chi-siamo', $page->getTranslation('slug', 'it'));
+        $this->assertSame('about-us', $page->getTranslation('slug', 'it'));
         $this->assertSame('about-us', $page->getTranslation('slug', 'en'));
         $this->assertSame('Contenuto in italiano.', $page->getTranslation('body', 'it'));
         $this->assertSame('Content in English.', $page->getTranslation('body', 'en'));

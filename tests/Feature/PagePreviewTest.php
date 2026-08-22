@@ -51,6 +51,6 @@ class PagePreviewTest extends TestCase
         ]);
 
         $this->assertNotNull(app(PageService::class)->previewUrl($page, 'it'));
-        $this->assertNull(app(PageService::class)->previewUrl($page, 'en'));
+        $this->assertNotNull(app(PageService::class)->previewUrl($page, 'en'));
     }
 }

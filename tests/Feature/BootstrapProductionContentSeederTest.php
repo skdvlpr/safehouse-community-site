@@ -45,7 +45,7 @@ class BootstrapProductionContentSeederTest extends TestCase
             DonationCampaign::query()->where('slug', 'safe-house')->exists(),
         );
         $this->assertTrue(
-            DonationCampaign::query()->where('slug', 'donazione-ricorrente')->exists(),
+            DonationCampaign::query()->where('slug', 'recurring-donation')->exists(),
         );
     }
 
@@ -56,7 +56,6 @@ class BootstrapProductionContentSeederTest extends TestCase
         $home = Page::query()->where('key', 'home')->firstOrFail();
         $home->setTranslation('title', 'it', 'Custom title');
         $home->setTranslation('title', 'en', 'Custom title');
-        $home->setTranslation('title', 'ru', 'Custom title');
         $home->save();
 
         $this->seed(BootstrapProductionContentSeeder::class);

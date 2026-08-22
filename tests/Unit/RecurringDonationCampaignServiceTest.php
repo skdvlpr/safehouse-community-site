@@ -19,7 +19,7 @@ class RecurringDonationCampaignServiceTest extends TestCase
         $this->assertTrue($campaign->allowsRecurring());
         $this->assertFalse($campaign->hasFundraisingGoal());
         $this->assertNull($campaign->fundraising_goal_cents);
-        $this->assertSame('donazione-ricorrente', $campaign->slug);
+        $this->assertSame('recurring-donation', $campaign->slug);
         $this->assertTrue($service->isEnabled());
     }
 
@@ -54,7 +54,7 @@ class RecurringDonationCampaignServiceTest extends TestCase
     public function test_clears_stale_goal_on_existing_row(): void
     {
         DonationCampaign::factory()->create([
-            'slug' => 'donazione-ricorrente',
+            'slug' => 'recurring-donation',
             'allows_recurring' => true,
             'fundraising_goal_cents' => 50_000,
         ]);

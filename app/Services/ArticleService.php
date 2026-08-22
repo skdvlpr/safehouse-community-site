@@ -6,6 +6,7 @@ use App\DataTransferObjects\ArticleListingFilters;
 use App\Enums\ArticleSection;
 use App\Models\Article;
 use App\Models\ArticleCategory;
+use App\Support\CanonicalSlug;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -64,13 +65,7 @@ class ArticleService
 
     public function categorySlug(ArticleCategory $category, string $locale): ?string
     {
-        $slug = $category->getTranslation('slug', $locale, false);
-
-        if (! is_string($slug) || $slug === '') {
-            $slug = $category->getTranslation('slug', 'it', false);
-        }
-
-        return is_string($slug) && $slug !== '' ? $slug : null;
+        return CanonicalSlug::resolveFromModel($category, 'slug');
     }
 
     public function categoryName(ArticleCategory $category, string $locale): string
@@ -98,10 +93,13 @@ class ArticleService
 
         return ArticleCategory::query()
             ->where('section', $section)
-            ->where(function (Builder $query) use ($slugs, $locale): void {
+            ->where(function (Builder $query) use ($slugs): void {
                 foreach ($slugs as $slug) {
-                    $query->orWhere("slug->{$locale}", $slug)
-                        ->orWhere('slug->it', $slug);
+                    $query->orWhere(function (Builder $inner) use ($slug): void {
+                        foreach (CanonicalSlug::locales() as $locale) {
+                            $inner->orWhere("slug->{$locale}", $slug);
+                        }
+                    });
                 }
             })
             ->pluck('id')
@@ -200,13 +198,7 @@ class ArticleService
 
     private function resolveSlug(Article $article, string $locale): ?string
     {
-        $slug = $article->getTranslation('slug', $locale, false);
-
-        if (! is_string($slug) || $slug === '') {
-            $slug = $article->getTranslation('slug', 'it', false);
-        }
-
-        return is_string($slug) && $slug !== '' ? $slug : null;
+        return CanonicalSlug::resolveFromModel($article, 'slug');
     }
 
     public function findPublishedBySlug(
@@ -222,7 +214,11 @@ class ArticleService
             ->where('section', $section)
             ->where('is_published', true)
             ->whereNotNull('published_at')
-            ->where("slug->{$locale}", $slug)
+            ->where(function (Builder $query) use ($slug): void {
+                foreach (CanonicalSlug::locales() as $availableLocale) {
+                    $query->orWhere("slug->{$availableLocale}", $slug);
+                }
+            })
             ->first();
 
         abort_if($article === null, 404);

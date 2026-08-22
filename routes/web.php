@@ -18,17 +18,17 @@ Route::prefix('{locale}')
     ->group(function (): void {
         Route::get('/', [HomeController::class, 'index'])->name('home');
 
-        Route::get('/donazioni', [DonationCampaignController::class, 'index'])->name('donations.index');
-        Route::get('/donazioni/5-per-mille', [DonationCampaignController::class, 'fivePerMille'])->name('donations.five-per-mille');
-        Route::get('/donazioni/{campaignSlug}/privacy', [DonationCampaignController::class, 'privacy'])->name('donations.privacy');
-        Route::get('/donazioni/{campaignSlug}/grazie', [DonationCampaignController::class, 'thankYou'])->name('donations.thank-you');
-        Route::get('/donazioni/{campaignSlug}', [DonationCampaignController::class, 'show'])->name('donations.show');
+        Route::get('/donations', [DonationCampaignController::class, 'index'])->name('donations.index');
+        Route::get('/donations/5-per-thousand', [DonationCampaignController::class, 'fivePerMille'])->name('donations.five-per-mille');
+        Route::get('/donations/{campaignSlug}/privacy', [DonationCampaignController::class, 'privacy'])->name('donations.privacy');
+        Route::get('/donations/{campaignSlug}/thank-you', [DonationCampaignController::class, 'thankYou'])->name('donations.thank-you');
+        Route::get('/donations/{campaignSlug}', [DonationCampaignController::class, 'show'])->name('donations.show');
 
-        Route::get('/notizie', [ArticleController::class, 'index'])->name('articles.index');
-        Route::get('/notizie/{articleSlug}', [ArticleController::class, 'show'])->name('articles.show');
+        Route::get('/news', [ArticleController::class, 'index'])->name('articles.index');
+        Route::get('/news/{articleSlug}', [ArticleController::class, 'show'])->name('articles.show');
 
-        Route::get('/articoli', [EditorialArticleController::class, 'index'])->name('editorial-articles.index');
-        Route::get('/articoli/{articleSlug}', [EditorialArticleController::class, 'show'])->name('editorial-articles.show');
+        Route::get('/articles', [EditorialArticleController::class, 'index'])->name('editorial-articles.index');
+        Route::get('/articles/{articleSlug}', [EditorialArticleController::class, 'show'])->name('editorial-articles.show');
 
         Route::get('/_preview/articles/{article}', [ArticleController::class, 'preview'])
             ->middleware('signed')
@@ -49,8 +49,8 @@ Route::prefix('{locale}')
         Route::post('/contact', [ContactSubmissionController::class, 'store'])
             ->name('contact.store');
 
-        Route::get('/volontariato', [VolunteerController::class, 'show'])->name('volunteers.show');
-        Route::post('/volontariato', [VolunteerController::class, 'store'])
+        Route::get('/volunteers', [VolunteerController::class, 'show'])->name('volunteers.show');
+        Route::post('/volunteers', [VolunteerController::class, 'store'])
             ->middleware('throttle:volunteers')
             ->name('volunteers.store');
 

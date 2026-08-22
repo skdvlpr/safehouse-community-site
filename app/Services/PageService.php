@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Page;
 use App\Services\EspoCrm\HomeImpactStatsService;
+use App\Support\CanonicalSlug;
 use App\Support\Navigation;
 use App\Support\PageCarousel;
 use Illuminate\Support\Arr;
@@ -21,7 +22,11 @@ class PageService
 
         $page = Page::query()
             ->where('is_published', true)
-            ->where("slug->{$locale}", $slug)
+            ->where(function ($query) use ($slug): void {
+                foreach (CanonicalSlug::locales() as $availableLocale) {
+                    $query->orWhere("slug->{$availableLocale}", $slug);
+                }
+            })
             ->first();
 
         abort_if($page === null, 404);
@@ -84,13 +89,9 @@ class PageService
             return null;
         }
 
-        $slug = $page->getTranslation('slug', $locale, false);
+        $slug = CanonicalSlug::resolveFromModel($page, 'slug');
 
-        if ($slug === '' || $slug === null) {
-            $slug = $page->getTranslation('slug', 'it', false);
-        }
-
-        abort_if($slug === '' || $slug === null, 404);
+        abort_if($slug === null || $slug === '', 404);
 
         return route('pages.show', ['locale' => $locale, 'pageSlug' => $slug]);
     }
@@ -101,13 +102,9 @@ class PageService
             return null;
         }
 
-        $slug = $page->getTranslation('slug', $locale, false);
+        $slug = CanonicalSlug::resolveFromModel($page, 'slug');
 
-        if ($slug === '' || $slug === null) {
-            $slug = $page->getTranslation('slug', 'it', false);
-        }
-
-        if ($slug === '' || $slug === null) {
+        if ($slug === null || $slug === '') {
             return null;
         }
 
@@ -149,9 +146,7 @@ class PageService
 
     public function hasSlugForLocale(Page $page, string $locale): bool
     {
-        $slug = $page->getTranslation('slug', $locale, false);
-
-        return is_string($slug) && $slug !== '';
+        return CanonicalSlug::resolveFromModel($page, 'slug') !== null;
     }
 
     /**

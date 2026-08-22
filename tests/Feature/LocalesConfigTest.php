@@ -11,9 +11,9 @@ class LocalesConfigTest extends TestCase
         $this->assertSame('it', config('locales.default'));
     }
 
-    public function test_available_locales_include_it_ru_en_in_order(): void
+    public function test_available_locales_include_it_and_en_in_order(): void
     {
-        $this->assertSame(['it', 'ru', 'en'], config('locales.available'));
+        $this->assertSame(['it', 'en'], config('locales.available'));
     }
 
     public function test_default_locale_is_in_available_list(): void

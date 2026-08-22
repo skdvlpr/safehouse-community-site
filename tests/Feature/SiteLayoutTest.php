@@ -24,10 +24,10 @@ class SiteLayoutTest extends TestCase
             ->assertSee('images/logo.png', false)
             ->assertSee('Safe House', false)
             ->assertSee('/en', false)
-            ->assertSee('/ru', false)
+            ->assertDontSee('/ru', false)
             ->assertSee(__('site.nav.donations', [], 'it'), false)
             ->assertSee(__('site.nav.contact_us', [], 'it'), false)
-            ->assertSee('/it/contatti', false);
+            ->assertSee('/it/contact', false);
     }
 
     public function test_donation_pages_use_shared_layout(): void
@@ -37,7 +37,7 @@ class SiteLayoutTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->get('/it/donazioni/layout-test')
+        $this->get('/it/donations/layout-test')
             ->assertOk()
             ->assertSee('images/logo.png', false)
             ->assertSee('Safe House', false)
@@ -51,8 +51,8 @@ class SiteLayoutTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->get('/it/donazioni/locale-path')
+        $this->get('/it/donations/locale-path')
             ->assertOk()
-            ->assertSee('/en/donazioni/locale-path', false);
+            ->assertSee('/en/donations/locale-path', false);
     }
 }

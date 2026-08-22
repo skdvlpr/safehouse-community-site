@@ -125,7 +125,7 @@ class StripeDonationThankYouSyncTest extends TestCase
             return Http::response(['message' => 'Unexpected'], 500);
         });
 
-        $this->get('/it/donazioni/safe-house/grazie?payment_intent=pi_local_thank_you&donor_name=Sem+Test')
+        $this->get('/it/donations/safe-house/thank-you?payment_intent=pi_local_thank_you&donor_name=Sem+Test')
             ->assertOk()
             ->assertSee('pi_local_thank_you');
 

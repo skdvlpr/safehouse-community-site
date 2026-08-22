@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\Page;
 use App\Services\PageService;
+use App\Support\CanonicalSlug;
 use Illuminate\Support\Collection;
 
 class Navigation
@@ -90,9 +91,9 @@ class Navigation
             return false;
         }
 
-        $slug = $page->getTranslation('slug', $locale, false) ?: $page->getTranslation('slug', 'it');
+        $slug = CanonicalSlug::resolveFromModel($page, 'slug');
 
-        return request()->route('pageSlug') === $slug;
+        return is_string($slug) && $slug !== '' && request()->route('pageSlug') === $slug;
     }
 
     public static function isExtraMenuPageActive(string $locale): bool
@@ -122,14 +123,6 @@ class Navigation
 
     public static function pageSlugForLocale(Page $page, string $locale): ?string
     {
-        $slug = $page->getTranslation('slug', $locale, false);
-
-        if (is_string($slug) && $slug !== '') {
-            return $slug;
-        }
-
-        $fallback = $page->getTranslation('slug', 'it', false);
-
-        return is_string($fallback) && $fallback !== '' ? $fallback : null;
+        return CanonicalSlug::resolveFromModel($page, 'slug');
     }
 }

@@ -28,11 +28,11 @@ class NavigationMenuTest extends TestCase
 
     public function test_standard_pages_are_not_listed_in_other_pages_dropdown(): void
     {
-        $response = $this->get('/it/chi-siamo');
+        $response = $this->get('/it/about-us');
 
         $response->assertOk();
         $this->assertStringNotContainsString(
-            'href="/it/chi-siamo"',
+            'href="/it/about-us"',
             $this->extractOtherPagesDropdown($this->get('/it')->getContent()),
         );
     }
@@ -59,7 +59,7 @@ class NavigationMenuTest extends TestCase
         $this->get('/it')
             ->assertOk()
             ->assertSee('Diventa volontario', false)
-            ->assertSee('/it/diventa-volontario', false);
+            ->assertSee('/it/become-a-volunteer', false);
     }
 
     public function test_other_pages_dropdown_is_hidden_when_no_extra_pages_exist(): void

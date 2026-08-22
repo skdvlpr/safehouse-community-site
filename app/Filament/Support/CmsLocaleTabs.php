@@ -11,7 +11,6 @@ class CmsLocaleTabs
     {
         return [
             'it' => '🇮🇹 Italiano',
-            'ru' => '🇷🇺 Русский',
             'en' => '🇬🇧 English',
         ];
     }

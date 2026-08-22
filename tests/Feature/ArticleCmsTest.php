@@ -23,7 +23,7 @@ class ArticleCmsTest extends TestCase
 
     public function test_notizie_lists_seeded_article(): void
     {
-        $this->get('/it/notizie')
+        $this->get('/it/news')
             ->assertOk()
             ->assertSee('Benvenuti in Safe House Community', false)
             ->assertSee('news-toolbar', false)
@@ -33,7 +33,7 @@ class ArticleCmsTest extends TestCase
 
     public function test_notizie_filters_by_single_category(): void
     {
-        $this->get('/it/notizie?categories[]=eventi')
+        $this->get('/it/news?categories[]=events')
             ->assertOk()
             ->assertSee('Open day volontari', false)
             ->assertDontSee('Benvenuti in Safe House Community', false);
@@ -41,7 +41,7 @@ class ArticleCmsTest extends TestCase
 
     public function test_notizie_filters_by_multiple_categories(): void
     {
-        $this->get('/it/notizie?'.http_build_query(['categories' => ['comunita', 'eventi']]))
+        $this->get('/it/news?'.http_build_query(['categories' => ['community', 'events']]))
             ->assertOk()
             ->assertSee('Benvenuti in Safe House Community', false)
             ->assertSee('Open day volontari', false);
@@ -49,7 +49,7 @@ class ArticleCmsTest extends TestCase
 
     public function test_notizie_list_layout_renders_compact_rows(): void
     {
-        $this->get('/it/notizie?layout=list')
+        $this->get('/it/news?layout=list')
             ->assertOk()
             ->assertSee('news-list', false)
             ->assertDontSee('news-feed__item', false);
@@ -60,7 +60,7 @@ class ArticleCmsTest extends TestCase
         Storage::fake('public');
         Storage::disk('public')->put('article-carousels/feed.jpg', 'fake');
 
-        $article = Article::query()->where('slug->it', 'open-day-volontari')->firstOrFail();
+        $article = Article::query()->where('slug->it', 'volunteer-open-day')->firstOrFail();
         $article->update([
             'meta' => [
                 'carousel' => [
@@ -69,7 +69,7 @@ class ArticleCmsTest extends TestCase
             ],
         ]);
 
-        $this->get('/it/notizie')
+        $this->get('/it/news')
             ->assertOk()
             ->assertSee('article-carousels/feed.jpg', false)
             ->assertSee('news-feed__cover', false);
@@ -80,7 +80,7 @@ class ArticleCmsTest extends TestCase
         Storage::fake('public');
         Storage::disk('public')->put('article-carousels/show.jpg', 'fake');
 
-        $article = Article::query()->where('slug->it', 'benvenuti-safe-house')->firstOrFail();
+        $article = Article::query()->where('slug->it', 'welcome-safe-house')->firstOrFail();
         $article->update([
             'meta' => [
                 'carousel' => [
@@ -89,7 +89,7 @@ class ArticleCmsTest extends TestCase
             ],
         ]);
 
-        $this->get('/it/notizie/benvenuti-safe-house')
+        $this->get('/it/news/welcome-safe-house')
             ->assertOk()
             ->assertSee('data-page-carousel', false)
             ->assertSee('article-carousels/show.jpg', false);
@@ -99,7 +99,7 @@ class ArticleCmsTest extends TestCase
     {
         $today = now()->toDateString();
 
-        $this->get('/it/notizie?from='.$today.'&to='.$today)
+        $this->get('/it/news?from='.$today.'&to='.$today)
             ->assertOk()
             ->assertSee('Open day volontari', false)
             ->assertDontSee('Benvenuti in Safe House Community', false);
@@ -107,7 +107,7 @@ class ArticleCmsTest extends TestCase
 
     public function test_article_show_page_renders(): void
     {
-        $this->get('/it/notizie/benvenuti-safe-house')
+        $this->get('/it/news/welcome-safe-house')
             ->assertOk()
             ->assertSee('Benvenuti in Safe House Community', false);
     }

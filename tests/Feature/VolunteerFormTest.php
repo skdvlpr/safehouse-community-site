@@ -14,7 +14,7 @@ class VolunteerFormTest extends TestCase
 
     public function test_volunteer_page_is_reachable(): void
     {
-        $this->get('/it/volontariato')
+        $this->get('/it/volunteers')
             ->assertOk()
             ->assertSee(__('site.volunteer.title', [], 'it'), false)
             ->assertSee('name="gdpr_consent"', false);
@@ -22,7 +22,7 @@ class VolunteerFormTest extends TestCase
 
     public function test_volunteer_form_stores_submission_with_hashed_fingerprint(): void
     {
-        $response = $this->withHeaders(['User-Agent' => 'Safehouse Test Agent'])->post('/it/volontariato', [
+        $response = $this->withHeaders(['User-Agent' => 'Safehouse Test Agent'])->post('/it/volunteers', [
             'name' => 'Maria Rossi',
             'email' => 'maria@example.com',
             'phone' => '+39 333 1234567',
@@ -31,7 +31,7 @@ class VolunteerFormTest extends TestCase
         ]);
 
         $response
-            ->assertRedirect('/it/volontariato')
+            ->assertRedirect('/it/volunteers')
             ->assertSessionHas('volunteer_success');
 
         $volunteer = Volunteer::query()->first();
@@ -50,13 +50,13 @@ class VolunteerFormTest extends TestCase
 
     public function test_volunteer_form_requires_valid_fields_and_consent(): void
     {
-        $response = $this->from('/it/volontariato')->post('/it/volontariato', [
+        $response = $this->from('/it/volunteers')->post('/it/volunteers', [
             'name' => '',
             'email' => 'not-an-email',
         ]);
 
         $response
-            ->assertRedirect('/it/volontariato')
+            ->assertRedirect('/it/volunteers')
             ->assertSessionHasErrors(['name', 'email', 'gdpr_consent']);
 
         $this->assertDatabaseCount('volunteers', 0);
@@ -64,7 +64,7 @@ class VolunteerFormTest extends TestCase
 
     public function test_honeypot_submission_is_silently_accepted_without_storage(): void
     {
-        $response = $this->post('/it/volontariato', [
+        $response = $this->post('/it/volunteers', [
             'name' => 'Bot',
             'email' => 'bot@example.com',
             'gdpr_consent' => '1',
@@ -72,7 +72,7 @@ class VolunteerFormTest extends TestCase
         ]);
 
         $response
-            ->assertRedirect('/it/volontariato')
+            ->assertRedirect('/it/volunteers')
             ->assertSessionHas('volunteer_success');
 
         $this->assertDatabaseCount('volunteers', 0);
@@ -89,9 +89,9 @@ class VolunteerFormTest extends TestCase
         ];
 
         for ($i = 0; $i < 3; $i++) {
-            $this->post('/it/volontariato', $payload)->assertRedirect();
+            $this->post('/it/volunteers', $payload)->assertRedirect();
         }
 
-        $this->post('/it/volontariato', $payload)->assertStatus(429);
+        $this->post('/it/volunteers', $payload)->assertStatus(429);
     }
 }

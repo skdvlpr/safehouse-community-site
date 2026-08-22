@@ -7,24 +7,19 @@ use Illuminate\Support\Str;
 final class UrlSlug
 {
     /**
-     * Build a URL-safe slug from a human label (name/title).
-     * Strips accents/Cyrillic via language rules, then keeps only [a-z0-9-].
+     * Build a URL-safe ASCII slug from a human label (name/title).
+     * Always uses English transliteration rules regardless of content language.
      */
     public static function from(?string $source, ?string $locale = null): string
     {
+        unset($locale);
+
         $source = trim(strip_tags((string) $source));
         if ($source === '') {
             return '';
         }
 
-        $language = match ($locale) {
-            'ru' => 'ru',
-            'it' => 'it',
-            'en' => 'en',
-            default => 'en',
-        };
-
-        $slug = Str::slug($source, '-', $language);
+        $slug = Str::slug($source, '-', 'en');
         $slug = strtolower($slug);
         $slug = preg_replace('/[^a-z0-9\-]+/', '', $slug) ?? '';
         $slug = preg_replace('/-+/', '-', $slug) ?? '';

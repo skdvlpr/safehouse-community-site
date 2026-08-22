@@ -64,9 +64,8 @@ class PageSeeder extends Seeder
                     'ru' => 'О нас',
                 ],
                 'slug' => [
-                    'it' => 'chi-siamo',
+                    'it' => 'about-us',
                     'en' => 'about-us',
-                    'ru' => 'o-nas',
                 ],
                 'body' => [
                     'it' => '<p>Safe House ETS è un\'associazione no profit impegnata nella tutela dei diritti umani e nel sostegno concreto alle persone che vivono situazioni di vulnerabilità sociale, economica e abitativa. Crediamo che la dignità, l\'accesso ai diritti fondamentali e il supporto alle persone non debbano essere privilegi, ma garanzie accessibili a tutti.</p><p>Operiamo ogni giorno per costruire percorsi di inclusione, autonomia e protezione, intervenendo sia nell\'emergenza sia nell\'accompagnamento a lungo termine. Il nostro lavoro unisce assistenza umanitaria, tutela legale, supporto digitale e reinserimento sociale, con un approccio basato sull\'ascolto, sul rispetto e sulla presa in carico integrata della persona.</p>',
@@ -94,9 +93,8 @@ class PageSeeder extends Seeder
                     'ru' => 'Услуги',
                 ],
                 'slug' => [
-                    'it' => 'servizi',
+                    'it' => 'services',
                     'en' => 'services',
-                    'ru' => 'uslugi',
                 ],
                 'body' => [
                     'it' => '<p>Interveniamo con servizi integrati per rispondere alle emergenze e accompagnare percorsi di autonomia e dignità.</p>',
@@ -186,9 +184,8 @@ class PageSeeder extends Seeder
                     'ru' => 'Контакты',
                 ],
                 'slug' => [
-                    'it' => 'contatti',
+                    'it' => 'contact',
                     'en' => 'contact',
-                    'ru' => 'kontakty',
                 ],
                 'body' => [
                     'it' => '<p>Per informazioni sui nostri servizi, volontariato o collaborazioni, scrivici usando il modulo in questa pagina.</p><p><strong>Email:</strong> info@safehouse.community</p>',
@@ -217,9 +214,8 @@ class PageSeeder extends Seeder
                     'ru' => 'Пример лендинга',
                 ],
                 'slug' => [
-                    'it' => 'esempio-landing',
+                    'it' => 'landing-example',
                     'en' => 'landing-example',
-                    'ru' => 'primer-landing',
                 ],
                 'body' => [
                     'it' => '<p>Template landing per campagne e iniziative speciali: hero a tutta larghezza, messaggio chiaro e invito all\'azione. Ideale per raccolte temporanee o eventi sul territorio.</p>',
@@ -240,9 +236,8 @@ class PageSeeder extends Seeder
                     'ru' => 'Пример статьи',
                 ],
                 'slug' => [
-                    'it' => 'esempio-articolo',
+                    'it' => 'article-example',
                     'en' => 'article-example',
-                    'ru' => 'primer-statya',
                 ],
                 'body' => [
                     'it' => '<p>Template articolo per approfondimenti, testimonianze e rassegna stampa. Tipografia da lettura lunga e data di aggiornamento in evidenza.</p><p>Usa questa pagina come esempio di contenuto editoriale curato dal CMS.</p>',
@@ -265,9 +260,8 @@ class PageSeeder extends Seeder
                     'ru' => 'Прозрачность',
                 ],
                 'slug' => [
-                    'it' => 'trasparenza',
+                    'it' => 'transparency',
                     'en' => 'transparency',
-                    'ru' => 'prozrachnost',
                 ],
                 'body' => [
                     'it' => '<p>Pubblichiamo annualmente bilancio sociale, rendicontazione delle raccolte e informazioni sul governo associativo. Questa pagina è un esempio di contenuto aggiuntivo gestito dal CMS e visibile nel menu <strong>Altre Pagine</strong>.</p><p>Per richieste specifiche scrivi a <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>',

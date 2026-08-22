@@ -30,7 +30,7 @@ class HomePageTest extends TestCase
             ->assertSee('Interventi sul territorio', false)
             ->assertSee('I nostri partner', false)
             ->assertSee(__('site.home.cta_contact', [], 'it'), false)
-            ->assertSee('/it/contatti', false)
+            ->assertSee('/it/contact', false)
             ->assertSee('favicon.svg', false)
             ->assertSee('data-display-prefs', false)
             ->assertSee('data-theme-option="light"', false)
@@ -38,7 +38,7 @@ class HomePageTest extends TestCase
             ->assertSee('data-theme-option="system"', false)
             ->assertSee('safehouse.theme', false)
             ->assertSee('>IT</', false)
-            ->assertSee('>RU</', false)
+            ->assertDontSee('>RU</', false)
             ->assertSee('>EN</', false);
     }
 

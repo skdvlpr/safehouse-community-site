@@ -67,7 +67,7 @@ class DonationCheckoutTest extends TestCase
     public function test_store_creates_subscription_for_recurring_campaign(): void
     {
         $campaign = DonationCampaign::factory()->recurring()->create([
-            'slug' => 'donazione-ricorrente',
+            'slug' => 'recurring-donation',
             'allow_custom_amount' => true,
             'min_amount_cents' => 50,
         ]);
@@ -93,7 +93,7 @@ class DonationCheckoutTest extends TestCase
             $mock->shouldNotReceive('createDonationIntent');
         });
 
-        $this->postJson('/api/donations/intents/donazione-ricorrente', [
+        $this->postJson('/api/donations/intents/recurring-donation', [
             'amount_cents' => 1500,
             'donor_name' => 'Anna Mensile',
             'donor_type' => 'individual',

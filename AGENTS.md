@@ -252,16 +252,18 @@ Route::prefix('{locale}')
 ```
 /                                    → redirect /it
 /{locale}/                           → Home
-/{locale}/chi-siamo                  → About
-/{locale}/servizi                    → Services
-/{locale}/notizie                    → News list
-/{locale}/notizie/{slug}             → Article
-/{locale}/volontariato               → Volunteer form
-/{locale}/donazioni                  → Campaign list
-/{locale}/donazioni/{slug}           → Donation form (Stripe Payment Element)
-/{locale}/donazioni/{slug}/privacy   → Campaign privacy notice
-/{locale}/donazioni/{slug}/grazie    → Thank-you page
-/{locale}/contatti                   → Contact
+/{locale}/about-us                   → About (CMS page slug)
+/{locale}/services                   → Services
+/{locale}/news                       → News list
+/{locale}/news/{slug}                → Article
+/{locale}/articles                   → Editorial articles list
+/{locale}/articles/{slug}            → Editorial article
+/{locale}/volunteers                 → Volunteer form
+/{locale}/donations                  → Campaign list
+/{locale}/donations/{slug}           → Donation form (Stripe Payment Element)
+/{locale}/donations/{slug}/privacy   → Campaign privacy notice
+/{locale}/donations/{slug}/thank-you → Thank-you page
+/{locale}/contact                    → Contact
 /{locale}/privacy                    → Privacy policy
 /{locale}/cookie                     → Cookie policy
 

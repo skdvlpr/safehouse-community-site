@@ -17,11 +17,11 @@ class SetLocaleMiddlewareTest extends TestCase
         $middleware = new SetLocale;
 
         $middleware->handle(
-            Request::create('/ru/example', 'GET'),
+            Request::create('/en/example', 'GET'),
             fn (): Response => new Response('ok', 200),
         );
 
-        $this->assertSame('ru', App::getLocale());
+        $this->assertSame('en', App::getLocale());
     }
 
     public function test_middleware_sets_carbon_locale_for_valid_code(): void

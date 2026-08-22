@@ -2,7 +2,7 @@
     use App\Support\LocalizedUrl;
 
     $currentLocale = app()->getLocale();
-    $localeLabels = ['it' => 'IT', 'ru' => 'RU', 'en' => 'EN'];
+    $localeLabels = ['it' => 'IT', 'en' => 'EN'];
     $themeLabels = [
         'dark' => __('site.theme.dark'),
         'light' => __('site.theme.light'),

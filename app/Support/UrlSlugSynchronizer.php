@@ -16,8 +16,8 @@ final class UrlSlugSynchronizer
     public function sync(Model $model, bool $force = false): bool
     {
         return match (true) {
-            $model instanceof Article => $this->syncTranslatable($model, 'title', 'slug', fn (string $locale, string $candidate): bool => $this->articleSlugTaken($model, $locale, $candidate), $force),
-            $model instanceof ArticleCategory => $this->syncTranslatable($model, 'name', 'slug', fn (string $locale, string $candidate): bool => $this->categorySlugTaken($model, $locale, $candidate), $force),
+            $model instanceof Article => $this->syncTranslatable($model, 'title', 'slug', fn (string $candidate): bool => $this->articleSlugTaken($model, $candidate), $force),
+            $model instanceof ArticleCategory => $this->syncTranslatable($model, 'name', 'slug', fn (string $candidate): bool => $this->categorySlugTaken($model, $candidate), $force),
             $model instanceof Page => $this->syncPage($model, $force),
             $model instanceof DonationCampaign => $this->syncDonationCampaign($model, $force),
             default => false,
@@ -25,7 +25,7 @@ final class UrlSlugSynchronizer
     }
 
     /**
-     * @param  callable(string, string): bool  $exists
+     * @param  callable(string): bool  $exists
      */
     private function syncTranslatable(Model $model, string $sourceAttribute, string $slugAttribute, callable $exists, bool $force): bool
     {
@@ -33,44 +33,73 @@ final class UrlSlugSynchronizer
         $sources = $model->getTranslations($sourceAttribute);
         /** @var array<string, string|null> $currentSlugs */
         $currentSlugs = $model->getTranslations($slugAttribute);
-        $locales = config('locales.available', ['it', 'ru', 'en']);
-        $next = [];
+        $locales = CanonicalSlug::locales();
+
+        $hasAnyTitle = false;
 
         foreach ($locales as $locale) {
             $source = $sources[$locale] ?? null;
-            if (! is_string($source) || trim($source) === '') {
-                continue;
+
+            if (is_string($source) && trim($source) !== '') {
+                $hasAnyTitle = true;
+
+                break;
             }
-
-            $existing = is_string($currentSlugs[$locale] ?? null) ? (string) $currentSlugs[$locale] : '';
-            $sourceDirty = $model->isDirty($sourceAttribute);
-
-            $shouldRegenerate = $force
-                || $existing === ''
-                || ! $this->isValidSlug($existing)
-                || ($model->exists && $sourceDirty);
-
-            if (! $shouldRegenerate) {
-                $next[$locale] = $existing;
-
-                continue;
-            }
-
-            $base = UrlSlug::from($source, $locale);
-            if ($base === '') {
-                continue;
-            }
-
-            $next[$locale] = UrlSlug::unique(
-                $base,
-                fn (string $candidate): bool => $exists($locale, $candidate),
-            );
         }
 
+        if (! $hasAnyTitle) {
+            return false;
+        }
+
+        $existing = CanonicalSlug::resolve($currentSlugs) ?? '';
+        $sourceDirty = $model->isDirty($sourceAttribute);
+
+        $shouldRegenerate = $force
+            || $existing === ''
+            || ! $this->isValidSlug($existing)
+            || ($model->exists && $sourceDirty)
+            || $this->hasPerLocaleSlugMismatch($currentSlugs, $existing);
+
+        if (! $shouldRegenerate) {
+            return false;
+        }
+
+        $base = CanonicalSlug::fromTitleSources($sources);
+
+        if ($base === '') {
+            return false;
+        }
+
+        $canonical = UrlSlug::unique(
+            $base,
+            fn (string $candidate): bool => $exists($candidate),
+        );
+
+        $next = CanonicalSlug::replicateForLocales($canonical);
         $before = $currentSlugs;
         $model->setTranslations($slugAttribute, $next);
 
         return $before !== $next;
+    }
+
+    /**
+     * @param  array<string, string|null>  $currentSlugs
+     */
+    private function hasPerLocaleSlugMismatch(array $currentSlugs, string $canonical): bool
+    {
+        foreach (CanonicalSlug::locales() as $locale) {
+            $slug = $currentSlugs[$locale] ?? null;
+
+            if (! is_string($slug) || $slug === '') {
+                continue;
+            }
+
+            if ($slug !== $canonical) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function syncPage(Page $page, bool $force): bool
@@ -86,20 +115,21 @@ final class UrlSlugSynchronizer
             $page,
             'title',
             'slug',
-            fn (string $locale, string $candidate): bool => $this->pageSlugTaken($page, $locale, $candidate),
+            fn (string $candidate): bool => $this->pageSlugTaken($page, $candidate),
             $force,
         );
     }
 
     private function syncDonationCampaign(DonationCampaign $campaign, bool $force): bool
     {
-        $protected = (string) config('donations.recurring_campaign_slug', 'donazione-ricorrente');
+        $protected = (string) config('donations.recurring_campaign_slug', 'recurring-donation');
 
         if ($campaign->allows_recurring || $campaign->slug === $protected) {
             return false;
         }
 
-        $title = (string) ($campaign->getTranslation('title', 'it', false) ?: '');
+        /** @var array<string, string|null> $titles */
+        $titles = $campaign->getTranslations('title');
         $titleDirty = $campaign->isDirty('title');
         $existing = (string) ($campaign->slug ?? '');
 
@@ -112,7 +142,8 @@ final class UrlSlugSynchronizer
             return false;
         }
 
-        $base = UrlSlug::from($title, 'it');
+        $base = CanonicalSlug::fromTitleSources($titles);
+
         if ($base === '') {
             return false;
         }
@@ -139,28 +170,40 @@ final class UrlSlugSynchronizer
         return (bool) preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $slug);
     }
 
-    private function articleSlugTaken(Article $article, string $locale, string $candidate): bool
+    private function articleSlugTaken(Article $article, string $candidate): bool
     {
         return Article::query()
             ->where('section', $article->section)
-            ->where("slug->{$locale}", $candidate)
+            ->where(function ($query) use ($candidate): void {
+                foreach (CanonicalSlug::locales() as $locale) {
+                    $query->orWhere("slug->{$locale}", $candidate);
+                }
+            })
             ->when($article->exists, fn ($q) => $q->whereKeyNot($article->getKey()))
             ->exists();
     }
 
-    private function categorySlugTaken(ArticleCategory $category, string $locale, string $candidate): bool
+    private function categorySlugTaken(ArticleCategory $category, string $candidate): bool
     {
         return ArticleCategory::query()
             ->where('section', $category->section)
-            ->where("slug->{$locale}", $candidate)
+            ->where(function ($query) use ($candidate): void {
+                foreach (CanonicalSlug::locales() as $locale) {
+                    $query->orWhere("slug->{$locale}", $candidate);
+                }
+            })
             ->when($category->exists, fn ($q) => $q->whereKeyNot($category->getKey()))
             ->exists();
     }
 
-    private function pageSlugTaken(Page $page, string $locale, string $candidate): bool
+    private function pageSlugTaken(Page $page, string $candidate): bool
     {
         return Page::query()
-            ->where("slug->{$locale}", $candidate)
+            ->where(function ($query) use ($candidate): void {
+                foreach (CanonicalSlug::locales() as $locale) {
+                    $query->orWhere("slug->{$locale}", $candidate);
+                }
+            })
             ->when($page->exists, fn ($q) => $q->whereKeyNot($page->getKey()))
             ->exists();
     }

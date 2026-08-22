@@ -38,7 +38,7 @@ class DonationFivePerMilleTest extends TestCase
 
         app(DonationSettingsService::class)->forgetCache();
 
-        $this->get('/it/donazioni/5-per-mille')
+        $this->get('/it/donations/5-per-thousand')
             ->assertOk()
             ->assertSee('Dona il 5 x 1000', false)
             ->assertSee('98765432109', false)
@@ -73,7 +73,7 @@ class DonationFivePerMilleTest extends TestCase
 
         app(DonationSettingsService::class)->forgetCache();
 
-        $this->get('/it/donazioni')
+        $this->get('/it/donations')
             ->assertOk()
             ->assertSee('Dona il 5 x 1000', false)
             ->assertSee('Bonifico bancario', false)

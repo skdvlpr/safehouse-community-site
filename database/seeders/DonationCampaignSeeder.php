@@ -54,7 +54,7 @@ class DonationCampaignSeeder extends Seeder
         );
 
         DonationCampaign::query()->updateOrCreate(
-            ['slug' => 'donazione-ricorrente'],
+            ['slug' => 'recurring-donation'],
             [
                 'title' => [
                     'it' => 'Donazione ricorrente',

@@ -18,20 +18,20 @@ class DonationShowRouteTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->get('/it/donazioni/show-me')->assertOk();
+        $this->get('/it/donations/show-me')->assertOk();
     }
 
     public function test_recurring_campaign_shows_cancel_notice_and_ack(): void
     {
         DonationCampaign::factory()->recurring()->create([
-            'slug' => 'donazione-ricorrente',
+            'slug' => 'recurring-donation',
             'title' => ['it' => 'Donazione ricorrente'],
             'is_active' => true,
         ]);
 
         config()->set('stripe.customer_portal_login_url', 'https://billing.stripe.com/p/login/test_example');
 
-        $this->get('/it/donazioni/donazione-ricorrente')
+        $this->get('/it/donations/recurring-donation')
             ->assertOk()
             ->assertSee(__('site.donations.recurring_frequency_badge'), false)
             ->assertSee(__('site.donations.cancel_notice_title'), false)
@@ -51,7 +51,7 @@ class DonationShowRouteTest extends TestCase
             'allows_recurring' => false,
         ]);
 
-        $this->get('/it/donazioni/una-tantum')
+        $this->get('/it/donations/una-tantum')
             ->assertOk()
             ->assertDontSee(__('site.donations.cancel_notice_title'), false)
             ->assertDontSee(__('site.donations.cancel_ack_label'), false)
@@ -61,7 +61,7 @@ class DonationShowRouteTest extends TestCase
     public function test_thank_you_page_shows_personalized_message_and_reference(): void
     {
         DonationCampaign::factory()->create([
-            'slug' => 'grazie-test',
+            'slug' => 'thank-you-test',
             'is_active' => true,
         ]);
 
@@ -71,7 +71,7 @@ class DonationShowRouteTest extends TestCase
                 ->with('pi_test_123');
         });
 
-        $this->get('/it/donazioni/grazie-test/grazie?payment_intent=pi_test_123&donor_name=Mario%20Rossi')
+        $this->get('/it/donations/thank-you-test/thank-you?payment_intent=pi_test_123&donor_name=Mario%20Rossi')
             ->assertOk()
             ->assertSee('Grazie, Mario!', false)
             ->assertSee('pi_test_123', false)
@@ -83,7 +83,7 @@ class DonationShowRouteTest extends TestCase
     public function test_thank_you_page_shows_cancel_notice_for_recurring(): void
     {
         DonationCampaign::factory()->recurring()->create([
-            'slug' => 'grazie-ricorrente',
+            'slug' => 'thank-you-recurring',
             'is_active' => true,
         ]);
 
@@ -95,7 +95,7 @@ class DonationShowRouteTest extends TestCase
                 ->with('pi_recurring_1');
         });
 
-        $this->get('/it/donazioni/grazie-ricorrente/grazie?payment_intent=pi_recurring_1&donor_name=Anna')
+        $this->get('/it/donations/thank-you-recurring/thank-you?payment_intent=pi_recurring_1&donor_name=Anna')
             ->assertOk()
             ->assertSee(__('site.donations.thank_you_cancel_title'), false)
             ->assertSee(__('site.donations.thank_you_cancel_body'), false)

@@ -46,7 +46,7 @@ class ContactFormTest extends TestCase
         $response = $this->withHeaders(['User-Agent' => 'Safehouse Test Agent'])->post('/it/contact', $this->validContactPayload());
 
         $response
-            ->assertRedirect('/it/contatti')
+            ->assertRedirect('/it/contact')
             ->assertSessionHas('contact_success');
 
         $submission = ContactSubmission::query()->first();
@@ -65,14 +65,14 @@ class ContactFormTest extends TestCase
 
     public function test_contact_form_requires_valid_fields_and_consent(): void
     {
-        $response = $this->from('/it/contatti')->post('/it/contact', [
+        $response = $this->from('/it/contact')->post('/it/contact', [
             'name' => '',
             'email' => 'not-an-email',
             'message' => '',
         ]);
 
         $response
-            ->assertRedirect('/it/contatti')
+            ->assertRedirect('/it/contact')
             ->assertSessionHasErrors(['name', 'email', 'message', 'gdpr_consent']);
 
         $this->assertDatabaseCount('contact_submissions', 0);
@@ -86,7 +86,7 @@ class ContactFormTest extends TestCase
         ]);
 
         $response
-            ->assertRedirect('/it/contatti')
+            ->assertRedirect('/it/contact')
             ->assertSessionHas('contact_success');
 
         $this->assertDatabaseCount('contact_submissions', 0);
@@ -101,12 +101,12 @@ class ContactFormTest extends TestCase
 
         for ($i = 0; $i < 10; $i++) {
             $this->post('/it/contact', $payload)
-                ->assertRedirect('/it/contatti')
+                ->assertRedirect('/it/contact')
                 ->assertSessionHas('contact_success');
         }
 
         $this->post('/it/contact', $payload)
-            ->assertRedirect('/it/contatti')
+            ->assertRedirect('/it/contact')
             ->assertSessionHasErrors('contact_rate_limit');
     }
 
@@ -115,7 +115,7 @@ class ContactFormTest extends TestCase
         $this->clearContactRateLimit();
 
         for ($i = 0; $i < 20; $i++) {
-            $this->from('/it/contatti')->post('/it/contact', [
+            $this->from('/it/contact')->post('/it/contact', [
                 'name' => '',
                 'email' => 'not-an-email',
                 'message' => '',
@@ -123,13 +123,13 @@ class ContactFormTest extends TestCase
         }
 
         $this->post('/it/contact', $this->validContactPayload())
-            ->assertRedirect('/it/contatti')
+            ->assertRedirect('/it/contact')
             ->assertSessionHas('contact_success');
     }
 
     public function test_contact_page_renders_working_form(): void
     {
-        $this->get('/it/contatti')
+        $this->get('/it/contact')
             ->assertOk()
             ->assertSee('method="POST"', false)
             ->assertSee('name="gdpr_consent"', false)

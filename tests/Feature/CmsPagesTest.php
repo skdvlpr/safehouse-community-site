@@ -19,7 +19,7 @@ class CmsPagesTest extends TestCase
 
     public function test_about_page_uses_about_template(): void
     {
-        $this->get('/it/chi-siamo')
+        $this->get('/it/about-us')
             ->assertOk()
             ->assertSee('data-page-template="about"', false)
             ->assertSee('page-hero__title', false)
@@ -33,7 +33,7 @@ class CmsPagesTest extends TestCase
 
     public function test_services_page_renders_numbered_cards(): void
     {
-        $this->get('/it/servizi')
+        $this->get('/it/services')
             ->assertOk()
             ->assertSee('data-page-template="services"', false)
             ->assertSee('01', false)
@@ -42,7 +42,7 @@ class CmsPagesTest extends TestCase
 
     public function test_contact_privacy_and_cookie_pages_are_reachable(): void
     {
-        $this->get('/it/contatti')
+        $this->get('/it/contact')
             ->assertOk()
             ->assertSee('data-page-template="contact"', false)
             ->assertSee('id="contact-name"', false)
@@ -53,8 +53,8 @@ class CmsPagesTest extends TestCase
 
     public function test_demo_templates_are_distinct(): void
     {
-        $this->get('/it/esempio-landing')->assertOk()->assertSee('data-page-template="landing"', false);
-        $this->get('/it/esempio-articolo')->assertOk()->assertSee('data-page-template="article"', false);
+        $this->get('/it/landing-example')->assertOk()->assertSee('data-page-template="landing"', false);
+        $this->get('/it/article-example')->assertOk()->assertSee('data-page-template="article"', false);
     }
 
     public function test_news_hub_page_is_removed(): void
@@ -62,15 +62,15 @@ class CmsPagesTest extends TestCase
         $this->get('/it/hub-notizie')->assertNotFound();
     }
 
-    public function test_localized_about_slugs(): void
+    public function test_localized_about_slug_is_shared_across_locales(): void
     {
         $this->get('/en/about-us')->assertOk()->assertSee('About us', false);
-        $this->get('/ru/o-nas')->assertOk()->assertSee('О нас', false);
+        $this->get('/it/about-us')->assertOk()->assertSee('Chi siamo', false);
     }
 
     public function test_news_index_route_works(): void
     {
-        $this->get('/it/notizie')
+        $this->get('/it/news')
             ->assertOk()
             ->assertSee(__('site.pages.news_title', [], 'it'), false)
             ->assertSee(__('site.pages.news_empty', [], 'it'), false);
@@ -80,12 +80,12 @@ class CmsPagesTest extends TestCase
     {
         Page::query()->where('key', 'about')->update(['is_published' => false]);
 
-        $this->get('/it/chi-siamo')->assertNotFound();
+        $this->get('/it/about-us')->assertNotFound();
     }
 
     public function test_donations_route_is_not_handled_by_cms_catch_all(): void
     {
-        $this->get('/it/donazioni')->assertOk();
+        $this->get('/it/donations')->assertOk();
     }
 
     public function test_page_without_carousel_omits_gallery_markup(): void

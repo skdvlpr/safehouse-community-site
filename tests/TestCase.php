@@ -35,5 +35,14 @@ abstract class TestCase extends BaseTestCase
         putenv('DB_CONNECTION=sqlite');
         putenv('DB_DATABASE=:memory:');
         putenv('DB_URL');
+
+        $connection = strtolower((string) (getenv('DB_CONNECTION') ?: 'sqlite'));
+
+        if (! in_array($connection, ['sqlite', ''], true)) {
+            throw new \RuntimeException(
+                "REFUSED: tests must use sqlite (:memory:), not {$connection}. "
+                .'PHPUnit sets DB_CONNECTION in phpunit.xml; delete bootstrap/cache/config.php if present.'
+            );
+        }
     }
 }

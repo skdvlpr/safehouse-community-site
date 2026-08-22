@@ -38,7 +38,7 @@ class EditorialArticleTest extends TestCase
             'body' => ['it' => '<p>News.</p>'],
         ]);
 
-        $this->get('/it/articoli')
+        $this->get('/it/articles')
             ->assertOk()
             ->assertSee('Storia editoriale di prova', false)
             ->assertDontSee('Notizia separata', false)
@@ -70,7 +70,7 @@ class EditorialArticleTest extends TestCase
             'body' => ['it' => '<p>No</p>'],
         ]);
 
-        $this->get('/it/articoli?categories[]=inclusa')
+        $this->get('/it/articles?categories[]=inclusa')
             ->assertOk()
             ->assertSee('Articolo incluso', false)
             ->assertDontSee('Articolo escluso', false);

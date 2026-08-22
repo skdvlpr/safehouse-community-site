@@ -104,7 +104,7 @@ class MockDonationCheckoutTest extends TestCase
     public function test_mock_recurring_subscription_and_complete_flow(): void
     {
         $campaign = DonationCampaign::factory()->recurring()->create([
-            'slug' => 'donazione-ricorrente',
+            'slug' => 'recurring-donation',
             'title' => ['it' => 'Donazione ricorrente'],
             'allow_custom_amount' => true,
             'min_amount_cents' => 100,
@@ -153,7 +153,7 @@ class MockDonationCheckoutTest extends TestCase
             return Http::response(['message' => 'Unexpected '.$method.' '.$url], 500);
         });
 
-        $intentResponse = $this->postJson('/api/donations/intents/donazione-ricorrente', [
+        $intentResponse = $this->postJson('/api/donations/intents/recurring-donation', [
             'amount_cents' => 1500,
             'donor_name' => 'Anna Mensile',
             'donor_type' => 'individual',

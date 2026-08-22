@@ -26,12 +26,12 @@ class DonationCampaignRoutesTest extends TestCase
             'is_active' => false,
         ]);
         DonationCampaign::factory()->recurring()->create([
-            'slug' => 'donazione-ricorrente',
+            'slug' => 'recurring-donation',
             'title' => ['it' => 'Donazione ricorrente'],
             'is_active' => true,
         ]);
 
-        $this->get('/it/donazioni')
+        $this->get('/it/donations')
             ->assertOk()
             ->assertSee('Raccolta attiva')
             ->assertDontSee('Raccolta nascosta')
@@ -42,12 +42,12 @@ class DonationCampaignRoutesTest extends TestCase
     public function test_donations_index_hides_disabled_recurring_campaign(): void
     {
         DonationCampaign::factory()->recurring()->create([
-            'slug' => 'donazione-ricorrente',
+            'slug' => 'recurring-donation',
             'title' => ['it' => 'Donazione ricorrente nascosta'],
             'is_active' => false,
         ]);
 
-        $this->get('/it/donazioni')
+        $this->get('/it/donations')
             ->assertOk()
             ->assertDontSee('Donazione ricorrente nascosta');
     }
@@ -68,7 +68,7 @@ class DonationCampaignRoutesTest extends TestCase
                 ]);
         });
 
-        $this->get('/it/donazioni')
+        $this->get('/it/donations')
             ->assertOk()
             ->assertSee('575 €')
             ->assertSee('700 €')
@@ -92,7 +92,7 @@ class DonationCampaignRoutesTest extends TestCase
                 ->with('pi_test_123');
         });
 
-        $this->get('/it/donazioni/'.$campaign->slug.'/grazie?payment_intent=pi_test_123&donor_name=Mario%20Rossi')
+        $this->get('/it/donations/'.$campaign->slug.'/thank-you?payment_intent=pi_test_123&donor_name=Mario%20Rossi')
             ->assertOk()
             ->assertSee('Grazie di cuore per aver sostenuto questa raccolta.')
             ->assertSee('Grazie, Mario!');
