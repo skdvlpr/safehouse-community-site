@@ -15,7 +15,7 @@
 
         <div class="grid gap-8 lg:grid-cols-2">
             <article class="template-contact-info safehouse-glass safehouse-prose">
-                {!! $body !!}
+                {!! \App\Support\CmsHtml::render($body) !!}
             </article>
 
             <aside class="template-contact-aside safehouse-glass">

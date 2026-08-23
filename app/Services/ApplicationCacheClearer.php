@@ -21,6 +21,7 @@ class ApplicationCacheClearer
         private ContactDeskSettings $contactDesk,
         private ContactSportelloMailSettings $sportelloMail,
         private SocialLinksSettings $socialLinks,
+        private SiteAppearanceSettings $siteAppearance,
         private HomeImpactStatsService $homeImpactStats,
         private HomeMealStatsService $homeMealStats,
         private EspoCrmAssignedUserOptions $assignedUserOptions,
@@ -35,6 +36,7 @@ class ApplicationCacheClearer
         $this->contactDesk->forgetCache();
         $this->sportelloMail->forgetCache();
         $this->socialLinks->forgetCache();
+        $this->siteAppearance->forgetCache();
         $this->homeImpactStats->forgetCache();
         $this->homeMealStats->forgetCache();
         $this->assignedUserOptions->forgetCache();

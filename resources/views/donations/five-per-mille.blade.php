@@ -36,7 +36,7 @@
         @endif
 
         @if ($codice !== '')
-            <section class="donation-five-per-mille__codice mb-10 rounded-xl border border-safehouse-primary/30 bg-safehouse-primary/10 p-6 md:p-8" aria-labelledby="codice-fiscale-heading">
+            <section class="donation-five-per-mille__codice safehouse-accent-panel mb-10 rounded-xl p-6 md:p-8" aria-labelledby="codice-fiscale-heading">
                 <h2 id="codice-fiscale-heading" class="mb-3 text-sm font-semibold uppercase tracking-wide text-safehouse-primary">
                     {{ $donationSettings->localized($five, 'codice_label', $locale) }}
                 </h2>

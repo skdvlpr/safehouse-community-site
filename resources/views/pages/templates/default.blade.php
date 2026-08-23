@@ -14,7 +14,7 @@
         @include('pages.partials.page-header', ['title' => $title, 'page' => $page])
 
         <article class="template-default-panel safehouse-glass safehouse-prose">
-            {!! $body !!}
+                {!! \App\Support\CmsHtml::render($body) !!}
         </article>
     </x-page-template-shell>
 @endsection

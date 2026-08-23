@@ -16,6 +16,10 @@ class DesignTokensTest extends TestCase
         $this->assertStringContainsString('--safehouse-glass-bg:', $css);
         $this->assertStringContainsString("font-family: 'JetBrains Sans'", $css);
         $this->assertStringContainsString("url('/images/bg.svg')", $css);
+        $this->assertStringContainsString("url('/images/bg-light.svg')", $css);
+        $this->assertFileExists(public_path('images/bg-photo.jpg'));
+        $this->assertStringContainsString('.safehouse-accent-panel', $css);
+        $this->assertStringContainsString('.template-services-grid', $css);
         $this->assertStringContainsString('.nav-dropdown__panel', $css);
         $this->assertStringContainsString('bg-safehouse-modal/98', $css);
         $this->assertStringNotContainsString('bg-[#050505]/98', $css);
@@ -24,6 +28,7 @@ class DesignTokensTest extends TestCase
     public function test_polygon_background_asset_is_available(): void
     {
         $this->assertFileExists(public_path('images/bg.svg'));
+        $this->assertFileExists(public_path('images/bg-light.svg'));
     }
 
     public function test_jetbrains_sans_font_is_available(): void

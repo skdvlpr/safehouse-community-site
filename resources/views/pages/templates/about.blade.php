@@ -24,7 +24,7 @@
 
         <div class="template-about-grid">
             <article class="template-about-intro safehouse-glass safehouse-prose">
-                {!! $body !!}
+                {!! \App\Support\CmsHtml::render($body) !!}
             </article>
 
             @if ($values)
@@ -33,15 +33,15 @@
                         {{ __('site.pages.about_values_heading') }}
                     </h2>
                     <div class="safehouse-prose template-about-values__body">
-                        {!! nl2br(e($values)) !!}
+                        {!! \App\Support\CmsHtml::render($values) !!}
                     </div>
                 </section>
             @endif
         </div>
 
         @if ($closing)
-            <blockquote class="template-about-closing safehouse-glass">
-                <p>{{ $closing }}</p>
+            <blockquote class="template-about-closing safehouse-glass safehouse-prose">
+                {!! \App\Support\CmsHtml::render($closing) !!}
             </blockquote>
         @endif
     </x-page-template-shell>

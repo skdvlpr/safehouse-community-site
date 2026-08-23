@@ -51,6 +51,25 @@ class PagePreviewTest extends TestCase
         ]);
 
         $this->assertNotNull(app(PageService::class)->previewUrl($page, 'it'));
-        $this->assertNotNull(app(PageService::class)->previewUrl($page, 'en'));
+        $this->assertNull(app(PageService::class)->previewUrl($page, 'en'));
+    }
+
+    public function test_preview_shows_locale_body_without_fallback(): void
+    {
+        $page = Page::factory()->create([
+            'slug' => ['it' => 'corpo-it', 'en' => 'body-en'],
+            'title' => ['it' => 'Titolo IT', 'en' => 'Title EN'],
+            'body' => ['it' => '<p>Testo italiano unico</p>', 'en' => '<p>English only body</p>'],
+            'is_published' => false,
+            'template' => 'default',
+        ]);
+
+        $url = app(PageService::class)->previewUrl($page, 'it');
+        $this->assertNotNull($url);
+
+        $this->get($url)
+            ->assertOk()
+            ->assertSee('Testo italiano unico', false)
+            ->assertDontSee('English only body', false);
     }
 }

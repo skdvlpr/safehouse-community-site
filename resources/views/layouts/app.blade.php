@@ -26,6 +26,7 @@
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
+    @include('layouts.partials.site-background')
     @stack('head')
 </head>
 <body class="flex min-h-screen flex-col bg-safehouse-page text-safehouse-text antialiased">

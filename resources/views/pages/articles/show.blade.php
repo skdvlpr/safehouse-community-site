@@ -32,7 +32,7 @@
         @include('pages.articles.partials.article-carousel', ['article' => $article, 'locale' => $locale])
 
         <div class="safehouse-glass safehouse-prose rounded-2xl p-8 md:p-10">
-            {!! $body !!}
+            {!! \App\Support\CmsHtml::render($body) !!}
         </div>
 
         <p class="mt-8">

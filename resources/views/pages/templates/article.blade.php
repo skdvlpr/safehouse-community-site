@@ -27,7 +27,7 @@
             @include('pages.partials.page-carousel', ['page' => $page])
 
             <article class="template-article-body safehouse-glass safehouse-prose">
-                {!! $body !!}
+                {!! \App\Support\CmsHtml::render($body) !!}
             </article>
         </div>
     </x-page-template-shell>

@@ -8,6 +8,7 @@ use App\Filament\Resources\PageResource\Support\PageTemplateFormFields;
 use App\Filament\Support\CmsLocaleTabs;
 use App\Models\Page;
 use App\Models\User;
+use App\Services\SiteAppearanceSettings;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -21,6 +22,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -122,6 +124,41 @@ class PageResource extends Resource
 
                                 ...$carouselAltFields,
                             ])
+                            ->columnSpanFull(),
+                    ])
+                    ->columnSpanFull()
+                    ->collapsed(),
+
+                Section::make(__('cms.sections.page_background'))
+                    ->description(__('cms.helpers.page_background'))
+                    ->schema([
+                        Toggle::make('meta.background.enabled')
+                            ->label(__('cms.fields.custom_background'))
+                            ->helperText(__('cms.helpers.custom_background'))
+                            ->live()
+                            ->default(false),
+
+                        Select::make('meta.background.path')
+                            ->label(__('cms.fields.background_from_library'))
+                            ->helperText(__('cms.helpers.background_from_library'))
+                            ->options(fn (): array => app(SiteAppearanceSettings::class)->libraryOptions())
+                            ->searchable()
+                            ->nullable()
+                            ->visible(fn (Get $get): bool => (bool) $get('meta.background.enabled')),
+
+                        FileUpload::make('meta.background.upload')
+                            ->label(__('cms.fields.background_upload'))
+                            ->helperText(__('cms.helpers.background_upload'))
+                            ->acceptedFileTypes(app(SiteAppearanceSettings::class)->acceptedMimeTypes())
+                            ->imagePreviewHeight('150')
+                            ->panelAspectRatio('16:9')
+                            ->panelLayout('integrated')
+                            ->disk((string) config('site_appearance.disk', 'public'))
+                            ->directory((string) config('site_appearance.directory', 'site-appearance'))
+                            ->visibility('public')
+                            ->nullable()
+                            ->maxSize((int) config('site_appearance.max_size_kb', 8192))
+                            ->visible(fn (Get $get): bool => (bool) $get('meta.background.enabled'))
                             ->columnSpanFull(),
                     ])
                     ->columnSpanFull()

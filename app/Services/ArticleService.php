@@ -193,12 +193,20 @@ class ArticleService
 
     public function hasSlugForLocale(Article $article, string $locale): bool
     {
-        return $this->resolveSlug($article, $locale) !== null;
+        $slug = $article->getTranslation('slug', $locale, false);
+
+        return is_string($slug) && trim($slug) !== '';
     }
 
     private function resolveSlug(Article $article, string $locale): ?string
     {
-        return CanonicalSlug::resolveFromModel($article, 'slug');
+        $slug = $article->getTranslation('slug', $locale, false);
+
+        if (! is_string($slug) || trim($slug) === '') {
+            return null;
+        }
+
+        return trim($slug);
     }
 
     public function findPublishedBySlug(

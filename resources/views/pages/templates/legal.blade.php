@@ -20,7 +20,7 @@
         </div>
 
         <article class="template-legal-doc safehouse-glass safehouse-prose">
-            {!! $body !!}
+            {!! \App\Support\CmsHtml::render($body) !!}
         </article>
     </x-page-template-shell>
 @endsection

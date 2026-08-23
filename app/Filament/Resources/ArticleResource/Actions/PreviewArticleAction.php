@@ -7,6 +7,7 @@ use App\Services\ArticleService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
+use Filament\Resources\Pages\EditRecord;
 use Livewire\Component;
 
 class PreviewArticleAction
@@ -33,6 +34,14 @@ class PreviewArticleAction
             ->modalSubmitActionLabel(__('cms.actions.open_preview'))
             ->modalDescription(__('cms.preview.article_description'))
             ->action(function (array $data, Article $record, Action $action): void {
+                /** @var Component $livewire */
+                $livewire = $action->getLivewire();
+
+                if ($livewire instanceof EditRecord) {
+                    $livewire->save(shouldRedirect: false, shouldSendSavedNotification: false);
+                    $record = $livewire->getRecord()->fresh();
+                }
+
                 $url = app(ArticleService::class)->previewUrl($record, $data['locale']);
 
                 if ($url === null) {
@@ -45,8 +54,6 @@ class PreviewArticleAction
                     return;
                 }
 
-                /** @var Component $livewire */
-                $livewire = $action->getLivewire();
                 $livewire->js('window.open('.json_encode($url).', "_blank")');
             })
             ->visible(fn (?Article $record): bool => $record instanceof Article

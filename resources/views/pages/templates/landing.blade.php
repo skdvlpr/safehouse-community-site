@@ -21,7 +21,7 @@
             @include('pages.partials.page-carousel', ['page' => $page])
 
             <div class="safehouse-prose relative max-w-2xl text-lg text-safehouse-muted md:text-xl">
-                {!! $body !!}
+                {!! \App\Support\CmsHtml::render($body) !!}
             </div>
 
             <div class="relative mt-8 flex flex-wrap gap-3">

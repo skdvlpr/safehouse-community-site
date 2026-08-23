@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Services\SiteAppearanceSettings;
 use Illuminate\Support\Facades\Storage;
 
 class PageCarousel
@@ -130,8 +131,9 @@ class PageCarousel
 
         if (! is_array($items)) {
             $meta['carousel'] = [];
+            $meta['services'] = self::normalizeServiceCards($meta['services'] ?? []);
 
-            return $meta;
+            return app(SiteAppearanceSettings::class)->normalizePageBackgroundMeta($meta) ?? $meta;
         }
 
         $normalized = [];
@@ -165,6 +167,7 @@ class PageCarousel
 
         $meta['carousel'] = array_values($normalized);
         $meta['services'] = self::normalizeServiceCards($meta['services'] ?? []);
+        $meta = app(SiteAppearanceSettings::class)->normalizePageBackgroundMeta($meta) ?? $meta;
 
         return $meta;
     }

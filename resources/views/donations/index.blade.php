@@ -13,7 +13,7 @@
 
     @if ($donationSettings->fivePerMilleEnabled())
         <a href="{{ route('donations.five-per-mille', ['locale' => $locale]) }}"
-           class="donation-feature-card mb-8 block rounded-2xl border border-safehouse-primary/40 bg-gradient-to-br from-safehouse-primary/20 via-safehouse-primary/5 to-transparent p-6 transition hover:border-safehouse-primary md:p-8">
+           class="donation-feature-card safehouse-accent-panel mb-8 block rounded-2xl p-6 transition md:p-8">
             <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-safehouse-primary">
                 {{ $donationSettings->localized($five, 'menu_label', $locale) }}
             </p>
@@ -39,7 +39,7 @@
                 ?: $recurringCampaign->getTranslation('description', 'it');
         @endphp
         <a href="{{ route('donations.show', ['locale' => $locale, 'campaignSlug' => $recurringCampaign->slug]) }}"
-           class="donation-feature-card mb-8 block rounded-2xl border border-safehouse-primary/40 bg-gradient-to-br from-safehouse-primary/20 via-safehouse-primary/5 to-transparent p-6 transition hover:border-safehouse-primary md:p-8">
+           class="donation-feature-card safehouse-accent-panel mb-8 block rounded-2xl p-6 transition md:p-8">
             <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-safehouse-primary">
                 {{ __('site.donations.recurring_badge') }}
             </p>

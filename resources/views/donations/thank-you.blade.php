@@ -22,7 +22,7 @@
         </p>
 
         @if (! empty($isRecurring))
-            <aside class="mx-auto mt-8 max-w-xl rounded-2xl border border-safehouse-primary/35 bg-safehouse-primary/10 p-4 text-start sm:p-5" role="note">
+            <aside class="safehouse-accent-panel mx-auto mt-8 max-w-xl rounded-2xl p-4 text-start sm:p-5" role="note">
                 <h2 class="mb-2 text-sm font-semibold text-safehouse-primary">
                     {{ __('site.donations.thank_you_cancel_title') }}
                 </h2>

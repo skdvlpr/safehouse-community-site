@@ -4,7 +4,6 @@ namespace App\Filament\Resources\PageResource\Support;
 
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
@@ -51,17 +50,15 @@ class PageTemplateFormFields
             ->visible(fn (Get $get): bool => $get('template') === 'about')
             ->columnSpanFull();
 
-        $fields[] = Textarea::make("meta.values.{$locale}")
+        $fields[] = RichEditor::make("meta.values.{$locale}")
             ->label(__('cms.fields.our_values'))
             ->helperText(__('cms.helpers.our_values'))
-            ->rows(8)
             ->visible(fn (Get $get): bool => $get('template') === 'about')
             ->columnSpanFull();
 
-        $fields[] = Textarea::make("meta.closing.{$locale}")
+        $fields[] = RichEditor::make("meta.closing.{$locale}")
             ->label(__('cms.fields.closing_statement'))
             ->helperText(__('cms.helpers.closing_statement'))
-            ->rows(4)
             ->visible(fn (Get $get): bool => $get('template') === 'about')
             ->columnSpanFull();
 
@@ -92,9 +89,8 @@ class PageTemplateFormFields
                 ->label(__('cms.fields.title_locale', ['locale' => $label]))
                 ->maxLength(255);
 
-            $cardFields[] = Textarea::make("body.{$locale}")
-                ->label(__('cms.fields.body_locale', ['locale' => $label]))
-                ->rows(4);
+            $cardFields[] = RichEditor::make("body.{$locale}")
+                ->label(__('cms.fields.body_locale', ['locale' => $label]));
 
             $cardFields[] = TextInput::make("stats.{$locale}")
                 ->label(__('cms.fields.stats_locale', ['locale' => $label]))

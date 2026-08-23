@@ -146,7 +146,9 @@ class PageService
 
     public function hasSlugForLocale(Page $page, string $locale): bool
     {
-        return CanonicalSlug::resolveFromModel($page, 'slug') !== null;
+        $slug = $page->getTranslation('slug', $locale, false);
+
+        return is_string($slug) && trim($slug) !== '';
     }
 
     /**
@@ -154,11 +156,21 @@ class PageService
      */
     public function viewData(Page $page, string $locale, bool $preview = false): array
     {
+        $title = $page->getTranslation('title', $locale, false);
+        if (! is_string($title) || $title === '') {
+            $title = $page->getTranslation('title', $locale);
+        }
+
+        $body = $page->getTranslation('body', $locale, false);
+        if (! is_string($body)) {
+            $body = '';
+        }
+
         $data = [
             'page' => $page,
             'locale' => $locale,
-            'title' => $page->getTranslation('title', $locale),
-            'body' => $page->getTranslation('body', $locale),
+            'title' => $title,
+            'body' => $body,
             'isPreview' => $preview,
             'carouselSlides' => PageCarousel::slides($page->meta, $locale),
         ];

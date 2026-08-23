@@ -36,6 +36,8 @@ class CmsPagesTest extends TestCase
         $this->get('/it/services')
             ->assertOk()
             ->assertSee('data-page-template="services"', false)
+            ->assertSee('template-services-grid', false)
+            ->assertSee('template-service-card--span-full', false)
             ->assertSee('01', false)
             ->assertSee('Aiuti umanitari e unità di strada', false);
     }

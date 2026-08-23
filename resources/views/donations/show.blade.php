@@ -40,7 +40,7 @@
         @csrf
 
         @if ($isRecurring)
-            <aside class="rounded-2xl border border-safehouse-primary/35 bg-safehouse-primary/10 p-4 sm:p-5" role="note">
+            <aside class="safehouse-accent-panel rounded-2xl p-4 sm:p-5" role="note">
                 <h2 class="mb-2 text-sm font-semibold text-safehouse-primary">
                     {{ __('site.donations.cancel_notice_title') }}
                 </h2>

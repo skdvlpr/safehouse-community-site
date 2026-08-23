@@ -21,6 +21,11 @@ return [
             'placeholder' => 'https://www.facebook.com/…',
             'type' => 'url',
         ],
+        'x' => [
+            'label' => 'X',
+            'placeholder' => 'https://x.com/…',
+            'type' => 'url',
+        ],
         'whatsapp' => [
             'label' => 'WhatsApp',
             'placeholder' => 'https://wa.me/39…',
