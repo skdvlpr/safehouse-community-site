@@ -14,6 +14,7 @@ class DesignTokensTest extends TestCase
         $this->assertStringContainsString('--color-safehouse-page: #050505', $css);
         $this->assertStringContainsString('--color-safehouse-primary: #dc2626', $css);
         $this->assertStringContainsString('--safehouse-glass-bg:', $css);
+        $this->assertStringContainsString('--safehouse-divider:', $css);
         $this->assertStringContainsString("font-family: 'JetBrains Sans'", $css);
         $this->assertStringContainsString("url('/images/bg.svg')", $css);
         $this->assertStringContainsString("url('/images/bg-light.svg')", $css);

@@ -17,7 +17,9 @@ class VolunteerFormTest extends TestCase
         $this->get('/it/volunteers')
             ->assertOk()
             ->assertSee(__('site.volunteer.title', [], 'it'), false)
-            ->assertSee('name="gdpr_consent"', false);
+            ->assertSee('name="gdpr_consent"', false)
+            ->assertSee('template-page--volunteer', false)
+            ->assertSee('volunteer-page__panel', false);
     }
 
     public function test_volunteer_form_stores_submission_with_hashed_fingerprint(): void

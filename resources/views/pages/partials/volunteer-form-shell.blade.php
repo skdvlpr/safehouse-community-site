@@ -96,7 +96,7 @@
         @enderror
     </div>
 
-    <button type="submit" class="safehouse-btn-primary w-full">
+    <button type="submit" class="safehouse-btn-primary volunteer-page__submit">
         {{ __('site.volunteer.submit') }}
     </button>
 
