@@ -46,7 +46,7 @@
     }
 
     .dark .cms-brand__label {
-        color: #d5dae4;
+        color: #f2f4f8;
     }
 
     @media (min-width: 640px) {

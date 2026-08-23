@@ -72,6 +72,14 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::GLOBAL_SEARCH_AFTER,
                 fn (): string => view('filament.cms-topbar-actions')->render(),
             )
+            ->renderHook(
+                PanelsRenderHook::FOOTER,
+                fn (): string => view('filament.cms-admin-footer')->render(),
+            )
+            ->renderHook(
+                PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
+                fn (): string => view('filament.cms-powered-by', ['compact' => false])->render(),
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

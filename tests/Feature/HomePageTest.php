@@ -45,6 +45,10 @@ class HomePageTest extends TestCase
             ->assertDontSee('>RU</', false)
             ->assertSee('>EN</', false)
             ->assertSee('Indipendenza', false)
+            ->assertSee('info@safehouse.community', false)
+            ->assertSee('Donated by', false)
+            ->assertSee('GoMercato.it', false)
+            ->assertSee('Strumenti per il tuo business', false)
             ->assertSee('non riceviamo finanziamenti vincolati', false);
     }
 

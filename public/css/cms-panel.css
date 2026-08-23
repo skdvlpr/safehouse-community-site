@@ -1,8 +1,9 @@
-/* Go CMS shell — floating glass sidebar, soft gray topbar, aurora main. */
+/* Go CMS shell — soft light chrome + reworked dark theme. Red accents stay Filament primary. */
 
 :root {
     --cms-shell: #f4f5f8;
     --cms-aurora: url('/images/bg-light.svg');
+    --cms-aurora-dark: url('/images/bg.svg');
     --cms-topbar-ink: #2f3545;
     --cms-brand-ink: #1f2430;
     --cms-sidebar-start: rgba(246, 248, 251, 0.78);
@@ -10,6 +11,9 @@
     --cms-sidebar-end: rgba(236, 241, 246, 0.74);
     --cms-panel: rgba(255, 255, 255, 0.9);
     --cms-panel-border: rgba(55, 65, 81, 0.07);
+    --cms-powered-ink: #5b6475;
+    --cms-powered-muted: #7b8494;
+    --cms-powered-link: #1f2430;
 }
 
 .fi-body {
@@ -32,7 +36,6 @@
     background: transparent !important;
 }
 
-/* Gray → gray header (no pink/red tint) */
 .fi-topbar {
     background:
         linear-gradient(
@@ -70,7 +73,6 @@
     font-weight: 700;
 }
 
-/* Floating sidebar with gap from topbar + soft cool tones */
 .fi-sidebar {
     background:
         linear-gradient(
@@ -85,10 +87,12 @@
 
 @media (min-width: 1024px) {
     .fi-body-has-topbar .fi-sidebar {
-        /* Clear gap under header */
-        top: 5.2rem !important;
-        height: calc(100dvh - 6rem) !important;
-        max-height: calc(100dvh - 6rem);
+        /* Gap under header AND above footer — floating panel */
+        position: sticky !important;
+        top: 5.35rem !important;
+        bottom: 5.75rem !important;
+        height: calc(100dvh - 5.35rem - 5.75rem) !important;
+        max-height: calc(100dvh - 5.35rem - 5.75rem) !important;
         margin-inline-start: 0.75rem;
         border-radius: 1.1rem;
         border: 1px solid rgba(148, 163, 184, 0.28);
@@ -111,6 +115,14 @@
 
     .fi-main-ctn {
         padding-inline-end: 0.4rem;
+        padding-bottom: 0.35rem;
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100dvh - 4rem);
+    }
+
+    .fi-main-ctn > .fi-main {
+        flex: 1 1 auto;
     }
 }
 
@@ -149,7 +161,6 @@
 }
 
 .fi-sidebar .fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-icon {
-    /* keep Filament primary red for active only */
     color: var(--primary-600, #dc2626) !important;
 }
 
@@ -176,52 +187,255 @@
     background-position: center;
 }
 
+/* —— Powered by GoMercato —— */
+.cms-powered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    max-width: 36rem;
+    text-align: start;
+}
+
+.cms-admin-footer {
+    width: 100%;
+    margin: 0.75rem 0.75rem 1rem;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.cms-admin-footer__inner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border-radius: 0.9rem;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    box-shadow:
+        0 8px 24px rgba(15, 23, 42, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.fi-simple-main .cms-powered,
+.fi-simple-page .cms-powered {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(55, 65, 81, 0.1);
+    max-width: none;
+}
+
+.cms-powered__mark {
+    width: 2.25rem;
+    height: 2.25rem;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.cms-powered__copy {
+    min-width: 0;
+}
+
+.cms-powered__line {
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--cms-powered-ink);
+}
+
+.cms-powered__lead {
+    font-weight: 500;
+    color: var(--cms-powered-muted);
+}
+
+.cms-powered__link {
+    color: var(--cms-powered-link);
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.cms-powered__link:hover {
+    color: var(--primary-600, #dc2626);
+    text-decoration: underline;
+}
+
+.cms-powered__rocket {
+    margin-inline-start: 0.15rem;
+}
+
+.cms-powered__tags {
+    margin: 0.2rem 0 0;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: var(--cms-powered-muted);
+}
+
+/* =========================
+   Dark theme — full rework
+   ========================= */
+
+html.dark,
+.dark {
+    --cms-powered-ink: #c5ccd8;
+    --cms-powered-muted: #8b95a8;
+    --cms-powered-link: #f3f5f9;
+}
+
 .dark .fi-body {
-    background-color: #111318 !important;
+    background-color: #0e1218 !important;
     background-image:
-        linear-gradient(
-            165deg,
-            rgba(17, 19, 24, 0.92),
-            rgba(24, 27, 34, 0.88)
-        ),
-        url('/images/bg.svg');
+        radial-gradient(ellipse 90% 55% at 12% -10%, rgba(220, 38, 38, 0.12), transparent 55%),
+        radial-gradient(ellipse 70% 45% at 90% 0%, rgba(56, 90, 140, 0.18), transparent 50%),
+        linear-gradient(165deg, rgba(14, 18, 24, 0.94), rgba(18, 24, 34, 0.9)),
+        var(--cms-aurora-dark);
+    background-size: auto, auto, cover, cover;
+    background-position: center, center, center, center;
+    background-attachment: fixed, fixed, fixed, fixed;
+    color: #e6e9f0 !important;
 }
 
 .dark .fi-topbar {
     background:
         linear-gradient(
             100deg,
-            rgba(34, 38, 46, 0.94),
-            rgba(40, 44, 54, 0.9),
-            rgba(32, 36, 44, 0.94)
+            rgba(28, 35, 48, 0.94) 0%,
+            rgba(34, 42, 58, 0.92) 50%,
+            rgba(26, 33, 46, 0.94) 100%
         ) !important;
-    color: #b6bdca;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.06),
+        0 10px 28px rgba(0, 0, 0, 0.28);
+    color: #d7dde8 !important;
 }
 
 .dark .cms-brand__label,
 .dark .fi-topbar .cms-brand__label {
-    color: #aeb6c6 !important;
+    color: #f2f4f8 !important;
+}
+
+.dark .fi-topbar .fi-icon-btn,
+.dark .fi-topbar .fi-btn,
+.dark .fi-topbar .fi-btn-label,
+.dark .fi-topbar a,
+.dark .fi-topbar button,
+.dark .fi-topbar .fi-btn .fi-icon,
+.dark .fi-topbar .fi-icon-btn .fi-icon {
+    color: #d5dbe6 !important;
 }
 
 .dark .fi-sidebar {
     background:
         linear-gradient(
             175deg,
-            rgba(42, 48, 58, 0.72),
-            rgba(34, 39, 48, 0.62),
-            rgba(38, 44, 54, 0.7)
+            rgba(36, 44, 60, 0.88) 0%,
+            rgba(28, 35, 48, 0.84) 48%,
+            rgba(32, 40, 55, 0.9) 100%
         ) !important;
-    border-color: rgba(148, 163, 184, 0.14);
+    border-color: rgba(148, 163, 184, 0.22) !important;
+    box-shadow:
+        0 16px 40px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
 }
 
-.dark .fi-sidebar .fi-sidebar-item-label,
+@media (min-width: 1024px) {
+    .dark .fi-body-has-topbar .fi-sidebar {
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+}
+
 .dark .fi-sidebar .fi-sidebar-group-label {
-    color: #c2c8d4;
+    color: #93a0b6 !important;
+}
+
+.dark .fi-sidebar .fi-sidebar-item-label {
+    color: #d5dbe8 !important;
+}
+
+.dark .fi-sidebar .fi-sidebar-item-btn > .fi-icon,
+.dark .fi-sidebar .fi-sidebar-group-btn > .fi-icon {
+    color: #9aa8bd !important;
+}
+
+.dark .fi-sidebar .fi-sidebar-item-btn:hover,
+.dark .fi-sidebar .fi-sidebar-group-btn:hover {
+    background-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+.dark .fi-sidebar .fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    background:
+        linear-gradient(
+            90deg,
+            rgba(220, 38, 38, 0.18),
+            rgba(255, 255, 255, 0.06)
+        ) !important;
+    box-shadow: inset 0 0 0 1px rgba(248, 113, 113, 0.28);
+}
+
+.dark .fi-sidebar .fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-icon,
+.dark .fi-sidebar .fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-label {
+    color: #fca5a5 !important;
 }
 
 .dark .fi-section,
 .dark .fi-wi-widget,
 .dark .fi-ta-ctn,
 .dark .fi-simple-main {
-    background-color: rgba(30, 34, 42, 0.88) !important;
+    background-color: rgba(32, 40, 54, 0.92) !important;
+    border-color: rgba(148, 163, 184, 0.16) !important;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.04),
+        0 12px 32px rgba(0, 0, 0, 0.28) !important;
+    color: #e8ebf2;
+}
+
+.dark .fi-simple-layout {
+    background-color: #0e1218;
+    background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(220, 38, 38, 0.14), transparent 55%),
+        linear-gradient(165deg, rgba(14, 18, 24, 0.94), rgba(20, 26, 36, 0.9)),
+        var(--cms-aurora-dark);
+    background-size: auto, cover, cover;
+    background-position: center;
+}
+
+.dark .fi-simple-main .cms-powered,
+.dark .fi-simple-page .cms-powered {
+    border-top-color: rgba(148, 163, 184, 0.18);
+}
+
+.dark .cms-admin-footer__inner {
+    background: rgba(32, 40, 54, 0.88);
+    border-color: rgba(148, 163, 184, 0.2);
+    box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.dark .cms-powered__link:hover {
+    color: #fca5a5;
+}
+
+.dark .fi-header-heading,
+.dark .fi-page > .fi-header h1,
+.dark h1,
+.dark .fi-wi-stats-overview-stat-value {
+    color: #f3f5f9 !important;
+}
+
+.dark .fi-input,
+.dark .fi-select-input,
+.dark .fi-ta-text-input,
+.dark input,
+.dark textarea,
+.dark select {
+    color: #e8ebf2;
 }

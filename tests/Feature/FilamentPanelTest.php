@@ -18,6 +18,9 @@ class FilamentPanelTest extends TestCase
         $response->assertDontSee('cms.brand', false);
         $response->assertSee('go-cms-mark.png', false);
         $response->assertSee('Go CMS', false);
+        $response->assertSee('Powered by', false);
+        $response->assertSee('GoMercato.it', false);
+        $response->assertSee('Strumenti per il tuo business', false);
     }
 
     public function test_admin_path_returns_404(): void

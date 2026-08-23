@@ -282,6 +282,41 @@ html[data-theme='light'] {
         @apply md:w-auto md:shrink-0 md:text-xs md:text-end;
     }
 
+    .site-donated-by {
+        @apply border-t border-white/10 bg-safehouse-modal/40;
+    }
+
+    .site-donated-by__inner {
+        @apply flex items-center justify-center py-1.5;
+    }
+
+    .site-donated-by__banner {
+        @apply inline-flex max-w-full flex-nowrap items-center gap-2 rounded-md px-1.5 py-0.5 no-underline transition;
+        @apply hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-safehouse-primary;
+    }
+
+    .site-donated-by__mark {
+        @apply block h-6 w-6 shrink-0 object-contain sm:h-7 sm:w-7;
+    }
+
+    .site-donated-by__text {
+        @apply m-0 inline-flex min-w-0 flex-nowrap items-center gap-x-1.5 whitespace-nowrap text-xs leading-none text-safehouse-muted sm:text-sm;
+        /* Centered to logo, nudged slightly down for optical mid */
+        transform: translateY(0.1rem);
+    }
+
+    .site-donated-by__brand {
+        @apply font-semibold text-safehouse-text;
+    }
+
+    .site-donated-by__banner:hover .site-donated-by__brand {
+        @apply text-safehouse-link;
+    }
+
+    .site-donated-by__sep {
+        @apply text-safehouse-muted/70;
+    }
+
     .nav-dropdown {
         @apply relative;
     }

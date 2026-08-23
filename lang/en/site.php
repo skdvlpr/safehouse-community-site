@@ -22,6 +22,11 @@ return [
         'tagline' => 'A community of welcome and solidarity.',
         'rights' => '© :year Safe House Community',
     ],
+    'donated_by' => [
+        'label' => 'Donated by',
+        'lead' => 'Donated by',
+        'tags' => 'Tools for your business | AI',
+    ],
     'social' => [
         'nav_label' => 'Social',
     ],

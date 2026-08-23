@@ -2,6 +2,11 @@
 
 return [
     'brand' => 'Go CMS',
+
+    'powered' => [
+        'lead' => 'Powered by',
+        'tags' => 'Tools for your business · AI · Tailored CRM',
+    ],
     'nav' => [
         'groups' => [
             'fundraising' => 'Fundraising',

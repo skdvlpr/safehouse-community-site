@@ -22,6 +22,11 @@ return [
         'tagline' => 'Comunità di accoglienza e solidarietà.',
         'rights' => '© :year Safe House Community',
     ],
+    'donated_by' => [
+        'label' => 'Donated by',
+        'lead' => 'Donated by',
+        'tags' => 'Strumenti per il tuo business | AI',
+    ],
     'social' => [
         'nav_label' => 'Social',
     ],

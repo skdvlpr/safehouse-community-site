@@ -41,6 +41,7 @@
     </main>
 
     @include('layouts.partials.footer')
+    @include('layouts.partials.donated-by-footer')
 
     @include('layouts.partials.cookie-banner')
 

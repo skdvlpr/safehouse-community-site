@@ -4,6 +4,11 @@ return [
 
     'brand' => 'Go CMS',
 
+    'powered' => [
+        'lead' => 'Powered by',
+        'tags' => 'Strumenti per il tuo business · AI · CRM su misura',
+    ],
+
     'nav' => [
         'groups' => [
             'fundraising' => 'Raccolte fondi',
