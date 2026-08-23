@@ -34,6 +34,7 @@
 
 .fi-main-ctn {
     background: transparent !important;
+    padding-bottom: 3.1rem; /* room for fixed full-width footer */
 }
 
 .fi-topbar {
@@ -87,19 +88,17 @@
 
 @media (min-width: 1024px) {
     .fi-body-has-topbar .fi-sidebar {
-        /* Gap under header AND above footer — floating panel */
+        /* Flush with topbar and fixed footer — no floating gaps */
         position: sticky !important;
-        top: 5.35rem !important;
-        bottom: 5.75rem !important;
-        height: calc(100dvh - 5.35rem - 5.75rem) !important;
-        max-height: calc(100dvh - 5.35rem - 5.75rem) !important;
-        margin-inline-start: 0.75rem;
-        border-radius: 1.1rem;
-        border: 1px solid rgba(148, 163, 184, 0.28);
-        box-shadow:
-            0 12px 32px rgba(15, 23, 42, 0.06),
-            0 1px 0 rgba(255, 255, 255, 0.7) inset,
-            0 0 0 1px rgba(125, 145, 170, 0.08);
+        top: 4rem !important;
+        bottom: auto !important;
+        height: calc(100dvh - 4rem - 3.1rem) !important;
+        max-height: calc(100dvh - 4rem - 3.1rem) !important;
+        margin-inline: 0 !important;
+        border-radius: 0;
+        border: none;
+        border-inline-end: 1px solid rgba(148, 163, 184, 0.28);
+        box-shadow: none;
     }
 
     .fi-sidebar.fi-sidebar-open,
@@ -114,8 +113,7 @@
     }
 
     .fi-main-ctn {
-        padding-inline-end: 0.4rem;
-        padding-bottom: 0.35rem;
+        padding-inline-end: 0;
         display: flex;
         flex-direction: column;
         min-height: calc(100dvh - 4rem);
@@ -123,6 +121,7 @@
 
     .fi-main-ctn > .fi-main {
         flex: 1 1 auto;
+        padding-inline-end: 0.4rem;
     }
 }
 
@@ -200,10 +199,16 @@
 }
 
 .cms-admin-footer {
-    width: 100%;
-    margin: 0.75rem 0.75rem 1rem;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    max-width: 100%;
+    margin: 0;
     padding: 0;
     box-sizing: border-box;
+    z-index: 40;
 }
 
 .cms-admin-footer__inner {
@@ -211,15 +216,14 @@
     justify-content: center;
     align-items: center;
     width: 100%;
-    padding: 0.7rem 1rem;
-    border-radius: 0.9rem;
-    background: rgba(255, 255, 255, 0.78);
-    border: 1px solid rgba(148, 163, 184, 0.28);
-    box-shadow:
-        0 8px 24px rgba(15, 23, 42, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    padding: 0.45rem 1rem;
+    border-radius: 0;
+    background: rgba(255, 255, 255, 0.94);
+    border: none;
+    border-top: 1px solid rgba(148, 163, 184, 0.28);
+    box-shadow: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .fi-simple-main .cms-powered,
@@ -239,13 +243,17 @@
 
 .cms-powered__copy {
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.05rem;
 }
 
 .cms-powered__line {
     margin: 0;
     font-size: 0.8125rem;
     font-weight: 600;
-    line-height: 1.35;
+    line-height: 1.2;
     color: var(--cms-powered-ink);
 }
 
@@ -270,9 +278,9 @@
 }
 
 .cms-powered__tags {
-    margin: 0.2rem 0 0;
+    margin: 0;
     font-size: 0.75rem;
-    line-height: 1.35;
+    line-height: 1.2;
     color: var(--cms-powered-muted);
 }
 
@@ -345,10 +353,9 @@ html.dark,
 
 @media (min-width: 1024px) {
     .dark .fi-body-has-topbar .fi-sidebar {
-        border: 1px solid rgba(148, 163, 184, 0.2);
-        box-shadow:
-            0 18px 44px rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        border: none;
+        border-inline-end: 1px solid rgba(148, 163, 184, 0.2);
+        box-shadow: none;
     }
 }
 
@@ -413,11 +420,9 @@ html.dark,
 }
 
 .dark .cms-admin-footer__inner {
-    background: rgba(32, 40, 54, 0.88);
-    border-color: rgba(148, 163, 184, 0.2);
-    box-shadow:
-        0 10px 28px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    background: rgba(28, 35, 48, 0.96);
+    border-top-color: rgba(148, 163, 184, 0.2);
+    box-shadow: none;
 }
 
 .dark .cms-powered__link:hover {
