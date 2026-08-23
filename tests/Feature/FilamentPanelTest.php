@@ -16,7 +16,8 @@ class FilamentPanelTest extends TestCase
         $response->assertSee('favicon.svg', false);
         $response->assertSee('Accedi', false);
         $response->assertDontSee('cms.brand', false);
-        $response->assertSee('Safehouse CMS', false);
+        $response->assertSee('go-cms-mark.png', false);
+        $response->assertSee('Go CMS', false);
     }
 
     public function test_admin_path_returns_404(): void

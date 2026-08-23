@@ -16,6 +16,7 @@ return [
         'donate' => 'Dona ora',
         'menu' => 'Menu',
         'other_pages' => 'Altre Pagine',
+        'language' => 'Lingua',
     ],
     'footer' => [
         'tagline' => 'Comunità di accoglienza e solidarietà.',
@@ -32,6 +33,7 @@ return [
     ],
     'display_prefs' => [
         'label' => 'Tema e lingua',
+        'theme_label' => 'Tema',
     ],
     'home' => [
         'title' => 'Safe House Community',
@@ -40,6 +42,10 @@ return [
         'cta_donate' => 'Sostieni una raccolta',
         'cta_volunteer' => 'Diventa volontario',
         'cta_contact' => 'Contattaci',
+        'independence' => [
+            'title' => 'Indipendenza',
+            'body' => 'non riceviamo finanziamenti vincolati e non veicoliamo pubblicità. Le nostre attività sono sostenute da soci, donatori, bandi pubblici e collaborazioni con altre realtà del terzo settore.',
+        ],
         'manifesto' => [
             'quote' => "NESSUNA LINEA TRACCIATA DA UN GOVERNO PUÒ CANCELLARE IL\nDIRITTO DI UN ESSERE UMANO A CERCARE IL PROPRIO FUTURO.\nNESSUN ESSERE UMANO È ILLEGALE, I CONFINI SONO LINEE SULLE\nMAPPE, LA LIBERTÀ INVECE È UN DIRITTO.\nNON SIAMO PROPRIETÀ DEI GOVERNI",
             'author' => 'Matteo Grossi — Fondatore Safe House',
@@ -48,6 +54,10 @@ return [
                 'include' => 'INCLUDERE',
                 'change' => 'Cambiare',
                 'smile' => 'SORRIDERE',
+            ],
+            'emails' => [
+                'info@safehouse.community',
+                'theprojectsafehouse@gmail.com',
             ],
             'email' => 'theprojectsafehouse@gmail.com',
             'brand' => 'SAFE HOUSE',

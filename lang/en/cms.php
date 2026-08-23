@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'brand' => 'Safehouse CMS',
+    'brand' => 'Go CMS',
     'nav' => [
         'groups' => [
             'fundraising' => 'Fundraising',
@@ -103,6 +103,8 @@ return [
         'background_from_library' => 'Choose from uploaded files',
         'background_upload' => 'Or upload a new file',
         'primary_tagline' => 'Primary tagline',
+        'home_independence_title' => 'Independence banner title',
+        'home_independence_body' => 'Independence banner text',
         'publishable_key' => 'Publishable key',
         'secret_key' => 'Secret key',
         'webhook_secret' => 'Webhook signing secret',
@@ -175,6 +177,7 @@ return [
         'site_background' => 'Site background',
         'page_background' => 'Page background',
         'site_tagline' => 'Site tagline',
+        'home_independence' => 'Independence banner (home)',
         'stripe_payments' => 'Stripe payments',
         'crm_api' => 'CRM API',
         'prima_nota_defaults' => 'Prima Nota defaults',
@@ -227,6 +230,9 @@ return [
         'espocrm_finanziamento' => 'Filled automatically when saving the campaign. Edit only if the CRM name must differ from the campaign title.',
         'primary_tagline' => 'Tagline in the footer and subtitle on the home page.',
         'site_tagline' => 'A shared slogan for the footer and home hero.',
+        'home_independence' => 'Shown on the home page between the quote and the impact counters.',
+        'home_independence_title' => 'Emphasized word (e.g. Independence).',
+        'home_independence_body' => 'Text after the colon.',
         'stripe_publishable' => 'pk_test_… for testing, pk_live_… for production.',
         'stripe_secret' => 'Stored encrypted. Leave empty to keep the current value on save.',
         'stripe_webhook' => 'whsec_… from the Stripe Dashboard or stripe listen.',
@@ -326,6 +332,7 @@ return [
         'back_to_site' => 'Back to site',
     ],
     'locale' => [
+        'label' => 'CMS language',
         'switch_to' => 'Switch to :locale',
         'names' => [
             'it' => 'Italian',

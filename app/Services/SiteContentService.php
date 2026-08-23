@@ -18,6 +18,16 @@ class SiteContentService
         return trim(preg_replace('/\s+/u', ' ', $text) ?? '');
     }
 
+    public function homeIndependenceTitle(?string $locale = null): string
+    {
+        return trim($this->translatable('content.home_independence_title', $locale));
+    }
+
+    public function homeIndependenceBody(?string $locale = null): string
+    {
+        return trim($this->translatable('content.home_independence_body', $locale));
+    }
+
     public function translatable(string $key, ?string $locale = null): string
     {
         $locale ??= app()->getLocale();

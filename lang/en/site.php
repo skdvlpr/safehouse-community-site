@@ -16,6 +16,7 @@ return [
         'donate' => 'Donate',
         'menu' => 'Menu',
         'other_pages' => 'Other pages',
+        'language' => 'Language',
     ],
     'footer' => [
         'tagline' => 'A community of welcome and solidarity.',
@@ -32,6 +33,7 @@ return [
     ],
     'display_prefs' => [
         'label' => 'Theme and language',
+        'theme_label' => 'Theme',
     ],
     'home' => [
         'title' => 'Safe House Community',
@@ -40,6 +42,10 @@ return [
         'cta_donate' => 'Support a campaign',
         'cta_volunteer' => 'Become a volunteer',
         'cta_contact' => 'Contact us',
+        'independence' => [
+            'title' => 'Independence',
+            'body' => 'we do not receive tied funding and we do not carry advertising. Our work is supported by members, donors, public grants, and partnerships with other third-sector organisations.',
+        ],
         'manifesto' => [
             'quote' => "NO LINE DRAWN BY A GOVERNMENT CAN ERASE\nA HUMAN BEING'S RIGHT TO SEEK THEIR OWN FUTURE.\nNO HUMAN BEING IS ILLEGAL — BORDERS ARE LINES ON\nMAPS; FREEDOM IS A RIGHT.\nWE ARE NOT THE PROPERTY OF GOVERNMENTS",
             'author' => 'Matteo Grossi — Founder of Safe House',
@@ -48,6 +54,10 @@ return [
                 'include' => 'INCLUDE',
                 'change' => 'Change',
                 'smile' => 'SMILE',
+            ],
+            'emails' => [
+                'info@safehouse.community',
+                'theprojectsafehouse@gmail.com',
             ],
             'email' => 'theprojectsafehouse@gmail.com',
             'brand' => 'SAFE HOUSE',

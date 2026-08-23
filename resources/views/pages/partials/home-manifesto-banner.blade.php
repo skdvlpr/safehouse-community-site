@@ -17,14 +17,22 @@
 
         <p class="home-manifesto__slogan">
             <span>{{ __('site.home.manifesto.slogan.welcome') }}</span>
+            <span class="home-manifesto__slogan-dot" aria-hidden="true">&bull;</span>
             <strong>{{ __('site.home.manifesto.slogan.include') }}</strong>
+            <span class="home-manifesto__slogan-dot" aria-hidden="true">&bull;</span>
             <span>{{ __('site.home.manifesto.slogan.change') }}</span>
+            <span class="home-manifesto__slogan-dot" aria-hidden="true">&bull;</span>
             <strong>{{ __('site.home.manifesto.slogan.smile') }}</strong>
         </p>
 
-        <a class="home-manifesto__email" href="mailto:{{ __('site.home.manifesto.email') }}">
-            {{ __('site.home.manifesto.email') }}
-        </a>
+        <div class="home-manifesto__emails">
+            @foreach (__('site.home.manifesto.emails') as $email)
+                <a class="home-manifesto__email" href="mailto:{{ $email }}">{{ $email }}</a>
+                @if (! $loop->last)
+                    <br>
+                @endif
+            @endforeach
+        </div>
 
         <div class="home-manifesto__brand">
             <img

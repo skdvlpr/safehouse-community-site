@@ -5,7 +5,6 @@ namespace App\Providers\Filament;
 use App\Http\Controllers\Cms\CmsLocaleController;
 use App\Http\Middleware\SetCmsLocale;
 use App\Services\CmsUiLocale;
-use Filament\Actions\Action;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -14,7 +13,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Support\Icons\Heroicon;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -22,6 +21,7 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -33,6 +33,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('cms-safehouse')
             ->path(env('FILAMENT_PATH', 'cms-safehouse'))
             ->brandName(fn (): string => __('cms.brand'))
+            ->brandLogo(fn (): HtmlString => new HtmlString(
+                view('filament.cms-brand')->render()
+            ))
+            ->brandLogoHeight('2.75rem')
             ->favicon(asset('favicon.svg'))
             ->login()
             ->colors([
@@ -55,15 +59,19 @@ class AdminPanelProvider extends PanelProvider
                     ->whereIn('locale', app(CmsUiLocale::class)->available())
                     ->name('locale.update');
             })
-            ->userMenuItems([
-                Action::make('backToSite')
-                    ->label(fn (): string => __('cms.actions.back_to_site'))
-                    ->icon(Heroicon::OutlinedArrowTopRightOnSquare)
-                    ->url(fn (): string => app(CmsUiLocale::class)->publicSiteUrl())
-                    ->openUrlInNewTab()
-                    ->sort(5),
-                ...$this->cmsLocaleMenuActions(),
-            ])
+            ->renderHook(
+                PanelsRenderHook::STYLES_AFTER,
+                function (): string {
+                    $path = public_path('css/cms-panel.css');
+                    $version = is_file($path) ? (string) filemtime($path) : '1';
+
+                    return '<link rel="stylesheet" href="'.e(asset('css/cms-panel.css')).'?v='.$version.'">';
+                },
+            )
+            ->renderHook(
+                PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+                fn (): string => view('filament.cms-topbar-actions')->render(),
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -79,26 +87,5 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
-    }
-
-    /**
-     * @return list<Action>
-     */
-    private function cmsLocaleMenuActions(): array
-    {
-        $actions = [];
-        $sort = 10;
-
-        foreach (app(CmsUiLocale::class)->available() as $locale) {
-            $actions[] = Action::make('cmsLocale_'.$locale)
-                ->label(fn () => __('cms.locale.switch_to', ['locale' => __('cms.locale.names.'.$locale)]))
-                ->icon(Heroicon::OutlinedLanguage)
-                ->url(fn (): string => filament()->getPanel('cms-safehouse')->route('locale.update', ['locale' => $locale]))
-                ->postToUrl()
-                ->visible(fn (): bool => app()->getLocale() !== $locale)
-                ->sort($sort++);
-        }
-
-        return $actions;
     }
 }

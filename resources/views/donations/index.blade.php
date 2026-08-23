@@ -8,8 +8,8 @@
         $five = $donationSettings->fivePerMille();
     @endphp
 
-    <h1 class="mb-2 text-3xl font-semibold">{{ __('site.donations.index_title') }}</h1>
-    <p class="mb-8 text-safehouse-muted">{{ __('site.donations.index_lead') }}</p>
+    <h1 class="photo-legible-text mb-2 text-3xl font-semibold">{{ __('site.donations.index_title') }}</h1>
+    <p class="photo-legible-text donations-index__lead mb-8 text-safehouse-muted">{{ __('site.donations.index_lead') }}</p>
 
     @if ($donationSettings->fivePerMilleEnabled())
         <a href="{{ route('donations.five-per-mille', ['locale' => $locale]) }}"
@@ -53,7 +53,7 @@
         </a>
     @endif
 
-    <h2 class="mb-4 text-xl font-semibold">{{ __('site.donations.online_campaigns_heading') }}</h2>
+    <h2 class="photo-legible-text mb-4 text-xl font-semibold">{{ __('site.donations.online_campaigns_heading') }}</h2>
 
     <div class="space-y-4">
         @forelse ($campaigns as $campaign)
@@ -70,7 +70,7 @@
                 @endif
             </a>
         @empty
-            <p class="text-safehouse-muted">{{ __('Nessuna raccolta attiva al momento.') }}</p>
+            <p class="photo-legible-text text-safehouse-muted">{{ __('Nessuna raccolta attiva al momento.') }}</p>
         @endforelse
     </div>
 @endsection

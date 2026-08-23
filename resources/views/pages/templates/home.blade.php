@@ -49,10 +49,12 @@
             </div>
         </section>
 
+        @include('pages.partials.home-manifesto-banner')
+
+        @include('pages.partials.home-independence-banner', ['locale' => $locale])
+
         <section class="mb-10" aria-label="{{ __('site.home.stats.heading') }}">
             @include('pages.partials.home-impact-stats', ['impactStats' => $impactStats])
         </section>
-
-        @include('pages.partials.home-manifesto-banner')
     </x-page-template-shell>
 @endsection

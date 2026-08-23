@@ -2,7 +2,7 @@
 
 return [
 
-    'brand' => 'Safehouse CMS',
+    'brand' => 'Go CMS',
 
     'nav' => [
         'groups' => [
@@ -107,6 +107,8 @@ return [
         'background_from_library' => 'Scegli tra i file già caricati',
         'background_upload' => 'Oppure carica un nuovo file',
         'primary_tagline' => 'Slogan principale',
+        'home_independence_title' => 'Titolo banner indipendenza',
+        'home_independence_body' => 'Testo banner indipendenza',
         'publishable_key' => 'Chiave pubblicabile',
         'secret_key' => 'Chiave segreta',
         'webhook_secret' => 'Segreto firma webhook',
@@ -181,6 +183,7 @@ return [
         'site_background' => 'Sfondo del sito',
         'page_background' => 'Sfondo pagina',
         'site_tagline' => 'Slogan del sito',
+        'home_independence' => 'Banner indipendenza (home)',
         'stripe_payments' => 'Pagamenti Stripe',
         'crm_api' => 'API CRM',
         'prima_nota_defaults' => 'Predefiniti Prima Nota',
@@ -234,6 +237,9 @@ return [
         'espocrm_finanziamento' => 'Compilato automaticamente al salvataggio della campagna. Modifica solo se il nome in CRM deve differire dal titolo della campagna.',
         'primary_tagline' => 'Slogan nel footer e sottotitolo nella home page.',
         'site_tagline' => 'Uno slogan condiviso per footer e hero della home page.',
+        'home_independence' => 'Mostrato sulla home tra la citazione e i contatori di impatto.',
+        'home_independence_title' => 'Parola in evidenza (es. Indipendenza).',
+        'home_independence_body' => 'Testo dopo i due punti.',
         'stripe_publishable' => 'pk_test_… per i test, pk_live_… per la produzione.',
         'stripe_secret' => 'Memorizzata cifrata. Lascia vuoto per mantenere il valore attuale al salvataggio.',
         'stripe_webhook' => 'whsec_… dalla Dashboard Stripe o stripe listen.',
@@ -337,6 +343,7 @@ return [
     ],
 
     'locale' => [
+        'label' => 'Lingua CMS',
         'switch_to' => 'Passa a :locale',
         'names' => [
             'it' => 'Italiano',

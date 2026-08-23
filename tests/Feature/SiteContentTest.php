@@ -44,4 +44,28 @@ class SiteContentTest extends TestCase
         $this->assertSame('Nuovo slogan italiano.', $content->primaryTagline('it'));
         $this->assertSame('New English tagline.', $content->primaryTagline('en'));
     }
+
+    public function test_home_independence_banner_is_editable_and_rendered(): void
+    {
+        $this->seed(PageSeeder::class);
+
+        $content = app(SiteContentService::class);
+        $content->updateFromFormState([
+            'content' => [
+                'home_independence_title' => [
+                    'it' => 'Indipendenza',
+                ],
+                'home_independence_body' => [
+                    'it' => 'testo banner CMS.',
+                ],
+            ],
+        ]);
+        $content->forgetCache();
+
+        $this->get('/it')
+            ->assertOk()
+            ->assertSee('home-independence', false)
+            ->assertSee('Indipendenza', false)
+            ->assertSee('testo banner CMS.', false);
+    }
 }

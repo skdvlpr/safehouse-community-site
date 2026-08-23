@@ -23,7 +23,7 @@
             @include('layouts.partials.display-prefs')
 
             <a href="{{ route('donations.index', ['locale' => $locale]) }}"
-               class="safehouse-btn-primary hidden whitespace-nowrap sm:inline-flex">
+               class="safehouse-btn-primary site-header__donate whitespace-nowrap">
                 {{ __('site.nav.donate') }}
             </a>
 
@@ -35,10 +35,6 @@
                     @foreach ($navItems as $item)
                         @include('layouts.partials.nav-item-mobile', ['item' => $item, 'locale' => $locale])
                     @endforeach
-                    <a href="{{ route('donations.index', ['locale' => $locale]) }}"
-                       class="safehouse-btn-primary mt-2 block text-center">
-                        {{ __('site.nav.donate') }}
-                    </a>
                 </div>
             </details>
         </div>

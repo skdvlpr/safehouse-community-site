@@ -23,6 +23,7 @@ class HomePageTest extends TestCase
             ->assertSee('Safe House Community', false)
             ->assertSee('NESSUN ESSERE UMANO È ILLEGALE', false)
             ->assertSee('Matteo Grossi', false)
+            ->assertSee('info@safehouse.community', false)
             ->assertSee('theprojectsafehouse@gmail.com', false)
             ->assertSee('images/logo.png', false)
             ->assertDontSee('Dati aggiornati — collegamento al CRM in arrivo', false)
@@ -36,10 +37,15 @@ class HomePageTest extends TestCase
             ->assertSee('data-theme-option="light"', false)
             ->assertSee('data-theme-option="dark"', false)
             ->assertSee('data-theme-option="system"', false)
+            ->assertDontSee('locale-switcher', false)
+            ->assertSee('site-header__donate', false)
+            ->assertSee('Dona ora', false)
             ->assertSee('safehouse.theme', false)
             ->assertSee('>IT</', false)
             ->assertDontSee('>RU</', false)
-            ->assertSee('>EN</', false);
+            ->assertSee('>EN</', false)
+            ->assertSee('Indipendenza', false)
+            ->assertSee('non riceviamo finanziamenti vincolati', false);
     }
 
     public function test_home_impact_stats_use_crm_totals(): void
