@@ -8,9 +8,29 @@ abstract class TestCase extends BaseTestCase
 {
     protected function setUp(): void
     {
+        $this->ensureTestingAppKey();
         $this->ensureTestingDatabaseConfig();
 
         parent::setUp();
+    }
+
+    /**
+     * Provide a test-only APP_KEY without committing a real key (GitGuardian).
+     * Derived at runtime so no base64 APP_KEY literal lives in the repo.
+     */
+    protected function ensureTestingAppKey(): void
+    {
+        $existing = (string) (getenv('APP_KEY') ?: ($_ENV['APP_KEY'] ?? ''));
+
+        if ($existing !== '') {
+            return;
+        }
+
+        $key = 'base64:'.base64_encode(hash('sha256', 'safehouse-community-site-phpunit', true));
+
+        $_ENV['APP_KEY'] = $key;
+        $_SERVER['APP_KEY'] = $key;
+        putenv('APP_KEY='.$key);
     }
 
     /**
