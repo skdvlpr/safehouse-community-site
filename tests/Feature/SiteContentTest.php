@@ -12,7 +12,7 @@ class SiteContentTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_primary_tagline_is_shared_between_footer_and_home(): void
+    public function test_primary_tagline_is_shown_in_footer_not_as_home_manifesto(): void
     {
         $this->seed(DeploySiteContentSeeder::class);
         $this->seed(PageSeeder::class);
@@ -23,7 +23,10 @@ class SiteContentTest extends TestCase
 
         $this->get('/it')
             ->assertOk()
-            ->assertSee($tagline, false);
+            ->assertSee($tagline, false)
+            ->assertSee(__('site.footer.tagline', [], 'it'), false)
+            ->assertSee('Accogliere', false)
+            ->assertSee('INCLUDERE', false);
     }
 
     public function test_primary_tagline_persists_from_nested_filament_form_state(): void

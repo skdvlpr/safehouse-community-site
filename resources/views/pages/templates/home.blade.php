@@ -13,7 +13,7 @@
         $ctaContact = $pages->localizedMeta($page->meta, 'cta_contact', $locale)
             ?: __('site.home.cta_contact');
         $contactUrl = \App\Support\Navigation::url(['page_key' => 'contact'], $locale);
-        $primaryTagline = app(\App\Services\SiteContentService::class)->primaryTagline($locale);
+        $communityTagline = __('site.footer.tagline');
     @endphp
 
     <x-page-template-shell :page="$page">
@@ -28,9 +28,9 @@
                 {{ $title }}
             </h1>
 
-            @if ($primaryTagline !== '')
+            @if ($communityTagline !== '')
                 <p class="mb-8 max-w-2xl text-lg text-safehouse-muted lg:max-w-none lg:text-xl xl:whitespace-nowrap">
-                    {{ $primaryTagline }}
+                    {{ $communityTagline }}
                 </p>
             @endif
 
