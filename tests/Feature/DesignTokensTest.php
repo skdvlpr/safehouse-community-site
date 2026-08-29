@@ -22,8 +22,7 @@ class DesignTokensTest extends TestCase
         $this->assertStringContainsString('.safehouse-accent-panel', $css);
         $this->assertStringContainsString('.template-services-grid', $css);
         $this->assertStringContainsString('.nav-dropdown__panel', $css);
-        $this->assertStringContainsString('var(--color-safehouse-page)', $css);
-        $this->assertStringNotContainsString('bg-safehouse-modal/98', $css);
+        $this->assertStringContainsString('bg-safehouse-page/90', $css);
         $this->assertStringNotContainsString('bg-[#050505]/98', $css);
     }
 
