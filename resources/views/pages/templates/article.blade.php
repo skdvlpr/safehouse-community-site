@@ -14,7 +14,7 @@
                 'fallbackKey' => 'site.pages.templates.article',
             ])
 
-            <div class="template-article-meta">
+            <div class="template-article-meta photo-legible-text">
                 <span>{{ __('site.pages.article_label') }}</span>
                 <span aria-hidden="true">·</span>
                 <time datetime="{{ $page->updated_at?->toDateString() }}">

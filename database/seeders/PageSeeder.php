@@ -240,9 +240,9 @@ class PageSeeder extends Seeder
                     'en' => 'article-example',
                 ],
                 'body' => [
-                    'it' => '<p>Template articolo per approfondimenti, testimonianze e rassegna stampa. Tipografia da lettura lunga e data di aggiornamento in evidenza.</p><p>Usa questa pagina come esempio di contenuto editoriale curato dal CMS.</p>',
-                    'en' => '<p>Article template for in-depth stories, testimonials, and press reviews. Long-read typography with a visible updated date.</p><p>Use this page as an example of editorial content managed in the CMS.</p>',
-                    'ru' => '<p>Шаблон статьи для материалов, историй и обзора прессы. Типографика для длинного чтения с датой обновления.</p><p>Пример редакционного контента из CMS.</p>',
+                    'it' => '<p>Template articolo per approfondimenti, testimonianze e rassegna stampa. Tipografia da lettura lunga e data di aggiornamento in evidenza.</p><p>Usa questa pagina come esempio di contenuto editoriale curato.</p>',
+                    'en' => '<p>Article template for in-depth stories, testimonials, and press reviews. Long-read typography with a visible updated date.</p><p>Use this page as an example of curated editorial content.</p>',
+                    'ru' => '<p>Шаблон статьи для материалов, историй и обзора прессы. Типографика для длинного чтения с датой обновления.</p><p>Пример редакционного контента.</p>',
                 ],
             ],
         );
@@ -264,9 +264,9 @@ class PageSeeder extends Seeder
                     'en' => 'transparency',
                 ],
                 'body' => [
-                    'it' => '<p>Pubblichiamo annualmente bilancio sociale, rendicontazione delle raccolte e informazioni sul governo associativo. Questa pagina è un esempio di contenuto aggiuntivo gestito dal CMS e visibile nel menu <strong>Altre Pagine</strong>.</p><p>Per richieste specifiche scrivi a <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>',
-                    'en' => '<p>We publish an annual social report, fundraising summaries, and governance information. This page is an example of extra CMS content shown under <strong>Other pages</strong> in the menu.</p><p>For specific requests email <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>',
-                    'ru' => '<p>Мы публикуем годовой социальный отчёт, сводки по сборам и информацию об управлении ассоциацией. Эта страница — пример дополнительного CMS-контента в меню <strong>Другие страницы</strong>.</p><p>По запросам: <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>',
+                    'it' => '<p>Pubblichiamo annualmente bilancio sociale, rendicontazione delle raccolte e informazioni sul governo associativo. Questa pagina è un esempio di contenuto aggiuntivo visibile nel menu <strong>Altre Pagine</strong>.</p><p>Per richieste specifiche scrivi a <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>',
+                    'en' => '<p>We publish an annual social report, fundraising summaries, and governance information. This page is an example of extra content shown under <strong>Other pages</strong> in the menu.</p><p>For specific requests email <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>',
+                    'ru' => '<p>Мы публикуем годовой социальный отчёт, сводки по сборам и информацию об управлении ассоциацией. Эта страница — пример дополнительного контента в меню <strong>Другие страницы</strong>.</p><p>По запросам: <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>',
                 ],
             ],
         );
@@ -339,9 +339,9 @@ class PageSeeder extends Seeder
                         'ru' => $isPrivacy ? 'privacy-policy' : 'cookie-policy',
                     ],
                     'body' => [
-                        'it' => '<p>Contenuto da impostare in CMS (oneshot legale già applicato o rimosso).</p>',
-                        'en' => '<p>Set content in CMS (legal oneshot already applied or removed).</p>',
-                        'ru' => '<p>Заполните текст в CMS (legal oneshot уже применён или удалён).</p>',
+                        'it' => '<p>Contenuto in aggiornamento. Torna a breve oppure contattaci a <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>',
+                        'en' => '<p>Content is being updated. Please check back soon or contact us at <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>',
+                        'ru' => '<p>Контент обновляется. Загляните позже или напишите на <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>',
                     ],
                 ]);
             });

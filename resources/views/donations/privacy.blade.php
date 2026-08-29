@@ -17,7 +17,7 @@
             {!! nl2br(e($privacy)) !!}
         @else
             <p>{{ __('I pagamenti sono elaborati da Stripe Inc. Safe House non memorizza numeri di carta, CVV o dati di autenticazione bancaria.') }}</p>
-            <p>{{ __('Conserviamo solo nome del donatore, importo, valuta e commento opzionale, registrati nel nostro CRM per contabilità.') }}</p>
+            <p>{{ __('Conserviamo solo nome del donatore, importo, valuta e commento opzionale, registrati nei nostri sistemi di contabilità.') }}</p>
         @endif
     </div>
 

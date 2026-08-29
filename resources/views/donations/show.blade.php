@@ -86,7 +86,7 @@
                 <input type="hidden" id="donor_phone_country" name="donor_phone_country" value="">
             </div>
         </div>
-        <p class="text-xs text-safehouse-muted">{{ __('Inserisci almeno un\'email o un numero di telefono per collegare la donazione al CRM.') }}</p>
+        <p class="text-xs text-safehouse-muted">{{ __('Inserisci almeno un\'email o un numero di telefono per collegare la donazione al tuo profilo di donatore.') }}</p>
 
         <div class="space-y-2">
             <label for="comment" class="block text-sm font-medium">{{ __('Commento (opzionale)') }}</label>

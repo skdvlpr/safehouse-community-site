@@ -16,7 +16,7 @@
         <div class="mb-2 flex flex-wrap items-center gap-3">
             @if ($article->published_at)
                 <time datetime="{{ $article->published_at->toDateString() }}"
-                      class="text-xs uppercase tracking-wide text-safehouse-muted">
+                      class="photo-legible-text text-xs font-semibold uppercase tracking-wide text-safehouse-text">
                     {{ $article->published_at->locale($locale)->isoFormat('LL') }}
                 </time>
             @endif

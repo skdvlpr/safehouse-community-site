@@ -6,8 +6,7 @@ namespace Database\Seeders\Data;
 
 /**
  * Operational Privacy + Cookie policy copy for Safe House ETS.
- * Consumed once by LegalPagesSeeder (self-deletes after successful non-test run).
- * Pending counsel review — facts may be refined (address, DPO, exact Aruba email product).
+ * Upserted by LegalPagesSeeder (oneshot) or `php artisan site:sync-legal-pages`.
  */
 final class LegalPagesContent
 {
@@ -61,15 +60,14 @@ final class LegalPagesContent
     private static function privacyIt(): string
     {
         return <<<'HTML'
-<p><strong>Versione operativa:</strong> 11 agosto 2026. Titolare: <strong>Safe House ETS</strong> (Codice Fiscale <strong>96629270586</strong>). Questo testo è la policy in vigore per sito e CRM; potrà essere raffinato dopo revisione legale (indirizzo della sede, DPO, dettagli Aruba).</p>
+<p><strong>Versione operativa:</strong> 11 agosto 2026. Titolare: <strong>Safe House ETS</strong> (Codice Fiscale <strong>96629270586</strong>). Questo testo è la policy in vigore per il sito pubblico e i trattamenti collegati all’attività associativa.</p>
 
 <h2>1. Titolare del trattamento</h2>
 <p>Il titolare del trattamento è <strong>Safe House ETS</strong>, ente del Terzo settore, Codice Fiscale <strong>96629270586</strong>.</p>
 <ul>
 <li><strong>Sito pubblico:</strong> <a href="https://safehouse.community">https://safehouse.community</a></li>
-<li><strong>CRM (uso interno):</strong> <a href="https://crm.safehouse.community">https://crm.safehouse.community</a></li>
 <li><strong>Contatti privacy / generali:</strong> <a href="mailto:info@safehouse.community">info@safehouse.community</a></li>
-<li><strong>Sede legale:</strong> Italia — indirizzo completo da aggiornare nella prossima revisione</li>
+<li><strong>Sede legale:</strong> Italia</li>
 </ul>
 <p>Non risulta nominato un DPO (Data Protection Officer) al momento della pubblicazione; in caso di nomina, i riferimenti saranno aggiornati qui.</p>
 
@@ -77,10 +75,10 @@ final class LegalPagesContent
 <p>Questa informativa riguarda:</p>
 <ul>
 <li>i visitatori e gli utenti del sito <strong>safehouse.community</strong> (form, donazioni, cookie);</li>
-<li>i trattamenti connessi al <strong>CRM Safehouse</strong> (EspoCRM) usato dallo staff autorizzato;</li>
-<li>le integrazioni <strong>Google Calendar</strong> e <strong>Google Drive</strong> collegate al CRM (OAuth per account Google dello staff).</li>
+<li>i trattamenti nei <strong>sistemi gestionali interni</strong> usati dallo staff autorizzato;</li>
+<li>le integrazioni <strong>Google Calendar</strong> e <strong>Google Drive</strong> collegate all’area riservata dello staff (OAuth per account Google dello staff).</li>
 </ul>
-<p>Sito e CRM sono ospitati sullo <strong>stesso server VPS</strong> (Aruba Cloud, Italia).</p>
+<p>Sito e sistemi interni sono ospitati sullo <strong>stesso server VPS</strong> (Aruba Cloud, Italia).</p>
 
 <h2>3. Dati trattati e finalità (sito pubblico)</h2>
 <h3>3.1 Navigazione</h3>
@@ -88,7 +86,7 @@ final class LegalPagesContent
 <h3>3.2 Form di contatto e volontariato</h3>
 <p>Nome, email, telefono (se indicato), messaggio e preferenze relative alla richiesta. Finalità: rispondere e gestire la richiesta. Base: esecuzione di misure precontrattuali / legittimo interesse; dove richiesto, consenso esplicito sul form.</p>
 <h3>3.3 Donazioni online (Stripe)</h3>
-<p>Dati del donatore (es. nome, email, importo, metadati della donazione). I dati della carta non transitano sui nostri server: il pagamento è gestito da <strong>Stripe</strong>. Possiamo registrare nel CRM (Prima Nota / rendicontazione) metadati della donazione per contabilità e trasparenza associativa. Base: esecuzione del rapporto di donazione / obblighi contabili e di legge.</p>
+<p>Dati del donatore (es. nome, email, importo, metadati della donazione). I dati della carta non transitano sui nostri server: il pagamento è gestito da <strong>Stripe</strong>. Possiamo registrare nei sistemi di contabilità interni metadati della donazione per trasparenza associativa. Base: esecuzione del rapporto di donazione / obblighi contabili e di legge.</p>
 <h3>3.4 5 per mille e contenuti informativi</h3>
 <p>La pubblicazione del Codice Fiscale non comporta raccolta di dati aggiuntivi oltre alla normale navigazione.</p>
 <h3>3.5 Consenso cookie</h3>
@@ -96,30 +94,29 @@ final class LegalPagesContent
 
 <h2>4. Cookie</h2>
 <p>Sul sito pubblico usiamo cookie necessari (sessione, sicurezza CSRF, preferenza di consenso). Cookie analitici di marketing <strong>non sono attualmente attivi</strong>; se in futuro verranno introdotti, saranno caricati solo dopo consenso. Dettagli: <a href="/it/cookie-policy">Cookie policy</a>.</p>
-<p>Il CRM (uso staff) usa solo cookie/sessione essenziali di autenticazione: <strong>non</strong> è previsto un banner cookie sul CRM.</p>
 
-<h2 id="google-api-services">5. Google API Services — Safehouse CRM (Calendar &amp; Drive)</h2>
+<h2 id="google-api-services">5. Google API Services — area riservata staff (Calendar &amp; Drive)</h2>
 <p>Questa sezione è destinata anche alla verifica OAuth di Google Cloud / Google API Services User Data Policy (Limited Use).</p>
-<p><strong>Applicazione:</strong> Safehouse CRM — estensione GoogleIntegration su EspoCRM (<code>crm.safehouse.community</code>).</p>
+<p><strong>Applicazione:</strong> area riservata Safe House — integrazione Google Calendar / Drive per lo staff.</p>
 <p><strong>Utenti:</strong> solo personale autorizzato di Safe House ETS (non il pubblico del sito).</p>
 <p><strong>Dati Google a cui l’app può accedere</strong> (scope OAuth tipici in uso):</p>
 <ul>
 <li>identità di base dell’account Google collegato (<code>openid</code>, <code>email</code>, <code>profile</code>);</li>
-<li><strong>Google Calendar</strong> — lettura/scrittura eventi e calendari per esportare/sincronizzare appuntamenti, chiamate, attività e date rilevanti dal CRM;</li>
+<li><strong>Google Calendar</strong> — lettura/scrittura eventi e calendari per sincronizzare appuntamenti, attività e date rilevanti;</li>
 <li><strong>Google Drive</strong> con scope limitato <code>drive.file</code> — accesso solo ai file creati o aperti dall’app (non all’intero Drive dell’utente).</li>
 </ul>
-<p><strong>Come usiamo i dati Google:</strong> esclusivamente per fornire le funzioni di integrazione richieste dallo staff (es. salvare eventi CRM sul calendario Google dell’utente, sincronizzazione calendario, operazioni Drive consentite dallo scope). I token OAuth sono conservati lato server nell’account esterno EspoCRM (<code>ExternalAccount</code>), non esposti al browser come segreti.</p>
-<p><strong>Cosa non facciamo:</strong> non vendiamo dati Google; non li usiamo per pubblicità; non li trasferiamo a terzi non correlati alla fornitura del servizio CRM; non usiamo i dati Google per addestrare modelli di AI generalizzati.</p>
+<p><strong>Come usiamo i dati Google:</strong> esclusivamente per fornire le funzioni di integrazione richieste dallo staff. I token OAuth sono conservati lato server e non esposti al browser come segreti.</p>
+<p><strong>Cosa non facciamo:</strong> non vendiamo dati Google; non li usiamo per pubblicità; non li trasferiamo a terzi non correlati alla fornitura del servizio; non usiamo i dati Google per addestrare modelli di AI generalizzati.</p>
 <p>Safe House ETS si impegna a rispettare la <a href="https://developers.google.com/terms/api-services-user-data-policy" rel="noopener noreferrer" target="_blank">Google API Services User Data Policy</a>, inclusa la Limited Use.</p>
-<p><strong>Disconnessione e cancellazione:</strong> l’utente staff può disconnettere Google da CRM → External Accounts / account esterni. Alla disconnessione i token vengono invalidati/rimossi secondo le procedure dell’integrazione; i record CRM restano nel CRM secondo le retention interne.</p>
+<p><strong>Disconnessione e cancellazione:</strong> lo staff può disconnettere Google dall’area account esterni. Alla disconnessione i token vengono invalidati/rimossi; i record operativi restano soggetti alle retention interne.</p>
 
-<h2>6. CRM Safehouse (EspoCRM) — trattamenti interni</h2>
-<p>Il CRM gestisce anagrafiche e attività associative (contatti, membri, volontari, donazioni/rendicontazione, casi sportello, ecc.) per finalità istituzionali di Safe House ETS. Destinatari: solo utenti autenticati con ruoli/ACL. Base: legittimo interesse / obblighi di legge / esecuzione di rapporti con interessati, a seconda del caso.</p>
+<h2>6. Sistemi gestionali interni — trattamenti dello staff</h2>
+<p>I sistemi interni gestiscono anagrafiche e attività associative (contatti, membri, volontari, donazioni/rendicontazione, casi sportello, ecc.) per finalità istituzionali di Safe House ETS. Destinatari: solo utenti autenticati con ruoli e controlli di accesso. Base: legittimo interesse / obblighi di legge / esecuzione di rapporti con interessati, a seconda del caso.</p>
 
 <h2>7. Responsabili del trattamento e fornitori</h2>
 <ul>
-<li><strong>Hosting:</strong> VPS Aruba Cloud (Italia) — sito e CRM sullo stesso server.</li>
-<li><strong>Posta elettronica:</strong> servizi email Aruba collegati a VPS/dominio (dettaglio prodotto da confermare).</li>
+<li><strong>Hosting:</strong> VPS Aruba Cloud (Italia) — sito e sistemi interni sullo stesso server.</li>
+<li><strong>Posta elettronica:</strong> servizi email Aruba collegati a VPS/dominio.</li>
 <li><strong>Pagamenti:</strong> Stripe (trattamento come autonomo titolare/responsabile secondo i termini Stripe).</li>
 <li><strong>Google:</strong> Google Ireland / Google LLC per API Calendar e Drive quando lo staff collega l’account.</li>
 </ul>
@@ -147,15 +144,14 @@ HTML;
     private static function privacyEn(): string
     {
         return <<<'HTML'
-<p><strong>Operational version:</strong> 11 August 2026. Controller: <strong>Safe House ETS</strong> (Italian fiscal code / Codice Fiscale <strong>96629270586</strong>). This is the live policy for the website and CRM; it may be refined after legal review (registered address, DPO, Aruba email product details).</p>
+<p><strong>Operational version:</strong> 11 August 2026. Controller: <strong>Safe House ETS</strong> (Italian fiscal code / Codice Fiscale <strong>96629270586</strong>). This is the live policy for the public website and related association processing.</p>
 
 <h2>1. Data controller</h2>
 <p>The controller is <strong>Safe House ETS</strong>, a Third Sector entity (ETS), Codice Fiscale <strong>96629270586</strong>.</p>
 <ul>
 <li><strong>Public website:</strong> <a href="https://safehouse.community">https://safehouse.community</a></li>
-<li><strong>CRM (staff use):</strong> <a href="https://crm.safehouse.community">https://crm.safehouse.community</a></li>
 <li><strong>Privacy / general contact:</strong> <a href="mailto:info@safehouse.community">info@safehouse.community</a></li>
-<li><strong>Registered address:</strong> Italy — full address to be completed in the next revision</li>
+<li><strong>Registered address:</strong> Italy</li>
 </ul>
 <p>No Data Protection Officer (DPO) is appointed at the time of publication; if appointed, contact details will be added here.</p>
 
@@ -163,10 +159,10 @@ HTML;
 <p>This notice covers:</p>
 <ul>
 <li>visitors and users of <strong>safehouse.community</strong> (forms, donations, cookies);</li>
-<li>processing in <strong>Safehouse CRM</strong> (EspoCRM) used by authorised staff;</li>
-<li><strong>Google Calendar</strong> and <strong>Google Drive</strong> integrations connected to the CRM (OAuth for staff Google accounts).</li>
+<li>processing in <strong>internal management systems</strong> used by authorised staff;</li>
+<li><strong>Google Calendar</strong> and <strong>Google Drive</strong> integrations connected to the staff area (OAuth for staff Google accounts).</li>
 </ul>
-<p>The website and CRM run on the <strong>same VPS</strong> (Aruba Cloud, Italy).</p>
+<p>The website and internal systems run on the <strong>same VPS</strong> (Aruba Cloud, Italy).</p>
 
 <h2>3. Data we process and purposes (public website)</h2>
 <h3>3.1 Browsing</h3>
@@ -174,7 +170,7 @@ HTML;
 <h3>3.2 Contact and volunteer forms</h3>
 <p>Name, email, phone (if provided), message and related preferences. Purpose: respond to and handle the request. Basis: pre-contractual steps / legitimate interest; explicit consent on the form where required.</p>
 <h3>3.3 Online donations (Stripe)</h3>
-<p>Donor data (e.g. name, email, amount, donation metadata). Card data does not pass through our servers — payments are handled by <strong>Stripe</strong>. We may store donation metadata in the CRM (ledger / reporting) for accounting and association transparency. Basis: donation relationship / legal accounting duties.</p>
+<p>Donor data (e.g. name, email, amount, donation metadata). Card data does not pass through our servers — payments are handled by <strong>Stripe</strong>. We may store donation metadata in our internal accounting systems for association transparency. Basis: donation relationship / legal accounting duties.</p>
 <h3>3.4 “5 per mille” information</h3>
 <p>Publishing our fiscal code does not collect additional personal data beyond normal browsing.</p>
 <h3>3.5 Cookie consent</h3>
@@ -182,30 +178,29 @@ HTML;
 
 <h2>4. Cookies</h2>
 <p>On the public site we use essential cookies (session, CSRF security, consent preference). Marketing/analytics cookies are <strong>not currently active</strong>; if introduced later, they will load only after consent. Details: <a href="/en/cookie-policy">Cookie policy</a>.</p>
-<p>The staff CRM uses only essential authentication/session cookies: <strong>no</strong> cookie banner is shown on the CRM.</p>
 
-<h2 id="google-api-services">5. Google API Services — Safehouse CRM (Calendar &amp; Drive)</h2>
+<h2 id="google-api-services">5. Google API Services — staff area (Calendar &amp; Drive)</h2>
 <p>This section is also intended for Google Cloud OAuth verification and the Google API Services User Data Policy (Limited Use).</p>
-<p><strong>Application:</strong> Safehouse CRM — GoogleIntegration extension on EspoCRM (<code>crm.safehouse.community</code>).</p>
+<p><strong>Application:</strong> Safe House staff area — Google Calendar / Drive integration for staff.</p>
 <p><strong>Users:</strong> authorised Safe House ETS staff only (not the general public).</p>
 <p><strong>Google user data the app may access</strong> (OAuth scopes in use):</p>
 <ul>
 <li>basic Google account identity (<code>openid</code>, <code>email</code>, <code>profile</code>);</li>
-<li><strong>Google Calendar</strong> — read/write calendars and events to export/sync CRM meetings, calls, tasks and relevant dates;</li>
+<li><strong>Google Calendar</strong> — read/write calendars and events to sync meetings, tasks and relevant dates;</li>
 <li><strong>Google Drive</strong> with limited scope <code>drive.file</code> — only files created or opened by the app (not the user’s entire Drive).</li>
 </ul>
-<p><strong>How we use Google data:</strong> solely to provide staff integration features (e.g. saving CRM events to the user’s Google Calendar, calendar sync, Drive operations allowed by the scope). OAuth tokens are stored server-side in EspoCRM External Accounts and are not exposed to the browser as secrets.</p>
+<p><strong>How we use Google data:</strong> solely to provide staff integration features. OAuth tokens are stored server-side and are not exposed to the browser as secrets.</p>
 <p><strong>What we do not do:</strong> we do not sell Google data; we do not use it for advertising; we do not transfer it to unrelated third parties; we do not use Google user data to train generalised AI/ML models.</p>
 <p>Safe House ETS complies with the <a href="https://developers.google.com/terms/api-services-user-data-policy" rel="noopener noreferrer" target="_blank">Google API Services User Data Policy</a>, including Limited Use.</p>
-<p><strong>Disconnect and deletion:</strong> staff can disconnect Google under CRM → External Accounts. On disconnect, tokens are invalidated/removed per the integration; CRM business records remain subject to internal retention rules.</p>
+<p><strong>Disconnect and deletion:</strong> staff can disconnect Google under external accounts. On disconnect, tokens are invalidated/removed; operational records remain subject to internal retention rules.</p>
 
-<h2>6. Safehouse CRM (EspoCRM) — internal processing</h2>
-<p>The CRM holds association records and activities (contacts, members, volunteers, donations/reporting, desk cases, etc.) for Safe House ETS institutional purposes. Recipients: authenticated users under role/ACL controls. Bases: legitimate interest / legal duties / performance of relationships with data subjects, as applicable.</p>
+<h2>6. Internal management systems — staff processing</h2>
+<p>Internal systems hold association records and activities (contacts, members, volunteers, donations/reporting, desk cases, etc.) for Safe House ETS institutional purposes. Recipients: authenticated users under role and access controls. Bases: legitimate interest / legal duties / performance of relationships with data subjects, as applicable.</p>
 
 <h2>7. Processors and providers</h2>
 <ul>
-<li><strong>Hosting:</strong> Aruba Cloud VPS (Italy) — website and CRM on the same server.</li>
-<li><strong>Email:</strong> Aruba email services linked to the VPS/domain (exact product to be confirmed).</li>
+<li><strong>Hosting:</strong> Aruba Cloud VPS (Italy) — website and internal systems on the same server.</li>
+<li><strong>Email:</strong> Aruba email services linked to the VPS/domain.</li>
 <li><strong>Payments:</strong> Stripe (controller/processor roles per Stripe’s terms).</li>
 <li><strong>Google:</strong> Google Ireland / Google LLC for Calendar and Drive APIs when staff connect their account.</li>
 </ul>
@@ -233,36 +228,35 @@ HTML;
     private static function privacyRu(): string
     {
         return <<<'HTML'
-<p><strong>Рабочая версия:</strong> 11 августа 2026. Контролёр: <strong>Safe House ETS</strong> (код fiscale / Codice Fiscale <strong>96629270586</strong>). Это действующая политика для сайта и CRM; после юридической проверки могут быть уточнены адрес, DPO и детали почты Aruba.</p>
+<p><strong>Рабочая версия:</strong> 11 августа 2026. Контролёр: <strong>Safe House ETS</strong> (код fiscale / Codice Fiscale <strong>96629270586</strong>). Это действующая политика для публичного сайта и связанных обработок ассоциации.</p>
 
 <h2>1. Контролёр данных</h2>
 <p>Контролёр — <strong>Safe House ETS</strong>, организация Terzo Settore (ETS), Codice Fiscale <strong>96629270586</strong>.</p>
 <ul>
 <li><strong>Публичный сайт:</strong> <a href="https://safehouse.community">https://safehouse.community</a></li>
-<li><strong>CRM (для сотрудников):</strong> <a href="https://crm.safehouse.community">https://crm.safehouse.community</a></li>
 <li><strong>Контакт по privacy:</strong> <a href="mailto:info@safehouse.community">info@safehouse.community</a></li>
-<li><strong>Юридический адрес:</strong> Италия — полный адрес будет добавлен в следующей редакции</li>
+<li><strong>Юридический адрес:</strong> Италия</li>
 </ul>
 
 <h2>2. Область действия</h2>
 <ul>
 <li>посетители сайта <strong>safehouse.community</strong> (формы, пожертвования, cookie);</li>
-<li>обработка в <strong>Safehouse CRM</strong> (EspoCRM) уполномоченным персоналом;</li>
-<li>интеграции <strong>Google Calendar</strong> и <strong>Google Drive</strong> с CRM (OAuth аккаунтов сотрудников).</li>
+<li>обработка во <strong>внутренних системах учёта</strong> уполномоченным персоналом;</li>
+<li>интеграции <strong>Google Calendar</strong> и <strong>Google Drive</strong> для зоны сотрудников (OAuth аккаунтов сотрудников).</li>
 </ul>
-<p>Сайт и CRM размещены на <strong>одном VPS</strong> (Aruba Cloud, Италия).</p>
+<p>Сайт и внутренние системы размещены на <strong>одном VPS</strong> (Aruba Cloud, Италия).</p>
 
 <h2>3. Данные и цели (публичный сайт)</h2>
 <p>Технические данные навигации; данные форм контакта/волонтёрства; метаданные пожертвований через <strong>Stripe</strong> (данные карты на наших серверах не хранятся); журнал согласия на cookie (хеш IP/UA). Подробнее на итальянской/английской версии политики.</p>
 
 <h2>4. Cookie</h2>
-<p>На сайте — необходимые cookie (сессия, CSRF, предпочтение согласия). Аналитика/маркетинг <strong>сейчас не активны</strong>. CRM использует только сессионные cookie для входа сотрудников — баннер cookie в CRM не показывается. См. <a href="/ru/cookie-policy">Политику cookie</a>.</p>
+<p>На сайте — необходимые cookie (сессия, CSRF, предпочтение согласия). Аналитика/маркетинг <strong>сейчас не активны</strong>. См. <a href="/ru/cookie-policy">Политику cookie</a>.</p>
 
-<h2 id="google-api-services">5. Google API Services — Safehouse CRM (Calendar и Drive)</h2>
+<h2 id="google-api-services">5. Google API Services — зона сотрудников (Calendar и Drive)</h2>
 <p>Раздел для соответствия Google API Services User Data Policy (Limited Use) и OAuth verification.</p>
-<p><strong>Приложение:</strong> Safehouse CRM — GoogleIntegration на EspoCRM (<code>crm.safehouse.community</code>), только для сотрудников Safe House ETS.</p>
+<p><strong>Приложение:</strong> зона сотрудников Safe House — интеграция Google Calendar / Drive, только для сотрудников Safe House ETS.</p>
 <p><strong>Доступ:</strong> базовая идентичность Google (<code>openid</code>, <code>email</code>, <code>profile</code>); <strong>Google Calendar</strong> (чтение/запись событий); <strong>Google Drive</strong> со scope <code>drive.file</code> (только файлы, созданные/открытые приложением).</p>
-<p>Данные Google используются только для функций интеграции CRM; токены хранятся на сервере в External Account; не продаются и не используются для рекламы. Соблюдаем <a href="https://developers.google.com/terms/api-services-user-data-policy" rel="noopener noreferrer" target="_blank">Google API Services User Data Policy</a> (Limited Use). Отключение: CRM → External Accounts.</p>
+<p>Данные Google используются только для функций интеграции для сотрудников; токены хранятся на сервере; не продаются и не используются для рекламы. Соблюдаем <a href="https://developers.google.com/terms/api-services-user-data-policy" rel="noopener noreferrer" target="_blank">Google API Services User Data Policy</a> (Limited Use).</p>
 
 <h2>6–11. Поставщики, сроки, права</h2>
 <p>Хостинг: Aruba Cloud (IT). Почта: Aruba. Платежи: Stripe. Права субъекта данных и жалобы в Garante: <a href="mailto:info@safehouse.community">info@safehouse.community</a>, <a href="https://www.garanteprivacy.it/" rel="noopener noreferrer" target="_blank">garanteprivacy.it</a>. Полная детализация — в EN/IT версиях.</p>
@@ -288,7 +282,7 @@ HTML;
 </thead>
 <tbody>
 <tr><td>Necessari</td><td><code>XSRF-TOKEN</code></td><td>Protezione CSRF</td><td>Sessione (~2 ore)</td><td>Safe House (sito)</td></tr>
-<tr><td>Necessari</td><td><code>safe-house-community-session</code> (o nome sessione Laravel configurato)</td><td>Sessione applicativa</td><td>Sessione (~2 ore)</td><td>Safe House (sito)</td></tr>
+<tr><td>Necessari</td><td><code>safe-house-community-session</code></td><td>Sessione applicativa</td><td>Sessione (~2 ore)</td><td>Safe House (sito)</td></tr>
 <tr><td>Necessari</td><td><code>sh_cookie_consent</code></td><td>Memorizzare la preferenza cookie</td><td>Fino a 1 anno</td><td>Safe House (sito)</td></tr>
 <tr><td>Necessari (pagamenti)</td><td>cookie Stripe (es. <code>__stripe_*</code>) quando usi il form donazione</td><td>Elaborazione pagamento sicura</td><td>Secondo Stripe</td><td>Stripe</td></tr>
 <tr><td>Analitici</td><td>—</td><td>Non in uso al momento</td><td>—</td><td>—</td></tr>
@@ -296,10 +290,7 @@ HTML;
 </tbody>
 </table>
 
-<h2>4. CRM (crm.safehouse.community)</h2>
-<p>Il CRM è riservato allo staff. Usa cookie/sessione di autenticazione essenziali. Non mostriamo un banner cookie sul CRM perché non impieghiamo tracker non necessari per i visitatori pubblici.</p>
-
-<h2>5. Come modificare le preferenze</h2>
+<h2>4. Come modificare le preferenze</h2>
 <p>Cancella i cookie del sito dal browser oppure, se disponibile nel footer, riapri le preferenze cookie. Per domande: <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>
 HTML;
     }
@@ -323,7 +314,7 @@ HTML;
 </thead>
 <tbody>
 <tr><td>Essential</td><td><code>XSRF-TOKEN</code></td><td>CSRF protection</td><td>Session (~2 hours)</td><td>Safe House (site)</td></tr>
-<tr><td>Essential</td><td><code>safe-house-community-session</code> (or configured Laravel session name)</td><td>Application session</td><td>Session (~2 hours)</td><td>Safe House (site)</td></tr>
+<tr><td>Essential</td><td><code>safe-house-community-session</code></td><td>Application session</td><td>Session (~2 hours)</td><td>Safe House (site)</td></tr>
 <tr><td>Essential</td><td><code>sh_cookie_consent</code></td><td>Store cookie preference</td><td>Up to 1 year</td><td>Safe House (site)</td></tr>
 <tr><td>Essential (payments)</td><td>Stripe cookies (e.g. <code>__stripe_*</code>) when using donation checkout</td><td>Secure payment processing</td><td>Per Stripe</td><td>Stripe</td></tr>
 <tr><td>Analytics</td><td>—</td><td>Not in use</td><td>—</td><td>—</td></tr>
@@ -331,10 +322,7 @@ HTML;
 </tbody>
 </table>
 
-<h2>4. CRM (crm.safehouse.community)</h2>
-<p>The CRM is staff-only. It uses essential authentication/session cookies. We do not show a cookie banner on the CRM because we do not run non-essential trackers for the public there.</p>
-
-<h2>5. Changing preferences</h2>
+<h2>4. Changing preferences</h2>
 <p>Clear site cookies in your browser or reopen cookie preferences from the footer if available. Questions: <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>
 HTML;
     }
@@ -355,17 +343,14 @@ HTML;
 </thead>
 <tbody>
 <tr><td>Необходимые</td><td><code>XSRF-TOKEN</code></td><td>CSRF</td><td>Сессия</td><td>Safe House</td></tr>
-<tr><td>Необходимые</td><td>session cookie Laravel</td><td>Сессия</td><td>Сессия</td><td>Safe House</td></tr>
+<tr><td>Необходимые</td><td><code>safe-house-community-session</code></td><td>Сессия</td><td>Сессия</td><td>Safe House</td></tr>
 <tr><td>Необходимые</td><td><code>sh_cookie_consent</code></td><td>Предпочтение cookie</td><td>до 1 года</td><td>Safe House</td></tr>
 <tr><td>Необходимые (оплата)</td><td>Stripe (<code>__stripe_*</code>)</td><td>Платёжная форма</td><td>по Stripe</td><td>Stripe</td></tr>
 <tr><td>Аналитика / маркетинг</td><td>—</td><td>Не используются</td><td>—</td><td>—</td></tr>
 </tbody>
 </table>
 
-<h2>4. CRM</h2>
-<p>CRM только для сотрудников: сессионные cookie входа, без cookie-баннера для публики.</p>
-
-<h2>5. Контакты</h2>
+<h2>4. Контакты</h2>
 <p><a href="mailto:info@safehouse.community">info@safehouse.community</a></p>
 HTML;
     }

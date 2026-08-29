@@ -106,11 +106,16 @@ class CmsPagesTest extends TestCase
             ->assertSee('id="google-api-services"', false)
             ->assertSee('drive.file', false)
             ->assertSee('Google Calendar', false)
-            ->assertSee('crm.safehouse.community', false);
+            ->assertSee('staff area', false)
+            ->assertDontSee('crm.safehouse.community', false)
+            ->assertDontSee('EspoCRM', false);
 
         $this->get('/it/cookie-policy')
             ->assertOk()
             ->assertSee('sh_cookie_consent', false)
-            ->assertSee('Non in uso', false);
+            ->assertSee('safe-house-community-session', false)
+            ->assertSee('Non in uso', false)
+            ->assertDontSee('Laravel', false)
+            ->assertDontSee('crm.safehouse.community', false);
     }
 }

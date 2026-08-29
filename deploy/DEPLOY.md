@@ -109,6 +109,17 @@ php artisan make:filament-user
 
 This adds core pages, demo campaigns, articles, and the default tagline **only when those tables/settings are still empty**.
 
+### Refresh privacy / cookie page copy
+
+When `database/seeders/Data/LegalPagesContent.php` changes and production pages already exist:
+
+```bash
+cd /var/www/safehouse-community-site
+php artisan site:sync-legal-pages --force
+```
+
+Overwrites the `privacy` and `cookie` CMS page bodies from the repo source (does **not** self-delete files).
+
 ### Export articles for local dev / git (optional)
 
 To refresh the local deploy export file from CMS:
