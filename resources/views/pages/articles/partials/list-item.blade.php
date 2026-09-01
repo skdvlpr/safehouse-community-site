@@ -37,6 +37,6 @@
         </h2>
     </div>
     @if ($categoryName !== '')
-        <span class="news-list__category">{{ $categoryName }}</span>
+        <span class="news-list__category news-meta-chip">{{ $categoryName }}</span>
     @endif
 </article>

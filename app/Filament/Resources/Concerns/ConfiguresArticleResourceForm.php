@@ -3,11 +3,10 @@
 namespace App\Filament\Resources\Concerns;
 
 use App\Enums\ArticleSection;
+use App\Filament\Support\CarouselFormFields;
 use App\Filament\Support\CmsLocaleTabs;
 use App\Models\ArticleCategory;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -82,32 +81,12 @@ trait ConfiguresArticleResourceForm
 
             Section::make(__('cms.sections.photo_carousel'))
                 ->description(__('cms.helpers.article_carousel'))
-                ->schema([
-                    Repeater::make('meta.carousel')
-                        ->label(__('cms.fields.slides'))
-                        ->maxItems((int) config('page_carousel.max_slides', 12))
-                        ->reorderable()
-                        ->collapsible()
-                        ->itemLabel(fn (array $state): string => is_string($state['path'] ?? null) && $state['path'] !== ''
-                            ? basename($state['path'])
-                            : __('cms.items.new_slide'))
-                        ->schema([
-                            FileUpload::make('path')
-                                ->label(__('cms.fields.image'))
-                                ->image()
-                                ->imagePreviewHeight('150')
-                                ->panelAspectRatio('16:9')
-                                ->panelLayout('integrated')
-                                ->disk((string) config('page_carousel.disk', 'public'))
-                                ->directory((string) config('page_carousel.article_directory', 'article-carousels'))
-                                ->required()
-                                ->maxSize(5120)
-                                ->columnSpanFull(),
-
-                            ...$carouselAltFields,
-                        ])
-                        ->columnSpanFull(),
-                ])
+                ->schema(
+                    CarouselFormFields::carouselSectionSchema(
+                        (string) config('page_carousel.article_directory', 'article-carousels'),
+                        $carouselAltFields,
+                    ),
+                )
                 ->columnSpanFull()
                 ->collapsed(),
 

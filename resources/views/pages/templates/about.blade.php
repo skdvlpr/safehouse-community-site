@@ -18,10 +18,6 @@
             'prominent' => true,
         ])
 
-        <div class="page-section-band" aria-hidden="true">
-            <span>{{ $pages->sectionLabel($page, $locale, 'site.pages.templates.about') }}</span>
-        </div>
-
         <div class="template-about-grid">
             <article class="template-about-intro safehouse-glass safehouse-prose">
                 {!! \App\Support\CmsHtml::render($body) !!}

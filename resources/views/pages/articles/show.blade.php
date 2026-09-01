@@ -12,34 +12,33 @@
 @section('title', $title)
 
 @section('content')
-    <article>
-        <div class="mb-2 flex flex-wrap items-center gap-3">
-            @if ($article->published_at)
-                <time datetime="{{ $article->published_at->toDateString() }}"
-                      class="photo-legible-text text-xs font-semibold uppercase tracking-wide text-safehouse-text">
-                    {{ $article->published_at->locale($locale)->isoFormat('LL') }}
-                </time>
-            @endif
-            @if ($categoryName !== '')
-                <span class="rounded-full border border-white/10 px-2.5 py-0.5 text-xs font-medium text-safehouse-muted">
-                    {{ $categoryName }}
-                </span>
-            @endif
-        </div>
+    <article class="article-show">
+        <a href="{{ route($indexRoute ?? 'articles.index', ['locale' => $locale]) }}"
+           class="article-show__back safehouse-glass mb-6 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition">
+            <span aria-hidden="true">←</span>
+            {{ __($backLabel ?? 'site.pages.news_back') }}
+        </a>
 
-        <h1 class="mb-8 text-3xl font-semibold tracking-tight md:text-4xl">{{ $title }}</h1>
+        <header class="article-show__header safehouse-glass mb-6 rounded-2xl p-6 md:p-8">
+            <div class="mb-4 flex flex-wrap items-center gap-3">
+                @if ($article->published_at)
+                    <time datetime="{{ $article->published_at->toDateString() }}"
+                          class="article-show__date">
+                        {{ $article->published_at->locale($locale)->isoFormat('LL') }}
+                    </time>
+                @endif
+                @if ($categoryName !== '')
+                    <span class="news-meta-chip">{{ $categoryName }}</span>
+                @endif
+            </div>
+
+            <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">{{ $title }}</h1>
+        </header>
 
         @include('pages.articles.partials.article-carousel', ['article' => $article, 'locale' => $locale])
 
-        <div class="safehouse-glass safehouse-prose rounded-2xl p-8 md:p-10">
+        <div class="article-show__body safehouse-glass safehouse-prose rounded-2xl p-8 md:p-10">
             {!! \App\Support\CmsHtml::render($body) !!}
         </div>
-
-        <p class="mt-8">
-            <a href="{{ route($indexRoute ?? 'articles.index', ['locale' => $locale]) }}"
-               class="text-sm font-medium text-safehouse-link transition hover:text-safehouse-link-hover">
-                ← {{ __($backLabel ?? 'site.pages.news_back') }}
-            </a>
-        </p>
     </article>
 @endsection

@@ -66,6 +66,7 @@ return [
         'updated' => 'Updated',
         'image' => 'Image',
         'slides' => 'Slides',
+        'batch_upload' => 'Upload multiple photos',
         'alt_text' => 'Alt text (:locale)',
         'language' => 'Language',
         'value' => 'Value',
@@ -202,6 +203,9 @@ return [
         'page_template' => 'Each template has a distinct public layout — save the page, then use Preview (IT/EN).',
         'published_at' => 'Required for the article to appear on /news.',
         'article_carousel' => 'Optional gallery shown on the article page and in the news feed.',
+        'batch_upload' => 'Select multiple images — they are added to the gallery automatically when upload finishes.',
+        'slide_image' => 'JPEG, PNG, or WebP. Up to 25 MB on upload; stored within 8 MB automatically.',
+        'carousel_repeater' => 'Slides without an image are ignored on save. You can add alt text afterwards.',
         'hero_carousel' => 'Optional photo gallery at the top of any page template. Visible only when at least one image is uploaded.',
         'section_label' => 'Small red label or banner for this page. Leave empty for the default.',
         'hero_eyebrow' => 'Small red line above the main title.',
@@ -328,6 +332,8 @@ return [
     'actions' => [
         'preview' => 'Preview',
         'open_preview' => 'Open preview',
+        'add_slide' => 'Add slide',
+        'add_batch_to_carousel' => 'Add to carousel',
         'save_settings' => 'Save settings',
         'restore_aurora_background' => 'Restore Aurora',
         'save_tagline' => 'Save tagline',
@@ -366,11 +372,18 @@ return [
         'developer_tools_saved' => 'Developer settings saved',
         'cache_cleared' => 'Cache cleared',
         'cms_locale_updated' => 'CMS language updated',
+        'batch_empty' => 'No photos to add',
+        'batch_merged' => ':count photo(s) added to the gallery',
     ],
     'items' => [
         'new_slide' => 'New slide',
         'new_stat' => 'New statistic',
         'new_service_card' => 'New service card',
+    ],
+
+    'validation' => [
+        'image_max' => 'The image exceeds the maximum allowed size.',
+        'image_type' => 'Upload a valid image file (JPEG, PNG, or WebP).',
     ],
     'roles' => [
         'super_admin' => 'Super admin',

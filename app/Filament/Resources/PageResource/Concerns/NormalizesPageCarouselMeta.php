@@ -2,10 +2,24 @@
 
 namespace App\Filament\Resources\PageResource\Concerns;
 
+use App\Filament\Support\CarouselFormFields;
 use App\Support\PageCarousel;
 
 trait NormalizesPageCarouselMeta
 {
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        if (isset($data['meta']) && is_array($data['meta'])) {
+            $data['meta'] = CarouselFormFields::normalizeCarouselMetaForForm($data['meta']);
+        }
+
+        return $data;
+    }
+
     /**
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>

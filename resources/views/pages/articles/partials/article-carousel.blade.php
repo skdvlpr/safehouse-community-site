@@ -3,5 +3,8 @@
 @endphp
 
 @if (count($slides) > 0)
-    @include('pages.partials.media-carousel', ['slides' => $slides])
+    @include('pages.partials.media-carousel', [
+        'slides' => $slides,
+        'variant' => 'compact',
+    ])
 @endif

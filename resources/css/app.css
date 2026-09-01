@@ -801,23 +801,29 @@ html[data-theme='light'] {
     }
 
     .page-carousel__viewport {
-        @apply aspect-[16/9] w-full bg-black/40;
+        @apply relative flex w-full items-center justify-center gap-2 bg-black/40 px-2 md:gap-4 md:px-4;
+    }
+
+    .page-carousel__media {
+        @apply relative flex min-w-0 flex-1 items-center justify-center;
+    }
+
+    .page-carousel--default .page-carousel__viewport,
+    .page-carousel:not(.page-carousel--compact) .page-carousel__viewport {
+        @apply aspect-[16/9];
+    }
+
+    .page-carousel--default .page-carousel__media,
+    .page-carousel:not(.page-carousel--compact) .page-carousel__media {
+        @apply h-full min-h-0;
     }
 
     .page-carousel__image {
-        @apply h-full w-full object-cover;
+        @apply block h-full w-full object-cover;
     }
 
     .page-carousel__nav {
-        @apply absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/55 text-2xl leading-none text-white transition hover:border-safehouse-primary/60 hover:bg-black/75;
-    }
-
-    .page-carousel__nav--prev {
-        @apply left-3;
-    }
-
-    .page-carousel__nav--next {
-        @apply right-3;
+        @apply z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/20 bg-black/55 text-2xl leading-none text-white transition hover:border-safehouse-primary/60 hover:bg-black/75 md:h-11 md:w-11;
     }
 
     .page-carousel__thumbs {
@@ -834,6 +840,105 @@ html[data-theme='light'] {
 
     .page-carousel__thumb-image {
         @apply h-16 w-24 object-cover md:h-20 md:w-28;
+    }
+
+    .page-carousel--compact .page-carousel__viewport {
+        @apply min-h-[32rem] w-full py-3 md:min-h-[38rem] md:py-4;
+    }
+
+    .page-carousel--compact .page-carousel__zoom-trigger {
+        @apply flex items-center justify-center;
+    }
+
+    .page-carousel--compact .page-carousel__image,
+    .page-carousel__image--contain {
+        @apply mx-auto h-auto max-h-[38rem] w-auto max-w-full object-contain md:max-h-[52rem];
+    }
+
+    .page-carousel--compact .page-carousel__thumb {
+        @apply aspect-square w-20 md:w-24;
+    }
+
+    .page-carousel--compact .page-carousel__thumb-image {
+        @apply h-full w-full object-cover;
+    }
+
+    .page-carousel__zoom-trigger {
+        @apply cursor-zoom-in border-0 bg-transparent p-0;
+    }
+
+    .page-carousel:not(.page-carousel--compact) .page-carousel__zoom-trigger {
+        @apply block h-full w-full;
+    }
+
+    .page-carousel--compact .page-carousel__zoom-trigger {
+        @apply block;
+    }
+
+    .page-carousel__zoom-trigger:focus-visible {
+        @apply outline-none ring-2 ring-safehouse-primary/60 ring-offset-2 ring-offset-black/40;
+    }
+
+    .page-carousel-lightbox {
+        @apply fixed inset-0 z-[9998] m-0 max-h-none max-w-none border-0 bg-transparent p-0;
+        inset: 0;
+        width: auto;
+        height: auto;
+    }
+
+    .page-carousel-lightbox::backdrop {
+        background: rgb(0 0 0 / 75%);
+        backdrop-filter: blur(4px);
+    }
+
+    .page-carousel-lightbox__inner {
+        @apply relative flex h-full min-h-0 w-full min-w-0 items-center justify-center p-4 md:p-6;
+    }
+
+    .page-carousel-lightbox__controls {
+        @apply flex max-w-full items-center justify-center gap-3 md:gap-4;
+    }
+
+    .page-carousel-lightbox__frame {
+        @apply max-h-[min(82vh,56rem)] max-w-[min(calc(100vw-8rem),72rem)] overflow-hidden rounded-2xl border border-white/15 bg-black/45 p-2 shadow-2xl backdrop-blur-md md:p-3;
+    }
+
+    .page-carousel-lightbox__image {
+        @apply block max-h-[min(78vh,54rem)] max-w-full object-contain;
+    }
+
+    .page-carousel-lightbox__close {
+        @apply absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/45 text-2xl leading-none text-white backdrop-blur-sm transition hover:border-safehouse-primary/60 hover:bg-black/65 md:right-6 md:top-6;
+    }
+
+    .page-carousel-lightbox__nav {
+        @apply relative top-auto flex h-11 w-11 shrink-0 translate-y-0 items-center justify-center rounded-full border border-white/20 bg-black/45 text-3xl leading-none text-white backdrop-blur-sm transition hover:border-safehouse-primary/60 hover:bg-black/65 md:h-12 md:w-12;
+    }
+
+    .page-carousel-lightbox__nav--prev,
+    .page-carousel-lightbox__nav--next {
+        @apply static;
+    }
+
+    .article-show__back {
+        @apply border border-white/10 text-safehouse-text no-underline;
+    }
+
+    .article-show__back:hover {
+        @apply border-safehouse-primary/35 text-safehouse-link;
+    }
+
+    .article-show__date {
+        @apply text-xs font-medium uppercase tracking-wide text-safehouse-muted;
+    }
+
+    .article-show__header h1 {
+        @apply text-safehouse-text;
+    }
+
+    .news-meta-chip {
+        @apply rounded-full border border-white/12 bg-white/[0.04] px-2.5 py-0.5 text-xs font-medium tracking-wide text-safehouse-text/80;
+        border-color: color-mix(in srgb, var(--color-safehouse-primary) 18%, rgb(255 255 255 / 12%));
     }
 
     .cookie-consent {
@@ -1132,11 +1237,11 @@ html[data-theme='light'] {
     }
 
     .news-category-chip {
-        @apply rounded-full border border-white/15 bg-safehouse-page/50 px-3 py-1.5 text-sm font-medium text-safehouse-muted transition hover:border-safehouse-primary/40 hover:text-safehouse-text;
+        @apply rounded-full border border-white/15 bg-safehouse-page/50 px-3 py-1.5 text-sm font-medium text-safehouse-muted transition hover:border-safehouse-primary/30 hover:text-safehouse-text;
     }
 
     .news-category-chip.is-active {
-        @apply border-safehouse-primary/60 bg-safehouse-primary/15 text-safehouse-text;
+        @apply border-safehouse-primary/40 bg-safehouse-primary/10 font-medium text-safehouse-text;
     }
 
     .news-date-filters {
@@ -1164,7 +1269,7 @@ html[data-theme='light'] {
     }
 
     .news-view-toggle__btn.is-active {
-        @apply bg-safehouse-primary text-white hover:text-white;
+        @apply bg-safehouse-primary/90 text-white hover:text-white;
     }
 
     .news-feed {
@@ -1181,10 +1286,6 @@ html[data-theme='light'] {
 
     .news-feed__date {
         @apply text-xs uppercase tracking-wide text-safehouse-muted;
-    }
-
-    .news-feed__category {
-        @apply rounded-full border border-white/10 px-2.5 py-0.5 text-xs font-medium text-safehouse-muted;
     }
 
     .news-feed__title {
@@ -1224,7 +1325,7 @@ html[data-theme='light'] {
     }
 
     .news-list__category {
-        @apply shrink-0 rounded-full border border-white/10 px-2.5 py-0.5 text-xs font-medium text-safehouse-muted;
+        @apply shrink-0;
     }
 
     .news-pagination {

@@ -157,6 +157,8 @@ return [
         'carousel_prev' => 'Immagine precedente',
         'carousel_next' => 'Immagine successiva',
         'carousel_go_to' => 'Vai all\'immagine :number',
+        'carousel_enlarge' => 'Ingrandisci immagine',
+        'carousel_close' => 'Chiudi galleria',
         'templates' => [
             'default' => 'Pagina semplice',
             'about' => 'Chi siamo',

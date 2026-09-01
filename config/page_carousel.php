@@ -10,5 +10,8 @@ return [
     'directory' => 'page-carousels',
     'article_directory' => 'article-carousels',
     'max_slides' => 12,
+    'max_upload_kb' => 25600,
+    'max_stored_kb' => 8192,
+    'max_dimension' => 2560,
 
 ];

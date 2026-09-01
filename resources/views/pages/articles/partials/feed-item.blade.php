@@ -18,7 +18,7 @@
             </time>
         @endif
         @if ($categoryName !== '')
-            <span class="news-feed__category">{{ $categoryName }}</span>
+            <span class="news-meta-chip">{{ $categoryName }}</span>
         @endif
     </div>
 

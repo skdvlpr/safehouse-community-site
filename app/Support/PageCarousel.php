@@ -237,9 +237,13 @@ class PageCarousel
         }
 
         if (is_array($path)) {
-            $first = $path[0] ?? null;
+            foreach ($path as $value) {
+                if (is_string($value) && $value !== '') {
+                    return $value;
+                }
+            }
 
-            return is_string($first) && $first !== '' ? $first : null;
+            return null;
         }
 
         return null;

@@ -70,6 +70,7 @@ return [
         'updated' => 'Aggiornato',
         'image' => 'Immagine',
         'slides' => 'Slide',
+        'batch_upload' => 'Carica più foto',
         'alt_text' => 'Testo alternativo (:locale)',
         'language' => 'Lingua',
         'value' => 'Valore',
@@ -209,6 +210,9 @@ return [
         'page_template' => 'Ogni modello ha un layout pubblico distinto — salva la pagina, poi usa Anteprima (IT/EN).',
         'published_at' => 'Obbligatoria affinché l\'articolo compaia su /notizie.',
         'article_carousel' => 'Galleria facoltativa mostrata nella pagina articolo e nel feed notizie.',
+        'batch_upload' => 'Seleziona più immagini: al termine del caricamento vengono aggiunte automaticamente alla galleria.',
+        'slide_image' => 'JPEG, PNG o WebP. Fino a 25 MB in upload; salvataggio automatico entro 8 MB.',
+        'carousel_repeater' => 'Le slide senza immagine vengono ignorate al salvataggio. Puoi aggiungere il testo alternativo dopo.',
         'hero_carousel' => 'Galleria fotografica facoltativa in cima a qualsiasi modello di pagina. Visibile solo se è caricata almeno un\'immagine.',
         'section_label' => 'Piccola etichetta o banner rosso per questa pagina. Lascia vuoto per il predefinito.',
         'hero_eyebrow' => 'Piccola riga rossa sopra il titolo principale.',
@@ -338,6 +342,8 @@ return [
     'actions' => [
         'preview' => 'Anteprima',
         'open_preview' => 'Apri anteprima',
+        'add_slide' => 'Aggiungi slide',
+        'add_batch_to_carousel' => 'Aggiungi alla galleria',
         'save_settings' => 'Salva impostazioni',
         'restore_aurora_background' => 'Ripristina Aurora',
         'save_tagline' => 'Salva slogan',
@@ -379,12 +385,19 @@ return [
         'developer_tools_saved' => 'Impostazioni sviluppatore salvate',
         'cache_cleared' => 'Cache svuotata',
         'cms_locale_updated' => 'Lingua CMS aggiornata',
+        'batch_empty' => 'Nessuna foto da aggiungere',
+        'batch_merged' => ':count foto aggiunte alla galleria',
     ],
 
     'items' => [
         'new_slide' => 'Nuova slide',
         'new_stat' => 'Nuova statistica',
         'new_service_card' => 'Nuova scheda servizio',
+    ],
+
+    'validation' => [
+        'image_max' => 'L\'immagine supera la dimensione massima consentita.',
+        'image_type' => 'Carica un file immagine valido (JPEG, PNG o WebP).',
     ],
 
     'roles' => [
