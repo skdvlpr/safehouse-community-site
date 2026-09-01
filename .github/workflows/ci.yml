@@ -1,7 +1,7 @@
 name: CI
 
 # PHPUnit + Pint on PHP 8.4; deploy only after tests pass (main).
-# Same VPS as CRM — single PHP 8.4 runtime (see nonprofit-espocrm deploy/upgrade-php84.sh).
+# Production VPS must already run PHP 8.4 (one-time setup: deploy/DEPLOY.md).
 
 on:
   push:
@@ -126,7 +126,7 @@ jobs:
             --exclude-from=deploy/rsync-excludes.txt \
             ./ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
 
-      - name: Ensure PHP 8.4 on server (shared with CRM)
+      - name: Verify PHP 8.4 on server
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
@@ -135,21 +135,15 @@ jobs:
         run: |
           set -euo pipefail
           ssh -p "${DEPLOY_SSH_PORT:-22}" -i ~/.ssh/deploy_key \
-            "${DEPLOY_USER}@${DEPLOY_HOST}" "DEPLOY_PATH='${DEPLOY_PATH}' bash -se" <<'REMOTE'
+            "${DEPLOY_USER}@${DEPLOY_HOST}" "bash -se" <<'REMOTE'
           set -euo pipefail
-          CRM_UPGRADE="/var/www/safehouse-crm/deploy/upgrade-php84.sh"
-          echo "== PHP before =="
-          php -v 2>/dev/null | head -1 || true
-          if [[ -f "$CRM_UPGRADE" ]]; then
-            sudo -n bash "$CRM_UPGRADE" || echo "WARNING: sudo upgrade failed — checking PHP..."
-          fi
           PHP_MM="$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;' 2>/dev/null || echo unknown)"
+          echo "Server PHP: $(php -v 2>/dev/null | head -1 || echo missing)"
           if [[ "$PHP_MM" != "8.4" ]]; then
-            echo "ERROR: server must run single PHP 8.4 (got ${PHP_MM}). Run: sudo bash ${CRM_UPGRADE}"
+            echo "ERROR: deploy requires PHP 8.4 (got ${PHP_MM})."
+            echo "One-time server setup: see deploy/DEPLOY.md"
             exit 1
           fi
-          echo "== PHP after =="
-          php -v | head -1
           REMOTE
 
       - name: Post-deploy
