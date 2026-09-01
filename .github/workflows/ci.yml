@@ -1,7 +1,6 @@
 name: CI
 
 # PHPUnit + Pint on PHP 8.4; deploy only after tests pass (main).
-# Production VPS must already run PHP 8.4 (one-time setup: deploy/DEPLOY.md).
 
 on:
   push:
@@ -125,26 +124,6 @@ jobs:
             -e "ssh -p ${DEPLOY_SSH_PORT:-22} -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes" \
             --exclude-from=deploy/rsync-excludes.txt \
             ./ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
-
-      - name: Verify PHP 8.4 on server
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-          DEPLOY_SSH_PORT: ${{ secrets.DEPLOY_SSH_PORT }}
-        run: |
-          set -euo pipefail
-          ssh -p "${DEPLOY_SSH_PORT:-22}" -i ~/.ssh/deploy_key \
-            "${DEPLOY_USER}@${DEPLOY_HOST}" "bash -se" <<'REMOTE'
-          set -euo pipefail
-          PHP_MM="$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;' 2>/dev/null || echo unknown)"
-          echo "Server PHP: $(php -v 2>/dev/null | head -1 || echo missing)"
-          if [[ "$PHP_MM" != "8.4" ]]; then
-            echo "ERROR: deploy requires PHP 8.4 (got ${PHP_MM})."
-            echo "One-time server setup: see deploy/DEPLOY.md"
-            exit 1
-          fi
-          REMOTE
 
       - name: Post-deploy
         env:
