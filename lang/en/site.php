@@ -134,6 +134,7 @@ return [
         'news_empty' => 'No published news yet.',
         'news_empty_filtered' => 'No news match the selected filters.',
         'news_back' => 'All news',
+        'article_published_by' => 'Published by :name',
         'news_filters_label' => 'News filters',
         'news_categories_label' => 'Categories',
         'news_categories_empty' => 'No categories yet.',

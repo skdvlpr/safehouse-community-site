@@ -17,6 +17,7 @@ class CreateArticle extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['section'] = ArticleSection::News;
+        $data['author_id'] = auth()->id();
 
         return $this->normalizeArticleMeta($this->filterTranslatable($data));
     }

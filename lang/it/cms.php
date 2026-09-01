@@ -387,6 +387,7 @@ return [
         'cms_locale_updated' => 'Lingua CMS aggiornata',
         'batch_empty' => 'Nessuna foto da aggiungere',
         'batch_merged' => ':count foto aggiunte alla galleria',
+        'batch_failed' => 'Caricamento foto non riuscito',
     ],
 
     'items' => [

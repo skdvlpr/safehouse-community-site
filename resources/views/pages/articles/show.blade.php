@@ -30,6 +30,9 @@
                 @if ($categoryName !== '')
                     <span class="news-meta-chip">{{ $categoryName }}</span>
                 @endif
+                @if ($article->author?->name)
+                    <span class="news-meta-chip">{{ __('site.pages.article_published_by', ['name' => $article->author->name]) }}</span>
+                @endif
             </div>
 
             <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">{{ $title }}</h1>

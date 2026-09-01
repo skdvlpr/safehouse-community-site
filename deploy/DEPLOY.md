@@ -5,6 +5,35 @@ Target server: **77.81.234.138** (`crm.safehouse.community`).
 Docroot: `/var/www/safehouse-community-site/public`  
 CRM docroot (reference): `/var/www/safehouse-crm/public`
 
+## Deploy scripts on the server
+
+All `deploy/*.sh` scripts **self-delete after a successful run** — they must not remain on the VPS.
+The next git deploy (rsync) restores them from the repo when needed.
+
+| Script | Needed? | When |
+|--------|---------|------|
+| `post-deploy.sh` | **Yes** — CI calls this every deploy | Auto: migrate, cache clear, roles, storage link |
+| `apply-php-upload-limits-once.sh` | Once | Root: raise `upload_max_filesize` above 2M |
+| `fix-storage-permissions-once.sh` | Once (or after permission incident) | Root: full storage / livewire-tmp ownership |
+| `apply-caddy-site-once.sh` | Once | Root: Caddy site block |
+| `restore-caddy-backup.sh` | Emergency only | Root: rollback bad Caddy edit |
+| `server-bootstrap.sh` | Empty server only | Root: create DB + app directory |
+
+`deploy-local.sh` is **local WSL only** (excluded from rsync).
+
+`post-deploy.sh` does **not** repeat PHP/Caddy/permission one-time setup. It only runs Laravel
+commands safe to repeat (migrations, cache clears, `RoleSeeder` with `firstOrCreate`).
+
+**Not in post-deploy (run manually when needed):**
+
+```bash
+php artisan cms:regenerate-url-slugs   # can change public URLs — do not auto-run on deploy
+php artisan db:bootstrap-production    # first install only
+php artisan site:sync-legal-pages --force
+```
+
+If a script fails, it is **kept** on disk so you can fix the error and retry.
+
 ## DNS
 
 Point the apex record to the CRM server:
@@ -131,6 +160,28 @@ git commit -m "Update deploy content export"
 ```
 
 CRM API key is **not** in the export — set `ESPOCRM_API_KEY` in server `.env` or CMS → Integrations.
+
+## CMS photo uploads (Filament / Livewire)
+
+Filament batch upload needs **PHP-FPM limits ≥ 32M** and writable storage for `www-data`.
+
+Default Ubuntu/CRM PHP is often **`upload_max_filesize = 2M`** — photos around 3–4 MB reach **100% in the UI then hang** (bytes arrive, PHP rejects the file).
+
+One-time fix on the VPS (**as root**):
+
+```bash
+sudo bash /var/www/safehouse-community-site/deploy/apply-php-upload-limits-once.sh
+sudo bash /var/www/safehouse-community-site/deploy/fix-storage-permissions-once.sh
+```
+
+Verify:
+
+```bash
+php -r 'echo ini_get("upload_max_filesize"), " ", ini_get("post_max_size"), PHP_EOL;'
+# expect: 32M 64M
+```
+
+Carousel files live in `storage/app/public/article-carousels/` (persists across deploys; rsync excludes this tree).
 
 ## Stripe test mode on production
 

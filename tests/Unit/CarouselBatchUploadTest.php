@@ -4,7 +4,10 @@ namespace Tests\Unit;
 
 use App\Filament\Support\CarouselBatchUpload;
 use App\Filament\Support\CarouselFormFields;
+use Filament\Forms\Components\FileUpload;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -100,6 +103,20 @@ class CarouselBatchUploadTest extends TestCase
         $slide = array_values($result['slides'])[0];
         $this->assertIsArray($slide['path']);
         $this->assertSame('article-carousels/a.jpg', CarouselFormFields::extractStoredPath($slide['path']));
+    }
+
+    public function test_clear_processed_batch_uploads_keeps_only_temporary_files(): void
+    {
+        $temp = \Mockery::mock(TemporaryUploadedFile::class);
+
+        $component = \Mockery::mock(FileUpload::class);
+        $component->shouldReceive('getRawState')->once()->andReturn([
+            'done-key' => 'article-carousels/a.jpg',
+            'pending-key' => $temp,
+        ]);
+        $component->shouldReceive('rawState')->once()->with(['pending-key' => $temp])->andReturnSelf();
+
+        CarouselFormFields::clearProcessedBatchUploads($component);
     }
 
     /**

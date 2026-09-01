@@ -30,7 +30,9 @@ class ArticleCarouselFormTest extends TestCase
         Storage::disk('public')->put('article-carousels/show.jpg', 'fake');
 
         $article = Article::query()->where('slug->it', 'welcome-safe-house')->firstOrFail();
+        $author = User::factory()->create(['name' => 'Maria Editor']);
         $article->update([
+            'author_id' => $author->id,
             'meta' => [
                 'carousel' => [
                     ['path' => 'article-carousels/show.jpg', 'alt' => ['it' => 'Benvenuti']],
@@ -46,6 +48,7 @@ class ArticleCarouselFormTest extends TestCase
             ->assertSee('article-show__back', false)
             ->assertSee('article-show__header', false)
             ->assertSee('Tutte le notizie', false)
+            ->assertSee('Pubblicato da Maria Editor', false)
             ->assertSee('article-carousels/show.jpg', false);
     }
 

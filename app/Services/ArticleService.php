@@ -219,6 +219,7 @@ class ArticleService
         }
 
         $article = Article::query()
+            ->with(['category', 'author'])
             ->where('section', $section)
             ->where('is_published', true)
             ->whereNotNull('published_at')

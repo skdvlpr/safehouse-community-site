@@ -1,3 +1,6 @@
+# Local-only deploy helper — never rsync to production.
+/deploy/deploy-local.sh
+
 # Ship application code; never overwrite server-owned runtime state.
 
 .git/

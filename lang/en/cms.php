@@ -374,6 +374,7 @@ return [
         'cms_locale_updated' => 'CMS language updated',
         'batch_empty' => 'No photos to add',
         'batch_merged' => ':count photo(s) added to the gallery',
+        'batch_failed' => 'Photo upload failed',
     ],
     'items' => [
         'new_slide' => 'New slide',

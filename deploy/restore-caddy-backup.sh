@@ -1,16 +1,30 @@
 #!/usr/bin/env bash
 # Emergency rollback: restore the newest /etc/caddy/Caddyfile.bak-* backup.
-# Does NOT self-delete — keep for repeated use.
+# Self-deletes after a successful reload (restored on next deploy).
 #
 #   sudo bash /var/www/safehouse-community-site/deploy/restore-caddy-backup.sh
-#   sudo bash /var/www/safehouse-community-site/deploy/apply-caddy-site-once.sh
 
 set -euo pipefail
+
+SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
+
+self_remove() {
+    rm -f -- "$SCRIPT_PATH" 2>/dev/null || true
+}
+
+on_error() {
+    echo ""
+    echo "ERROR: Caddy restore failed. Script kept:"
+    echo "  $SCRIPT_PATH"
+    exit 1
+}
+
+trap on_error ERR
 
 CADDYFILE="${CADDYFILE:-/etc/caddy/Caddyfile}"
 
 if [[ "${EUID}" -ne 0 ]]; then
-    exec sudo -E bash "$0" "$@"
+    exec sudo -E bash "$SCRIPT_PATH" "$@"
 fi
 
 mapfile -t BACKUPS < <(ls -1t "${CADDYFILE}.bak-"* 2>/dev/null || true)
@@ -31,4 +45,8 @@ echo "==> Reloading Caddy…"
 systemctl reload caddy
 
 echo "Done. Restored from $(basename "$LATEST")."
-echo "If CMS works again, re-run apply-caddy-site-once.sh (fixed version) for Turnstile CSP."
+echo "If CMS works again, re-run apply-caddy-site-once.sh after the next deploy for Turnstile CSP."
+
+trap - ERR
+self_remove
+echo "Script removed: $SCRIPT_PATH"

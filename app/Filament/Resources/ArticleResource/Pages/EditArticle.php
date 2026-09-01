@@ -25,6 +25,10 @@ class EditArticle extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        if ($this->record->author_id === null && auth()->check()) {
+            $data['author_id'] = auth()->id();
+        }
+
         return $this->normalizeArticleMeta($this->filterTranslatable($data));
     }
 }

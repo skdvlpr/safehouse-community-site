@@ -134,6 +134,7 @@ return [
         'news_empty' => 'Nessuna notizia pubblicata al momento.',
         'news_empty_filtered' => 'Nessuna notizia corrisponde ai filtri selezionati.',
         'news_back' => 'Tutte le notizie',
+        'article_published_by' => 'Pubblicato da :name',
         'news_filters_label' => 'Filtri notizie',
         'news_categories_label' => 'Categorie',
         'news_categories_empty' => 'Nessuna categoria al momento.',

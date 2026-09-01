@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Manual deploy from your machine (WSL). Requires SSH access to the CRM VPS.
+# Manual deploy from your machine (WSL). Local only — NOT rsync'd to production.
 #
 # Usage:
 #   export DEPLOY_HOST=77.81.234.138

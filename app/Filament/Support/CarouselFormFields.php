@@ -9,10 +9,12 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Component as LivewireComponent;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Throwable;
 
 class CarouselFormFields
 {
@@ -34,7 +36,7 @@ class CarouselFormFields
                     // Batch paths are copied into the repeater; do not delete stored files when clearing the field.
                 })
                 ->afterStateUpdated(function (FileUpload $component, Get $get, Set $set, LivewireComponent $livewire) use ($directory): void {
-                    static::handleBatchUploadStateChange($component, $directory, $get, $set, $livewire);
+                    static::handleBatchUploadStateChange($component, $directory, $get, $set);
                 }),
             $directory,
         );
@@ -45,7 +47,6 @@ class CarouselFormFields
         string $directory,
         Get $get,
         Set $set,
-        LivewireComponent $livewire,
     ): void {
         if (static::$isMergingBatch) {
             return;
@@ -58,7 +59,18 @@ class CarouselFormFields
 
             $batchPaths = array_values(Arr::wrap($component->getState()));
 
-            static::autoMergeBatchUpload($batchPaths, $get, $set, $livewire, $component);
+            static::autoMergeBatchUpload($batchPaths, $get, $set, $component);
+        } catch (Throwable $exception) {
+            Log::error('Carousel batch upload failed', [
+                'message' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
+            ]);
+
+            Notification::make()
+                ->title(__('cms.notifications.batch_failed'))
+                ->body($exception->getMessage())
+                ->danger()
+                ->send();
         } finally {
             static::$isMergingBatch = false;
         }
@@ -119,7 +131,6 @@ class CarouselFormFields
         ?array $batchPaths,
         Get $get,
         Set $set,
-        LivewireComponent $livewire,
         FileUpload $batchComponent,
     ): void {
         if (static::storedBatchPaths($batchPaths) === []) {
@@ -132,11 +143,7 @@ class CarouselFormFields
 
         $set('meta.carousel', $result['slides']);
 
-        if (method_exists($livewire, 'isUploading') && $livewire->isUploading()) {
-            return;
-        }
-
-        $batchComponent->rawState([]);
+        static::clearProcessedBatchUploads($batchComponent);
 
         if ($result['added'] > 0) {
             Notification::make()
@@ -144,6 +151,22 @@ class CarouselFormFields
                 ->success()
                 ->send();
         }
+    }
+
+    /**
+     * Drop stored paths from the batch UI; keep only files still uploading as Livewire temps.
+     */
+    public static function clearProcessedBatchUploads(FileUpload $batchComponent): void
+    {
+        $pending = [];
+
+        foreach (Arr::wrap($batchComponent->getRawState()) as $key => $file) {
+            if ($file instanceof TemporaryUploadedFile) {
+                $pending[$key] = $file;
+            }
+        }
+
+        $batchComponent->rawState($pending);
     }
 
     /**

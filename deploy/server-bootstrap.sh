@@ -1,10 +1,26 @@
 #!/usr/bin/env bash
 # One-time server prep for GitHub Actions / rsync deploy.
+# Self-deletes after success (restored on next deploy).
+#
 # Run on 77.81.234.138 as root (or with sudo):
-#   curl -sL ... | bash
-# Or copy this file and run: bash deploy/server-bootstrap.sh
+#   sudo bash /var/www/safehouse-community-site/deploy/server-bootstrap.sh
 
 set -euo pipefail
+
+SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
+
+self_remove() {
+    rm -f -- "$SCRIPT_PATH" 2>/dev/null || true
+}
+
+on_error() {
+    echo ""
+    echo "ERROR: Server bootstrap failed. Script kept:"
+    echo "  $SCRIPT_PATH"
+    exit 1
+}
+
+trap on_error ERR
 
 DEPLOY_USER="${DEPLOY_USER:-deploy}"
 DEPLOY_PATH="${DEPLOY_PATH:-/var/www/safehouse-community-site}"
@@ -28,4 +44,8 @@ echo "       cd ${DEPLOY_PATH}"
 echo "       cp deploy/env.production.example .env"
 echo "       php artisan key:generate"
 echo "       # edit .env — DB password, ESPOCRM_*, STRIPE_*"
-echo "  3. Append deploy/Caddyfile.snippet to /etc/caddy/Caddyfile and reload caddy."
+echo "  3. Run apply-caddy-site-once.sh after deploy for Caddy block."
+
+trap - ERR
+self_remove
+echo "Script removed: $SCRIPT_PATH"
