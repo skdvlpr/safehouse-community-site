@@ -5,7 +5,6 @@ namespace Tests\Unit;
 use App\Filament\Support\CarouselBatchUpload;
 use App\Filament\Support\CarouselFormFields;
 use Filament\Forms\Components\FileUpload;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use PHPUnit\Framework\Attributes\DataProvider;
