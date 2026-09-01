@@ -10,6 +10,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Livewire\Component as LivewireComponent;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
@@ -221,7 +222,7 @@ class CarouselFormFields
      */
     public static function fileUploadPathState(string $path): array
     {
-        return [(string) \Illuminate\Support\Str::uuid() => $path];
+        return [(string) Str::uuid() => $path];
     }
 
     public static function extractStoredPath(mixed $state): ?string
@@ -265,7 +266,7 @@ class CarouselFormFields
 
             $slideKey = is_string($key) && $key !== '' && ! is_numeric($key)
                 ? $key
-                : (string) \Illuminate\Support\Str::uuid();
+                : (string) Str::uuid();
 
             $alt = is_array($slide['alt'] ?? null) ? $slide['alt'] : [];
             $normalizedAlt = [];
