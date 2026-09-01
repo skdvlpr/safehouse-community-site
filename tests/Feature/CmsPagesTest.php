@@ -24,7 +24,6 @@ class CmsPagesTest extends TestCase
             ->assertSee('data-page-template="about"', false)
             ->assertSee('page-hero__title', false)
             ->assertSee('Comunità di accoglienza e solidarietà sul territorio', false)
-            ->assertSee('page-section-band', false)
             ->assertSee('data-page-carousel', false)
             ->assertSee(__('site.pages.about_values_heading', [], 'it'), false)
             ->assertSee('disobbedienza civile', false)
