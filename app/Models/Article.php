@@ -32,6 +32,7 @@ class Article extends Model
         'section',
         'article_category_id',
         'author_id',
+        'show_author',
         'title',
         'slug',
         'excerpt',
@@ -49,6 +50,7 @@ class Article extends Model
         return [
             'section' => ArticleSection::class,
             'is_published' => 'boolean',
+            'show_author' => 'boolean',
             'published_at' => 'datetime',
             'meta' => 'array',
         ];

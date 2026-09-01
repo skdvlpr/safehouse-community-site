@@ -13,7 +13,8 @@ class AdminUserSeeder extends Seeder
         $admin = User::query()->firstOrCreate(
             ['email' => 'admin@safehouse.community'],
             [
-                'name' => 'Admin',
+                'first_name' => 'Admin',
+                'last_name' => 'Safehouse',
                 'password' => Hash::make('password'),
             ],
         );

@@ -30,8 +30,8 @@
                 @if ($categoryName !== '')
                     <span class="news-meta-chip">{{ $categoryName }}</span>
                 @endif
-                @if ($article->author?->name)
-                    <span class="news-meta-chip">{{ __('site.pages.article_published_by', ['name' => $article->author->name]) }}</span>
+                @if ($article->show_author && $article->author && filled($article->author->first_name))
+                    <span class="news-meta-chip">{{ __('site.pages.article_published_by', ['name' => $article->author->publicAuthorLabel()]) }}</span>
                 @endif
             </div>
 

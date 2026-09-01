@@ -59,9 +59,18 @@ class UserResource extends Resource
         }
 
         return $schema->schema([
-            TextInput::make('name')
-                ->label(__('cms.fields.name'))
+            TextInput::make('first_name')
+                ->label(__('cms.fields.first_name'))
                 ->required()
+                ->maxLength(255),
+
+            TextInput::make('last_name')
+                ->label(__('cms.fields.last_name'))
+                ->required()
+                ->maxLength(255),
+
+            TextInput::make('job_title')
+                ->label(__('cms.fields.job_title'))
                 ->maxLength(255),
 
             TextInput::make('email')
@@ -93,9 +102,9 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label(__('cms.fields.name'))
-                    ->searchable()
-                    ->sortable(),
+                    ->label(__('cms.fields.full_name'))
+                    ->searchable(['first_name', 'last_name'])
+                    ->sortable(['first_name', 'last_name']),
 
                 Tables\Columns\TextColumn::make('email')
                     ->label(__('cms.fields.email'))

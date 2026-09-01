@@ -30,9 +30,13 @@ class ArticleCarouselFormTest extends TestCase
         Storage::disk('public')->put('article-carousels/show.jpg', 'fake');
 
         $article = Article::query()->where('slug->it', 'welcome-safe-house')->firstOrFail();
-        $author = User::factory()->create(['name' => 'Maria Editor']);
+        $author = User::factory()->create([
+            'first_name' => 'Maria',
+            'last_name' => 'Editor',
+        ]);
         $article->update([
             'author_id' => $author->id,
+            'show_author' => true,
             'meta' => [
                 'carousel' => [
                     ['path' => 'article-carousels/show.jpg', 'alt' => ['it' => 'Benvenuti']],
@@ -50,6 +54,38 @@ class ArticleCarouselFormTest extends TestCase
             ->assertSee('Tutte le notizie', false)
             ->assertSee('Pubblicato da Maria Editor', false)
             ->assertSee('article-carousels/show.jpg', false);
+    }
+
+    public function test_article_show_renders_author_job_title_in_brackets(): void
+    {
+        $article = Article::query()->where('slug->it', 'welcome-safe-house')->firstOrFail();
+        $author = User::factory()->create([
+            'first_name' => 'Matteo',
+            'last_name' => 'Grossi',
+            'job_title' => 'Presidente Safe House',
+        ]);
+        $article->update(['author_id' => $author->id, 'show_author' => true]);
+
+        $this->get('/it/news/welcome-safe-house')
+            ->assertOk()
+            ->assertSee('Pubblicato da Matteo Grossi [Presidente Safe House]', false);
+    }
+
+    public function test_article_show_hides_author_when_show_author_is_false(): void
+    {
+        $article = Article::query()->where('slug->it', 'welcome-safe-house')->firstOrFail();
+        $author = User::factory()->create([
+            'first_name' => 'Maria',
+            'last_name' => 'Editor',
+        ]);
+        $article->update([
+            'author_id' => $author->id,
+            'show_author' => false,
+        ]);
+
+        $this->get('/it/news/welcome-safe-house')
+            ->assertOk()
+            ->assertDontSee('Pubblicato da Maria Editor', false);
     }
 
     public function test_article_form_allows_empty_carousel_row_on_save(): void

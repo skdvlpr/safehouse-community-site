@@ -15,6 +15,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 trait ConfiguresArticleResourceForm
@@ -72,6 +73,13 @@ trait ConfiguresArticleResourceForm
                 ->label(__('cms.fields.published'))
                 ->default(false)
                 ->live(),
+
+            Toggle::make('show_author')
+                ->label(__('cms.fields.show_author'))
+                ->helperText(__('cms.helpers.show_author'))
+                ->default(false)
+                ->dehydrated(fn (Get $get): bool => (bool) $get('is_published'))
+                ->visible(fn (Get $get): bool => (bool) $get('is_published')),
 
             DateTimePicker::make('published_at')
                 ->label(__('cms.fields.published_at'))

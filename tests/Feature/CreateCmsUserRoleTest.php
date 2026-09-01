@@ -38,7 +38,8 @@ class CreateCmsUserRoleTest extends TestCase
         Livewire::actingAs($admin)
             ->test(CreateUser::class)
             ->fillForm([
-                'name' => 'Giornalista Test',
+                'first_name' => 'Giornalista',
+                'last_name' => 'Test',
                 'email' => 'giornalista.test@example.com',
                 'password' => 'SecurePassw0rd!',
                 'role' => 'journalist',
