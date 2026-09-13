@@ -6,7 +6,10 @@
 .phpactor.json
 .phpunit.result.cache
 /.codex
-/.cursor/
+# Cursor IDE local state; keep Spec Kit skills tracked
+/.cursor/*
+!/.cursor/skills/
+!/.cursor/skills/**
 /.idea
 /.nova
 /.phpunit.cache
