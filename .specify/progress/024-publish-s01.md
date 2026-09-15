@@ -17,6 +17,10 @@ Must **not** go in git, chat, or SSH argv. Local encrypted `turnstile.secret_key
 
 Owner pastes keys on live CMS Captcha (`/cms-safehouse/captcha`) from the existing Turnstile widget (hostnames already include `safehouse.community`) or [Cloudflare Turnstile dashboard](https://dash.cloudflare.com/?to=/:account/turnstile) ([get started](https://developers.cloudflare.com/turnstile/get-started/)).
 
+## CI blocker (this publish)
+
+First `main` push failed `composer audit` (Filament MFA CVEs, Livewire XSS). Patched in-tree: Filament `v4.13.2`, Livewire `v3.8.9` ([Filament 4 install](https://filamentphp.com/docs/4.x/introduction/installation)). Still v4, not v5. Does not seed CMS content.
+
 ## Caddy
 
 Do **not** run `apply-caddy-site-once.sh` this publish: the snippet’s CMS IP allowlist would 403 staff CMS. Live Caddy currently has no CSP, so Turnstile `api.js` is not blocked.
