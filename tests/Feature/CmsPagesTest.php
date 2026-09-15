@@ -52,10 +52,21 @@ class CmsPagesTest extends TestCase
         $this->get('/it/cookie-policy')->assertOk();
     }
 
-    public function test_demo_templates_are_distinct(): void
+    public function test_demo_landing_is_not_public(): void
     {
-        $this->get('/it/landing-example')->assertOk()->assertSee('data-page-template="landing"', false);
+        $this->get('/it/landing-example')->assertNotFound();
+    }
+
+    public function test_article_example_template_is_distinct(): void
+    {
         $this->get('/it/article-example')->assertOk()->assertSee('data-page-template="article"', false);
+    }
+
+    public function test_published_landing_template_renders(): void
+    {
+        Page::query()->where('key', 'demo-landing')->update(['is_published' => true]);
+
+        $this->get('/it/landing-example')->assertOk()->assertSee('data-page-template="landing"', false);
     }
 
     public function test_news_hub_page_is_removed(): void

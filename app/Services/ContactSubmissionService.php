@@ -35,7 +35,7 @@ class ContactSubmissionService
             return null;
         }
 
-        return hash('sha256', $ip);
+        return hash_hmac('sha256', $ip, (string) config('app.key'));
     }
 
     public static function hashUserAgent(?string $userAgent): ?string
@@ -44,6 +44,6 @@ class ContactSubmissionService
             return null;
         }
 
-        return hash('sha256', $userAgent);
+        return hash_hmac('sha256', $userAgent, (string) config('app.key'));
     }
 }

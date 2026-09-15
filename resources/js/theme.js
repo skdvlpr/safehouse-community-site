@@ -26,8 +26,25 @@ export function applyTheme(preference = getThemePreference()) {
     root.setAttribute('data-theme', resolved);
     root.setAttribute('data-theme-pref', preference);
     root.style.colorScheme = resolved;
+    syncTurnstileTheme(resolved);
 
     return resolved;
+}
+
+function syncTurnstileTheme(theme) {
+    const value = theme === 'light' ? 'light' : 'dark';
+
+    document.querySelectorAll('.cf-turnstile').forEach((el) => {
+        el.setAttribute('data-theme', value);
+    });
+
+    if (typeof window.turnstile?.reset === 'function') {
+        try {
+            window.turnstile.reset();
+        } catch (e) {
+            // Best-effort: implicit widgets may not expose a widget id yet.
+        }
+    }
 }
 
 export function setThemePreference(preference) {

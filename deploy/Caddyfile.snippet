@@ -1,6 +1,7 @@
-# Append to /etc/caddy/Caddyfile on the CRM VPS (77.81.234.138).
-# Requires DNS @ → this server for a public Let's Encrypt cert.
-# Before DNS propagates, test with: curl -k -H "Host: safehouse.community" https://77.81.234.138/
+# Framing: X-Frame-Options MUST match PHP SecurityHeaders (DENY).
+# Live apply of this snippet is owner-ops (root). Do not reload production Caddy from 001.2.
+# CSP/HSTS in this file are not applied by the 001.2 feature.
+# https://caddyserver.com/docs/caddyfile/directives/header
 
 safehouse.community, www.safehouse.community {
     root * /var/www/safehouse-community-site/public
@@ -21,7 +22,7 @@ safehouse.community, www.safehouse.community {
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains"
         X-Content-Type-Options nosniff
-        X-Frame-Options SAMEORIGIN
+        X-Frame-Options DENY
         Referrer-Policy strict-origin-when-cross-origin
     }
 

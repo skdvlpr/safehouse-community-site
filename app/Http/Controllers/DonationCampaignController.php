@@ -82,7 +82,7 @@ class DonationCampaignController extends Controller
         if ($paymentIntentId === '') {
             return redirect()
                 ->route('donations.show', ['locale' => $locale, 'campaignSlug' => $campaignSlug])
-                ->with('donation_notice', __('Completa il pagamento dalla pagina della raccolta.'));
+                ->with('donation_notice', __('site.donations.complete_from_campaign'));
         }
 
         $stripeDonationThankYouSync->ingestSucceededPaymentIntent($paymentIntentId);

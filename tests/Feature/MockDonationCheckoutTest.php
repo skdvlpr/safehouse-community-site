@@ -98,7 +98,7 @@ class MockDonationCheckoutTest extends TestCase
 
         $this->postJson(parse_url($completeUrl, PHP_URL_PATH))
             ->assertUnprocessable()
-            ->assertJsonPath('message', 'Mock payment intent already completed.');
+            ->assertJsonPath('message', __('site.donations.checkout_failed'));
     }
 
     public function test_mock_recurring_subscription_and_complete_flow(): void

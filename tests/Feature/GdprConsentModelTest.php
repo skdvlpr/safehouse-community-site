@@ -21,8 +21,10 @@ class GdprConsentModelTest extends TestCase
         $columns = Schema::getColumnListing('gdpr_consents');
 
         $this->assertContains('ip_hash', $columns);
+        $this->assertContains('user_agent_hash', $columns);
         $this->assertNotContains('ip', $columns);
         $this->assertNotContains('ip_address', $columns);
+        $this->assertNotContains('user_agent', $columns);
     }
 
     public function test_gdpr_consent_factory_persists_record(): void

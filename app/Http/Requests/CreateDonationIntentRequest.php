@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\DonationCampaign;
 use App\Support\DonorContact;
+use App\Support\PublicRequestLocale;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -13,6 +14,11 @@ class CreateDonationIntentRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        PublicRequestLocale::apply($this);
     }
 
     /**
@@ -50,7 +56,7 @@ class CreateDonationIntentRequest extends FormRequest
             if (! $contact->hasChannel()) {
                 $validator->errors()->add(
                     'donor_email',
-                    __('Inserisci un\'email o un numero di telefono per identificare il donatore.'),
+                    __('site.donations.contact_required'),
                 );
 
                 return;
@@ -60,7 +66,7 @@ class CreateDonationIntentRequest extends FormRequest
             if ($rawPhone !== '' && $contact->phone === null) {
                 $validator->errors()->add(
                     'donor_phone',
-                    __('Inserisci un numero di telefono valido con prefisso internazionale.'),
+                    __('site.donations.phone_invalid'),
                 );
             }
         });

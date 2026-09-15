@@ -19,6 +19,9 @@ class DeployIntegrationSeeder extends Seeder
             return;
         }
 
+        // Stripe secrets must come from .env or CMS Integrations (encrypted at rest).
+        // See https://laravel.com/docs/13.x/encryption
+
         /** @var array<string, string|null> $settings */
         $settings = require $path;
 

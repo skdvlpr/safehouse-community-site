@@ -207,7 +207,7 @@ class PageSeeder extends Seeder
             ['key' => 'demo-landing'],
             [
                 'template' => 'landing',
-                'is_published' => true,
+                'is_published' => false,
                 'title' => [
                     'it' => 'Esempio landing',
                     'en' => 'Landing example',

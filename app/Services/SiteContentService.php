@@ -128,7 +128,7 @@ class SiteContentService
         foreach (array_keys(config('site_content.keys', [])) as $key) {
             $map = $this->decodedTranslationMap($key);
 
-            foreach (config('locales.available', ['it', 'ru', 'en']) as $locale) {
+            foreach (config('locales.available') as $locale) {
                 $values["{$key}.{$locale}"] = $map[$locale] ?? '';
             }
         }

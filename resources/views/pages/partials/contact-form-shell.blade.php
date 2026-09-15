@@ -156,7 +156,7 @@
             <div
                 class="cf-turnstile"
                 data-sitekey="{{ $turnstile->siteKey() }}"
-                data-theme="dark"
+                data-size="flexible"
             ></div>
             @error('cf-turnstile-response')
                 <p class="template-contact-form__error">{{ $message }}</p>

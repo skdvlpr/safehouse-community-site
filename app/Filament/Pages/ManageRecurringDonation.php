@@ -96,7 +96,7 @@ class ManageRecurringDonation extends Page
 
     public function form(Schema $schema): Schema
     {
-        $locales = config('locales.available', ['it', 'ru', 'en']);
+        $locales = config('locales.available');
 
         return $schema->components([
             Section::make(__('cms.sections.recurring_donation'))->schema(array_merge([

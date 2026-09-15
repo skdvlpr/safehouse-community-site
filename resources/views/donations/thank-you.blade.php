@@ -59,7 +59,7 @@
 
         <a href="{{ route('donations.index', ['locale' => $locale]) }}"
            class="safehouse-btn-primary mt-8 inline-flex rounded-2xl px-6 py-3">
-            {{ __('Altre raccolte') }}
+            {{ __('site.donations.other_campaigns') }}
         </a>
     </div>
 @endsection

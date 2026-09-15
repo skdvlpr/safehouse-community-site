@@ -98,7 +98,7 @@ class PageCarousel
 
             $alt = [];
 
-            foreach (config('locales.available', ['it', 'ru', 'en']) as $locale) {
+            foreach (config('locales.available') as $locale) {
                 $value = $item['alt'][$locale] ?? $item["alt_{$locale}"] ?? null;
 
                 if (is_string($value) && $value !== '') {
@@ -151,7 +151,7 @@ class PageCarousel
 
             $alt = [];
 
-            foreach (config('locales.available', ['it', 'ru', 'en']) as $locale) {
+            foreach (config('locales.available') as $locale) {
                 $value = $item['alt'][$locale] ?? $item["alt_{$locale}"] ?? null;
 
                 if (is_string($value) && $value !== '') {
@@ -181,7 +181,7 @@ class PageCarousel
             return [];
         }
 
-        $locales = config('locales.available', ['it', 'ru', 'en']);
+        $locales = config('locales.available');
         $normalized = [];
 
         foreach ($cards as $card) {

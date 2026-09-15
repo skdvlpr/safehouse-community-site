@@ -8,12 +8,14 @@ use App\Models\DonationCampaign;
 use App\Services\Payments\StripePaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Testing\TestResponse;
 use Mockery;
 use RuntimeException;
 use Stripe\Event;
 use Stripe\PaymentIntent;
+use Stripe\StripeClient;
 use Tests\TestCase;
 
 class StripeWebhookDonationTest extends TestCase
@@ -731,6 +733,85 @@ class StripeWebhookDonationTest extends TestCase
             ->assertSee('OK');
 
         Http::assertNothingSent();
+    }
+
+    public function test_invalid_webhook_signature_returns_400_not_500(): void
+    {
+        Http::fake();
+        $this->bindRealStripeWebhookService();
+
+        $this->call(
+            'POST',
+            '/api/webhooks/stripe',
+            [],
+            [],
+            [],
+            [
+                'HTTP_Stripe-Signature' => 't=1,v1=deadbeef',
+                'CONTENT_TYPE' => 'application/json',
+            ],
+            '{"id":"evt_forged"}',
+        )
+            ->assertStatus(400)
+            ->assertSee('Invalid signature');
+
+        Http::assertNothingSent();
+    }
+
+    public function test_missing_webhook_signature_returns_400_not_500(): void
+    {
+        Http::fake();
+        $this->bindRealStripeWebhookService();
+
+        $this->call(
+            'POST',
+            '/api/webhooks/stripe',
+            [],
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            '{"id":"evt_forged"}',
+        )
+            ->assertStatus(400)
+            ->assertSee('Invalid signature');
+
+        Http::assertNothingSent();
+    }
+
+    public function test_malformed_webhook_payload_returns_400_not_500(): void
+    {
+        Http::fake();
+        $this->bindRealStripeWebhookService();
+
+        $this->call(
+            'POST',
+            '/api/webhooks/stripe',
+            [],
+            [],
+            [],
+            [
+                'HTTP_Stripe-Signature' => 't=1,v1=deadbeef',
+                'CONTENT_TYPE' => 'application/json',
+            ],
+            'not-json',
+        )
+            ->assertStatus(400)
+            ->assertSee('Invalid signature');
+
+        Http::assertNothingSent();
+    }
+
+    private function bindRealStripeWebhookService(): void
+    {
+        config()->set('stripe.mock', false);
+        config()->set('stripe.webhook_secret', 'whsec_test_secret_for_phpunit');
+        Cache::forget('site_setting:stripe.webhook_secret');
+
+        $this->app->forgetInstance(StripePaymentService::class);
+        $this->instance(
+            StripePaymentService::class,
+            new StripePaymentService(new StripeClient('sk_test_phpunit_placeholder')),
+        );
     }
 
     private function postStripeWebhook(string $payload, string $signature): TestResponse

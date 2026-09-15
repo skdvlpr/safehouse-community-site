@@ -54,42 +54,42 @@
         @endif
 
         <div class="space-y-3">
-            <span class="block text-sm font-medium">{{ __('Tipo di donatore') }}</span>
+            <span class="block text-sm font-medium">{{ __('site.donations.donor_type_label') }}</span>
             <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <label class="flex cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-safehouse-page/70 px-4 py-3 text-sm has-[:checked]:border-safehouse-primary has-[:checked]:bg-safehouse-primary/10">
                     <input type="radio" name="donor_type" value="individual" class="sr-only" checked>
-                    <span>{{ __('Persona fisica') }}</span>
+                    <span>{{ __('site.donations.donor_type_individual') }}</span>
                 </label>
                 <label class="flex cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-safehouse-page/70 px-4 py-3 text-sm has-[:checked]:border-safehouse-primary has-[:checked]:bg-safehouse-primary/10">
                     <input type="radio" name="donor_type" value="organization" class="sr-only">
-                    <span>{{ __('Organizzazione / azienda') }}</span>
+                    <span>{{ __('site.donations.donor_type_organization') }}</span>
                 </label>
             </div>
         </div>
 
         <div class="space-y-2">
-            <label for="donor_name" class="block text-sm font-medium">{{ __('Nome o ragione sociale') }}</label>
+            <label for="donor_name" class="block text-sm font-medium">{{ __('site.donations.donor_name') }}</label>
             <input id="donor_name" name="donor_name" required maxlength="255"
                    class="w-full rounded-2xl border border-white/10 bg-safehouse-page px-4 py-3 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
         </div>
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
             <div class="space-y-2">
-                <label for="donor_email" class="block text-sm font-medium">{{ __('Email') }}</label>
+                <label for="donor_email" class="block text-sm font-medium">{{ __('site.donations.donor_email') }}</label>
                 <input id="donor_email" name="donor_email" type="email" maxlength="255" autocomplete="email"
                        class="donation-form__input min-h-12 w-full">
             </div>
             <div class="space-y-2 donation-phone-field">
-                <label for="donor_phone" class="block text-sm font-medium">{{ __('Telefono') }}</label>
+                <label for="donor_phone" class="block text-sm font-medium">{{ __('site.donations.donor_phone') }}</label>
                 <input id="donor_phone" name="donor_phone" type="tel" maxlength="50" autocomplete="tel"
                        class="donation-form__input min-h-12 w-full">
                 <input type="hidden" id="donor_phone_country" name="donor_phone_country" value="">
             </div>
         </div>
-        <p class="text-xs text-safehouse-muted">{{ __('Inserisci almeno un\'email o un numero di telefono per collegare la donazione al tuo profilo di donatore.') }}</p>
+        <p class="text-xs text-safehouse-muted">{{ __('site.donations.contact_help') }}</p>
 
         <div class="space-y-2">
-            <label for="comment" class="block text-sm font-medium">{{ __('Commento (opzionale)') }}</label>
+            <label for="comment" class="block text-sm font-medium">{{ __('site.donations.comment') }}</label>
             <textarea id="comment" name="comment" rows="3" maxlength="5000"
                       class="min-h-28 w-full resize-y rounded-2xl border border-white/10 bg-safehouse-page px-4 py-3 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20"></textarea>
         </div>
@@ -99,7 +99,7 @@
                 @if ($isRecurring)
                     {{ __('site.donations.amount_monthly_label') }}
                 @else
-                    {{ __('Importo') }}
+                    {{ __('site.donations.amount') }}
                 @endif
                 ({{ strtoupper($campaign->currency) }})
             </span>
@@ -124,7 +124,7 @@
                            min="{{ number_format($campaign->min_amount_cents / 100, 2, '.', '') }}"
                            step="0.01"
                            inputmode="decimal"
-                           aria-label="{{ $isRecurring ? __('site.donations.amount_monthly_label') : __('Importo personalizzato') }}"
+                           aria-label="{{ $isRecurring ? __('site.donations.amount_monthly_label') : __('site.donations.custom_amount') }}"
                            placeholder="0,00"
                            class="w-full rounded-2xl border border-white/10 bg-safehouse-page py-3 pe-16 ps-4 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
                     <span class="pointer-events-none absolute inset-y-0 end-4 flex items-center text-sm font-medium text-safehouse-muted">
@@ -134,7 +134,7 @@
             @endif
 
             <p class="text-xs text-safehouse-muted">
-                {{ __('Minimo') }}: {{ $campaign->formatPresetLabel($campaign->min_amount_cents) }}@if ($isRecurring) {{ __('site.donations.preset_per_month_suffix') }}@endif
+                {{ __('site.donations.minimum') }}: {{ $campaign->formatPresetLabel($campaign->min_amount_cents) }}@if ($isRecurring) {{ __('site.donations.preset_per_month_suffix') }}@endif
             </p>
         </div>
 
@@ -151,10 +151,10 @@
         @endif
 
         <p class="text-xs leading-relaxed text-safehouse-muted">
-            {{ __('I dati della carta non vengono mai memorizzati sui nostri server: il pagamento è gestito da Stripe.') }}
+            {{ __('site.donations.card_not_stored') }}
             <a href="{{ route('donations.privacy', ['locale' => $locale, 'campaignSlug' => $campaign->slug]) }}"
                class="text-safehouse-link underline underline-offset-2 hover:text-safehouse-link-hover">
-                {{ __('Informativa privacy pagamenti') }}
+                {{ __('site.donations.privacy_link') }}
             </a>
         </p>
 
@@ -168,7 +168,7 @@
 
         <button type="button" id="apply-donor-to-stripe"
                 class="hidden w-full rounded-2xl border border-white/15 bg-safehouse-page/70 px-4 py-3 text-sm font-medium transition hover:border-safehouse-primary/40">
-            {{ __('Usa i miei dati nel modulo di pagamento') }}
+            {{ __('site.donations.use_form_data') }}
         </button>
 
         @if ($stripeMock && config('app.debug'))
@@ -184,7 +184,7 @@
             @if ($isRecurring)
                 {{ __('site.donations.continue_monthly_payment') }}
             @else
-                {{ __('Continua al pagamento') }}
+                {{ __('site.donations.continue_payment') }}
             @endif
         </button>
     </form>
@@ -211,6 +211,7 @@
     const applyDonorToStripeButton = document.getElementById('apply-donor-to-stripe');
     const intentUrl = @json(route('api.donations.intents.store', ['donationCampaign' => $campaign->slug]));
     const thankYouBaseUrl = @json(route('donations.thank-you', ['locale' => $locale, 'campaignSlug' => $campaign->slug]));
+    const appLocale = @json($locale);
     const stripeMock = @json($stripeMock);
     const isRecurring = form?.dataset.recurring === '1';
     const recurringAck = document.getElementById('recurring_cancel_ack');
@@ -417,7 +418,7 @@
 
         const amountCents = resolveAmountCents();
         if (!amountCents) {
-            showError(@json(__('Seleziona o inserisci un importo.')));
+            showError(@json(__('site.donations.amount_required')));
             submitButton.disabled = false;
             return;
         }
@@ -429,14 +430,14 @@
         }
 
         if (!hasDonorContactChannel()) {
-            showError(@json(__('Inserisci un\'email o un numero di telefono.')));
+            showError(@json(__('site.donations.contact_required_short')));
             submitButton.disabled = false;
             return;
         }
 
         const phoneValue = donorPhone();
         if (donorPhoneElement?.value.trim() !== '' && !isValidE164(phoneValue)) {
-            showError(@json(__('Inserisci un numero di telefono valido con prefisso internazionale.')));
+            showError(@json(__('site.donations.phone_invalid')));
             submitButton.disabled = false;
             return;
         }
@@ -448,6 +449,7 @@
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value,
+                    'X-App-Locale': appLocale,
                 },
                 body: JSON.stringify({
                     amount_cents: amountCents,
@@ -462,7 +464,7 @@
 
             const data = await response.json();
             if (!response.ok) {
-                showError(data.message || @json(__('Impossibile avviare il pagamento.')));
+                showError(data.message || @json(__('site.donations.checkout_start_failed')));
                 submitButton.disabled = false;
                 return;
             }
@@ -470,7 +472,7 @@
             if (data.mock && data.complete_url) {
                 completeUrl = data.complete_url;
                 mockPaymentPanel?.classList.remove('hidden');
-                submitButton.textContent = @json(__('Simula pagamento riuscito'));
+                submitButton.textContent = @json(__('site.donations.simulate_success'));
                 submitButton.disabled = false;
                 return;
             }
@@ -489,7 +491,7 @@
                 applyDonorToStripeButton?.classList.remove('hidden');
             });
             paymentElementContainer.classList.remove('hidden');
-            submitButton.textContent = @json(__('Paga ora'));
+            submitButton.textContent = @json(__('site.donations.pay_now'));
             submitButton.disabled = false;
             return;
         }
@@ -500,11 +502,12 @@
                 headers: {
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value,
+                    'X-App-Locale': appLocale,
                 },
             });
             const completeData = await completeResponse.json();
             if (!completeResponse.ok) {
-                showError(completeData.message || @json(__('Registrazione donazione non riuscita.')));
+                showError(completeData.message || @json(__('site.donations.ingest_failed')));
                 submitButton.disabled = false;
                 return;
             }
@@ -530,7 +533,7 @@
         });
 
         if (error) {
-            showError(error.message || @json(__('Pagamento non riuscito.')));
+            showError(error.message || @json(__('site.donations.payment_failed')));
         }
         submitButton.disabled = false;
     });

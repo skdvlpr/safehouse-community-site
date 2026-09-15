@@ -7,6 +7,7 @@ use App\Http\Requests\CreateDonationIntentRequest;
 use App\Models\DonationCampaign;
 use App\Services\Payments\StripePaymentService;
 use App\Support\IntegrationConfig;
+use App\Support\PublicRequestLocale;
 use Illuminate\Http\JsonResponse;
 use RuntimeException;
 
@@ -18,10 +19,12 @@ class DonationCheckoutController extends Controller
 
     public function store(CreateDonationIntentRequest $request, string $donationCampaign): JsonResponse
     {
+        PublicRequestLocale::apply($request);
+
         $campaign = DonationCampaign::query()->where('slug', $donationCampaign)->firstOrFail();
 
         if (! $campaign->is_active) {
-            return response()->json(['message' => 'Campaign is not active.'], 404);
+            return response()->json(['message' => __('site.donations.campaign_inactive')], 404);
         }
 
         try {
@@ -53,7 +56,7 @@ class DonationCheckoutController extends Controller
         } catch (RuntimeException $exception) {
             report($exception);
 
-            return response()->json(['message' => $exception->getMessage()], 422);
+            return response()->json(['message' => __('site.donations.checkout_failed')], 422);
         }
 
         return response()->json([

@@ -23,7 +23,7 @@ class NavigationMenuTest extends TestCase
             ->assertOk()
             ->assertSee(__('site.nav.other_pages', [], 'it'), false)
             ->assertSee('Trasparenza', false)
-            ->assertSee('Esempio landing', false);
+            ->assertDontSee('Esempio landing', false);
     }
 
     public function test_standard_pages_are_not_listed_in_other_pages_dropdown(): void

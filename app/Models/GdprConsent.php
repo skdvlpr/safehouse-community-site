@@ -18,6 +18,7 @@ class GdprConsent extends Model
         'consent_type',
         'granted',
         'ip_hash',
+        'user_agent_hash',
         'consented_at',
     ];
 

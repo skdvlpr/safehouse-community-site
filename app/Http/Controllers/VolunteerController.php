@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\VolunteerMailFailedException;
 use App\Http\Requests\StoreVolunteerRequest;
 use App\Services\VolunteerService;
 use Illuminate\Http\RedirectResponse;
@@ -24,7 +25,16 @@ class VolunteerController extends Controller
             return $this->redirectWithSuccess($locale);
         }
 
-        $this->volunteers->store($request->validated(), $request);
+        try {
+            $this->volunteers->send($request->validated(), $locale);
+        } catch (VolunteerMailFailedException) {
+            return redirect()
+                ->back()
+                ->withInput($request->except('company', 'cf-turnstile-response'))
+                ->withErrors([
+                    'volunteer_mail' => __('site.volunteer.mail_failed'),
+                ]);
+        }
 
         return $this->redirectWithSuccess($locale);
     }

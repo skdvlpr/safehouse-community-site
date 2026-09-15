@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\GdprConsent;
+use App\Services\ContactSubmissionService;
 use Database\Seeders\PageSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\RateLimiter;
@@ -28,7 +29,7 @@ class CookieConsentTest extends TestCase
 
     public function test_cookie_consent_endpoint_stores_audit_record(): void
     {
-        $response = $this->postJson('/it/cookie-consent', [
+        $response = $this->withHeaders(['User-Agent' => 'Safehouse Consent Agent'])->postJson('/it/cookie-consent', [
             'level' => 'all',
         ]);
 
@@ -48,6 +49,11 @@ class CookieConsentTest extends TestCase
 
         $this->assertNotNull($consent);
         $this->assertNotContains('ip', array_keys($consent->getAttributes()));
+        $this->assertSame(ContactSubmissionService::hashIp('127.0.0.1'), $consent->ip_hash);
+        $this->assertSame(
+            ContactSubmissionService::hashUserAgent('Safehouse Consent Agent'),
+            $consent->user_agent_hash,
+        );
     }
 
     public function test_cookie_consent_essential_level_uses_separate_consent_type(): void

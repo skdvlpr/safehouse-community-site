@@ -79,7 +79,7 @@ class PageTemplateFormFields
 
     public static function serviceCardsSection(): Section
     {
-        $locales = config('locales.available', ['it', 'ru', 'en']);
+        $locales = config('locales.available');
         $cardFields = [];
 
         foreach ($locales as $locale) {
@@ -107,7 +107,7 @@ class PageTemplateFormFields
                     ->reorderable()
                     ->collapsible()
                     ->itemLabel(function (array $state): string {
-                        foreach (config('locales.available', ['it', 'ru', 'en']) as $locale) {
+                        foreach (config('locales.available') as $locale) {
                             $title = $state['title'][$locale] ?? null;
 
                             if (is_string($title) && $title !== '') {

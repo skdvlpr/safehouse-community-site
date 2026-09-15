@@ -14,7 +14,7 @@ class CarouselBatchUpload
     public static function mergePaths(array $paths, array $currentSlides): array
     {
         $max = (int) config('page_carousel.max_slides', 12);
-        $locales = config('locales.available', ['it', 'ru', 'en']);
+        $locales = config('locales.available');
         $emptyAlt = array_fill_keys($locales, '');
 
         foreach ($paths as $path) {

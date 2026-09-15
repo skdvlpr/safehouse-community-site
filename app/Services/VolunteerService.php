@@ -2,25 +2,51 @@
 
 namespace App\Services;
 
-use App\Models\Volunteer;
-use Illuminate\Http\Request;
+use App\Exceptions\VolunteerMailFailedException;
+use App\Mail\VolunteerApplicantMail;
+use App\Mail\VolunteerStaffMail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class VolunteerService
 {
+    public function __construct(
+        private readonly OutboundMailConfigurator $mail,
+    ) {}
+
     /**
-     * @param  array{name: string, email: string, phone?: string|null, message?: string|null}  $data
+     * @param  array{name: string, last_name: string, email: string, phone: string, message: string}  $data
      */
-    public function store(array $data, Request $request): Volunteer
+    public function send(array $data, string $locale): void
     {
-        return Volunteer::query()->create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'] ?? null,
-            'message' => $data['message'] ?? null,
-            'status' => 'pending',
-            'ip_hash' => ContactSubmissionService::hashIp($request->ip()),
-            'user_agent_hash' => ContactSubmissionService::hashUserAgent($request->userAgent()),
-            'gdpr_consent_at' => now(),
-        ]);
+        if (! $this->mail->canSendSportelloNotifications()) {
+            Log::warning('Volunteer application mail skipped: SMTP not configured');
+
+            throw new VolunteerMailFailedException('SMTP not configured');
+        }
+
+        $this->mail->applyForSportello();
+
+        try {
+            Mail::send(new VolunteerStaffMail(
+                applicantName: $data['name'],
+                lastName: $data['last_name'],
+                applicantEmail: $data['email'],
+                phone: $data['phone'],
+                bodyMessage: $data['message'],
+            ));
+
+            Mail::send(new VolunteerApplicantMail(
+                applicantEmail: $data['email'],
+                mailLocale: $locale,
+            ));
+        } catch (Throwable $exception) {
+            Log::warning('Volunteer application mail failed', [
+                'error' => $exception->getMessage(),
+            ]);
+
+            throw new VolunteerMailFailedException('Mail send failed', previous: $exception);
+        }
     }
 }

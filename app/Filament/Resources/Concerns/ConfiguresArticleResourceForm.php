@@ -22,7 +22,7 @@ trait ConfiguresArticleResourceForm
 {
     public static function articleFormSchema(Schema $schema, ArticleSection $section): Schema
     {
-        $locales = config('locales.available', ['it', 'ru', 'en']);
+        $locales = config('locales.available');
 
         $tabs = [];
 

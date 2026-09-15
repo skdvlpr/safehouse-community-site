@@ -273,7 +273,7 @@ class CarouselFormFields
      */
     public static function normalizeSlidesForForm(array $slides): array
     {
-        $locales = config('locales.available', ['it', 'ru', 'en']);
+        $locales = config('locales.available');
         $normalized = [];
 
         foreach ($slides as $key => $slide) {

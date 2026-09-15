@@ -20,10 +20,25 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(SecurityHeaders::class);
         $middleware->append(DisableHttpCacheWhenEnabled::class);
 
-        $middleware->trustProxies(at: '*');
+        $trustedProxies = env('TRUSTED_PROXIES');
+        if ($trustedProxies === '*') {
+            $middleware->trustProxies(at: '*');
+        } elseif (is_string($trustedProxies) && $trustedProxies !== '') {
+            $middleware->trustProxies(at: array_values(array_filter(array_map('trim', explode(',', $trustedProxies)))));
+        } else {
+            // DDEV docker + Caddy/loopback. Do not trust spoofed X-Forwarded-For from the public internet.
+            // https://laravel.com/docs/13.x/requests#configuring-trusted-proxies
+            $middleware->trustProxies(at: [
+                '127.0.0.1',
+                '::1',
+                '10.0.0.0/8',
+                '172.16.0.0/12',
+                '192.168.0.0/16',
+            ]);
+        }
 
-        $middleware->validateCsrfTokens(except: [
-            'webhooks/stripe',
+        $middleware->preventRequestForgery(except: [
+            'api/webhooks/stripe',
         ]);
 
         $middleware->alias([
@@ -43,13 +58,18 @@ return Application::configure(basePath: dirname(__DIR__))
                 return;
             }
 
+            $rawMessage = $exception->getMessage();
+            $rawMessage = preg_replace('/(sk_live_|sk_test_|rk_live_|rk_test_|pk_live_|pk_test_|whsec_)[A-Za-z0-9_]+/', '$1[redacted]', $rawMessage) ?? $rawMessage;
+            $rawMessage = preg_replace('/Bearer\s+\S+/i', 'Bearer [redacted]', $rawMessage) ?? $rawMessage;
+            $rawMessage = mb_substr($rawMessage, 0, 500);
+
             $message = sprintf(
-                "[%s] %s\n%s:%d\n%s\n",
+                "[%s] %s\n%s\n%s:%d\n",
                 now()->toDateTimeString(),
-                $exception->getMessage(),
+                $exception::class,
+                $rawMessage,
                 $exception->getFile(),
                 $exception->getLine(),
-                $exception->getTraceAsString()
             );
 
             @file_put_contents(storage_path('logs/cms-last-error.txt'), $message, LOCK_EX);

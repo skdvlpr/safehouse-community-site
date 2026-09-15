@@ -93,7 +93,7 @@ class ManageDonationsConfig extends Page
 
     public function form(Schema $schema): Schema
     {
-        $locales = config('locales.available', ['it', 'ru', 'en']);
+        $locales = config('locales.available');
 
         return $schema->components([
             Tabs::make('DonationsConfigTabs')->tabs([

@@ -53,7 +53,7 @@ class ArticleCategoryResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        $locales = config('locales.available', ['it', 'ru', 'en']);
+        $locales = config('locales.available');
 
         $tabs = [];
 

@@ -682,6 +682,10 @@ html[data-theme='light'] {
         @apply space-y-5;
     }
 
+    .template-contact-form .cf-turnstile {
+        @apply flex w-full justify-center;
+    }
+
     .template-contact-form__field label {
         @apply mb-1.5 block text-sm font-medium text-safehouse-text;
     }

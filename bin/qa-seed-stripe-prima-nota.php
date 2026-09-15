@@ -3,7 +3,7 @@
 /**
  * DDEV QA: create N Stripe test PaymentIntents, settle, ingest into CRM, attach CRM link.
  *
- * Run AFTER CRM purge. Requires site DDEV + sk_test_ + ESPOCRM pointing at local CRM.
+ * Run AFTER CRM purge. Requires site DDEV + sk_test_ from CMS/.env + ESPOCRM pointing at local CRM.
  *
  * Usage (site):
  *   ddev exec php bin/qa-seed-stripe-prima-nota.php --count=4

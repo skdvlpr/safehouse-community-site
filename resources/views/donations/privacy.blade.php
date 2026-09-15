@@ -6,21 +6,21 @@
     $privacy = $campaign->getTranslation('privacy_notice', $locale, false) ?: $campaign->getTranslation('privacy_notice', 'it');
 @endphp
 
-@section('title', __('Privacy pagamenti'))
+@section('title', __('site.donations.privacy_title'))
 
 @section('content')
-    <h1 class="mb-2 text-3xl font-semibold">{{ __('Informativa privacy — pagamenti') }}</h1>
+    <h1 class="mb-2 text-3xl font-semibold">{{ __('site.donations.privacy_heading') }}</h1>
     <p class="mb-6 text-sm text-safehouse-muted">{{ $title }}</p>
 
     <div class="prose prose-invert max-w-none rounded-xl border border-white/10 bg-safehouse-modal p-6 text-safehouse-muted">
         @if ($privacy)
             {!! nl2br(e($privacy)) !!}
         @else
-            <p>{{ __('I pagamenti sono elaborati da Stripe Inc. Safe House non memorizza numeri di carta, CVV o dati di autenticazione bancaria.') }}</p>
-            <p>{{ __('Conserviamo solo nome del donatore, importo, valuta e commento opzionale, registrati nei nostri sistemi di contabilità.') }}</p>
+            <p>{{ __('site.donations.privacy_stripe') }}</p>
+            <p>{{ __('site.donations.privacy_stored') }}</p>
         @endif
     </div>
 
     <a href="{{ route('donations.show', ['locale' => $locale, 'campaignSlug' => $campaign->slug]) }}"
-       class="mt-6 inline-block text-safehouse-primary underline">{{ __('Torna alla raccolta') }}</a>
+       class="mt-6 inline-block text-safehouse-primary underline">{{ __('site.donations.privacy_back') }}</a>
 @endsection

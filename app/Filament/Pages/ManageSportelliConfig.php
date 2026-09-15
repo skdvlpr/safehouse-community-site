@@ -14,7 +14,6 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -23,7 +22,6 @@ use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
@@ -65,20 +63,9 @@ class ManageSportelliConfig extends Page
     public function mount(
         ContactDeskSettings $desks,
         ContactSportelloMailSettings $mailSettings,
-        SiteSettingsService $settings,
     ): void {
-        $values = array_merge(
-            $mailSettings->nestedFormValues(),
-            $settings->nestedFormValues(),
-        );
-
+        $values = $mailSettings->nestedFormValues();
         data_set($values, 'contact.desks', $desks->all());
-
-        data_set(
-            $values,
-            'turnstile.enabled',
-            $settings->has('turnstile.enabled') ? $settings->isTruthy('turnstile.enabled') : false,
-        );
 
         $this->form->fill($values);
     }
@@ -114,7 +101,7 @@ class ManageSportelliConfig extends Page
 
     public function form(Schema $schema): Schema
     {
-        $locales = config('locales.available', ['it', 'ru', 'en']);
+        $locales = config('locales.available');
         $mailTabs = [];
 
         foreach ($locales as $locale) {
@@ -137,6 +124,10 @@ class ManageSportelliConfig extends Page
         return $schema->components([
             Tabs::make('SportelliConfigTabs')->tabs([
                 Tab::make(__('cms.sections.contact_desks'))->schema([
+                    Placeholder::make('captcha_moved')
+                        ->label(__('cms.nav.captcha'))
+                        ->content(__('cms.helpers.captcha_now_in_settings'))
+                        ->columnSpanFull(),
                     Section::make(__('cms.sections.contact_desks'))->schema([
                         Repeater::make('contact.desks')
                             ->label(__('cms.fields.contact_desks'))
@@ -195,28 +186,6 @@ class ManageSportelliConfig extends Page
                         Tabs::make('SportelloMailLocales')->tabs($mailTabs),
                     ]),
                 ]),
-                Tab::make(__('cms.sections.contact_captcha'))->schema([
-                    Section::make(__('cms.sections.contact_captcha'))->schema([
-                        Toggle::make('turnstile.enabled')
-                            ->label(__('cms.fields.turnstile_enabled'))
-                            ->helperText(__('cms.helpers.turnstile_enabled'))
-                            ->default(false)
-                            ->inline(false)
-                            ->live(),
-                        TextInput::make('turnstile.site_key')
-                            ->label(__('cms.fields.turnstile_site_key'))
-                            ->helperText(__('cms.helpers.turnstile_site_key'))
-                            ->maxLength(255)
-                            ->visible(fn (Get $get): bool => (bool) $get('turnstile.enabled')),
-                        TextInput::make('turnstile.secret_key')
-                            ->label(__('cms.fields.turnstile_secret_key'))
-                            ->password()
-                            ->revealable()
-                            ->helperText(__('cms.helpers.turnstile_secret_key'))
-                            ->dehydrated(fn (?string $state): bool => filled($state))
-                            ->visible(fn (Get $get): bool => (bool) $get('turnstile.enabled')),
-                    ]),
-                ]),
             ]),
         ]);
     }
@@ -251,18 +220,12 @@ class ManageSportelliConfig extends Page
             unset($state['sportello_mail']);
         }
 
+        unset($state['turnstile']);
+
         $settings->updateFromFormState(is_array($state) ? $state : []);
 
-        $values = array_merge(
-            $mailSettings->nestedFormValues(),
-            $settings->nestedFormValues(),
-        );
+        $values = $mailSettings->nestedFormValues();
         data_set($values, 'contact.desks', $deskSettings->all());
-        data_set(
-            $values,
-            'turnstile.enabled',
-            $settings->has('turnstile.enabled') ? $settings->isTruthy('turnstile.enabled') : false,
-        );
         $this->form->fill($values);
 
         Notification::make()

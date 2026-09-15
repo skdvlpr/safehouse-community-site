@@ -70,7 +70,7 @@
                 @endif
             </a>
         @empty
-            <p class="photo-legible-text text-safehouse-muted">{{ __('Nessuna raccolta attiva al momento.') }}</p>
+            <p class="photo-legible-text text-safehouse-muted">{{ __('site.donations.none_active') }}</p>
         @endforelse
     </div>
 @endsection

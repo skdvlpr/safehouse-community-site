@@ -63,7 +63,7 @@ class RecurringDonationCampaignService
     public function formValues(): array
     {
         $campaign = $this->campaign();
-        $locales = config('locales.available', ['it', 'ru', 'en']);
+        $locales = config('locales.available');
 
         $title = [];
         $description = [];
@@ -86,7 +86,7 @@ class RecurringDonationCampaignService
     public function saveFromFormState(array $state): DonationCampaign
     {
         $campaign = $this->campaign();
-        $locales = config('locales.available', ['it', 'ru', 'en']);
+        $locales = config('locales.available');
 
         $title = [];
         $description = [];

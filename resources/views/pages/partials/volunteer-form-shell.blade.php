@@ -2,6 +2,10 @@
     <p class="template-contact-form__success" role="status">{{ session('volunteer_success') }}</p>
 @endif
 
+@error('volunteer_mail')
+    <p class="template-contact-form__error" role="alert">{{ $message }}</p>
+@enderror
+
 <form
     class="template-contact-form"
     method="POST"
@@ -33,6 +37,23 @@
     </div>
 
     <div class="template-contact-form__field">
+        <label for="volunteer-last-name">{{ __('site.volunteer.last_name') }}</label>
+        <input
+            id="volunteer-last-name"
+            type="text"
+            name="last_name"
+            value="{{ old('last_name') }}"
+            required
+            maxlength="255"
+            placeholder="{{ __('site.volunteer.last_name_placeholder') }}"
+            @class(['template-contact-form__input--invalid' => $errors->has('last_name')])
+        >
+        @error('last_name')
+            <p class="template-contact-form__error">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <div class="template-contact-form__field">
         <label for="volunteer-email">{{ __('site.volunteer.email') }}</label>
         <input
             id="volunteer-email"
@@ -56,6 +77,7 @@
             type="tel"
             name="phone"
             value="{{ old('phone') }}"
+            required
             maxlength="50"
             placeholder="{{ __('site.volunteer.phone_placeholder') }}"
             @class(['template-contact-form__input--invalid' => $errors->has('phone')])
@@ -71,6 +93,7 @@
             id="volunteer-message"
             name="message"
             rows="5"
+            required
             maxlength="5000"
             placeholder="{{ __('site.volunteer.message_placeholder') }}"
             @class(['template-contact-form__input--invalid' => $errors->has('message')])
@@ -95,6 +118,20 @@
             <p class="template-contact-form__error">{{ $message }}</p>
         @enderror
     </div>
+
+    @php($turnstile = app(\App\Services\TurnstileVerifier::class))
+    @if ($turnstile->enabled())
+        <div class="template-contact-form__field">
+            <div
+                class="cf-turnstile"
+                data-sitekey="{{ $turnstile->siteKey() }}"
+                data-size="flexible"
+            ></div>
+            @error('cf-turnstile-response')
+                <p class="template-contact-form__error">{{ $message }}</p>
+            @enderror
+        </div>
+    @endif
 
     <button type="submit" class="safehouse-btn-primary volunteer-page__submit">
         {{ __('site.volunteer.submit') }}

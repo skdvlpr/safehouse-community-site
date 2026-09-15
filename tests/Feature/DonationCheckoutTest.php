@@ -146,7 +146,8 @@ class DonationCheckoutTest extends TestCase
             'donor_email' => 'anna@example.com',
         ])
             ->assertUnprocessable()
-            ->assertJsonPath('message', 'Custom amounts are not allowed for this campaign.');
+            ->assertJsonPath('message', __('site.donations.checkout_failed'))
+            ->assertJsonMissing(['message' => 'Custom amounts are not allowed for this campaign.']);
     }
 
     public function test_store_requires_email_or_phone(): void
@@ -155,13 +156,14 @@ class DonationCheckoutTest extends TestCase
 
         $this->mockStripeService(fn (MockInterface $mock) => $mock->shouldNotReceive('createDonationIntent'));
 
-        $this->postJson('/api/donations/intents/contact-required', [
+        $this->withHeaders(['X-App-Locale' => 'en'])->postJson('/api/donations/intents/contact-required', [
             'amount_cents' => 1000,
             'donor_name' => 'Anna Bianchi',
             'donor_type' => 'individual',
         ])
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['donor_email']);
+            ->assertJsonValidationErrors(['donor_email'])
+            ->assertJsonPath('errors.donor_email.0', __('site.donations.contact_required', [], 'en'));
     }
 
     public function test_store_validates_required_fields(): void
@@ -173,6 +175,21 @@ class DonationCheckoutTest extends TestCase
         $this->postJson('/api/donations/intents/validate-me', [])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['amount_cents', 'donor_name', 'donor_type']);
+    }
+
+    public function test_english_donate_form_shows_english_copy(): void
+    {
+        DonationCampaign::factory()->create([
+            'slug' => 'en-copy',
+            'is_active' => true,
+            'title' => ['it' => 'Raccolta IT', 'en' => 'Campaign EN'],
+            'allow_custom_amount' => true,
+        ]);
+
+        $this->get('/en/donations/en-copy')
+            ->assertOk()
+            ->assertSee(__('site.donations.contact_help', [], 'en'), false)
+            ->assertDontSee(__('site.donations.contact_help', [], 'it'), false);
     }
 
     /**

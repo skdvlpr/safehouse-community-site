@@ -27,7 +27,18 @@
 @endsection
 
 @if (app(\App\Services\TurnstileVerifier::class)->enabled())
-    @push('head')
+    @push('scripts')
+        <script>
+            (function () {
+                var theme = document.documentElement.getAttribute('data-theme');
+                if (theme !== 'light' && theme !== 'dark') {
+                    theme = 'dark';
+                }
+                document.querySelectorAll('.cf-turnstile').forEach(function (el) {
+                    el.setAttribute('data-theme', theme);
+                });
+            })();
+        </script>
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     @endpush
 @endif

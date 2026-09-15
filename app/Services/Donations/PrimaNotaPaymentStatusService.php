@@ -278,8 +278,11 @@ class PrimaNotaPaymentStatusService
                     'stripeSubscriptionId',
                 ]),
             ]);
-        } catch (\Throwable) {
-            // Keep previous $row.
+        } catch (\Throwable $exception) {
+            Log::warning('PrimaNota reload after snapshot failed; keeping previous row.', [
+                'prima_nota_id' => $primaNotaId,
+                'error' => $exception->getMessage(),
+            ]);
         }
 
         $chargeId = trim((string) ($row['stripeChargeId'] ?? ''));
@@ -552,8 +555,12 @@ class PrimaNotaPaymentStatusService
             if ((string) ($intent->status ?? '') === 'succeeded') {
                 try {
                     $intent = $this->stripePaymentService->retrieveSettledPaymentIntent($paymentIntentId);
-                } catch (\Throwable) {
-                    // Keep raw PI if settlement expand fails.
+                } catch (\Throwable $exception) {
+                    Log::warning('Stripe settlement expand failed; keeping raw PaymentIntent.', [
+                        'prima_nota_id' => $primaNotaId,
+                        'payment_intent_id' => $paymentIntentId,
+                        'error' => $exception->getMessage(),
+                    ]);
                 }
             }
 

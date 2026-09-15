@@ -14,7 +14,7 @@ use Tests\TestCase;
 /**
  * Live Stripe Test-mode (sandbox) lifecycle — no Stripe SDK mocks.
  *
- * Requires a sk_test_ secret from Integrations / .env / local-integrations.php.
+ * Requires a sk_test_ secret from CMS Integrations or `.env` (not from git).
  *
  * Run:
  *   php artisan test tests/Feature/StripeSandboxPayoutLifecycleTest.php

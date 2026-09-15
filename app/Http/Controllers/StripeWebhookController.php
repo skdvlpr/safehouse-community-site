@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
+use Stripe\Exception\SignatureVerificationException;
+use UnexpectedValueException;
 
 class StripeWebhookController extends Controller
 {
@@ -28,10 +30,10 @@ class StripeWebhookController extends Controller
                 $request->getContent(),
                 $request->header('Stripe-Signature'),
             );
-        } catch (RuntimeException $exception) {
+        } catch (SignatureVerificationException|UnexpectedValueException|RuntimeException $exception) {
             report($exception);
 
-            return response($exception->getMessage(), 400);
+            return response('Invalid signature', 400);
         }
 
         try {

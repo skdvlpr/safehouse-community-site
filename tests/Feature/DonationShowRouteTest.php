@@ -55,7 +55,7 @@ class DonationShowRouteTest extends TestCase
             ->assertOk()
             ->assertDontSee(__('site.donations.cancel_notice_title'), false)
             ->assertDontSee(__('site.donations.cancel_ack_label'), false)
-            ->assertSee('Continua al pagamento', false);
+            ->assertSee(__('site.donations.continue_payment', [], 'it'), false);
     }
 
     public function test_thank_you_page_shows_personalized_message_and_reference(): void

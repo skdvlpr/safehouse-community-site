@@ -7,16 +7,19 @@ use Illuminate\View\View;
 
 class HomeController extends Controller
 {
+    public function __construct(
+        private readonly PageService $pages,
+    ) {}
+
     public function index(): View
     {
-        $pages = app(PageService::class);
         $locale = app()->getLocale();
-        $home = $pages->findByKey('home');
+        $home = $this->pages->findByKey('home');
 
         if ($home !== null) {
             return view(
-                $pages->templateView($home),
-                $pages->viewData($home, $locale),
+                $this->pages->templateView($home),
+                $this->pages->viewData($home, $locale),
             );
         }
 
