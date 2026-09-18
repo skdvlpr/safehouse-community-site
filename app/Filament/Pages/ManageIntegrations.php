@@ -9,6 +9,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -57,7 +58,15 @@ class ManageIntegrations extends Page
 
     public function mount(SiteSettingsService $settings): void
     {
-        $this->form->fill($settings->nestedFormValues());
+        $values = $settings->nestedFormValues();
+        data_set(
+            $values,
+            'measurement.enabled',
+            $settings->has('measurement.enabled')
+                ? $settings->isTruthy('measurement.enabled')
+                : filter_var(config('measurement.enabled'), FILTER_VALIDATE_BOOLEAN),
+        );
+        $this->form->fill($values);
     }
 
     public function content(Schema $schema): Schema
@@ -250,6 +259,20 @@ class ManageIntegrations extends Page
                             ->maxLength(255),
                     ]),
                 ]),
+                Tab::make(__('cms.integrations.measurement'))->schema([
+                    Section::make(__('cms.sections.measurement'))->schema([
+                        Toggle::make('measurement.enabled')
+                            ->label(__('cms.fields.measurement_enabled'))
+                            ->helperText(__('cms.helpers.measurement_enabled'))
+                            ->default(false)
+                            ->inline(false),
+                        TextInput::make('measurement.container_id')
+                            ->label(__('cms.fields.measurement_container_id'))
+                            ->helperText(__('cms.helpers.measurement_container_id'))
+                            ->placeholder('GTM-')
+                            ->maxLength(32),
+                    ]),
+                ]),
             ]),
         ]);
     }
@@ -267,6 +290,13 @@ class ManageIntegrations extends Page
         app(EspoCrmAssignedUserOptions::class)->forgetCache();
 
         $values = $settings->nestedFormValues();
+        data_set(
+            $values,
+            'measurement.enabled',
+            $settings->has('measurement.enabled')
+                ? $settings->isTruthy('measurement.enabled')
+                : filter_var(config('measurement.enabled'), FILTER_VALIDATE_BOOLEAN),
+        );
         $this->form->fill($values);
 
         Notification::make()

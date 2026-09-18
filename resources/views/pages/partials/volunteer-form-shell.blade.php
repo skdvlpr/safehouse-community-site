@@ -2,6 +2,10 @@
     <p class="template-contact-form__success" role="status">{{ session('volunteer_success') }}</p>
 @endif
 
+@if (session(\App\Services\MeasurementBootService::SESSION_CONVERSION) === 'volunteer_success')
+    <span hidden data-measurement-event="volunteer_success"></span>
+@endif
+
 @error('volunteer_mail')
     <p class="template-contact-form__error" role="alert">{{ $message }}</p>
 @enderror

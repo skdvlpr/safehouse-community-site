@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\DataTransferObjects\StripeEnrichmentFields;
 use App\DataTransferObjects\StripeSettlementAmounts;
+use App\Exceptions\StripeSettlementNotReadyException;
 use App\Models\DonationCampaign;
 use App\Services\Payments\StripePaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -389,12 +390,225 @@ class StripeWebhookDonationTest extends TestCase
             'https://crm.test/api/v1/PrimaNota*' => Http::response(['message' => 'Forbidden'], 403),
         ]);
 
-        $intent = $this->paymentIntent(['id' => 'pi_crm_fail']);
+        // 001.5 FR-009: only site donations reach ingest, so the fixture needs campaign metadata
+        // for the CRM failure path to be exercised at all.
+        $intent = $this->paymentIntent([
+            'id' => 'pi_crm_fail',
+            'metadata' => ['campaign_id' => 'campaign-crm-fail'],
+        ]);
         $this->mockStripeWebhook($intent);
 
         $this->postStripeWebhook('{}', 'sig')
             ->assertStatus(502)
             ->assertSee('CRM ingest failed');
+    }
+
+    /**
+     * 001.5 US1: fee/net not published yet (asynchronous capture) is NOT a CRM failure.
+     * Stripe must get 200 so it does not retry; `charge.updated` will book later.
+     */
+    public function test_payment_intent_succeeded_returns_200_pending_when_settlement_not_ready(): void
+    {
+        Http::fake();
+
+        $intent = $this->paymentIntent(['id' => 'pi_pending_settlement']);
+
+        $event = Event::constructFrom([
+            'id' => 'evt_pending',
+            'type' => 'payment_intent.succeeded',
+            'data' => ['object' => $intent->toArray()],
+        ]);
+
+        $mock = Mockery::mock(StripePaymentService::class);
+        $mock->shouldReceive('constructWebhookEvent')->andReturn($event);
+        $mock->shouldReceive('paymentIntentIdFromWebhookEvent')->with($event)->andReturn('pi_pending_settlement');
+        $mock->shouldReceive('retrieveSettledPaymentIntent')
+            ->once()
+            ->withArgs($this->settledIntentArgs('pi_pending_settlement'))
+            ->andThrow(new StripeSettlementNotReadyException('Stripe settlement not ready for pi_pending_settlement'));
+        $mock->shouldNotReceive('settlementFromPaymentIntent');
+        $this->instance(StripePaymentService::class, $mock);
+
+        $this->postStripeWebhook('{"id":"evt_pending"}', 'sig_test')
+            ->assertOk()
+            ->assertSee('Pending settlement');
+
+        Http::assertNothingSent();
+    }
+
+    /**
+     * 001.5 US1: `charge.updated` carrying a site donation PaymentIntent + usable BT books Prima Nota
+     * exactly like today's `payment_intent.succeeded` ingest.
+     */
+    public function test_charge_updated_with_donation_metadata_ingests_prima_nota(): void
+    {
+        Carbon::setTestNow('2026-07-02T12:00:00+00:00');
+
+        $campaign = DonationCampaign::factory()->create([
+            'espocrm_finanziamento_name' => 'Raccolta Safe House 2026',
+        ]);
+
+        $intent = $this->paymentIntent([
+            'id' => 'pi_charge_updated',
+            'amount' => 3000,
+            'amount_received' => 3000,
+            'metadata' => [
+                'campaign_id' => (string) $campaign->id,
+                'donor_name' => 'Carla Bianchi',
+                'donor_type' => 'individual',
+                'donor_email' => 'carla@example.com',
+            ],
+        ]);
+
+        $event = $this->chargeUpdatedEvent('ch_updated_1', 'pi_charge_updated');
+
+        $this->fakeCrmForSuccessfulIngest('opp-charge-updated', 'pn-charge-updated', subjectContactMatches: 0, beneficiaryAccountId: 'acc-safe-house');
+        $this->mockStripeWebhookForEvent($event, $intent);
+
+        $this->postStripeWebhook('{"id":"evt_charge_updated"}', 'sig_test')
+            ->assertOk()
+            ->assertSee('OK');
+
+        Http::assertSent(function ($request): bool {
+            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/api/v1/PrimaNota') || str_contains($request->url(), '/action/')) {
+                return false;
+            }
+
+            $payload = $request->data();
+
+            return ($payload['donationPaymentReference'] ?? '') === '#pi_charge_updated'
+                && ($payload['entryType'] ?? '') === 'Income'
+                && ($payload['amount'] ?? null) === 30.0
+                && ($payload['amountGross'] ?? null) === 30.0
+                && ($payload['financingId'] ?? '') === 'opp-charge-updated'
+                && ($payload['subjectName'] ?? '') === 'Carla Bianchi';
+        });
+    }
+
+    /**
+     * 001.5 US1 / FR-009: a charge whose PaymentIntent has neither `campaign_id` nor a subscription id
+     * is not a site donation (Dashboard / Payment Link / other). No Prima Nota row.
+     */
+    public function test_charge_updated_without_site_donation_metadata_is_ignored(): void
+    {
+        Http::fake();
+
+        $intent = $this->paymentIntent([
+            'id' => 'pi_junk_charge',
+            'metadata' => [],
+        ]);
+
+        $event = $this->chargeUpdatedEvent('ch_junk_1', 'pi_junk_charge');
+
+        $mock = Mockery::mock(StripePaymentService::class);
+        $mock->shouldReceive('constructWebhookEvent')->andReturn($event);
+        $mock->shouldReceive('paymentIntentIdFromWebhookEvent')->with($event)->andReturn('pi_junk_charge');
+        $mock->shouldReceive('retrieveSettledPaymentIntent')
+            ->withArgs($this->settledIntentArgs('pi_junk_charge'))
+            ->andReturn($intent);
+        $mock->shouldReceive('donationMetadataFromPaymentIntent')->andReturn([]);
+        $mock->shouldReceive('settlementFromPaymentIntent')->andReturn(StripeSettlementAmounts::fromCents([
+            'gross_cents' => 1000,
+            'fee_cents' => 0,
+            'net_cents' => 1000,
+            'currency' => 'eur',
+        ]));
+        $mock->shouldReceive('enrichmentFromPaymentIntent')->andReturn(
+            StripeEnrichmentFields::fromMockStoredIntent([
+                'created' => (int) $intent->created,
+                'charge_id' => 'ch_junk_1',
+                'balance_transaction_id' => 'txn_junk_1',
+                'payment_method_type' => 'card',
+            ])
+        );
+        $this->instance(StripePaymentService::class, $mock);
+
+        $this->postStripeWebhook('{"id":"evt_junk"}', 'sig_test')
+            ->assertOk()
+            ->assertSee('Ignored');
+
+        Http::assertNothingSent();
+    }
+
+    public function test_payment_intent_id_from_charge_updated_string_or_expanded_object(): void
+    {
+        $service = new StripePaymentService;
+
+        $stringEvent = Event::constructFrom([
+            'id' => 'evt_cu_str',
+            'type' => 'charge.updated',
+            'data' => ['object' => [
+                'id' => 'ch_str',
+                'object' => 'charge',
+                'payment_intent' => 'pi_from_string',
+            ]],
+        ]);
+        $this->assertSame('pi_from_string', $service->paymentIntentIdFromWebhookEvent($stringEvent));
+
+        $expandedEvent = Event::constructFrom([
+            'id' => 'evt_cu_obj',
+            'type' => 'charge.updated',
+            'data' => ['object' => [
+                'id' => 'ch_obj',
+                'object' => 'charge',
+                'payment_intent' => ['id' => 'pi_from_object', 'object' => 'payment_intent'],
+            ]],
+        ]);
+        $this->assertSame('pi_from_object', $service->paymentIntentIdFromWebhookEvent($expandedEvent));
+
+        $succeededCharge = Event::constructFrom([
+            'id' => 'evt_cs',
+            'type' => 'charge.succeeded',
+            'data' => ['object' => [
+                'id' => 'ch_succ',
+                'object' => 'charge',
+                'payment_intent' => 'pi_should_not_map',
+            ]],
+        ]);
+        $this->assertNull($service->paymentIntentIdFromWebhookEvent($succeededCharge));
+    }
+
+    /**
+     * 001.5 US3 / FR-006: `charge.updated` MUST NOT be swallowed by the status-only path
+     * (`applyFromStripeEvent` handled=true → bare "OK" with no ingest). The PI resolver and the
+     * settled retrieve MUST run, and the outcome is an Income create — not a status PUT.
+     */
+    public function test_charge_updated_is_not_status_handled_without_ingest(): void
+    {
+        Carbon::setTestNow('2026-07-02T12:00:00+00:00');
+
+        $campaign = DonationCampaign::factory()->create([
+            'espocrm_finanziamento_name' => 'Raccolta Safe House 2026',
+        ]);
+
+        $intent = $this->paymentIntent([
+            'id' => 'pi_charge_updated_status',
+            'metadata' => [
+                'campaign_id' => (string) $campaign->id,
+                'donor_name' => 'Status Probe',
+            ],
+        ]);
+
+        $event = $this->chargeUpdatedEvent('ch_status_probe', 'pi_charge_updated_status');
+
+        $this->fakeCrmForSuccessfulIngest('opp-status-probe', 'pn-status-probe', subjectContactMatches: 0, beneficiaryAccountId: 'acc-safe-house');
+        $this->mockStripeWebhookForEvent($event, $intent, resolverTimes: 1);
+
+        $this->postStripeWebhook('{"id":"evt_charge_updated_status"}', 'sig_test')
+            ->assertOk()
+            ->assertSee('OK');
+
+        Http::assertSent(function ($request): bool {
+            return $request->method() === 'POST'
+                && str_contains($request->url(), '/api/v1/PrimaNota')
+                && ! str_contains($request->url(), '/action/')
+                && ($request->data()['donationPaymentReference'] ?? '') === '#pi_charge_updated_status';
+        });
+
+        Http::assertNotSent(function ($request): bool {
+            return $request->method() === 'PUT'
+                && str_contains($request->url(), '/api/v1/PrimaNota/');
+        });
     }
 
     public function test_payment_intent_succeeded_writes_stripe_fee_fields_to_crm(): void
@@ -495,7 +709,9 @@ class StripeWebhookDonationTest extends TestCase
         $mock = Mockery::mock(StripePaymentService::class);
         $mock->shouldReceive('constructWebhookEvent')->andReturn($event);
         $mock->shouldReceive('paymentIntentIdFromWebhookEvent')->with($event)->andReturn('pi_sub_invoice_1');
-        $mock->shouldReceive('retrieveSettledPaymentIntent')->with('pi_sub_invoice_1')->andReturn($intent);
+        $mock->shouldReceive('retrieveSettledPaymentIntent')
+            ->withArgs($this->settledIntentArgs('pi_sub_invoice_1'))
+            ->andReturn($intent);
         $mock->shouldReceive('settlementFromPaymentIntent')->andReturn($settlement);
         $mock->shouldReceive('donationMetadataFromPaymentIntent')->andReturn($intent->metadata->toArray());
         $mock->shouldReceive('enrichmentFromPaymentIntent')->andReturn(
@@ -610,6 +826,34 @@ class StripeWebhookDonationTest extends TestCase
         });
     }
 
+    /**
+     * Argument matcher for `retrieveSettledPaymentIntent`.
+     *
+     * Before 001.5 T006 the controller calls it with one argument; after T006 it passes
+     * `($id, 1)` (single attempt, no sleep loop). Accept both so ingest tests survive the switch.
+     */
+    private function settledIntentArgs(string $paymentIntentId): callable
+    {
+        return static fn (...$args): bool => ($args[0] ?? null) === $paymentIntentId
+            && (! array_key_exists(1, $args) || $args[1] === 1 || $args[1] === null);
+    }
+
+    private function chargeUpdatedEvent(string $chargeId, string $paymentIntentId): Event
+    {
+        return Event::constructFrom([
+            'id' => 'evt_'.$chargeId,
+            'type' => 'charge.updated',
+            'data' => ['object' => [
+                'id' => $chargeId,
+                'object' => 'charge',
+                'payment_intent' => $paymentIntentId,
+                'balance_transaction' => 'txn_'.$chargeId,
+                'status' => 'succeeded',
+                'refunded' => false,
+            ]],
+        ]);
+    }
+
     private function mockStripeWebhook(
         PaymentIntent $intent,
         ?StripeSettlementAmounts $settlement = null,
@@ -620,6 +864,22 @@ class StripeWebhookDonationTest extends TestCase
             'data' => ['object' => $intent->toArray()],
         ]);
 
+        $this->mockStripeWebhookForEvent($event, $intent, $settlement);
+    }
+
+    /**
+     * Stub the Stripe service for any ingest-type event (PI.succeeded, invoice.paid, charge.updated)
+     * whose resolver yields `$intent->id` and whose settled retrieve returns `$intent`.
+     *
+     * @param  int|null  $resolverTimes  When set, `paymentIntentIdFromWebhookEvent` and
+     *                                   `retrieveSettledPaymentIntent` MUST be called exactly that many times.
+     */
+    private function mockStripeWebhookForEvent(
+        Event $event,
+        PaymentIntent $intent,
+        ?StripeSettlementAmounts $settlement = null,
+        ?int $resolverTimes = null,
+    ): void {
         $settlement ??= StripeSettlementAmounts::fromCents([
             'gross_cents' => (int) ($intent->amount_received ?? $intent->amount),
             'fee_cents' => 0,
@@ -629,8 +889,17 @@ class StripeWebhookDonationTest extends TestCase
 
         $mock = Mockery::mock(StripePaymentService::class);
         $mock->shouldReceive('constructWebhookEvent')->andReturn($event);
-        $mock->shouldReceive('paymentIntentIdFromWebhookEvent')->with($event)->andReturn($intent->id);
-        $mock->shouldReceive('retrieveSettledPaymentIntent')->with($intent->id)->andReturn($intent);
+
+        $resolver = $mock->shouldReceive('paymentIntentIdFromWebhookEvent')->with($event)->andReturn($intent->id);
+        $retrieve = $mock->shouldReceive('retrieveSettledPaymentIntent')
+            ->withArgs($this->settledIntentArgs($intent->id))
+            ->andReturn($intent);
+
+        if ($resolverTimes !== null) {
+            $resolver->times($resolverTimes);
+            $retrieve->times($resolverTimes);
+        }
+
         $mock->shouldReceive('settlementFromPaymentIntent')->andReturn($settlement);
         $mock->shouldReceive('donationMetadataFromPaymentIntent')->andReturn(
             is_object($intent->metadata ?? null) ? $intent->metadata->toArray() : (array) ($intent->metadata ?? [])

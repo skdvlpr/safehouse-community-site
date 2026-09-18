@@ -632,6 +632,7 @@ class PrimaNotaPaymentStatusService
             'charge.dispute.closed' => $this->handleDisputeClosed($object),
             'charge.dispute.funds_reinstated' => $this->handleDisputeFundsReinstated($object),
             'payout.paid' => $this->handlePayoutPaid($object),
+            // charge.updated is settlement ingest (001.5), not a payment-status mapping.
             default => $this->result(false, 0, null, 'unhandled_type'),
         };
     }

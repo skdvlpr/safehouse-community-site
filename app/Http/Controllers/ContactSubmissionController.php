@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreContactSubmissionRequest;
 use App\Services\ContactSubmissionRateLimiter;
 use App\Services\ContactSubmissionService;
+use App\Services\MeasurementBootService;
 use App\Services\PageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +21,7 @@ class ContactSubmissionController extends Controller
     public function store(StoreContactSubmissionRequest $request, string $locale): RedirectResponse
     {
         if ($request->filled('company')) {
-            return $this->redirectWithSuccess($locale);
+            return $this->redirectWithSuccess($locale, measure: false);
         }
 
         $stored = $this->rateLimiter->attempt(
@@ -32,16 +33,22 @@ class ContactSubmissionController extends Controller
             return $this->redirectWithRateLimitError($request, $locale);
         }
 
-        return $this->redirectWithSuccess($locale);
+        return $this->redirectWithSuccess($locale, measure: true);
     }
 
-    private function redirectWithSuccess(string $locale): RedirectResponse
+    private function redirectWithSuccess(string $locale, bool $measure = false): RedirectResponse
     {
         $url = $this->pages->urlForKey('contact', $locale) ?? route('home', ['locale' => $locale]);
 
-        return redirect()
+        $redirect = redirect()
             ->to($url)
             ->with('contact_success', __('site.pages.contact_success'));
+
+        if ($measure) {
+            $redirect->with(MeasurementBootService::SESSION_CONVERSION, 'contact_success');
+        }
+
+        return $redirect;
     }
 
     private function redirectWithRateLimitError(Request $request, string $locale): RedirectResponse

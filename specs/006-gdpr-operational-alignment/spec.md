@@ -8,7 +8,7 @@
 
 **Queue**: S04
 
-**Depends on**: S01 UAT. Should follow 002 so cookie/privacy sentences describe the real measurement product. MUST NOT author a lawyer DPA or replace legal counsel (`S-GDPR`).
+**Depends on**: S01 UAT. Should follow 002. **002 (2026-09-16) now owns** first-visit cookie-banner behaviour, reopen/withdraw, and measurement-related cookie/privacy sentences for the locked GA4/Tag Manager product. This feature MUST reconcile leftover operational GDPR (other processors, later marketing category if Ads tags appear, inventory vs live tools) and MUST NOT reintroduce "analytics inactive" while 002 measurement is on. MUST NOT author a lawyer DPA or replace legal counsel (`S-GDPR`).
 
 **Input**: Owner wants cookie, privacy, and consent behaviour aligned with current EU/Italian operational rules for a public association site. The site already has a first-visit banner (accept all / essentials / preferences), hashed consent audit, and legal pages that currently say analytics are not active.
 
@@ -18,9 +18,9 @@ Policy sources informing operational requirements (not a legal opinion): [Garant
 
 ### User Story 1 - Choice is real, refuse works, change of mind works (Priority: P1)
 
-A visitor can accept all, accept essentials only, or pick categories. Refusing analytics still allows reading the site and donating/applying. They can reopen preferences later and change the choice. The association keeps an audit of the choice without storing raw IP or user-agent.
+A visitor can accept all, accept essentials only, or pick categories. Refusing analytics still allows reading the site and donating/applying. They can reopen preferences later and change the choice (control delivered by 002). The association keeps an audit of the choice without storing raw IP or user-agent.
 
-**Why this priority**: This is the heart of operational compliance. The banner exists; this feature proves it still matches the law-shaped UX after analytics (002) exists, and fills gaps (withdraw/change, accurate category descriptions).
+**Why this priority**: This is the heart of leftover operational compliance after 002. Prove the 002 banner still matches the law-shaped UX, and fill gaps 002 did not take (remaining processors, later marketing category).
 
 **Independent Test**: Essentials-only user completes donate or volunteer. Analytics-accepted user sees measurement (if 002 live). User changes choice; behaviour follows. Audit record exists without raw network identifiers.
 
@@ -34,9 +34,9 @@ A visitor can accept all, accept essentials only, or pick categories. Refusing a
 
 ### User Story 2 - Policies match what the site actually does (Priority: P1)
 
-Cookie and privacy pages in Italian and English list: controller identity already used, what is essential, what analytics would do (including the real product name if 002 is live), that card data does not land on association servers, how to contact the association, and that texts are operational not a DPA. Stale "analytics not active" claims cannot survive while measurement is on.
+Cookie and privacy pages in Italian and English list: controller identity already used, what is essential, what analytics does (002 already named the live product), that card data does not land on association servers, remaining processors, how to contact the association, and that texts are operational not a DPA. Stale "analytics not active" claims cannot survive while measurement is on.
 
-**Why this priority**: Garante requires an extended notice. Today's pages exist but will be wrong after 002 unless aligned. This feature owns the full operational rewrite; 002 only patches the false inactive sentence if 006 has not run yet.
+**Why this priority**: Garante requires an extended notice. 002 updates measurement-related sentences; this feature owns the leftover operational rewrite and must reconcile rather than conflict.
 
 **Independent Test**: Read Italian and English cookie and privacy pages against a checklist of actual tools (session, consent cookie, measurement product, payment provider, CRM mentioned as internal systems). No tool is live but undisclosed; no disclosed tool is absent.
 
@@ -104,12 +104,13 @@ If a future ads conversion tag would set marketing/profiling cookies, it MUST NO
 ## Assumptions
 
 - **Compatibility**: Keep existing banner UX (three actions, preferences panel). Keep hashed consent API. Keep legal pages as CMS-synced operational texts.
-- **Compatibility with 002**: 002 may ship first with a minimal sentence fix; 006 is source of truth for full operational policy. Do not operate two unrelated cookie UIs.
+- **Compatibility with 002**: 002 (updated 2026-09-16) owns banner behaviour (necessary automatic; analytics after explicit consent; reopen/withdraw) and the measurement-related cookie/privacy operational texts for the locked GA4 product. 006 is source of truth for leftover operational policy (Stripe, Turnstile, CRM mentions, any later marketing category). Reconcile rather than duplicate. Do not operate two unrelated cookie UIs.
 - **Compatibility with 003–005**: SEO and banners add no extra cookies. Ads landings add no pixels here.
 - Constitution `S-GDPR` remains closed: operational only.
-- Garante: third-party analytics generally need consent; first-party strictly aggregated stats can be closer to technical — the site already asks consent for analytics and will keep asking (stricter). Classic US Analytics is not introduced here (see 002).
+- Garante: third-party analytics generally need consent; first-party strictly aggregated stats can be closer to technical — the site already asks consent for analytics and will keep asking (stricter). 002 locked Google Analytics 4 after consent (not an exemption claim). This feature does not reopen that product choice.
 
 ## Changelog
 
 - 2026-09-13: Initial specification (S04 operational; no DPA).
 - 2026-09-13: 001.1 remap — public locales it+en only; `S-GDPR` unchanged.
+- 2026-09-16: Boundary with 002 — banner + measurement policy sentences moved into living spec 002; 006 keeps leftover GDPR operational alignment.

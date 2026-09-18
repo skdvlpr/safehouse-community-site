@@ -32,4 +32,6 @@
 ## Notes
 
 - Validation 2026-09-13: pass. Vendor choice deferred to `/speckit-plan` (privacy-preserving class locked).
-- Do not `/speckit-plan` until S01 owner UAT is complete.
+- Validation 2026-09-16: pass after owner product lock. Google Analytics 4 + Tag Manager appear in Assumptions / FR-008 as the **named measurement product** staff will use, not as PHP/API design. Consent Mode defaults, container IDs, and Caddy allowlists stay in plan. Success criteria still speak of "measurement-product requests" and "dashboard", not tags.
+- 2026-09-17: `/speckit-plan` complete. `/speckit-tasks` unblocked after four-event donate split. Do not `/speckit-implement` until `tasks.md` exists and the owner keeps/drops test rows.
+- 006 remains S04 for leftover GDPR operational work; 002 now owns banner withdraw + measurement-related policy sentences.

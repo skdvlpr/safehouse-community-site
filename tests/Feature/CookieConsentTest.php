@@ -24,6 +24,8 @@ class CookieConsentTest extends TestCase
         $this->get('/it')
             ->assertOk()
             ->assertSee('id="cookie-consent-banner"', false)
+            ->assertSee('data-cookie-dismiss', false)
+            ->assertSee('data-cookie-reopen', false)
             ->assertSee(__('site.cookie.accept_all'), false);
     }
 

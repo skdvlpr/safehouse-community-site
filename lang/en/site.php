@@ -261,6 +261,7 @@ return [
     'cookie' => [
         'title' => 'Cookies and privacy',
         'message' => 'We use essential cookies for the site to work. Analytics cookies are not active yet; if we enable them, we will ask for consent. You can accept all categories or essential cookies only.',
+        'message_bootable' => 'We use essential cookies for the site to work (always on). Google Analytics 4, via Google Tag Manager, loads only if you accept analytics cookies. “Essential only” keeps the site usable without statistics. Details are on the Cookie and Privacy pages.',
         'accept_all' => 'Accept all',
         'essential_only' => 'Essential only',
         'manage' => 'Preferences',
@@ -269,7 +270,15 @@ return [
         'essential_note' => 'Session, security, and preferences — always on.',
         'analytics_label' => 'Analytics cookies',
         'analytics_note' => 'Anonymous statistics — not active yet; no trackers load until configured.',
+        'analytics_note_bootable' => 'Aggregated statistics and conversion events (donations, volunteering, contact), not advertising or remarketing. They load only after consent.',
         'save' => 'Save preferences',
         'close' => 'Close',
+        'dismiss' => 'Close',
+        'dismiss_aria' => 'Dismiss and use essential cookies only',
+        'reopen' => 'Cookie preferences',
+    ],
+    'measurement' => [
+        'status_off' => 'Audience measurement: Google Analytics 4 (Tag Manager) is not loaded on this site (the tool is switched off).',
+        'status_on' => 'Audience measurement: Google Analytics 4 via Tag Manager is configured and loads only after analytics consent.',
     ],
 ];

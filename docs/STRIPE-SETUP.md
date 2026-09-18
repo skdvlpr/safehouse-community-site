@@ -83,10 +83,11 @@ Developers → [Webhooks](https://dashboard.stripe.com/webhooks) → Add endpoin
 | Field | Value |
 |-------|--------|
 | URL | `https://safehouse.community/api/webhooks/stripe` |
-| Events | `payment_intent.succeeded`, `invoice.paid`, `payout.paid`, `customer.subscription.deleted`, `charge.refunded`, `charge.dispute.created`, `charge.dispute.updated`, `charge.dispute.closed`, `charge.dispute.funds_withdrawn`, `charge.dispute.funds_reinstated`, `payment_intent.canceled`, `invoice.payment_failed`, `payment_intent.payment_failed` |
+| Events | `payment_intent.succeeded`, `invoice.paid`, **`charge.updated`**, `payout.paid`, `customer.subscription.deleted`, `charge.refunded`, `charge.dispute.created`, `charge.dispute.updated`, `charge.dispute.closed`, `charge.dispute.funds_withdrawn`, `charge.dispute.funds_reinstated`, `payment_intent.canceled`, `invoice.payment_failed`, `payment_intent.payment_failed` |
 
-- `payment_intent.succeeded` — one-time donations (+ first subscription invoice PI) → PrimaNota `paymentStatus=Planned` (awaiting bank payout)
-- `invoice.paid` — monthly renewals (idempotent via PaymentIntent id) → `Planned`
+- One-time PaymentIntents now set `capture_method=automatic` so fee/net are usually on `payment_intent.succeeded` ([create](https://docs.stripe.com/api/payment_intents/create#create_payment_intent-capture_method)). Latest API default remains `automatic_async` ([asynchronous capture](https://docs.stripe.com/payments/payment-intents/asynchronous-capture)); `charge.updated` is still required on the live endpoint as fallback (and for Billing invoice PIs).
+- `charge.updated` — BalanceTransaction (fee/net) is available → PrimaNota Income `paymentStatus=Planned` (idempotent by PaymentIntent id). Required on the **live** endpoint; local [`stripe listen`](https://docs.stripe.com/cli/listen) already forwards all snapshot events.
+- `invoice.paid` — monthly renewals (idempotent via PaymentIntent id) → `Planned` once fee/net exist
 - `payout.paid` — **automatic** Stripe bank payout → `Inviato` + `stripePayoutId` / `stripePayoutPaidAt` (CRM cash totals count only Inviato). Manual payouts are ignored (Stripe cannot list included charges).
 - `customer.subscription.deleted` / `payment_intent.canceled` → `Cancelled`
 - full `charge.refunded` → `Refunded`
@@ -96,6 +97,8 @@ Developers → [Webhooks](https://dashboard.stripe.com/webhooks) → Add endpoin
 - `invoice.payment_failed` / `payment_intent.payment_failed` / partial refund → `Problematic`
 
 Copy **Signing secret** → `STRIPE_WEBHOOK_SECRET` on the server.
+
+**Live allowlist (2026-09-18):** endpoint `https://safehouse.community/api/webhooks/stripe` is enabled and includes `charge.updated` ([update webhook endpoint](https://docs.stripe.com/api/webhook_endpoints/update)). Test-mode copy of that URL stays disabled.
 
 ---
 
@@ -148,8 +151,10 @@ Thank-you for recurring also tries a one-time **Billing Portal session** when th
 ## Money flow (reference)
 
 ```
-One-time:  Donor → PaymentIntent → webhook payment_intent.succeeded → PrimaNota
+One-time:  Donor → PaymentIntent → webhook payment_intent.succeeded (may be pending)
+       → charge.updated (fee/net) → PrimaNota
 Recurring: Donor → Subscription + invoice PI → invoice.paid / payment_intent.succeeded
+       → charge.updated if fee lagged → PrimaNota
        → Stripe balance → Payout to association IBAN
        → PrimaNota (accounting only; frequency + subscription id when recurring)
 ```

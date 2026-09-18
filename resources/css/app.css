@@ -277,6 +277,12 @@ html[data-theme='light'] {
         @apply whitespace-nowrap text-safehouse-muted transition hover:text-safehouse-link;
     }
 
+    button.site-footer__legal-link {
+        @apply cursor-pointer border-0 bg-transparent p-0;
+        font-family: inherit;
+        font-size: inherit;
+    }
+
     .site-footer__copy {
         @apply m-0 w-full text-center text-[11px] tracking-wide text-safehouse-muted/80;
         @apply md:w-auto md:shrink-0 md:text-xs md:text-end;
@@ -650,6 +656,10 @@ html[data-theme='light'] {
         @apply mb-6 flex flex-wrap gap-4 text-xs text-safehouse-muted;
     }
 
+    .template-legal-measurement-status {
+        @apply mb-6 text-sm leading-relaxed text-safehouse-muted;
+    }
+
     .template-page--contact .template-contact-info {
         @apply h-fit rounded-2xl p-8 md:p-10;
     }
@@ -958,8 +968,12 @@ html[data-theme='light'] {
     }
 
     .cookie-consent__card {
-        @apply overflow-hidden rounded-2xl border border-white/15 shadow-[0_-8px_40px_rgb(0_0_0_/_55%)];
+        @apply relative overflow-hidden rounded-2xl border border-white/15 shadow-[0_-8px_40px_rgb(0_0_0_/_55%)];
         border-top: 3px solid var(--color-safehouse-primary);
+    }
+
+    .cookie-consent__dismiss {
+        @apply absolute top-2 right-2 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent text-xl leading-none text-safehouse-muted hover:bg-white/10 hover:text-safehouse-text;
     }
 
     .cookie-consent__main {

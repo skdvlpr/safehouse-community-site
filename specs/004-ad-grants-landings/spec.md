@@ -66,7 +66,7 @@ The owner (or ads contractor) can copy a table of sitelink labels and final URLs
 
 ### User Story 4 - Conversion URLs stay stable (Priority: P2)
 
-Donate thank-you and volunteer success remain reachable, locale-stable URLs so measurement (002) and future Ads conversion actions can point at them. This feature does not add advertising pixels.
+Donate thank-you and volunteer success remain reachable, locale-stable URLs so measurement (002) and future Ads conversion actions can point at them. This feature does not add advertising pixels. Conversion **events** are owned by 002 (GA4 key events). Importing those events in the Google Ads UI is owner/ops, not a second on-site tracker.
 
 **Why this priority**: Grants conversion tracking is often required; pixels wait for privacy categories (006). Stable URLs are the site's part.
 
@@ -118,7 +118,7 @@ Donate thank-you and volunteer success remain reachable, locale-stable URLs so m
 ## Assumptions
 
 - **Compatibility**: Keep existing donate, 5 x 1000, volunteer, contact, about routes. Do not replace hosted checkout. Do not write the CRM repo; membership CTA uses current contact/desk.
-- **Compatibility with 002**: Use existing conversion opportunities; do not install a second tracker.
+- **Compatibility with 002**: Use 002 conversion events (locked GA4 product). Do not install a second on-site tracker or remarketing pixel. Ads-UI import of key events is owner/ops.
 - **Compatibility with 003**: May rely on search titles; may tighten visible H1/CTA. Coordinate so editors are not given two competing "page title" concepts without explanation.
 - **Compatibility with 005**: 5 x 1000 promotional *creatives* are 005; this spec only ensures the 5 x 1000 *page* is sitelink-grade. Do not duplicate banners.
 - **Compatibility with 006**: No new marketing cookies.
@@ -129,3 +129,4 @@ Donate thank-you and volunteer success remain reachable, locale-stable URLs so m
 
 - 2026-09-13: Initial specification (S02 split; landings + sitelink pack, not Ads UI).
 - 2026-09-13: 001.1 remap — socio exists on production; locales it+en only.
+- 2026-09-16: Point conversions at 002 GA4 events; still no Ads pixels in this spec.

@@ -162,6 +162,8 @@ return [
         'turnstile_enabled' => 'Abilita captcha Cloudflare Turnstile (opzionale)',
         'turnstile_site_key' => 'Turnstile site key',
         'turnstile_secret_key' => 'Turnstile secret key',
+        'measurement_enabled' => 'Abilita misurazione pubblico (GA4 via Tag Manager)',
+        'measurement_container_id' => 'ID contenitore Google Tag Manager',
         'five_per_mille_enabled' => 'Mostra pagina 5 x 1000',
         'codice_fiscale' => 'Codice fiscale associazione',
         'five_per_mille_menu_label' => 'Etichetta menu',
@@ -184,6 +186,7 @@ return [
         'stripe' => 'Stripe',
         'espocrm' => 'EspoCRM',
         'mail' => 'Email',
+        'measurement' => 'Analytics',
     ],
 
     'sections' => [
@@ -205,6 +208,7 @@ return [
         'contact_desks' => 'Elenco sportelli',
         'sportello_mail' => 'Email automatiche',
         'contact_captcha' => 'Captcha modulo contatti',
+        'measurement' => 'Misurazione pubblico (GA4)',
         'five_per_mille' => '5 x 1000',
         'bank_transfer' => 'Bonifico bancario',
         'recurring_donation' => 'Donazione ricorrente',
@@ -286,6 +290,8 @@ return [
         'sportello_mail_subject' => 'Facoltativo. Usa i segnaposto elencati sotto. Se vuoto: [SH-token] Nuovo messaggio — nome.',
         'sportello_mail_body' => 'Editor HTML come per le pagine del sito. Alla fine viene sempre aggiunto un blocco testo per CRM (Sportello, Tipo segnalazione, Riferimento SH).',
         'turnstile_enabled' => 'Disattivato per impostazione predefinita. Attivalo solo se hai configurato le chiavi Turnstile su Cloudflare.',
+        'measurement_enabled' => 'Carica Google Tag Manager sul sito pubblico solo dopo il consenso analitico del visitatore. La dashboard resta Google Analytics, non questo CMS.',
+        'measurement_container_id' => 'Solo l’ID contenitore web (GTM-…). Non incollare lo snippet di installazione e non inserire un ID misurazione G-… (quello sta in Tag Manager).',
         'turnstile_site_key' => 'Chiave pubblica (widget sul sito).',
         'turnstile_secret_key' => 'Chiave segreta (verifica server). Memorizzata cifrata.',
         'five_per_mille_enabled' => 'Pagina /donazioni/5-per-mille e voce in evidenza nel menu.',

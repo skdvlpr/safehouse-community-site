@@ -261,6 +261,7 @@ return [
     'cookie' => [
         'title' => 'Cookie e privacy',
         'message' => 'Usiamo cookie necessari per il funzionamento del sito. Cookie analitici non sono attivi al momento; se li attiveremo, chiederemo il consenso. Puoi accettare tutte le categorie o solo i cookie necessari.',
+        'message_bootable' => 'Usiamo cookie necessari per il funzionamento del sito (sempre attivi). Google Analytics 4, tramite Google Tag Manager, si carica solo se accetti i cookie analitici. Con «Solo necessari» il sito resta usabile senza statistica. Dettagli nelle pagine Cookie e Privacy.',
         'accept_all' => 'Accetta tutti',
         'essential_only' => 'Solo necessari',
         'manage' => 'Preferenze',
@@ -269,7 +270,15 @@ return [
         'essential_note' => 'Sessione, sicurezza e preferenze — sempre attivi.',
         'analytics_label' => 'Cookie analitici',
         'analytics_note' => 'Statistiche anonime — attualmente non attivi; nessun tracker viene caricato finché non saranno configurati.',
+        'analytics_note_bootable' => 'Statistiche aggregate ed eventi di conversione (donazioni, volontariato, contatto), non pubblicità o remarketing. Si caricano solo dopo il consenso.',
         'save' => 'Salva preferenze',
         'close' => 'Chiudi',
+        'dismiss' => 'Chiudi',
+        'dismiss_aria' => 'Chiudi e usa solo i cookie necessari',
+        'reopen' => 'Preferenze cookie',
+    ],
+    'measurement' => [
+        'status_off' => 'Misurazione pubblico: Google Analytics 4 (Tag Manager) non è caricato su questo sito (strumento disattivato).',
+        'status_on' => 'Misurazione pubblico: Google Analytics 4 tramite Tag Manager è configurato e si carica solo dopo il consenso analitico.',
     ],
 ];

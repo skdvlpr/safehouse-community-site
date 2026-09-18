@@ -19,6 +19,8 @@
             <span>{{ __('site.pages.legal_updated', ['date' => $page->updated_at?->locale($locale)->isoFormat('LL') ?? '—']) }}</span>
         </div>
 
+        @include('layouts.partials.measurement-status')
+
         <article class="template-legal-doc safehouse-glass safehouse-prose">
             {!! \App\Support\CmsHtml::render($body) !!}
         </article>

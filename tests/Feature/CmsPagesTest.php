@@ -125,7 +125,39 @@ class CmsPagesTest extends TestCase
             ->assertSee('sh_cookie_consent', false)
             ->assertSee('safe-house-community-session', false)
             ->assertSee('Non in uso', false)
+            ->assertSee(__('site.measurement.status_off', [], 'it'), false)
             ->assertDontSee('Laravel', false)
             ->assertDontSee('crm.safehouse.community', false);
+    }
+
+    public function test_cookie_and_privacy_copy_name_ga4_when_measurement_is_bootable(): void
+    {
+        config([
+            'measurement.enabled' => true,
+            'measurement.container_id' => 'GTM-TEST1',
+        ]);
+
+        $this->get('/it/cookie-policy')
+            ->assertOk()
+            ->assertSee('Google Analytics 4', false)
+            ->assertSee('Google Tag Manager', false)
+            ->assertSee(__('site.measurement.status_on', [], 'it'), false)
+            ->assertDontSee(__('site.measurement.status_off', [], 'it'), false)
+            ->assertDontSee('non sono attivi cookie analitici', false)
+            ->assertDontSee('EspoCRM', false)
+            ->assertDontSee('crm.safehouse.community', false)
+            ->assertDontSee('Data Processing Agreement', false)
+            ->assertDontSee('Data Processing Addendum', false);
+
+        $this->get('/en/privacy-policy')
+            ->assertOk()
+            ->assertSee('Google Analytics 4', false)
+            ->assertSee('Google Tag Manager', false)
+            ->assertSee(__('site.measurement.status_on', [], 'en'), false)
+            ->assertDontSee('not currently active', false)
+            ->assertDontSee('EspoCRM', false)
+            ->assertDontSee('crm.safehouse.community', false)
+            ->assertDontSee('Data Processing Agreement', false)
+            ->assertSee('Card data does not pass through our servers', false);
     }
 }

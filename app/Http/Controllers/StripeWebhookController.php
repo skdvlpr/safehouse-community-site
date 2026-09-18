@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\StripeSettlementNotReadyException;
 use App\Exceptions\UnsupportedCurrencyException;
 use App\Services\Donations\DonationIngestPayloadMapper;
 use App\Services\Donations\DonationIngestService;
@@ -36,6 +37,8 @@ class StripeWebhookController extends Controller
             return response('Invalid signature', 400);
         }
 
+        $intentId = null;
+
         try {
             $statusResult = $this->paymentStatusService->applyFromStripeEvent($event);
             if ($statusResult['handled']) {
@@ -47,8 +50,27 @@ class StripeWebhookController extends Controller
                 return response('Ignored', 200);
             }
 
-            $settledIntent = $this->stripePaymentService->retrieveSettledPaymentIntent($intentId);
+            // Single attempt, no sleep loop: Stripe wants a fast 2xx and `charge.updated`
+            // re-delivers once the balance transaction exists (asynchronous capture).
+            // https://docs.stripe.com/webhooks
+            // https://docs.stripe.com/payments/payment-intents/asynchronous-capture
+            $settledIntent = $this->stripePaymentService->retrieveSettledPaymentIntent($intentId, 1);
+
+            // FR-009: only site donations (campaign or subscription metadata) reach Prima Nota.
+            $metadata = $this->stripePaymentService->donationMetadataFromPaymentIntent($settledIntent);
+            if (! $this->isSiteDonation($metadata)) {
+                return response('Ignored', 200);
+            }
+
             $this->donationIngestService->ingest($this->payloadMapper->fromPaymentIntent($settledIntent));
+        } catch (StripeSettlementNotReadyException $exception) {
+            // Must precede the generic RuntimeException catch: pending settlement is 200, not 502.
+            // https://laravel.com/docs/13.x/logging
+            Log::info('Stripe webhook donation pending: settlement not ready yet.', [
+                'payment_intent_id' => $intentId,
+            ]);
+
+            return response('Pending settlement', 200);
         } catch (UnsupportedCurrencyException $exception) {
             Log::info('Stripe webhook donation skipped: unsupported currency.', [
                 'error' => $exception->getMessage(),
@@ -62,5 +84,20 @@ class StripeWebhookController extends Controller
         }
 
         return response('OK', 200);
+    }
+
+    /**
+     * @param  array<string, mixed>  $metadata
+     */
+    private function isSiteDonation(array $metadata): bool
+    {
+        foreach (['campaign_id', 'stripe_subscription_id'] as $key) {
+            $value = $metadata[$key] ?? null;
+            if (is_string($value) && trim($value) !== '') {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

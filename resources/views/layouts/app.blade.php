@@ -45,6 +45,18 @@
 
     @include('layouts.partials.cookie-banner')
 
+    @php
+        $measurementBoot = app(\App\Services\MeasurementBootService::class);
+    @endphp
+    <div
+        id="measurement-boot"
+        hidden
+        data-measurement-enabled="{{ $measurementBoot->isBootable() ? 'true' : 'false' }}"
+        @if ($measurementBoot->isBootable())
+            data-measurement-container="{{ $measurementBoot->containerId() }}"
+        @endif
+    ></div>
+
     @stack('scripts')
 </body>
 </html>

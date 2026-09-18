@@ -21,6 +21,8 @@
             {{ $thankYouBody }}
         </p>
 
+        <span hidden data-measurement-event="{{ ! empty($isRecurring) ? 'donate_recurring_success' : 'donate_success' }}"></span>
+
         @if (! empty($isRecurring))
             <aside class="safehouse-accent-panel mx-auto mt-8 max-w-xl rounded-2xl p-4 text-start sm:p-5" role="note">
                 <h2 class="mb-2 text-sm font-semibold text-safehouse-primary">

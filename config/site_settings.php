@@ -168,6 +168,18 @@ return [
             'encrypted' => true,
             'config' => 'turnstile.secret_key',
         ],
+        'measurement.enabled' => [
+            'label' => 'Public measurement enabled',
+            'group' => 'measurement',
+            'encrypted' => false,
+            'config' => 'measurement.enabled',
+        ],
+        'measurement.container_id' => [
+            'label' => 'GTM container id',
+            'group' => 'measurement',
+            'encrypted' => false,
+            'config' => 'measurement.container_id',
+        ],
         'developer.no_cache' => [
             'label' => 'Disable HTTP browser cache',
             'group' => 'developer',

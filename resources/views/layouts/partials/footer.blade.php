@@ -34,6 +34,16 @@
                         {{ __($item['label']) }}
                     </a>
                 @endforeach
+                <span class="site-footer__legal-sep" aria-hidden="true">|</span>
+                <button type="button" class="site-footer__legal-link" data-cookie-reopen>
+                    {{ __('site.cookie.reopen') }}
+                </button>
+            </nav>
+        @else
+            <nav class="site-footer__legal" aria-label="Footer">
+                <button type="button" class="site-footer__legal-link" data-cookie-reopen>
+                    {{ __('site.cookie.reopen') }}
+                </button>
             </nav>
         @endif
 

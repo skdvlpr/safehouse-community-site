@@ -4,6 +4,7 @@ namespace App\Services\Payments;
 
 use App\DataTransferObjects\StripeEnrichmentFields;
 use App\DataTransferObjects\StripeSettlementAmounts;
+use App\Exceptions\StripeSettlementNotReadyException;
 use App\Models\DonationCampaign;
 use App\Support\IntegrationConfig;
 use Illuminate\Support\Carbon;
@@ -72,6 +73,12 @@ class StripePaymentService
             $payload = [
                 'amount' => $amountCents,
                 'currency' => strtolower($campaign->currency),
+                // Latest API defaults to automatic_async (BT often null on succeeded).
+                // Opt into synchronous capture so fee/net are usually on payment_intent.succeeded.
+                // charge.updated remains the settlement fallback (001.5).
+                // https://docs.stripe.com/payments/payment-intents/asynchronous-capture
+                // https://docs.stripe.com/api/payment_intents/create#create_payment_intent-capture_method
+                'capture_method' => 'automatic',
                 'automatic_payment_methods' => ['enabled' => true],
                 'description' => $this->donationDescription($campaign, $donorName, 'OneTime'),
                 'metadata' => $this->metadata($campaign, $donorName, $donorType, $comment, $donorEmail, $donorPhone, 'OneTime'),
@@ -315,15 +322,23 @@ class StripePaymentService
     /**
      * PaymentIntent with latest_charge.balance_transaction expanded — Stripe fee/net SoT.
      * Retries briefly when the charge exists but BalanceTransaction is not ready yet
-     * (common race: thank-you page vs webhook right after payment_intent.succeeded).
+     * (asynchronous capture: balance_transaction may be null right after confirmation;
+     * see https://docs.stripe.com/payments/payment-intents/asynchronous-capture).
+     *
+     * @param  int|null  $maxAttempts  null → config('stripe.settlement_retries'); webhook ingest passes 1.
+     *
+     * @throws StripeSettlementNotReadyException when BalanceTransaction/fee is still missing after all attempts
+     * @throws RuntimeException on client/API/status failures
      */
-    public function retrieveSettledPaymentIntent(string $paymentIntentId): PaymentIntent
+    public function retrieveSettledPaymentIntent(string $paymentIntentId, ?int $maxAttempts = null): PaymentIntent
     {
         if ($this->client === null) {
             throw new RuntimeException('Stripe client is not configured.');
         }
 
-        $attempts = max(1, (int) config('stripe.settlement_retries', 5));
+        $attempts = $maxAttempts !== null
+            ? max(1, $maxAttempts)
+            : max(1, (int) config('stripe.settlement_retries', 5));
         $sleepMs = max(0, (int) config('stripe.settlement_retry_ms', 400));
 
         for ($attempt = 1; $attempt <= $attempts; $attempt++) {
@@ -350,13 +365,18 @@ class StripePaymentService
 
         // Never return a succeeded PaymentIntent without BalanceTransaction fee SoT —
         // callers would otherwise persist commissionAmount=0 / net=gross.
-        throw new RuntimeException(
+        // Typed so webhook callers can answer 200 pending and wait for charge.updated.
+        throw new StripeSettlementNotReadyException(
             'Stripe BalanceTransaction not ready for payment intent '.$paymentIntentId
             .' after '.$attempts.' attempt(s).'
         );
     }
 
-    private function hasUsableBalanceTransaction(PaymentIntent $intent): bool
+    /**
+     * "Usable BT" predicate: Charge object present AND BalanceTransaction object present AND `fee` set.
+     * fee=0 is never invented — a missing fee means settlement is not published yet.
+     */
+    public function hasUsableBalanceTransaction(PaymentIntent $intent): bool
     {
         [$charge, $balanceTransaction] = $this->resolveChargeAndBalanceTransaction($intent);
 
@@ -1012,7 +1032,12 @@ class StripePaymentService
     }
 
     /**
-     * Resolve PaymentIntent id from payment_intent.succeeded or invoice.paid (renewals).
+     * Resolve PaymentIntent id from payment_intent.succeeded, invoice.paid (renewals),
+     * or charge.updated (BalanceTransaction published — asynchronous capture).
+     * Do not map charge.succeeded: fee is typically still null then.
+     *
+     * @see https://docs.stripe.com/api/events/types
+     * @see https://docs.stripe.com/payments/payment-intents/asynchronous-capture
      */
     public function paymentIntentIdFromWebhookEvent(Event $event): ?string
     {
@@ -1020,6 +1045,10 @@ class StripePaymentService
             $intent = $this->paymentIntentFromEvent($event);
 
             return $intent?->id;
+        }
+
+        if ($event->type === 'charge.updated') {
+            return $this->paymentIntentIdFromChargeObject($event->data->object ?? null);
         }
 
         if ($event->type !== 'invoice.paid') {
@@ -1032,6 +1061,26 @@ class StripePaymentService
         }
 
         return self::paymentIntentIdFromInvoiceObject($invoice);
+    }
+
+    /**
+     * Charge.payment_intent may be a string id or an expanded PaymentIntent object.
+     */
+    private function paymentIntentIdFromChargeObject(mixed $charge): ?string
+    {
+        if (! is_object($charge)) {
+            return null;
+        }
+
+        $paymentIntent = $charge->payment_intent ?? null;
+        if (is_string($paymentIntent) && $paymentIntent !== '') {
+            return $paymentIntent;
+        }
+        if (is_object($paymentIntent) && isset($paymentIntent->id) && is_string($paymentIntent->id) && $paymentIntent->id !== '') {
+            return $paymentIntent->id;
+        }
+
+        return null;
     }
 
     /**

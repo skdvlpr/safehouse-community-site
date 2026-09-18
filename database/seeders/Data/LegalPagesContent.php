@@ -60,7 +60,7 @@ final class LegalPagesContent
     private static function privacyIt(): string
     {
         return <<<'HTML'
-<p><strong>Versione operativa:</strong> 11 agosto 2026. Titolare: <strong>Safe House ETS</strong> (Codice Fiscale <strong>96629270586</strong>). Questo testo è la policy in vigore per il sito pubblico e i trattamenti collegati all’attività associativa.</p>
+<p><strong>Versione operativa:</strong> 17 settembre 2026. Titolare: <strong>Safe House ETS</strong> (Codice Fiscale <strong>96629270586</strong>). Questo testo è la policy in vigore per il sito pubblico e i trattamenti collegati all’attività associativa.</p>
 
 <h2>1. Titolare del trattamento</h2>
 <p>Il titolare del trattamento è <strong>Safe House ETS</strong>, ente del Terzo settore, Codice Fiscale <strong>96629270586</strong>.</p>
@@ -91,9 +91,11 @@ final class LegalPagesContent
 <p>La pubblicazione del Codice Fiscale non comporta raccolta di dati aggiuntivi oltre alla normale navigazione.</p>
 <h3>3.5 Consenso cookie</h3>
 <p>Registriamo preferenze cookie e un log di audit (hash di IP e user-agent, categorie accettate, data). Base: obbligo di dimostrare il consenso (ePrivacy / GDPR).</p>
+<h3>3.6 Misurazione del pubblico (Google Analytics 4 tramite Google Tag Manager)</h3>
+<p>Se accetti i cookie analitici, carichiamo <strong>Google Analytics 4</strong> tramite <strong>Google Tag Manager</strong> per statistiche aggregate sul pubblico e per eventi di conversione (<code>donate_success</code>, <code>donate_recurring_success</code>, <code>volunteer_success</code>, <code>contact_success</code>). Non usiamo questo strumento per pubblicità o remarketing in questa versione. Base giuridica operativa: consenso per questo strumento non tecnico (non interesse legittimo per i tracker). Destinatari: Google Ireland / Google LLC. Trasferimento: Google pubblica l’adesione al Data Privacy Framework UE–USA / decisione di adeguatezza; questa pagina non è un contratto di trattamento. Google indica di usare l’IP per una geolocalizzazione approssimativa e poi di scartarlo; Safe House <strong>non conserva l’indirizzo IP grezzo del visitatore</strong> per questa misurazione. Questa sezione è distinta dalle API Calendar/Drive dello staff (punto 5).</p>
 
 <h2>4. Cookie</h2>
-<p>Sul sito pubblico usiamo cookie necessari (sessione, sicurezza CSRF, preferenza di consenso). Cookie analitici di marketing <strong>non sono attualmente attivi</strong>; se in futuro verranno introdotti, saranno caricati solo dopo consenso. Dettagli: <a href="/it/cookie-policy">Cookie policy</a>.</p>
+<p>Sul sito pubblico usiamo cookie necessari (sessione, sicurezza CSRF, preferenza di consenso). Google Analytics 4, tramite Google Tag Manager, si carica solo dopo il consenso analitico. I cookie di marketing/ads <strong>non sono in uso</strong>. Dettagli: <a href="/it/cookie-policy">Cookie policy</a>.</p>
 
 <h2 id="google-api-services">5. Google API Services — area riservata staff (Calendar &amp; Drive)</h2>
 <p>Questa sezione è destinata anche alla verifica OAuth di Google Cloud / Google API Services User Data Policy (Limited Use).</p>
@@ -118,11 +120,11 @@ final class LegalPagesContent
 <li><strong>Hosting:</strong> VPS Aruba Cloud (Italia) — sito e sistemi interni sullo stesso server.</li>
 <li><strong>Posta elettronica:</strong> servizi email Aruba collegati a VPS/dominio.</li>
 <li><strong>Pagamenti:</strong> Stripe (trattamento come autonomo titolare/responsabile secondo i termini Stripe).</li>
-<li><strong>Google:</strong> Google Ireland / Google LLC per API Calendar e Drive quando lo staff collega l’account.</li>
+<li><strong>Google:</strong> Google Ireland / Google LLC per API Calendar e Drive quando lo staff collega l’account, e per Google Analytics 4 / Google Tag Manager sul sito pubblico solo dopo consenso analitico.</li>
 </ul>
 
 <h2>8. Trasferimenti extra-UE</h2>
-<p>Hosting e posta sono in Italia/UE ove possibile. Stripe e Google possono comportare trasferimenti internazionali con garanzie adeguate (SCC / framework applicabili). Maggiori dettagli nelle privacy policy di tali fornitori.</p>
+<p>Hosting e posta sono in Italia/UE ove possibile. Stripe e Google possono comportare trasferimenti internazionali. Per Analytics, Google indica l’adesione al Data Privacy Framework UE–USA / decisione di adeguatezza come nota operativa già pubblicata da Google; questa informativa non riproduce un accordo contrattuale. Maggiori dettagli nelle privacy policy di tali fornitori.</p>
 
 <h2>9. Conservazione</h2>
 <ul>
@@ -144,7 +146,7 @@ HTML;
     private static function privacyEn(): string
     {
         return <<<'HTML'
-<p><strong>Operational version:</strong> 11 August 2026. Controller: <strong>Safe House ETS</strong> (Italian fiscal code / Codice Fiscale <strong>96629270586</strong>). This is the live policy for the public website and related association processing.</p>
+<p><strong>Operational version:</strong> 17 September 2026. Controller: <strong>Safe House ETS</strong> (Italian fiscal code / Codice Fiscale <strong>96629270586</strong>). This is the live policy for the public website and related association processing.</p>
 
 <h2>1. Data controller</h2>
 <p>The controller is <strong>Safe House ETS</strong>, a Third Sector entity (ETS), Codice Fiscale <strong>96629270586</strong>.</p>
@@ -175,9 +177,11 @@ HTML;
 <p>Publishing our fiscal code does not collect additional personal data beyond normal browsing.</p>
 <h3>3.5 Cookie consent</h3>
 <p>We store cookie preferences and an audit log (hashed IP and user-agent, accepted categories, timestamp). Basis: demonstrating consent (ePrivacy / GDPR).</p>
+<h3>3.6 Audience measurement (Google Analytics 4 via Google Tag Manager)</h3>
+<p>If you accept analytics cookies, we load <strong>Google Analytics 4</strong> via <strong>Google Tag Manager</strong> for aggregated audience statistics and conversion events (<code>donate_success</code>, <code>donate_recurring_success</code>, <code>volunteer_success</code>, <code>contact_success</code>). We do not use this tool for advertising or remarketing in this version. Operational legal basis: consent for this non-technical tool (not legitimate interest for trackers). Recipients: Google Ireland / Google LLC. Transfer: Google publishes participation in the EU–US Data Privacy Framework / adequacy decision; this page is not a processing contract. Google states that IP is used for coarse geolocation and then discarded; Safe House still <strong>does not keep the visitor’s raw IP</strong> for this measurement. This section is distinct from staff Calendar/Drive APIs (section 5).</p>
 
 <h2>4. Cookies</h2>
-<p>On the public site we use essential cookies (session, CSRF security, consent preference). Marketing/analytics cookies are <strong>not currently active</strong>; if introduced later, they will load only after consent. Details: <a href="/en/cookie-policy">Cookie policy</a>.</p>
+<p>On the public site we use essential cookies (session, CSRF security, consent preference). Google Analytics 4, via Google Tag Manager, loads only after analytics consent. Marketing/ads cookies are <strong>not in use</strong>. Details: <a href="/en/cookie-policy">Cookie policy</a>.</p>
 
 <h2 id="google-api-services">5. Google API Services — staff area (Calendar &amp; Drive)</h2>
 <p>This section is also intended for Google Cloud OAuth verification and the Google API Services User Data Policy (Limited Use).</p>
@@ -202,11 +206,11 @@ HTML;
 <li><strong>Hosting:</strong> Aruba Cloud VPS (Italy) — website and internal systems on the same server.</li>
 <li><strong>Email:</strong> Aruba email services linked to the VPS/domain.</li>
 <li><strong>Payments:</strong> Stripe (controller/processor roles per Stripe’s terms).</li>
-<li><strong>Google:</strong> Google Ireland / Google LLC for Calendar and Drive APIs when staff connect their account.</li>
+<li><strong>Google:</strong> Google Ireland / Google LLC for Calendar and Drive APIs when staff connect their account, and for Google Analytics 4 / Google Tag Manager on the public site only after analytics consent.</li>
 </ul>
 
 <h2>8. International transfers</h2>
-<p>Hosting and email are in Italy/EU where possible. Stripe and Google may involve international transfers with appropriate safeguards (SCCs / applicable frameworks). See those providers’ privacy notices for details.</p>
+<p>Hosting and email are in Italy/EU where possible. Stripe may involve international transfers under Stripe’s terms. For Analytics, Google publishes participation in the EU–US Data Privacy Framework / adequacy decision as an operational note; this notice does not reproduce a contractual agreement. See those providers’ privacy notices for details.</p>
 
 <h2>9. Retention</h2>
 <ul>
@@ -266,14 +270,14 @@ HTML;
     private static function cookieIt(): string
     {
         return <<<'HTML'
-<p><strong>Versione operativa:</strong> 11 agosto 2026. Complemento della <a href="/it/privacy-policy">Privacy policy</a> di Safe House ETS.</p>
+<p><strong>Versione operativa:</strong> 17 settembre 2026. Complemento della <a href="/it/privacy-policy">Privacy policy</a> di Safe House ETS.</p>
 
 <h2>1. Cosa sono i cookie</h2>
-<p>I cookie sono piccoli file memorizzati sul dispositivo. Possono essere necessari al funzionamento del sito oppure, previo consenso, usati per finalità analitiche/di marketing.</p>
+<p>I cookie sono piccoli file memorizzati sul dispositivo. Possono essere necessari al funzionamento del sito oppure, previo consenso, usati per finalità analitiche.</p>
 
 <h2>2. Come gestiamo il consenso</h2>
-<p>Al primo accesso mostriamo un banner con: <em>Accetta tutti</em>, <em>Solo necessari</em> e <em>Preferenze</em>. La scelta è salvata (cookie/localStorage <code>sh_cookie_consent</code>) e registrata in forma aggregata/audit (hash IP/UA) nella tabella consensi.</p>
-<p><strong>Stato attuale:</strong> non sono attivi cookie analitici o di marketing di terze parti sul sito. La categoria “analitici” nel banner è predisposta per un eventuale strumento futuro e, finché non sarà configurato, non carica script di tracking.</p>
+<p>Al primo accesso mostriamo un banner con: <em>Accetta tutti</em>, <em>Solo necessari</em>, <em>Preferenze</em> e chiusura (X) che equivale a <em>solo necessari</em>. La scelta è salvata (cookie/localStorage <code>sh_cookie_consent</code>) e registrata in forma aggregata/audit (hash IP/UA) nella tabella consensi. Lo scorrimento della pagina non registra una scelta. Puoi riaprire lo stesso pannello preferenze dal pulsante nel footer.</p>
+<p>I cookie necessari partono automaticamente. Google Analytics 4, tramite Google Tag Manager, si carica solo dopo il consenso analitico. L’associazione non conserva l’indirizzo IP grezzo del visitatore per questa misurazione.</p>
 
 <h2>3. Cookie usati sul sito pubblico</h2>
 <table>
@@ -285,27 +289,27 @@ HTML;
 <tr><td>Necessari</td><td><code>safe-house-community-session</code></td><td>Sessione applicativa</td><td>Sessione (~2 ore)</td><td>Safe House (sito)</td></tr>
 <tr><td>Necessari</td><td><code>sh_cookie_consent</code></td><td>Memorizzare la preferenza cookie</td><td>Fino a 1 anno</td><td>Safe House (sito)</td></tr>
 <tr><td>Necessari (pagamenti)</td><td>cookie Stripe (es. <code>__stripe_*</code>) quando usi il form donazione</td><td>Elaborazione pagamento sicura</td><td>Secondo Stripe</td><td>Stripe</td></tr>
-<tr><td>Analitici</td><td>—</td><td>Non in uso al momento</td><td>—</td><td>—</td></tr>
+<tr><td>Analitici</td><td><code>_ga</code>, <code>_ga_*</code> (Google Analytics 4 tramite Google Tag Manager)</td><td>Statistiche aggregate ed eventi di conversione; caricati solo dopo il consenso analitico; non usati per remarketing in questa versione</td><td>Secondo Google</td><td>Google</td></tr>
 <tr><td>Marketing</td><td>—</td><td>Non in uso al momento</td><td>—</td><td>—</td></tr>
 </tbody>
 </table>
 
 <h2>4. Come modificare le preferenze</h2>
-<p>Cancella i cookie del sito dal browser oppure, se disponibile nel footer, riapri le preferenze cookie. Per domande: <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>
+<p>Riapri le preferenze cookie dal pulsante nel footer, oppure cancella i cookie del sito dal browser. Per domande: <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>
 HTML;
     }
 
     private static function cookieEn(): string
     {
         return <<<'HTML'
-<p><strong>Operational version:</strong> 11 August 2026. Companion to the Safe House ETS <a href="/en/privacy-policy">Privacy policy</a>.</p>
+<p><strong>Operational version:</strong> 17 September 2026. Companion to the Safe House ETS <a href="/en/privacy-policy">Privacy policy</a>.</p>
 
 <h2>1. What cookies are</h2>
-<p>Cookies are small files stored on your device. They may be essential for the site to work or, with consent, used for analytics/marketing.</p>
+<p>Cookies are small files stored on your device. They may be essential for the site to work or, with consent, used for analytics.</p>
 
 <h2>2. How we manage consent</h2>
-<p>On first visit we show a banner: <em>Accept all</em>, <em>Essential only</em> and <em>Preferences</em>. Your choice is stored (<code>sh_cookie_consent</code> cookie/localStorage) and logged for audit (hashed IP/UA).</p>
-<p><strong>Current state:</strong> no third-party analytics or marketing cookies are active. The “analytics” category in the banner is reserved for a future tool and does not load tracking scripts until configured.</p>
+<p>On first visit we show a banner: <em>Accept all</em>, <em>Essential only</em>, <em>Preferences</em>, and dismiss (X), which equals essential only. Your choice is stored (<code>sh_cookie_consent</code> cookie/localStorage) and logged for audit (hashed IP/UA). Scrolling does not store a choice. You can reopen the same preferences panel from the footer button.</p>
+<p>Necessary cookies run automatically. Google Analytics 4, via Google Tag Manager, loads only after analytics consent. The association does not store the visitor’s raw IP for this measurement.</p>
 
 <h2>3. Cookies on the public website</h2>
 <table>
@@ -317,13 +321,13 @@ HTML;
 <tr><td>Essential</td><td><code>safe-house-community-session</code></td><td>Application session</td><td>Session (~2 hours)</td><td>Safe House (site)</td></tr>
 <tr><td>Essential</td><td><code>sh_cookie_consent</code></td><td>Store cookie preference</td><td>Up to 1 year</td><td>Safe House (site)</td></tr>
 <tr><td>Essential (payments)</td><td>Stripe cookies (e.g. <code>__stripe_*</code>) when using donation checkout</td><td>Secure payment processing</td><td>Per Stripe</td><td>Stripe</td></tr>
-<tr><td>Analytics</td><td>—</td><td>Not in use</td><td>—</td><td>—</td></tr>
+<tr><td>Analytics</td><td><code>_ga</code>, <code>_ga_*</code> (Google Analytics 4 via Google Tag Manager)</td><td>Aggregated statistics and conversion events; load only after analytics consent; not used for remarketing in this version</td><td>Per Google</td><td>Google</td></tr>
 <tr><td>Marketing</td><td>—</td><td>Not in use</td><td>—</td><td>—</td></tr>
 </tbody>
 </table>
 
 <h2>4. Changing preferences</h2>
-<p>Clear site cookies in your browser or reopen cookie preferences from the footer if available. Questions: <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>
+<p>Reopen cookie preferences from the footer button, or clear site cookies in your browser. Questions: <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>
 HTML;
     }
 

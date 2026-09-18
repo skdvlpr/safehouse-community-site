@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\VolunteerMailFailedException;
 use App\Http\Requests\StoreVolunteerRequest;
+use App\Services\MeasurementBootService;
 use App\Services\VolunteerService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -22,7 +23,7 @@ class VolunteerController extends Controller
     public function store(StoreVolunteerRequest $request, string $locale): RedirectResponse
     {
         if ($request->filled('company')) {
-            return $this->redirectWithSuccess($locale);
+            return $this->redirectWithSuccess($locale, measure: false);
         }
 
         try {
@@ -36,13 +37,19 @@ class VolunteerController extends Controller
                 ]);
         }
 
-        return $this->redirectWithSuccess($locale);
+        return $this->redirectWithSuccess($locale, measure: true);
     }
 
-    private function redirectWithSuccess(string $locale): RedirectResponse
+    private function redirectWithSuccess(string $locale, bool $measure = false): RedirectResponse
     {
-        return redirect()
+        $redirect = redirect()
             ->route('volunteers.show', ['locale' => $locale])
             ->with('volunteer_success', __('site.volunteer.success'));
+
+        if ($measure) {
+            $redirect->with(MeasurementBootService::SESSION_CONVERSION, 'volunteer_success');
+        }
+
+        return $redirect;
     }
 }

@@ -22,6 +22,10 @@ function readConsent() {
     return null;
 }
 
+export function readCookieConsent() {
+    return readConsent();
+}
+
 function persistConsent(level) {
     try {
         localStorage.setItem(STORAGE_KEY, level);
@@ -72,6 +76,14 @@ function setPreferencesOpen(banner, open) {
     toggle?.setAttribute('aria-expanded', open ? 'true' : 'false');
 }
 
+function syncAnalyticsCheckbox(banner) {
+    const analytics = banner.querySelector('[data-cookie-analytics]');
+
+    if (analytics instanceof HTMLInputElement) {
+        analytics.checked = readConsent() === 'all';
+    }
+}
+
 function hideBanner() {
     const banner = document.getElementById('cookie-consent-banner');
 
@@ -83,6 +95,34 @@ function hideBanner() {
     banner.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('cookie-banner-open');
     setPreferencesOpen(banner, false);
+}
+
+function showFirstVisitBanner() {
+    const banner = document.getElementById('cookie-consent-banner');
+
+    if (!banner) {
+        return;
+    }
+
+    banner.classList.remove('is-hidden');
+    banner.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('cookie-banner-open');
+    syncAnalyticsCheckbox(banner);
+    setPreferencesOpen(banner, false);
+}
+
+function showReopenPreferences() {
+    const banner = document.getElementById('cookie-consent-banner');
+
+    if (!banner) {
+        return;
+    }
+
+    banner.classList.remove('is-hidden');
+    banner.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('cookie-banner-open');
+    syncAnalyticsCheckbox(banner);
+    setPreferencesOpen(banner, true);
 }
 
 function applyConsent(level, { record = true } = {}) {
@@ -109,13 +149,9 @@ function bindCookieConsent() {
 
     if (existing) {
         hideBanner();
-
-        return;
+    } else {
+        showFirstVisitBanner();
     }
-
-    banner.classList.remove('is-hidden');
-    banner.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('cookie-banner-open');
 
     banner.addEventListener('click', (event) => {
         const target = event.target;
@@ -124,11 +160,19 @@ function bindCookieConsent() {
             return;
         }
 
+        const dismiss = target.closest('[data-cookie-dismiss]');
         const acceptAll = target.closest('[data-cookie-accept-all]');
         const essentialOnly = target.closest('[data-cookie-essential-only]');
         const openPreferences = target.closest('[data-cookie-open-preferences]');
         const closePreferences = target.closest('[data-cookie-close-preferences]');
         const savePreferences = target.closest('[data-cookie-save-preferences]');
+
+        if (dismiss) {
+            event.preventDefault();
+            applyConsent('essential');
+
+            return;
+        }
 
         if (acceptAll) {
             event.preventDefault();
@@ -167,6 +211,18 @@ function bindCookieConsent() {
 
             applyConsent(analytics ? 'all' : 'essential');
         }
+    });
+
+    document.querySelectorAll('[data-cookie-reopen]').forEach((control) => {
+        if (!(control instanceof HTMLElement) || control.dataset.bound === 'true') {
+            return;
+        }
+
+        control.dataset.bound = 'true';
+        control.addEventListener('click', (event) => {
+            event.preventDefault();
+            showReopenPreferences();
+        });
     });
 }
 

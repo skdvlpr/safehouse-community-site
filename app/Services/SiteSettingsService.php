@@ -125,6 +125,10 @@ class SiteSettingsService
                 continue;
             }
 
+            if (is_array($value)) {
+                continue;
+            }
+
             if ($value === null) {
                 $normalized[$key] = null;
 

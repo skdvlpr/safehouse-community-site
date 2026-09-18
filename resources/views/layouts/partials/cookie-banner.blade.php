@@ -1,9 +1,11 @@
 @php
+    use App\Services\MeasurementBootService;
     use App\Services\PageService;
 
     $locale = app()->getLocale();
     $cookiePolicyUrl = app(PageService::class)->urlForKey('cookie', $locale);
     $privacyUrl = app(PageService::class)->urlForKey('privacy', $locale);
+    $measurementBootable = app(MeasurementBootService::class)->isBootable();
 @endphp
 
 <div
@@ -17,6 +19,14 @@
 >
     <div class="cookie-consent__shell site-content">
         <div class="cookie-consent__card safehouse-glass">
+            <button
+                type="button"
+                class="cookie-consent__dismiss"
+                data-cookie-dismiss
+                aria-label="{{ __('site.cookie.dismiss_aria') }}"
+            >
+                <span aria-hidden="true">×</span>
+            </button>
             <div class="cookie-consent__main">
                 <div class="cookie-consent__badge" aria-hidden="true">
                     <svg class="cookie-consent__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -26,7 +36,7 @@
 
                 <div class="cookie-consent__copy">
                     <p id="cookie-consent-title" class="cookie-consent__title">{{ __('site.cookie.title') }}</p>
-                    <p class="cookie-consent__text">{{ __('site.cookie.message') }}</p>
+                    <p class="cookie-consent__text">{{ __($measurementBootable ? 'site.cookie.message_bootable' : 'site.cookie.message') }}</p>
                     @if ($cookiePolicyUrl || $privacyUrl)
                         <p class="cookie-consent__links">
                             @if ($cookiePolicyUrl)
@@ -73,7 +83,7 @@
                         <input type="checkbox" data-cookie-analytics>
                         <span>
                             <strong>{{ __('site.cookie.analytics_label') }}</strong>
-                            <span class="cookie-consent__option-note">{{ __('site.cookie.analytics_note') }}</span>
+                            <span class="cookie-consent__option-note">{{ __($measurementBootable ? 'site.cookie.analytics_note_bootable' : 'site.cookie.analytics_note') }}</span>
                         </span>
                     </label>
                 </div>
