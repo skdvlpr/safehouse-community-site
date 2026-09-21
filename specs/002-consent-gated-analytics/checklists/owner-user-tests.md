@@ -18,7 +18,7 @@ Official references: [GTM web](https://developers.google.com/tag-platform/tag-ma
 ## Analytics accepted (bootable)
 
 - [x] After Accept all: `gtm.js` loads; Consent mode grants **only** `analytics_storage`; ads keys stay denied; **no** noscript iframe. *(2026-09-18: `gtm.js` 200; ads keys / noscript not re-dumped)*
-- [ ] GA4 Realtime / Pages shows the visit (wait a minute; ad blockers off). *(Home last-7-days zeros are not this check. Resume after CRM interrupt.)*
+- [ ] GA4 Realtime / Pages shows the visit (wait a minute; ad blockers off). *(Home last-7-days zeros are not this check.)* Use the step-by-step in [ga4-hit-verification.md](./ga4-hit-verification.md) (Preview → Network collect → DebugView → Realtime). Do not wait on Home / Landing page reports.
 - [x] Thank-you `?donor_name=` is stripped from the address bar after inject; DebugView `page_location` has no `donor_name` / `phone` / `email`. *(donor_name stripped; `payment_intent_client_secret` still in URL; DebugView pending)*
 
 ## Conversions (one name, no PII)

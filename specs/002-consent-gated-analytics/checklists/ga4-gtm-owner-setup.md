@@ -53,7 +53,7 @@ Record: 2026-09-16 (GA4 wizard finished — property Home shows 0, expected).
 
 - [ ] Local `.env` only: `MEASUREMENT_ENABLED=true` + `GTM_CONTAINER_ID` (see [owner-ops](../contracts/owner-ops.md))
 - [ ] Essentials-only / dismiss: no `googletagmanager.com`
-- [ ] Analytics accepted: hit in GTM Preview or GA4 **Realtime**
+- [ ] Analytics accepted: hit in GTM Preview or GA4 **Realtime** — follow [ga4-hit-verification.md](./ga4-hit-verification.md) (Home / 28-day Landing page zeros are not this tick)
 - [ ] Four conversion names with consent; none without; honeypot not counted; one-time thank-you ≠ recurring thank-you
 - [ ] Production: `.env` + **Caddy CSP** allowlist (owner apply) + cookie/privacy texts synced
 - [ ] Ads import of key events = later Grants ops, not this feature

@@ -123,6 +123,7 @@ Donate thank-you and volunteer success remain reachable, locale-stable URLs so m
 - **Compatibility with 005**: 5 x 1000 promotional *creatives* are 005; this spec only ensures the 5 x 1000 *page* is sitelink-grade. Do not duplicate banners.
 - **Compatibility with 006**: No new marketing cookies.
 - Default for membership: strong landing + existing contact CTA (not a full membership CRM). Owner may later specify a CRM workflow.
+- **2026-09-21 owner backlog** (not this spec): site form on `diventa-socio` + volunteer Lead ingest + Espo PDF. Capture: [`.specify/progress/039-ga4-uat-and-crm-lead-forms-backlog.md`](../../.specify/progress/039-ga4-uat-and-crm-lead-forms-backlog.md). New `/speckit-specify` after 002 UAT; do not implement inside 004.
 - Ads account work is out of repository scope.
 
 ## Changelog
@@ -130,3 +131,4 @@ Donate thank-you and volunteer success remain reachable, locale-stable URLs so m
 - 2026-09-13: Initial specification (S02 split; landings + sitelink pack, not Ads UI).
 - 2026-09-13: 001.1 remap — socio exists on production; locales it+en only.
 - 2026-09-16: Point conversions at 002 GA4 events; still no Ads pixels in this spec.
+- 2026-09-21: Pointer to owner membership/volunteer CRM Lead backlog (progress 039); still out of this spec.

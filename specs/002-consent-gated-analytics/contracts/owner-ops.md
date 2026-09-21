@@ -18,7 +18,9 @@ Cite: [DDEV CLI](https://ddev.readthedocs.io/en/stable/users/usage/cli/), [GTM a
 3. After legal HTML edits: `ddev exec php artisan site:sync-legal-pages --force`.
 4. `ddev exec php artisan test` and Pint.
 
-Living checklist (wizard already started 2026-09-16; remaining Admin ticks): [checklists/ga4-gtm-owner-setup.md](../checklists/ga4-gtm-owner-setup.md). Re-open that file before UAT and before production.
+Living checklist (wizard already started 2026-09-16; remaining Admin ticks): [checklists/ga4-gtm-owner-setup.md](../checklists/ga4-gtm-owner-setup.md). **Hit proof (Home zeros are not UAT):** [checklists/ga4-hit-verification.md](../checklists/ga4-hit-verification.md). Re-open both before UAT and before production.
+
+Local measurement after 002.1: staff toggle is CMS Impostazioni → Integrazioni (not `.env`). Env remains fallback only.
 
 ## Google accounts (owner)
 
@@ -31,7 +33,7 @@ Living checklist (wizard already started 2026-09-16; remaining Admin ticks): [ch
 ## Production when the owner later asks to publish
 
 1. Deploy the git revision the owner triggers.
-2. Set production `MEASUREMENT_ENABLED` and `GTM_CONTAINER_ID`.
+2. Set production measurement in **live CMS** (toggle + `GTM-…`). Env `MEASUREMENT_ENABLED` is fallback only.
 3. Sync or paste legal pages if production CMS still has “analytics not active”.
 4. **Caddy CSP** (owner/root): allow Tag Manager / Analytics hosts on the **public** matcher only (not `/cms-safehouse`). Update `deploy/Caddyfile.snippet` in git first; apply live only when asked. Suggested directives to merge into the existing public CSP string: `script-src` / `img-src` / `connect-src` additions for `https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com` (confirm against Google’s current list at apply time).
 5. Without that CSP apply, production may block GTM even with correct `.env`.

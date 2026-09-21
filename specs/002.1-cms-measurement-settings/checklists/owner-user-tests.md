@@ -22,7 +22,7 @@ Reuse [002 owner-user-tests](../../002-consent-gated-analytics/checklists/owner-
 - [ ] Footer cookie preferences reopen; withdraw to essential stops events.
 - [ ] Cookie/privacy pages name GA4/Tag Manager; marketing unused; status line matches on/off.
 
-UAT pause 2026-09-18: see [notes/2026-09-18-local-uat.md](../notes/2026-09-18-local-uat.md). Do not treat GA4 Home zeros as a gate failure.
+UAT pause 2026-09-18: see [notes/2026-09-18-local-uat.md](../notes/2026-09-18-local-uat.md). Resume hits: [ga4-hit-verification.md](../../002-consent-gated-analytics/checklists/ga4-hit-verification.md). Do not treat GA4 Home zeros as a gate failure.
 
 ## Still owner-side in Google Admin
 
