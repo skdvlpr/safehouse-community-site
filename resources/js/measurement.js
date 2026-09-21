@@ -4,7 +4,9 @@ const CONVERSION_EVENTS = new Set([
     'donate_success',
     'donate_recurring_success',
     'volunteer_success',
-    'contact_success',
+    'contact_generic_success',
+    'contact_slegale_success',
+    'contact_sdigitale_success',
 ]);
 
 const PII_QUERY_KEYS = ['donor_name', 'phone', 'email'];

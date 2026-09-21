@@ -21,7 +21,7 @@ class ContactSubmissionController extends Controller
     public function store(StoreContactSubmissionRequest $request, string $locale): RedirectResponse
     {
         if ($request->filled('company')) {
-            return $this->redirectWithSuccess($locale, measure: false);
+            return $this->redirectWithSuccess($locale, desk: null);
         }
 
         $stored = $this->rateLimiter->attempt(
@@ -33,10 +33,10 @@ class ContactSubmissionController extends Controller
             return $this->redirectWithRateLimitError($request, $locale);
         }
 
-        return $this->redirectWithSuccess($locale, measure: true);
+        return $this->redirectWithSuccess($locale, desk: $request->validated('desk'));
     }
 
-    private function redirectWithSuccess(string $locale, bool $measure = false): RedirectResponse
+    private function redirectWithSuccess(string $locale, ?string $desk): RedirectResponse
     {
         $url = $this->pages->urlForKey('contact', $locale) ?? route('home', ['locale' => $locale]);
 
@@ -44,11 +44,28 @@ class ContactSubmissionController extends Controller
             ->to($url)
             ->with('contact_success', __('site.pages.contact_success'));
 
-        if ($measure) {
-            $redirect->with(MeasurementBootService::SESSION_CONVERSION, 'contact_success');
+        $event = $this->conversionEventForDesk($desk);
+
+        if ($event !== null) {
+            $redirect->with(MeasurementBootService::SESSION_CONVERSION, $event);
         }
 
         return $redirect;
+    }
+
+    /**
+     * GA4 custom event for a known sportello. Unknown desks are not measured.
+     *
+     * @see https://support.google.com/analytics/answer/12229021
+     */
+    private function conversionEventForDesk(?string $desk): ?string
+    {
+        return match ($desk) {
+            'generic_desk' => 'contact_generic_success',
+            'legal_desk' => 'contact_slegale_success',
+            'digital_desk' => 'contact_sdigitale_success',
+            default => null,
+        };
     }
 
     private function redirectWithRateLimitError(Request $request, string $locale): RedirectResponse

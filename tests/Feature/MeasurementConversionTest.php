@@ -11,6 +11,7 @@ use App\Services\SiteSettingsService;
 use Database\Seeders\PageSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class MeasurementConversionTest extends TestCase
@@ -162,6 +163,18 @@ class MeasurementConversionTest extends TestCase
         Mail::assertSent(VolunteerApplicantMail::class);
     }
 
+    /**
+     * @return array<string, array{0: string, 1: string}>
+     */
+    public static function contactDeskConversionNames(): array
+    {
+        return [
+            'generic_desk' => ['generic_desk', 'contact_generic_success'],
+            'legal_desk' => ['legal_desk', 'contact_slegale_success'],
+            'digital_desk' => ['digital_desk', 'contact_sdigitale_success'],
+        ];
+    }
+
     public function test_contact_honeypot_keeps_success_flash_without_measurement_marker(): void
     {
         $this->post('/it/contact', [
@@ -172,21 +185,51 @@ class MeasurementConversionTest extends TestCase
             ->assertSessionHas('contact_success')
             ->assertSessionMissing(MeasurementBootService::SESSION_CONVERSION);
 
-        $this->get('/it/contact')
+        $html = $this->get('/it/contact')
             ->assertOk()
-            ->assertDontSee('data-measurement-event="contact_success"', false);
+            ->getContent();
+
+        $this->assertDoesNotMatchRegularExpression(
+            '/data-measurement-event="contact_(success|generic_success|slegale_success|sdigitale_success)"/',
+            $html,
+        );
     }
 
-    public function test_contact_real_success_sets_measurement_marker(): void
+    #[DataProvider('contactDeskConversionNames')]
+    public function test_contact_real_success_sets_desk_measurement_marker(string $desk, string $event): void
     {
-        $this->post('/it/contact', $this->validContactPayload())
+        $this->post('/it/contact', [
+            ...$this->validContactPayload(),
+            'desk' => $desk,
+        ])
             ->assertRedirect('/it/contact')
             ->assertSessionHas('contact_success')
-            ->assertSessionHas(MeasurementBootService::SESSION_CONVERSION, 'contact_success');
+            ->assertSessionHas(MeasurementBootService::SESSION_CONVERSION, $event);
 
-        $this->get('/it/contact')
+        $html = $this->get('/it/contact')
             ->assertOk()
-            ->assertSee('data-measurement-event="contact_success"', false);
+            ->assertSee('data-measurement-event="'.$event.'"', false)
+            ->getContent();
+
+        $this->assertStringContainsString(
+            '<span hidden data-measurement-event="'.$event.'"></span>',
+            $html,
+        );
+        $this->assertStringNotContainsString(
+            'data-measurement-event="contact_success"',
+            $html,
+        );
+
+        foreach (['contact_generic_success', 'contact_slegale_success', 'contact_sdigitale_success'] as $name) {
+            if ($name === $event) {
+                continue;
+            }
+
+            $this->assertStringNotContainsString(
+                'data-measurement-event="'.$name.'"',
+                $html,
+            );
+        }
     }
 
     public function test_home_impact_cards_still_render(): void

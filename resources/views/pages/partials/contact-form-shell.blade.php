@@ -2,8 +2,16 @@
     <p class="template-contact-form__success" role="status">{{ session('contact_success') }}</p>
 @endif
 
-@if (session(\App\Services\MeasurementBootService::SESSION_CONVERSION) === 'contact_success')
-    <span hidden data-measurement-event="contact_success"></span>
+@php
+    $contactConversion = session(\App\Services\MeasurementBootService::SESSION_CONVERSION);
+    $allowedContactEvents = [
+        'contact_generic_success',
+        'contact_slegale_success',
+        'contact_sdigitale_success',
+    ];
+@endphp
+@if (is_string($contactConversion) && in_array($contactConversion, $allowedContactEvents, true))
+    <span hidden data-measurement-event="{{ $contactConversion }}"></span>
 @endif
 
 @error('contact_rate_limit')
