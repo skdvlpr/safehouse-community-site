@@ -276,6 +276,8 @@ return [
         'dismiss' => 'Chiudi',
         'dismiss_aria' => 'Chiudi e usa solo i cookie necessari',
         'reopen' => 'Preferenze cookie',
+        'reopen_page' => 'Apri le preferenze cookie',
+        'reopen_page_note' => 'Puoi modificare la scelta in qualsiasi momento. Fino all’accettazione i cookie analitici non vengono caricati.',
     ],
     'measurement' => [
         'status_off' => 'Misurazione pubblico: Google Analytics 4 (Tag Manager) non è caricato su questo sito (strumento disattivato).',

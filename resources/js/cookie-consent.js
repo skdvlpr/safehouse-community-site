@@ -80,7 +80,7 @@ function syncAnalyticsCheckbox(banner) {
     const analytics = banner.querySelector('[data-cookie-analytics]');
 
     if (analytics instanceof HTMLInputElement) {
-        analytics.checked = readConsent() === 'all';
+        analytics.checked = readConsent() !== 'essential';
     }
 }
 

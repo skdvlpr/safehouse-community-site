@@ -17,7 +17,7 @@
     aria-hidden="true"
     data-store-url="{{ route('cookie-consent.store', ['locale' => $locale]) }}"
 >
-    <div class="cookie-consent__shell site-content">
+    <div class="cookie-consent__shell">
         <div class="cookie-consent__card safehouse-glass">
             <button
                 type="button"
@@ -80,7 +80,7 @@
                         </span>
                     </label>
                     <label class="cookie-consent__option">
-                        <input type="checkbox" data-cookie-analytics>
+                        <input type="checkbox" data-cookie-analytics checked>
                         <span>
                             <strong>{{ __('site.cookie.analytics_label') }}</strong>
                             <span class="cookie-consent__option-note">{{ __($measurementBootable ? 'site.cookie.analytics_note_bootable' : 'site.cookie.analytics_note') }}</span>

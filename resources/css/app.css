@@ -956,7 +956,7 @@ html[data-theme='light'] {
     }
 
     .cookie-consent {
-        @apply pointer-events-auto fixed inset-x-0 bottom-0 z-[9999] p-4 md:p-5;
+        @apply pointer-events-none fixed inset-x-0 bottom-8 z-[9999] flex justify-center px-4 md:bottom-14;
     }
 
     .cookie-consent.is-hidden {
@@ -964,11 +964,11 @@ html[data-theme='light'] {
     }
 
     .cookie-consent__shell {
-        @apply mx-auto w-full max-w-site-content;
+        @apply pointer-events-auto mx-auto w-full max-w-lg;
     }
 
     .cookie-consent__card {
-        @apply relative overflow-hidden rounded-2xl border border-white/15 shadow-[0_-8px_40px_rgb(0_0_0_/_55%)];
+        @apply relative overflow-hidden rounded-3xl border border-white/15 shadow-[0_16px_48px_rgb(0_0_0_/_55%)];
         border-top: 3px solid var(--color-safehouse-primary);
     }
 
@@ -977,7 +977,7 @@ html[data-theme='light'] {
     }
 
     .cookie-consent__main {
-        @apply grid gap-4 p-4 md:grid-cols-[auto_1fr_auto] md:items-center md:gap-6 md:p-5;
+        @apply grid gap-4 p-5 md:p-6;
     }
 
     .cookie-consent__badge {
@@ -1005,7 +1005,7 @@ html[data-theme='light'] {
     }
 
     .cookie-consent__actions {
-        @apply flex flex-col gap-2 sm:flex-row sm:flex-wrap md:justify-end;
+        @apply flex flex-col gap-2;
     }
 
     .cookie-consent__btn {
@@ -1046,7 +1046,7 @@ html[data-theme='light'] {
     }
 
     .cookie-consent__options {
-        @apply grid gap-3 md:grid-cols-2;
+        @apply grid gap-3;
     }
 
     .cookie-consent__option {
@@ -1066,13 +1066,15 @@ html[data-theme='light'] {
     }
 
     body.cookie-banner-open {
-        padding-bottom: 7.5rem;
+        padding-bottom: 2.5rem;
     }
 
-    @media (width >= 768px) {
-        body.cookie-banner-open {
-            padding-bottom: 6.5rem;
-        }
+    .cookie-page-reopen {
+        @apply mb-6 flex flex-col items-start gap-2;
+    }
+
+    .cookie-page-reopen__note {
+        @apply max-w-xl text-sm text-safehouse-muted;
     }
 
     .donation-form {

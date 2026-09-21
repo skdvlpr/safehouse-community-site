@@ -276,6 +276,8 @@ return [
         'dismiss' => 'Close',
         'dismiss_aria' => 'Dismiss and use essential cookies only',
         'reopen' => 'Cookie preferences',
+        'reopen_page' => 'Open cookie preferences',
+        'reopen_page_note' => 'You can change your choice at any time. Analytics cookies are not loaded until you accept them.',
     ],
     'measurement' => [
         'status_off' => 'Audience measurement: Google Analytics 4 (Tag Manager) is not loaded on this site (the tool is switched off).',

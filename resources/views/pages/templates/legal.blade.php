@@ -21,6 +21,15 @@
 
         @include('layouts.partials.measurement-status')
 
+        @if ($page->key === 'cookie')
+            <div class="cookie-page-reopen">
+                <button type="button" class="cookie-consent__btn cookie-consent__btn--primary" data-cookie-reopen data-cookie-page-reopen>
+                    {{ __('site.cookie.reopen_page') }}
+                </button>
+                <p class="cookie-page-reopen__note">{{ __('site.cookie.reopen_page_note') }}</p>
+            </div>
+        @endif
+
         <article class="template-legal-doc safehouse-glass safehouse-prose">
             {!! \App\Support\CmsHtml::render($body) !!}
         </article>
