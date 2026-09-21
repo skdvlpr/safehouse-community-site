@@ -16,9 +16,11 @@
 
 ## Landing
 
-**Decision**: Split CMS HTML on `<hr>` ([LandingBody](../../app/Support/LandingBody.php)). First chunk = hero intro; remaining chunks = card grid. Membership key `diventa-socio` gets Compila domanda + native [dialog](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog). Hide the visual column when the page has no carousel so the right half is not empty.
+**Decision**: CMS-first blocks: Filament [repeater](https://filamentphp.com/docs/4.x/forms/repeater) for ticker values (max 12) and cards (max 6). Legacy `<hr>` HTML is a fallback parser: intro = first chunk; valori heading → short list items (≤40 chars, ≤2 words) as ticker; Contattaci/Unisciti skipped; extra chunks after 6 dropped. Values ticker at the top; cards slide in via [Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API); pause control for the ticker ([WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)); [prefers-reduced-motion](https://tailwindcss.com/docs/hover-focus-and-other-states#prefers-reduced-motion). Contemporary 2026 nonprofit pattern: one hero, modular cards, live ticker (Haven/Apexure-style motion, Caucus/Hearth-style card grid).
 
-**Rationale**: Owner A+C hybrid; do not rewrite CMS essay.
+**Rationale**: Owner UAT: 9 cards + red Landing label looked dated; one HTML window unusable; phone check after deploy.
+
+**Alternatives**: Keep one HTML dump (rejected). New spec 007 (deferred — this amends 002.4).
 
 ## Membership form vs official Word module
 

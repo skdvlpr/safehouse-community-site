@@ -144,6 +144,8 @@ class PageResource extends Resource
                     ->columnSpanFull()
                     ->collapsed(),
 
+                PageTemplateFormFields::landingBlocksSection(),
+
                 PageTemplateFormFields::serviceCardsSection(),
 
                 Tabs::make(__('cms.sections.translations'))

@@ -159,6 +159,11 @@ return [
         'notice' => 'I dati sono usati per la domanda di ammissione. La sezione riservata al Consiglio Direttivo non è sul sito.',
         'success' => 'Grazie — abbiamo ricevuto la domanda di ammissione. Il Consiglio Direttivo la esaminerà.',
         'mail_failed' => 'Non è stato possibile inviare la domanda. Riprova più tardi.',
+        'values_label' => 'I nostri valori',
+        'contact_heading' => 'Contattaci',
+        'contact_lead' => 'Compila la domanda di ammissione. Il Consiglio Direttivo la esaminerà.',
+        'marquee_pause' => 'Pausa',
+        'marquee_play' => 'Riprendi',
         'mail' => [
             'staff_intro' => 'Abbiamo ricevuto una nuova domanda di ammissione socio',
             'staff_name' => 'Nome',

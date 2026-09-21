@@ -147,7 +147,21 @@ On `/it/diventa-socio` the visitor uses **Compila domanda**. A modal collects th
 
 ---
 
-### Edge Cases
+### User Story 7 - Membership landing is contemporary, CMS-editable, and phone-first (Priority: P1)
+
+The visitor sees **I nostri valori** as a fast top ticker (words separated by dots), then **one** hero block, then **six** cards that slide in from off-screen, then **Contattaci** as a button to the membership form (no email address). Sede legale is on the page. The red **Landing** label is gone. Staff edit each block in Filament (intro, ticker items, 6 cards, contact heading) instead of one HTML dump.
+
+**Why this priority**: Owner 2026-09-21 after first landing UAT: 9 cards look dated; CMS is unusable; they will check from a phone after deploy.
+
+**Independent Test**: `/it/diventa-socio` desktop + ~390px. CMS page edit for template landing.
+
+**Acceptance Scenarios**:
+
+1. **Given** the official socio HTML, **When** the page renders, **Then** there is 1 hero + 6 cards (not 9), a valori ticker, and no email in the contact block.
+2. **Given** a phone viewport, **When** they scroll, **Then** cards stack, ticker does not overflow, tap targets stay usable, and reduced-motion users get no slide/marquee.
+3. **Given** CMS template Landing, **When** staff open the page, **Then** they see labelled fields for hero, values ticker, and max 6 cards.
+
+---
 
 - Phone: banner actions stack; landing CTA still in the first screens; header may use the existing hamburger.
 - Reduced motion: no new decorative motion required in this hotfix.
@@ -170,9 +184,16 @@ On `/it/diventa-socio` the visitor uses **Compila domanda**. A modal collects th
 - **FR-007**: Privacy, cookie, and Contatti MUST show sede legale **Via delleani 26, 00042 Anzio (RM)**, RUNTS **156768**, C.F. **96629270586**.
 - **FR-008**: Contatti FAQ MUST be a button to the existing FAQ page (Italian and English), not a pasted URL.
 - **FR-009**: Legal document body MUST use the public proportional sans (not a code mono) and a readable measure. Chrome choice: legal_chrome clarification.
-- **FR-010**: Implement and preview **locally only**. MUST NOT `git push`, MUST NOT production `site:sync-legal-pages`, MUST NOT production deploy, unless the owner later writes an explicit deploy instruction.
+- **FR-010**: Implement and preview locally first. **Exception 2026-09-21:** owner authorised commit + push + deploy of this amendment in the same cycle. MUST NOT production `site:sync-legal-pages` unless the owner later asks.
 - **FR-011**: This feature MUST NOT implement `007` motion/dimension inventory, S03 banners, or volunteer→Lead Volontario. Membership public form + best-effort Lead Associato ARE in scope after the owner sent the official Word form.
 - **FR-012**: Membership POST MUST reuse the volunteer mail pattern (staff inbox, applicant copy, Turnstile, honeypot, rate limit). Public fields MUST match the official form §1–3. Lead payload MUST use existing Espo fields only (`MemberContact`, `taxCode`, `birthDate`, `birthPlace`, `birthProvince`, address*, phone, email). MUST NOT add a site `memberships` table. MUST NOT write `nonprofit-espocrm`.
+- **FR-013**: Landing MUST show at most **6** cards below **1** hero intro. Extra `<hr>` chunks after that MUST NOT become cards.
+- **FR-014**: **I nostri valori** MUST be a full-width ticker at the top (dot-separated). Staff MUST edit ticker items in CMS.
+- **FR-015**: The Contattaci block MUST be a button that opens the membership form and MUST NOT show an email address.
+- **FR-016**: Sede legale (Anzio / RUNTS / CF) MUST appear on Diventa socio.
+- **FR-017**: The fallback red label **Landing** MUST NOT render. Empty CMS section label means no eyebrow.
+- **FR-018**: Cards MUST enter from off-screen on scroll, gated by `prefers-reduced-motion`. The ticker MUST have an on-page pause control ([WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)).
+- **FR-019**: Filament landing form MUST expose intro, values, cards (max 6), and contact heading as separate fields ([Filament repeater](https://filamentphp.com/docs/4.x/forms/repeater)). Legacy one-window HTML remains a fallback parser until saved.
 
 ### Key Entities
 
@@ -189,8 +210,9 @@ On `/it/diventa-socio` the visitor uses **Compila domanda**. A modal collects th
 - **SC-003**: On `/it/diventa-socio` at ~1400px width, title and landing buttons are visible without scrolling.
 - **SC-004**: A reviewer who knew JetBrains can say the public site no longer uses that family after a 2-minute browse.
 - **SC-005**: Privacy, cookie, and Contatti each show the Anzio seat; Contatti FAQ is a button.
-- **SC-006**: After implement, `git status` is not pushed; production cookie HTML date remains the old live date until the owner asks to publish.
+- **SC-006**: Production `site:sync-legal-pages` stays off unless the owner asks. US7 landing/visual/CMS MAY be pushed this cycle (owner 2026-09-21).
 - **SC-007**: A reviewer can complete the membership modal with the official public fields and receive the applicant confirmation mail locally.
+- **SC-008**: `/it/diventa-socio` shows a valori ticker, one hero, at most six cards, a form button without an email in Contattaci, sede legale, and no “Landing” eyebrow. CMS landing has separate fields for those blocks.
 
 ## Assumptions
 
@@ -205,3 +227,4 @@ On `/it/diventa-socio` the visitor uses **Compila domanda**. A modal collects th
 
 - 2026-09-21: Initial hotfix specification. Layout/typeface/banner-shape clarifications open.
 - 2026-09-21: Owner locked banner/typeface/landing/legal chrome. Official Word form pulled US6 into this hotfix. Volunteer Lead remains backlog.
+- 2026-09-21: UAT follow-up US7 — 6 cards, valori ticker, CMS block fields, contact form button, sede on socio, no Landing label, scroll-in cards, phone-first. Owner authorised commit+push+deploy this cycle.

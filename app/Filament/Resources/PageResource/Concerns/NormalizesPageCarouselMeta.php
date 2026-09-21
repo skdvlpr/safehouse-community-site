@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PageResource\Concerns;
 
 use App\Filament\Support\CarouselFormFields;
+use App\Support\LandingContent;
 use App\Support\PageCarousel;
 
 trait NormalizesPageCarouselMeta
@@ -17,7 +18,7 @@ trait NormalizesPageCarouselMeta
             $data['meta'] = CarouselFormFields::normalizeCarouselMetaForForm($data['meta']);
         }
 
-        return $data;
+        return LandingContent::hydrateForm($data);
     }
 
     /**

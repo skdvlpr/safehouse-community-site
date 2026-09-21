@@ -85,6 +85,10 @@ return [
         'body_locale' => 'Testo (:locale)',
         'stats_locale' => 'Riga statistiche (:locale)',
         'cards' => 'Schede',
+        'landing_values' => 'Valori (riga in movimento)',
+        'landing_cards' => 'Schede sotto l\'hero (massimo 6)',
+        'landing_contact_heading' => 'Titolo blocco Contattaci',
+        'value_label_locale' => 'Valore (:locale)',
         'stats' => 'Statistiche',
         'currency' => 'Valuta',
         'sort_order' => 'Ordine',
@@ -194,6 +198,7 @@ return [
         'photo_carousel' => 'Carosello foto',
         'hero_carousel' => 'Carosello hero',
         'service_cards' => 'Schede servizi',
+        'landing_blocks' => 'Blocchi landing (valori + schede)',
         'social_links' => 'Link social',
         'site_background' => 'Sfondo del sito',
         'page_background' => 'Sfondo pagina',
@@ -225,7 +230,12 @@ return [
         'slide_image' => 'JPEG, PNG o WebP. Fino a 25 MB in upload; salvataggio automatico entro 8 MB.',
         'carousel_repeater' => 'Le slide senza immagine vengono ignorate al salvataggio. Puoi aggiungere il testo alternativo dopo.',
         'hero_carousel' => 'Galleria fotografica facoltativa in cima a qualsiasi modello di pagina. Visibile solo se è caricata almeno un\'immagine.',
-        'section_label' => 'Piccola etichetta o banner rosso per questa pagina. Lascia vuoto per il predefinito.',
+        'section_label' => 'Piccola etichetta o banner rosso per questa pagina. Lascia vuoto per non mostrarla (sulla landing il predefinito «Landing» non compare).',
+        'landing_body' => 'Solo il testo del blocco in alto (hero). Mappa: corpo = intro; «Valori» = riga in movimento in cima; «Schede» (max 6) = carte sotto l\'hero; titolo Contattaci = fascia in fondo. Non mettere schede o valori in questo campo.',
+        'landing_blocks' => 'La riga valori è un ticker in cima. Poi massimo 6 schede. Il blocco Contattaci è un pulsante al modulo, senza email.',
+        'landing_values' => 'Parole corte, una per riga del ticker, separate da un punto. Riordinabili.',
+        'landing_cards' => 'Massimo 6. L\'ordine qui è l\'ordine sul sito.',
+        'landing_contact_heading' => 'Titolo sopra il pulsante Compila domanda in fondo alla pagina socio.',
         'hero_eyebrow' => 'Piccola riga rossa sopra il titolo principale.',
         'hero_tagline' => 'Breve riga accanto al titolo grande.',
         'our_values' => 'Colonna destra — pannello valori evidenziato.',
@@ -326,8 +336,8 @@ return [
         ],
         'landing' => [
             'label' => 'Landing',
-            'description' => 'Hero ampio ed enfasi facoltativa sulle call-to-action.',
-            'layout' => 'Layout: hero completo + pulsanti CTA.',
+            'description' => 'Hero, ticker valori, massimo 6 schede, pulsante domanda socio. Ogni blocco ha un campo in CMS.',
+            'layout' => 'Layout: ticker + hero + 6 schede + Contattaci.',
         ],
         'legal' => [
             'label' => 'Legale',
@@ -352,6 +362,7 @@ return [
         'default' => 'Testo',
         'about' => 'Intro missione',
         'services' => 'Intro servizi',
+        'landing' => 'Testo hero (blocco in alto)',
     ],
 
     'actions' => [
@@ -410,6 +421,8 @@ return [
         'new_slide' => 'Nuova slide',
         'new_stat' => 'Nuova statistica',
         'new_service_card' => 'Nuova scheda servizio',
+        'new_landing_value' => 'Nuovo valore',
+        'new_landing_card' => 'Nuova scheda landing',
     ],
 
     'validation' => [

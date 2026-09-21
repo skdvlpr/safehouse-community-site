@@ -159,6 +159,11 @@ return [
         'notice' => 'We use these data for the membership application. Board-only fields are not on the website.',
         'success' => 'Thank you — we received your membership application. The Board will review it.',
         'mail_failed' => 'We could not send your application. Please try again later.',
+        'values_label' => 'Our values',
+        'contact_heading' => 'Contact us',
+        'contact_lead' => 'Fill in the membership application. The Board will review it.',
+        'marquee_pause' => 'Pause',
+        'marquee_play' => 'Play',
         'mail' => [
             'staff_intro' => 'Abbiamo ricevuto una nuova domanda di ammissione socio',
             'staff_name' => 'Nome',

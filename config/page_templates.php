@@ -36,7 +36,7 @@ return [
 
     'landing' => [
         'label' => 'Landing',
-        'description' => 'Wide hero and optional call-to-action emphasis.',
+        'description' => 'Hero, values ticker, at most 6 cards, membership form button.',
         'view' => 'pages.templates.landing',
         'example_key' => 'demo-landing',
     ],

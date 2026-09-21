@@ -261,6 +261,10 @@ class PageService
             return $custom;
         }
 
+        if ($fallbackLangKey === '') {
+            return '';
+        }
+
         return (string) __($fallbackLangKey, [], $locale);
     }
 

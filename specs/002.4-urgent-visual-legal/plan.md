@@ -24,11 +24,11 @@ Local-only hotfix: wide opaque cookie banner; self-hosted [Nunito Sans](https://
 
 **Performance Goals**: Self-hosted woff2; no fonts.googleapis.com request
 
-**Constraints**: No production deploy; no CRM repo writes; no DPA; no public `/ru`; consent gate unchanged
+**Constraints**: Owner 2026-09-21 authorised git push + GitHub Actions deploy for this US7 amendment. MUST NOT production `site:sync-legal-pages`. No CRM repo writes; no DPA; no public `/ru`; consent gate unchanged.
 
 **Scale/Scope**: Public chrome + one POST `/membership-application`
 
-Vendor docs this plan turn: [Laravel validation](https://laravel.com/docs/13.x/validation); [Laravel mail](https://laravel.com/docs/13.x/mail); [Laravel routing rate limiting](https://laravel.com/docs/13.x/routing#rate-limiting); [Tailwind font-family](https://tailwindcss.com/docs/font-family); [HTML dialog](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog); [Nunito Sans](https://fonts.google.com/specimen/Nunito+Sans); [Turnstile embed](https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/); [Espo API](https://docs.espocrm.com/development/api/).
+Vendor docs this plan turn: [Laravel validation](https://laravel.com/docs/13.x/validation); [Laravel Blade](https://laravel.com/docs/13.x/blade); [Filament repeater](https://filamentphp.com/docs/4.x/forms/repeater); [Tailwind prefers-reduced-motion](https://tailwindcss.com/docs/hover-focus-and-other-states#prefers-reduced-motion); [Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API); [WCAG 2.2.2 Pause, Stop, Hide](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html); [Laravel mail](https://laravel.com/docs/13.x/mail); [Laravel routing rate limiting](https://laravel.com/docs/13.x/routing#rate-limiting); [Tailwind font-family](https://tailwindcss.com/docs/font-family); [HTML dialog](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog); [Nunito Sans](https://fonts.google.com/specimen/Nunito+Sans); [Turnstile embed](https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/); [Espo API](https://docs.espocrm.com/development/api/).
 
 ## Constitution Check
 
@@ -36,7 +36,7 @@ Vendor docs this plan turn: [Laravel validation](https://laravel.com/docs/13.x/v
 - No CRM schema edits in `nonprofit-espocrm`. Pass.
 - No DPA. Pass.
 - Implement from `tasks.md`. Pass.
-- No `git push` unless owner later asks. Pass.
+- No `git push` unless owner later asks. **Exception 2026-09-21:** owner authorised push/deploy of US7; still no production legal-page sync. Pass.
 
 ## Project Structure
 
@@ -57,6 +57,9 @@ specs/002.4-urgent-visual-legal/
 ### Source Code
 
 ```text
+app/Support/LandingContent.php
+app/Filament/Resources/PageResource/Support/PageTemplateFormFields.php
+resources/js/landing-motion.js
 resources/css/app.css
 resources/js/app.js
 resources/js/socio-dialog.js

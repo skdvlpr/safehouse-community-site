@@ -73,7 +73,9 @@ class MembershipFormTest extends TestCase
             ->assertSee('name="accept_statute"', false)
             ->assertSee('name="newsletter_consent"', false)
             ->assertDontSee('Libro Soci', false)
-            ->assertDontSee('Matteo Grossi', false);
+            ->assertDontSee('Matteo Grossi', false)
+            ->assertDontSee('>Landing<', false)
+            ->assertSee('Via Delleani 26, 00042 Anzio (RM)', false);
     }
 
     public function test_italian_membership_submit_sends_staff_and_applicant_mail(): void
@@ -228,5 +230,37 @@ class MembershipFormTest extends TestCase
             ->assertSee('template-landing-cards', false)
             ->assertSee('Card uno', false)
             ->assertSee('Card due', false);
+    }
+
+    public function test_membership_landing_uses_six_cards_ticker_and_form_button_without_email(): void
+    {
+        Page::query()->where('key', 'diventa-socio')->update([
+            'body' => [
+                'it' => implode('<hr>', [
+                    '<h2>Insieme</h2><p>Intro visibile.</p>',
+                    '<h3>Uno</h3><p>A</p>',
+                    '<h3>Due</h3><p>B</p>',
+                    '<h3>Tre</h3><p>C</p>',
+                    '<h3>Quattro</h3><p>D</p>',
+                    '<h3>Cinque</h3><p>E</p>',
+                    '<h3>Sei</h3><p>F</p>',
+                    '<h3>Sette extra</h3><p>G</p>',
+                    '<h1>I nostri valori</h1><ul><li>Solidarietà</li><li>Partecipazione</li></ul>',
+                    '<h2>Contattaci</h2><p>info@safehouse.community</p>',
+                ]),
+            ],
+        ]);
+
+        $this->get('/it/diventa-socio')
+            ->assertOk()
+            ->assertSee('Intro visibile.', false)
+            ->assertSee('landing-marquee', false)
+            ->assertSee('Solidarietà', false)
+            ->assertSee('landing-contact', false)
+            ->assertSee('data-socio-open', false)
+            ->assertSee('Sede legale', false)
+            ->assertSee('Via Delleani 26', false)
+            ->assertDontSee('Sette extra', false)
+            ->assertDontSee('>Landing<', false);
     }
 }

@@ -639,39 +639,382 @@ html[data-theme='light'] {
         @apply float-left me-2 mt-1 text-5xl font-semibold leading-none text-safehouse-primary;
     }
 
+    /*
+     * Membership landing (template "landing") — visual + motion contract.
+     *
+     * - Card entrance is scroll-triggered from resources/js/landing-motion.js with
+     *   IntersectionObserver: https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
+     * - Every animation/transition below is switched off for people who ask the OS
+     *   for less motion: https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion
+     *   (Tailwind exposes the same query as `motion-reduce:` —
+     *   https://tailwindcss.com/docs/hover-focus-and-other-states#prefers-reduced-motion —
+     *   we centralise it in the global @media block near the end of this file.)
+     * - The values ticker auto-plays for longer than five seconds, so it ships a
+     *   pause/resume control (WCAG 2.2.2 Pause, Stop, Hide):
+     *   https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html
+     */
+    .template-page--landing {
+        --landing-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        /* Constant px/s scrolling: landing-motion.js measures the track and overrides this. */
+        --landing-marquee-duration: 12s;
+        overflow-x: clip;
+    }
+
+    /* The CMS section label ("LANDING") is redundant next to the H1 — never show it here. */
+    .template-page--landing .template-landing-copy > .template-eyebrow {
+        display: none;
+    }
+
+    /* ---------- Hero: one message, one CTA ---------- */
     .template-page--landing .template-landing-hero {
-        @apply relative grid gap-8 overflow-hidden rounded-none border p-6 md:grid-cols-2 md:items-center md:rounded-3xl md:p-10 lg:min-h-[28rem] lg:p-12;
-        background-color: color-mix(in srgb, var(--color-safehouse-modal) 88%, transparent);
+        @apply relative isolate grid gap-7 overflow-hidden rounded-2xl border p-5 sm:p-7 md:grid-cols-2 md:items-center md:rounded-3xl md:p-10 lg:min-h-[28rem] lg:p-12;
+        background-color: color-mix(in srgb, var(--color-safehouse-modal) 90%, transparent);
         border-color: var(--safehouse-glass-border);
     }
 
+    /* Soft brand glow, top-right, behind content. */
+    .template-page--landing .template-landing-hero::before {
+        content: '';
+        @apply pointer-events-none absolute -right-24 -top-28 -z-10 h-80 w-80 rounded-full blur-3xl;
+        background: radial-gradient(
+            closest-side,
+            color-mix(in srgb, var(--color-safehouse-primary) 38%, transparent),
+            transparent
+        );
+    }
+
+    /* Aurora Light: the same glow reads as a pink cloud on a pale panel — soften it. */
+    html[data-theme='light'] .template-page--landing .template-landing-hero::before {
+        background: radial-gradient(
+            closest-side,
+            color-mix(in srgb, var(--color-safehouse-primary) 14%, transparent),
+            transparent
+        );
+    }
+
+    /* Hairline brand accent along the top edge. */
     .template-page--landing .template-landing-hero::after {
         content: '';
-        @apply pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-safehouse-primary/20 blur-3xl;
+        @apply pointer-events-none absolute inset-x-0 top-0 h-px;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            color-mix(in srgb, var(--color-safehouse-primary) 75%, transparent) 30%,
+            color-mix(in srgb, var(--color-safehouse-primary) 75%, transparent) 70%,
+            transparent
+        );
     }
 
     .template-page--landing .template-landing-hero.template-landing-hero--copy-only {
         @apply md:grid-cols-1;
     }
 
+    .template-page--landing .template-landing-hero--copy-only .template-landing-copy {
+        @apply max-w-3xl;
+    }
+
     .template-landing-copy {
         @apply relative z-10 flex min-w-0 flex-col gap-5;
     }
 
+    /* Staggered rise on first paint (CSS only, no JS needed). */
+    .template-landing-copy > * {
+        animation: landing-rise 0.7s var(--landing-ease-out) both;
+    }
+
+    .template-landing-copy > :nth-child(2) {
+        animation-delay: 0.08s;
+    }
+
+    .template-landing-copy > :nth-child(3) {
+        animation-delay: 0.16s;
+    }
+
+    .template-landing-copy > :nth-child(4) {
+        animation-delay: 0.24s;
+    }
+
+    .template-landing-copy > h1 {
+        @apply text-balance leading-[1.05];
+    }
+
+    .template-landing-copy .safehouse-prose :where(h2, h3) {
+        @apply mb-2 mt-0 text-lg font-semibold leading-snug text-balance text-safehouse-text md:text-xl;
+    }
+
+    .template-landing-copy .safehouse-prose :where(p) {
+        @apply mb-3 text-[0.95rem] leading-relaxed text-safehouse-muted last:mb-0 md:text-base;
+    }
+
+    .template-landing-copy .safehouse-prose :where(p:first-of-type) {
+        @apply font-medium text-safehouse-text;
+    }
+
     .template-landing-visual {
         @apply relative z-10 min-w-0;
+        animation: landing-rise 0.8s var(--landing-ease-out) 0.2s both;
     }
 
     .template-landing-actions {
-        @apply mt-2 flex flex-wrap gap-3;
+        @apply mt-1 flex flex-col gap-3 sm:flex-row sm:flex-wrap;
     }
 
+    .template-landing-actions > * {
+        @apply w-full sm:w-auto;
+    }
+
+    .template-landing-actions > .safehouse-btn-primary {
+        @apply min-h-12 px-6 text-base;
+    }
+
+    /* ---------- Values ticker ---------- */
+    .landing-marquee {
+        @apply mb-4 overflow-hidden rounded-2xl border md:mb-6 md:rounded-full;
+        background-color: var(--safehouse-glass-bg);
+        border-color: var(--safehouse-glass-border);
+        backdrop-filter: blur(12px);
+    }
+
+    .landing-marquee__bar {
+        @apply flex items-center gap-2 py-1.5 pl-4 pr-1.5 sm:gap-4 sm:pl-6 sm:pr-2;
+    }
+
+    .landing-marquee__kicker {
+        @apply hidden shrink-0 border-r pr-4 text-[0.65rem] font-extrabold tracking-[0.22em] text-safehouse-primary uppercase md:block;
+        border-color: var(--safehouse-divider);
+    }
+
+    .landing-marquee__viewport {
+        @apply min-w-0 flex-1 overflow-hidden;
+        mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+    }
+
+    .landing-marquee__track {
+        @apply flex w-max items-center;
+        animation: landing-marquee-scroll var(--landing-marquee-duration, 12s) linear infinite;
+        will-change: transform;
+    }
+
+    .landing-marquee.is-paused .landing-marquee__track {
+        animation-play-state: paused;
+    }
+
+    .landing-marquee__group {
+        @apply flex items-center;
+    }
+
+    .landing-marquee__item {
+        @apply px-1 text-[0.8rem] font-bold tracking-[0.14em] whitespace-nowrap text-safehouse-text uppercase sm:text-sm;
+    }
+
+    /* Rendered as a brand dot; the "·" glyph stays in the DOM (aria-hidden) but is collapsed. */
+    .landing-marquee__dot {
+        @apply mx-3 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-safehouse-primary sm:mx-4;
+        font-size: 0;
+        line-height: 0;
+    }
+
+    .landing-marquee__toggle {
+        @apply inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full border px-4 text-xs font-bold text-safehouse-text transition-colors hover:border-safehouse-primary hover:text-safehouse-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-safehouse-primary;
+        border-color: var(--safehouse-control-border);
+        background-color: var(--color-safehouse-modal);
+    }
+
+    .landing-marquee__toggle[aria-pressed='true'] {
+        @apply border-safehouse-primary text-safehouse-primary;
+    }
+
+    /* ---------- Modular cards ---------- */
     .template-landing-cards {
-        @apply mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3;
+        @apply mt-4 grid gap-3 sm:gap-4 md:mt-6 md:grid-cols-2 xl:grid-cols-3;
+        counter-reset: landing-card;
+        /* Clip both axes: mixed overflow-x/clip + overflow-y/visible computes to auto and lets
+         * off-screen cards paint into the header. https://drafts.csswg.org/css-overflow/#overflow-properties */
+        overflow: clip;
     }
 
     .template-landing-card {
-        @apply rounded-2xl p-6 md:p-7;
+        @apply relative flex flex-col rounded-2xl p-5 sm:p-6 md:p-7;
+        counter-increment: landing-card;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Index 01–06 */
+    .template-landing-card::before {
+        content: counter(landing-card, decimal-leading-zero);
+        @apply mb-3 block text-[0.7rem] font-extrabold tracking-[0.16em] text-safehouse-primary;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* Brand rule that draws in once the card has landed. */
+    .template-landing-card::after {
+        content: '';
+        @apply absolute top-0 left-5 h-0.5 w-12 rounded-b-full bg-safehouse-primary sm:left-6 md:left-7;
+        transform: scaleX(0);
+        transform-origin: left center;
+        transition: transform 0.6s var(--landing-ease-out) 0.35s;
+    }
+
+    .landing-reveal.is-inview .template-landing-card::after {
+        transform: scaleX(1);
+    }
+
+    /* CMS authors use h1/h2/h3 interchangeably — normalise the card title. */
+    .template-landing-card > :where(h1, h2, h3, h4):first-child {
+        @apply mb-3 mt-0 text-xl font-bold leading-snug tracking-tight text-balance text-safehouse-text md:text-2xl;
+    }
+
+    .template-landing-card :where(h3, h4):not(:first-child) {
+        @apply mb-1 mt-4 text-base font-bold leading-snug text-safehouse-text;
+    }
+
+    .template-landing-card :where(p, li) {
+        @apply text-[0.95rem] leading-relaxed text-safehouse-muted;
+    }
+
+    .template-landing-card :where(p) {
+        @apply mb-3 last:mb-0;
+        /* CMS inline `text-align: justify` leaves rivers on narrow screens. */
+        text-align: start !important;
+    }
+
+    .template-landing-card :where(li > p) {
+        @apply mb-0;
+    }
+
+    .template-landing-card :where(ul, ol) {
+        @apply mb-3 space-y-1.5 ps-5 last:mb-0;
+    }
+
+    .template-landing-card :where(ul) {
+        @apply list-none ps-0;
+    }
+
+    .template-landing-card :where(ul > li) {
+        @apply relative ps-5;
+    }
+
+    .template-landing-card :where(ul > li)::before {
+        content: '';
+        @apply absolute top-[0.7em] left-0 h-1.5 w-1.5 rounded-full bg-safehouse-primary;
+    }
+
+    .template-landing-card :where(strong) {
+        @apply text-safehouse-text;
+    }
+
+    @media (hover: hover) {
+        .template-landing-card:hover {
+            border-color: color-mix(in srgb, var(--color-safehouse-primary) 45%, var(--safehouse-glass-border));
+            box-shadow: 0 24px 48px -28px rgb(0 0 0 / 55%);
+        }
+    }
+
+    /* ---------- Scroll reveal ----------
+     * `.landing-reveal` is the element the IntersectionObserver watches, so it must
+     * stay in normal flow (an element translated 100vw away never intersects the
+     * viewport). Cards move their inner `.landing-reveal__target`; the closing CTA
+     * (data-reveal-from="up") only rises 2rem, so it can move itself.
+     */
+    .landing-reveal {
+        --reveal-x: 0px;
+        --reveal-y: 2rem;
+        @apply flex flex-col;
+    }
+
+    .landing-reveal > .landing-reveal__target {
+        @apply flex-1;
+    }
+
+    .landing-reveal[data-reveal-from='up'],
+    .landing-reveal > .landing-reveal__target {
+        opacity: 0;
+        transform: translate3d(var(--reveal-x), var(--reveal-y), 0);
+        transition:
+            opacity 0.55s ease-out var(--reveal-delay, 0s),
+            transform 0.9s var(--landing-ease-out) var(--reveal-delay, 0s);
+    }
+
+    /* Off-screen start: a full viewport width away, clipped by .template-landing-cards. */
+    .landing-reveal[data-reveal-from='left'] {
+        --reveal-x: -100vw;
+        --reveal-y: 0px;
+    }
+
+    .landing-reveal[data-reveal-from='right'] {
+        --reveal-x: 100vw;
+        --reveal-y: 0px;
+    }
+
+    .landing-reveal.is-inview[data-reveal-from='up'],
+    .landing-reveal.is-inview > .landing-reveal__target {
+        opacity: 1;
+        transform: none;
+    }
+
+    html:not(.has-js) .landing-reveal[data-reveal-from='up'],
+    html:not(.has-js) .landing-reveal > .landing-reveal__target {
+        opacity: 1;
+        transform: none;
+    }
+
+    /* ---------- Closing CTA + sede ---------- */
+    .landing-contact {
+        @apply relative mt-4 overflow-hidden rounded-2xl border p-5 sm:p-7 md:mt-6 md:rounded-3xl md:p-10;
+        background: var(--safehouse-accent-panel-bg);
+        border-color: var(--safehouse-accent-panel-border);
+        backdrop-filter: blur(14px);
+    }
+
+    .landing-contact__inner {
+        @apply mx-auto flex max-w-2xl flex-col items-stretch gap-4 sm:items-start;
+    }
+
+    .landing-contact__title {
+        @apply text-2xl font-bold tracking-tight text-balance md:text-4xl;
+    }
+
+    .landing-contact__lead {
+        @apply text-base leading-relaxed text-safehouse-text md:text-lg;
+    }
+
+    .landing-contact__inner > .safehouse-btn-primary {
+        @apply mt-1 min-h-12 px-6 text-base;
+    }
+
+    .landing-seat {
+        @apply mt-4 grid w-full gap-x-6 gap-y-1.5 border-t pt-4 text-xs leading-relaxed text-safehouse-muted sm:grid-cols-2 sm:text-sm;
+        border-color: var(--safehouse-divider);
+    }
+
+    .landing-seat :where(p) {
+        @apply m-0;
+    }
+
+    .landing-seat :where(strong) {
+        @apply font-semibold text-safehouse-text;
+    }
+
+    @keyframes landing-marquee-scroll {
+        from {
+            transform: translateX(0);
+        }
+
+        to {
+            transform: translateX(-50%);
+        }
+    }
+
+    @keyframes landing-rise {
+        from {
+            opacity: 0;
+            transform: translateY(1rem);
+        }
+
+        to {
+            opacity: 1;
+            transform: none;
+        }
     }
 
     .template-page--legal .template-legal-hero {
@@ -1716,6 +2059,35 @@ html[data-theme='light'] {
     .home-manifesto__emails,
     .home-manifesto__brand {
         animation: none !important;
+    }
+
+    /*
+     * Membership landing: no ticker, no slide, no rise — content simply visible.
+     * https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion
+     * https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html
+     */
+    .landing-reveal,
+    .landing-reveal__target,
+    .template-landing-copy > *,
+    .template-landing-visual {
+        animation: none !important;
+        transition: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    /* Ticker stays still unless the person presses "Riprendi" (explicit opt-in adds .is-playing). */
+    .landing-marquee:not(.is-playing) .landing-marquee__track {
+        animation-play-state: paused !important;
+    }
+
+    .template-landing-card::after {
+        transition: none !important;
+        transform: scaleX(1) !important;
+    }
+
+    .template-landing-card {
+        transition: none !important;
     }
 }
 

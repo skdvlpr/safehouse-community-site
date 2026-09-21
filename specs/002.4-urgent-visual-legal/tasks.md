@@ -19,3 +19,10 @@
 
 - [x] T008 Local `site:sync-legal-pages --force`. No production. Cite [Artisan](https://laravel.com/docs/13.x/artisan). (test: no; C1; model: inherit)
 - [x] T009 Pint + `ddev exec php artisan test` + `bash bin/dev-rebuild-frontend.sh`. (test: yes; C1; model: inherit)
+
+## Phase 4 — Contemporary landing + CMS blocks
+
+- [x] T010 [US7] Split landing CMS into hero / values ticker / max 6 cards / contact heading. Cite [Filament repeater](https://filamentphp.com/docs/4.x/forms/repeater). Fallback parse legacy `<hr>` HTML. (test: yes — LandingContentTest; C6; model: inherit)
+- [x] T011 [US7] Visual template + motion: ticker, off-screen card reveal, phone stack, pause control. Cite [Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), [prefers-reduced-motion](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion), [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html). (test: no screenshots; C7; model: Fable 5.1 subagent)
+- [x] T012 [US7] No Landing eyebrow; sede legale + Compila domanda in contact band without email. (test: yes — MembershipFormTest; C3; model: inherit)
+- [x] T013 Owner-authorised this cycle: Pint, full test, frontend rebuild, commit, push `main` (GitHub Actions deploy). No production `site:sync-legal-pages`. (test: yes; C2; model: inherit)

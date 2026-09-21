@@ -74,7 +74,81 @@ class PageTemplateFormFields
             ->visible(fn (Get $get): bool => $get('template') === 'home')
             ->columnSpanFull();
 
+        $fields[] = TextInput::make("meta.landing_contact_heading.{$locale}")
+            ->label(__('cms.fields.landing_contact_heading'))
+            ->helperText(__('cms.helpers.landing_contact_heading'))
+            ->maxLength(120)
+            ->visible(fn (Get $get): bool => $get('template') === 'landing')
+            ->columnSpanFull();
+
         return $fields;
+    }
+
+    public static function landingBlocksSection(): Section
+    {
+        $locales = config('locales.available');
+        $valueFields = [];
+        $cardFields = [];
+
+        foreach ($locales as $locale) {
+            $label = strtoupper($locale);
+
+            $valueFields[] = TextInput::make("label.{$locale}")
+                ->label(__('cms.fields.value_label_locale', ['locale' => $label]))
+                ->maxLength(40);
+
+            $cardFields[] = TextInput::make("title.{$locale}")
+                ->label(__('cms.fields.title_locale', ['locale' => $label]))
+                ->maxLength(255);
+
+            $cardFields[] = RichEditor::make("body.{$locale}")
+                ->label(__('cms.fields.body_locale', ['locale' => $label]));
+        }
+
+        return Section::make(__('cms.sections.landing_blocks'))
+            ->description(__('cms.helpers.landing_blocks'))
+            ->visible(fn (Get $get): bool => $get('template') === 'landing')
+            ->schema([
+                Repeater::make('meta.landing_values')
+                    ->label(__('cms.fields.landing_values'))
+                    ->helperText(__('cms.helpers.landing_values'))
+                    ->reorderable()
+                    ->collapsible()
+                    ->maxItems(12)
+                    ->itemLabel(function (array $state): string {
+                        foreach (config('locales.available') as $locale) {
+                            $label = $state['label'][$locale] ?? null;
+
+                            if (is_string($label) && $label !== '') {
+                                return $label;
+                            }
+                        }
+
+                        return __('cms.items.new_landing_value');
+                    })
+                    ->schema($valueFields)
+                    ->columnSpanFull(),
+                Repeater::make('meta.landing_cards')
+                    ->label(__('cms.fields.landing_cards'))
+                    ->helperText(__('cms.helpers.landing_cards'))
+                    ->reorderable()
+                    ->collapsible()
+                    ->maxItems(6)
+                    ->itemLabel(function (array $state): string {
+                        foreach (config('locales.available') as $locale) {
+                            $title = $state['title'][$locale] ?? null;
+
+                            if (is_string($title) && $title !== '') {
+                                return $title;
+                            }
+                        }
+
+                        return __('cms.items.new_landing_card');
+                    })
+                    ->schema($cardFields)
+                    ->columnSpanFull(),
+            ])
+            ->columnSpanFull();
     }
 
     public static function serviceCardsSection(): Section
@@ -128,6 +202,7 @@ class PageTemplateFormFields
         $key = match ($template) {
             'about' => 'about',
             'services' => 'services',
+            'landing' => 'landing',
             default => 'default',
         };
 
@@ -139,6 +214,7 @@ class PageTemplateFormFields
         return match ($template) {
             'about' => __('cms.helpers.about_body'),
             'services' => __('cms.helpers.services_body'),
+            'landing' => __('cms.helpers.landing_body'),
             default => null,
         };
     }
