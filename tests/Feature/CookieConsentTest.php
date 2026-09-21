@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\GdprConsent;
 use App\Services\ContactSubmissionService;
+use App\Services\SiteSettingsService;
 use Database\Seeders\PageSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\RateLimiter;
@@ -27,6 +28,22 @@ class CookieConsentTest extends TestCase
             ->assertSee('data-cookie-dismiss', false)
             ->assertSee('data-cookie-reopen', false)
             ->assertSee(__('site.cookie.accept_all'), false);
+    }
+
+    public function test_bootable_banner_copy_is_plain_language_not_vendor_names(): void
+    {
+        app(SiteSettingsService::class)->updateMany([
+            'measurement.enabled' => '1',
+            'measurement.container_id' => 'GTM-TEST1',
+        ]);
+
+        $this->get('/it')
+            ->assertOk()
+            ->assertSee(__('site.cookie.message_bootable'), false)
+            ->assertSee('Ti invitiamo ad accettare', false)
+            ->assertSee('non ti danneggiano', false)
+            ->assertDontSee('Google Analytics 4', false)
+            ->assertDontSee('Google Tag Manager', false);
     }
 
     public function test_cookie_consent_endpoint_stores_audit_record(): void

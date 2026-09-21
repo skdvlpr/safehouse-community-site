@@ -989,11 +989,11 @@ html[data-theme='light'] {
     }
 
     .cookie-consent__title {
-        @apply text-base font-semibold text-safehouse-text;
+        @apply text-xl font-semibold text-safehouse-text md:text-2xl;
     }
 
     .cookie-consent__text {
-        @apply mt-1 text-sm leading-relaxed text-safehouse-muted;
+        @apply mt-2 text-lg font-semibold leading-snug text-safehouse-text md:text-xl;
     }
 
     .cookie-consent__links {

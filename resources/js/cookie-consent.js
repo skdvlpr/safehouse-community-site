@@ -193,6 +193,10 @@ function bindCookieConsent() {
             const panel = document.getElementById('cookie-consent-panel');
             const isOpen = panel ? !panel.classList.contains('is-hidden') : false;
 
+            if (!isOpen) {
+                syncAnalyticsCheckbox(banner);
+            }
+
             setPreferencesOpen(banner, !isOpen);
 
             return;
