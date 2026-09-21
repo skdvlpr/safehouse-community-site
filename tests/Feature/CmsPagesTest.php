@@ -117,7 +117,27 @@ class CmsPagesTest extends TestCase
             ->assertSee('drive.file', false)
             ->assertSee('Google Calendar', false)
             ->assertSee('staff area', false)
+            ->assertSee('Aruba Cloud', false)
+            ->assertSee('Google Workspace', false)
+            ->assertSee('Turnstile', false)
+            ->assertSee('Card data does not pass through our servers', false)
             ->assertDontSee('crm.safehouse.community', false)
+            ->assertDontSee('EspoCRM', false)
+            ->assertDontSee('contact_success', false)
+            ->assertDontSee('Aruba mail', false)
+            ->assertDontSee('email Aruba', false)
+            ->assertDontSee('Data Processing Agreement', false)
+            ->assertDontSee('da approvare', false);
+
+        $this->get('/it/privacy-policy')
+            ->assertOk()
+            ->assertSee('Aruba Cloud', false)
+            ->assertSee('Google Workspace', false)
+            ->assertSee('Turnstile', false)
+            ->assertSee('Non comunichiamo a terzi', false)
+            ->assertDontSee('servizi email Aruba', false)
+            ->assertDontSee('in questa versione', false)
+            ->assertDontSee('contact_success', false)
             ->assertDontSee('EspoCRM', false);
 
         $this->get('/it/cookie-policy')
@@ -125,9 +145,12 @@ class CmsPagesTest extends TestCase
             ->assertSee('sh_cookie_consent', false)
             ->assertSee('safe-house-community-session', false)
             ->assertSee('Non in uso', false)
+            ->assertSee('Turnstile', false)
+            ->assertSee('proposti già selezionati', false)
             ->assertSee(__('site.measurement.status_off', [], 'it'), false)
             ->assertDontSee('Laravel', false)
-            ->assertDontSee('crm.safehouse.community', false);
+            ->assertDontSee('crm.safehouse.community', false)
+            ->assertDontSee('contact_success', false);
     }
 
     public function test_cookie_and_privacy_copy_name_ga4_when_measurement_is_bootable(): void
@@ -153,11 +176,13 @@ class CmsPagesTest extends TestCase
             ->assertOk()
             ->assertSee('Google Analytics 4', false)
             ->assertSee('Google Tag Manager', false)
+            ->assertSee('Google Workspace', false)
             ->assertSee(__('site.measurement.status_on', [], 'en'), false)
             ->assertDontSee('not currently active', false)
             ->assertDontSee('EspoCRM', false)
             ->assertDontSee('crm.safehouse.community', false)
             ->assertDontSee('Data Processing Agreement', false)
+            ->assertDontSee('contact_success', false)
             ->assertSee('Card data does not pass through our servers', false);
     }
 }
