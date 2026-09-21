@@ -1,9 +1,12 @@
-
 @extends('layouts.app')
 
 @section('title', $title)
 
 @section('content')
+    @php
+        $faqUrl = app(\App\Services\PageService::class)->urlForKey('faq', $locale);
+    @endphp
+
     <x-page-template-shell :page="$page">
         @include('pages.partials.section-label', [
             'page' => $page,
@@ -16,6 +19,19 @@
         <div class="grid gap-8 lg:grid-cols-2">
             <article class="template-contact-info safehouse-glass safehouse-prose">
                 {!! \App\Support\CmsHtml::render($body) !!}
+
+                <div class="template-contact-seat">
+                    <p><strong>{{ __('site.org.legal_seat_label') }}</strong><br>{{ __('site.org.legal_seat') }}</p>
+                    <p>{{ __('site.org.runts') }}</p>
+                    <p>{{ __('site.org.fiscal_code') }}</p>
+                    <p><strong>{{ __('site.org.operative_seat_label') }}</strong> {{ __('site.org.operative_seat') }}</p>
+                </div>
+
+                @if ($faqUrl)
+                    <p class="template-contact-faq">
+                        <a href="{{ $faqUrl }}" class="safehouse-btn-primary">{{ __('site.pages.contact_faq') }}</a>
+                    </p>
+                @endif
             </article>
 
             <aside class="template-contact-aside safehouse-glass">

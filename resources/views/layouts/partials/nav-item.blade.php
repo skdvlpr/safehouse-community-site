@@ -61,7 +61,7 @@
     @endphp
     <a href="{{ Navigation::url($item, $locale) }}"
        @class([
-           'text-sm font-medium transition',
+           'text-base font-semibold transition',
            'nav-link--highlight' => $highlight,
            'text-safehouse-primary' => $isActive && ! $highlight,
            'text-safehouse-muted hover:text-safehouse-text' => ! $isActive && ! $highlight,

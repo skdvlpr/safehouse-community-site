@@ -1,0 +1,232 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Mail\MembershipApplicantMail;
+use App\Mail\MembershipStaffMail;
+use App\Models\Page;
+use App\Services\SiteSettingsService;
+use Database\Seeders\PageSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
+use Tests\TestCase;
+
+class MembershipFormTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed(PageSeeder::class);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function validPayload(): array
+    {
+        return [
+            'membership_form' => '1',
+            'name' => 'Maria',
+            'last_name' => 'Rossi',
+            'birth_place' => 'Roma',
+            'birth_province' => 'RM',
+            'birth_date' => '1990-05-12',
+            'tax_code' => 'RSSMRA90E52H501X',
+            'city' => 'Torino',
+            'province' => 'TO',
+            'address' => 'Via Roma 1',
+            'cap' => '10121',
+            'phone' => '+39 333 1234567',
+            'email' => 'maria@example.com',
+            'accept_statute' => '1',
+            'accept_mission' => '1',
+            'accept_fee' => '1',
+            'newsletter_consent' => '1',
+        ];
+    }
+
+    private function configureSmtp(): void
+    {
+        app(SiteSettingsService::class)->updateMany([
+            'mail.host' => 'smtp.test',
+            'mail.port' => '587',
+            'mail.encryption' => 'tls',
+            'mail.username' => 'website@safehouse.community',
+            'mail.password' => 'secret',
+            'contact.website_from_address' => 'website@safehouse.community',
+            'contact.website_from_name' => 'Safe House — sito web',
+        ]);
+    }
+
+    public function test_membership_landing_shows_official_form_dialog(): void
+    {
+        $this->get('/it/diventa-socio')
+            ->assertOk()
+            ->assertSee('template-landing-hero', false)
+            ->assertSee('data-socio-open', false)
+            ->assertSee('id="socio-dialog"', false)
+            ->assertSee(__('site.membership.apply', [], 'it'), false)
+            ->assertSee('name="tax_code"', false)
+            ->assertSee('name="accept_statute"', false)
+            ->assertSee('name="newsletter_consent"', false)
+            ->assertDontSee('Libro Soci', false)
+            ->assertDontSee('Matteo Grossi', false);
+    }
+
+    public function test_italian_membership_submit_sends_staff_and_applicant_mail(): void
+    {
+        Mail::fake();
+        $this->configureSmtp();
+
+        $this->post('/it/membership-application', $this->validPayload())
+            ->assertRedirect('/it/diventa-socio')
+            ->assertSessionHas('membership_success');
+
+        Mail::assertSent(MembershipStaffMail::class, function (MembershipStaffMail $mail): bool {
+            $mail->assertHasSubject('Nuova domanda di ammissione socio');
+            $mail->assertSeeInText('Abbiamo ricevuto una nuova domanda di ammissione socio');
+            $mail->assertSeeInText('Nome: Maria');
+            $mail->assertSeeInText('Cognome: Rossi');
+            $mail->assertSeeInText('C.F.: RSSMRA90E52H501X');
+            $mail->assertSeeInText('Indirizzo email: maria@example.com');
+            $mail->assertSeeInText('Website | Safe House');
+
+            return $mail->hasTo('matteo.grossi@safehouse.community')
+                && $mail->hasReplyTo('maria@example.com', 'Maria Rossi');
+        });
+
+        Mail::assertSent(MembershipApplicantMail::class, function (MembershipApplicantMail $mail): bool {
+            $mail->assertSeeInText('Abbiamo ricevuto la tua domanda di ammissione a socio');
+            $mail->assertSeeInText('Non rispondere a questo messaggio');
+
+            return $mail->hasTo('maria@example.com')
+                && ! $mail->hasReplyTo('matteo.grossi@safehouse.community');
+        });
+
+        Mail::assertSentCount(2);
+    }
+
+    public function test_english_membership_submit_keeps_staff_italian_and_applicant_english(): void
+    {
+        Mail::fake();
+        $this->configureSmtp();
+
+        $this->post('/en/membership-application', $this->validPayload())
+            ->assertRedirect('/en/diventa-socio')
+            ->assertSessionHas('membership_success');
+
+        Mail::assertSent(MembershipStaffMail::class, function (MembershipStaffMail $mail): bool {
+            $mail->assertHasSubject('Nuova domanda di ammissione socio');
+            $mail->assertSeeInText('Abbiamo ricevuto una nuova domanda di ammissione socio');
+            $mail->assertDontSeeInText('Membership application received');
+
+            return $mail->hasTo('matteo.grossi@safehouse.community');
+        });
+
+        Mail::assertSent(MembershipApplicantMail::class, function (MembershipApplicantMail $mail): bool {
+            $mail->assertSeeInText('We have received your membership application');
+            $mail->assertSeeInText('Please do not reply to this email');
+            $mail->assertDontSeeInText('Non rispondere a questo messaggio');
+
+            return $mail->hasTo('maria@example.com');
+        });
+
+        Mail::assertSentCount(2);
+    }
+
+    public function test_membership_form_requires_official_fields_and_declarations(): void
+    {
+        Mail::fake();
+
+        $this->from('/it/diventa-socio')
+            ->post('/it/membership-application', [
+                'membership_form' => '1',
+                'name' => '',
+                'email' => 'not-an-email',
+                'tax_code' => 'short',
+            ])
+            ->assertRedirect('/it/diventa-socio')
+            ->assertSessionHasErrors(['name', 'last_name', 'email', 'tax_code', 'accept_statute', 'newsletter_consent']);
+
+        Mail::assertNothingSent();
+    }
+
+    public function test_honeypot_submission_is_silently_accepted_without_mail(): void
+    {
+        Mail::fake();
+        $this->configureSmtp();
+
+        $this->post('/it/membership-application', [
+            ...$this->validPayload(),
+            'company' => 'Acme Inc.',
+        ])
+            ->assertRedirect('/it/diventa-socio')
+            ->assertSessionHas('membership_success');
+
+        Mail::assertNothingSent();
+    }
+
+    public function test_membership_form_is_rate_limited(): void
+    {
+        RateLimiter::clear('membership');
+
+        $payload = $this->validPayload();
+
+        for ($i = 0; $i < 3; $i++) {
+            $this->post('/it/membership-application', $payload)->assertRedirect();
+        }
+
+        $this->post('/it/membership-application', $payload)->assertStatus(429);
+    }
+
+    public function test_membership_form_rejects_missing_turnstile_when_enabled(): void
+    {
+        Mail::fake();
+        $this->configureSmtp();
+
+        app(SiteSettingsService::class)->updateMany([
+            'turnstile.enabled' => '1',
+            'turnstile.site_key' => 'site-key',
+            'turnstile.secret_key' => 'secret-key',
+        ]);
+
+        $this->from('/it/diventa-socio')
+            ->post('/it/membership-application', $this->validPayload())
+            ->assertRedirect('/it/diventa-socio')
+            ->assertSessionHasErrors(['cf-turnstile-response']);
+
+        Mail::assertNothingSent();
+    }
+
+    public function test_membership_form_fails_closed_when_smtp_is_not_configured(): void
+    {
+        Mail::fake();
+
+        $this->from('/it/diventa-socio')
+            ->post('/it/membership-application', $this->validPayload())
+            ->assertRedirect('/it/diventa-socio')
+            ->assertSessionMissing('membership_success')
+            ->assertSessionHasErrors('membership_mail');
+
+        Mail::assertNothingSent();
+    }
+
+    public function test_membership_landing_splits_cms_body_into_cards(): void
+    {
+        Page::query()->where('key', 'diventa-socio')->update([
+            'body' => [
+                'it' => '<p>Intro visibile.</p><hr><h3>Card uno</h3><p>Uno.</p><hr><h3>Card due</h3><p>Due.</p>',
+            ],
+        ]);
+
+        $this->get('/it/diventa-socio')
+            ->assertOk()
+            ->assertSee('Intro visibile.', false)
+            ->assertSee('template-landing-cards', false)
+            ->assertSee('Card uno', false)
+            ->assertSee('Card due', false);
+    }
+}

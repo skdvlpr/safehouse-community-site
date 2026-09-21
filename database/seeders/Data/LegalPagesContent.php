@@ -67,7 +67,9 @@ final class LegalPagesContent
 <ul>
 <li><strong>Sito pubblico:</strong> <a href="https://safehouse.community">https://safehouse.community</a></li>
 <li><strong>Contatti privacy:</strong> <a href="mailto:info@safehouse.community">info@safehouse.community</a></li>
-<li><strong>Sede legale:</strong> Italia</li>
+<li><strong>Sede legale:</strong> Via Delleani 26, 00042 Anzio (RM)</li>
+<li><strong>Iscrizione RUNTS:</strong> Rep. n. 156768</li>
+<li><strong>Sede operativa:</strong> Torino (Piemonte)</li>
 </ul>
 <p>Non risulta nominato un DPO (Data Protection Officer); in caso di nomina, i riferimenti saranno aggiornati qui.</p>
 
@@ -161,7 +163,9 @@ HTML;
 <ul>
 <li><strong>Public website:</strong> <a href="https://safehouse.community">https://safehouse.community</a></li>
 <li><strong>Privacy contact:</strong> <a href="mailto:info@safehouse.community">info@safehouse.community</a></li>
-<li><strong>Registered office:</strong> Italy</li>
+<li><strong>Registered office:</strong> Via Delleani 26, 00042 Anzio (RM)</li>
+<li><strong>RUNTS registration:</strong> Rep. n. 156768</li>
+<li><strong>Operational office:</strong> Turin (Piedmont)</li>
 </ul>
 <p>No DPO (Data Protection Officer) is appointed at the time of this notice; if one is appointed, the details will be updated here.</p>
 
@@ -256,7 +260,7 @@ HTML;
     private static function cookieIt(): string
     {
         return <<<'HTML'
-<p>Ultimo aggiornamento: <strong>21 settembre 2026</strong>. Complemento della <a href="/it/privacy-policy">Privacy policy</a> di Safe House ETS.</p>
+<p>Ultimo aggiornamento: <strong>21 settembre 2026</strong>. Complemento della <a href="/it/privacy-policy">Privacy policy</a> di Safe House ETS. Titolare: <strong>Safe House ETS</strong> (Codice Fiscale <strong>96629270586</strong>). Sede legale: Via Delleani 26, 00042 Anzio (RM). Iscrizione RUNTS: Rep. n. 156768.</p>
 
 <h2>1. Cosa sono i cookie</h2>
 <p>I cookie sono piccoli file memorizzati sul dispositivo. Alcuni sono necessari al funzionamento del sito. Altri, i cookie analitici, partono solo se li accetti.</p>
@@ -284,7 +288,7 @@ HTML;
 <tr><td>Necessari</td><td><code>safe-house-community-session</code></td><td>Sessione applicativa</td><td>Sessione (~2 ore)</td><td>Safe House (sito)</td></tr>
 <tr><td>Necessari</td><td><code>sh_cookie_consent</code></td><td>Memorizzare la preferenza cookie</td><td>Fino a 1 anno</td><td>Safe House (sito)</td></tr>
 <tr><td>Necessari (pagamenti)</td><td>cookie Stripe (es. <code>__stripe_*</code>) quando usi il form donazione</td><td>Elaborazione del pagamento in sicurezza</td><td>Secondo Stripe</td><td>Stripe</td></tr>
-<tr><td>Necessari (sicurezza)</td><td>Cloudflare Turnstile sui moduli contatto e volontariato</td><td>Verificare che chi invia il modulo sia una persona</td><td>Durante la verifica</td><td>Cloudflare</td></tr>
+<tr><td>Necessari (sicurezza)</td><td>Cloudflare Turnstile sui moduli contatto, volontariato e domanda socio</td><td>Verificare che chi invia il modulo sia una persona</td><td>Durante la verifica</td><td>Cloudflare</td></tr>
 <tr><td>Analitici</td><td><code>_ga</code>, <code>_ga_*</code> (Google Analytics 4 tramite Google Tag Manager)</td><td>Statistiche aggregate e segnali di percorso completato; caricati solo dopo il consenso analitico; non usati per pubblicità o remarketing</td><td>Fino a 2 anni (secondo Google)</td><td>Google</td></tr>
 <tr><td>Marketing</td><td>—</td><td>Non in uso</td><td>—</td><td>—</td></tr>
 </tbody>
@@ -298,7 +302,7 @@ HTML;
     private static function cookieEn(): string
     {
         return <<<'HTML'
-<p>Last updated: <strong>21 September 2026</strong>. Companion to the Safe House ETS <a href="/en/privacy-policy">Privacy policy</a>.</p>
+<p>Last updated: <strong>21 September 2026</strong>. Companion to the Safe House ETS <a href="/en/privacy-policy">Privacy policy</a>. Controller: <strong>Safe House ETS</strong> (fiscal code <strong>96629270586</strong>). Registered office: Via Delleani 26, 00042 Anzio (RM). RUNTS: Rep. n. 156768.</p>
 
 <h2>1. What cookies are</h2>
 <p>Cookies are small files stored on your device. Some are necessary for the site to work. Analytics cookies start only if you accept them.</p>
@@ -326,7 +330,7 @@ HTML;
 <tr><td>Essential</td><td><code>safe-house-community-session</code></td><td>Application session</td><td>Session (~2 hours)</td><td>Safe House (site)</td></tr>
 <tr><td>Essential</td><td><code>sh_cookie_consent</code></td><td>Store cookie preference</td><td>Up to 1 year</td><td>Safe House (site)</td></tr>
 <tr><td>Essential (payments)</td><td>Stripe cookies (e.g. <code>__stripe_*</code>) when using donation checkout</td><td>Secure payment processing</td><td>Per Stripe</td><td>Stripe</td></tr>
-<tr><td>Essential (security)</td><td>Cloudflare Turnstile on contact and volunteer forms</td><td>Check that a person is submitting the form</td><td>During verification</td><td>Cloudflare</td></tr>
+<tr><td>Essential (security)</td><td>Cloudflare Turnstile on contact, volunteer and membership forms</td><td>Check that a person is submitting the form</td><td>During verification</td><td>Cloudflare</td></tr>
 <tr><td>Analytics</td><td><code>_ga</code>, <code>_ga_*</code> (Google Analytics 4 via Google Tag Manager)</td><td>Aggregated statistics and completed-journey signals; load only after analytics consent; not used for advertising or remarketing</td><td>Up to 2 years (per Google)</td><td>Google</td></tr>
 <tr><td>Marketing</td><td>—</td><td>Not in use</td><td>—</td><td>—</td></tr>
 </tbody>

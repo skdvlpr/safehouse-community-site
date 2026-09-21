@@ -47,7 +47,11 @@ class CmsPagesTest extends TestCase
             ->assertOk()
             ->assertSee('data-page-template="contact"', false)
             ->assertSee('id="contact-name"', false)
-            ->assertSee('info@safehouse.community', false);
+            ->assertSee('info@safehouse.community', false)
+            ->assertSee('Via Delleani 26, 00042 Anzio (RM)', false)
+            ->assertSee(__('site.pages.contact_faq', [], 'it'), false)
+            ->assertSee('safehouse-btn-primary', false)
+            ->assertDontSee('https://safehouse.community/it/domande-frequenti-faq', false);
         $this->get('/it/privacy-policy')->assertOk()->assertSee('data-page-template="legal"', false);
         $this->get('/it/cookie-policy')->assertOk();
     }
@@ -113,6 +117,8 @@ class CmsPagesTest extends TestCase
             ->assertOk()
             ->assertSee('Safe House ETS', false)
             ->assertSee('96629270586', false)
+            ->assertSee('Via Delleani 26, 00042 Anzio (RM)', false)
+            ->assertSee('156768', false)
             ->assertSee('id="google-api-services"', false)
             ->assertSee('drive.file', false)
             ->assertSee('Google Calendar', false)
@@ -133,6 +139,7 @@ class CmsPagesTest extends TestCase
             ->assertOk()
             ->assertSee('Aruba Cloud', false)
             ->assertSee('Google Workspace', false)
+            ->assertSee('Via Delleani 26, 00042 Anzio (RM)', false)
             ->assertSee('Turnstile', false)
             ->assertSee('Non comunichiamo a terzi', false)
             ->assertDontSee('servizi email Aruba', false)
@@ -146,6 +153,7 @@ class CmsPagesTest extends TestCase
             ->assertSee('safe-house-community-session', false)
             ->assertSee('Non in uso', false)
             ->assertSee('Turnstile', false)
+            ->assertSee('Via Delleani 26, 00042 Anzio (RM)', false)
             ->assertSee('proposti già selezionati', false)
             ->assertSee(__('site.measurement.status_off', [], 'it'), false)
             ->assertDontSee('Laravel', false)

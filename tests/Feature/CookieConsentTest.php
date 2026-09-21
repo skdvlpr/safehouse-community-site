@@ -28,7 +28,8 @@ class CookieConsentTest extends TestCase
             ->assertSee('data-cookie-dismiss', false)
             ->assertSee('data-cookie-reopen', false)
             ->assertSee(__('site.cookie.accept_all'), false)
-            ->assertSee('data-cookie-analytics', false);
+            ->assertSee('data-cookie-analytics', false)
+            ->assertSee('cookie-consent__main', false);
     }
 
     public function test_cookie_policy_page_has_preferences_reopen_button(): void

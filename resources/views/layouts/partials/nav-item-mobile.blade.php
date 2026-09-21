@@ -19,7 +19,7 @@
                 @endphp
                 @if ($pageUrl)
                     <a href="{{ $pageUrl }}"
-                       class="block rounded-md px-3 py-2 text-sm text-safehouse-muted hover:bg-white/5 hover:text-safehouse-text">
+                       class="block rounded-md px-3 py-2 text-base font-semibold text-safehouse-muted hover:bg-white/5 hover:text-safehouse-text">
                         {{ Navigation::pageTitle($page, $locale) }}
                     </a>
                 @endif
@@ -42,7 +42,7 @@
     @endphp
     <a href="{{ Navigation::url($item, $locale) }}"
        @class([
-           'block rounded-md px-3 py-2 text-sm hover:bg-white/5 hover:text-safehouse-text',
+           'block rounded-md px-3 py-2 text-base font-semibold hover:bg-white/5 hover:text-safehouse-text',
            'nav-link--highlight' => $highlight,
            'text-safehouse-primary bg-white/5' => $isActive && ! $highlight,
            'text-safehouse-muted' => ! $isActive && ! $highlight,

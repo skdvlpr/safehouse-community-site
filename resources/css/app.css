@@ -5,14 +5,14 @@
 @source '../views/**/*.blade.php';
 
 @font-face {
-    font-family: 'JetBrains Sans';
-    font-weight: 300 800;
+    font-family: 'Nunito Sans';
+    font-weight: 200 1000;
     font-display: swap;
-    src: url('/fonts/JetBrainsSans[wght].woff2') format('woff2');
+    src: url('/fonts/NunitoSans[wght].woff2') format('woff2');
 }
 
 @theme {
-    --font-sans: 'JetBrains Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    --font-sans: 'Nunito Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
         'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
     /* Defaults = Safehouse Aurora (dark); runtime overrides via html[data-theme] */
@@ -138,7 +138,7 @@ html[data-theme='light'] {
     }
 
     .brand-wordmark--header {
-        @apply hidden text-lg font-semibold whitespace-nowrap min-[400px]:inline sm:text-xl;
+        @apply hidden text-xl font-bold whitespace-nowrap min-[400px]:inline sm:text-2xl;
     }
 
     .site-header {
@@ -146,7 +146,7 @@ html[data-theme='light'] {
     }
 
     .site-header__bar {
-        @apply flex min-w-0 items-center justify-between gap-2 py-3 sm:gap-4 sm:py-4;
+        @apply flex min-w-0 items-center justify-between gap-3 py-4 sm:gap-5 sm:py-5;
     }
 
     .site-header__bar > a {
@@ -191,7 +191,7 @@ html[data-theme='light'] {
     }
 
     .brand-emblem {
-        @apply h-10 w-10 object-cover object-[left_center] sm:h-11 sm:w-11 lg:h-12 lg:w-12;
+        @apply h-12 w-12 object-cover object-[left_center] sm:h-14 sm:w-14 lg:h-16 lg:w-16;
     }
 
     .footer-bar {
@@ -328,7 +328,7 @@ html[data-theme='light'] {
     }
 
     .nav-dropdown__trigger {
-        @apply inline-flex cursor-default items-center gap-1 text-sm font-medium transition;
+        @apply inline-flex cursor-default items-center gap-1 text-base font-semibold transition;
     }
 
     .nav-dropdown__chevron {
@@ -640,7 +640,9 @@ html[data-theme='light'] {
     }
 
     .template-page--landing .template-landing-hero {
-        @apply relative overflow-hidden rounded-none border-y border-white/10 bg-gradient-to-br from-safehouse-primary/30 via-safehouse-modal/80 to-safehouse-page px-6 py-16 md:rounded-2xl md:px-12 md:py-20 lg:py-24;
+        @apply relative grid gap-8 overflow-hidden rounded-none border p-6 md:grid-cols-2 md:items-center md:rounded-3xl md:p-10 lg:min-h-[28rem] lg:p-12;
+        background-color: color-mix(in srgb, var(--color-safehouse-modal) 88%, transparent);
+        border-color: var(--safehouse-glass-border);
     }
 
     .template-page--landing .template-landing-hero::after {
@@ -648,16 +650,86 @@ html[data-theme='light'] {
         @apply pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-safehouse-primary/20 blur-3xl;
     }
 
-    .template-page--legal .template-legal-doc {
-        @apply rounded-xl border border-white/10 p-8 font-mono text-sm leading-7 md:p-10;
+    .template-page--landing .template-landing-hero.template-landing-hero--copy-only {
+        @apply md:grid-cols-1;
     }
 
-    .template-page--legal .template-legal-meta {
-        @apply mb-6 flex flex-wrap gap-4 text-xs text-safehouse-muted;
+    .template-landing-copy {
+        @apply relative z-10 flex min-w-0 flex-col gap-5;
+    }
+
+    .template-landing-visual {
+        @apply relative z-10 min-w-0;
+    }
+
+    .template-landing-actions {
+        @apply mt-2 flex flex-wrap gap-3;
+    }
+
+    .template-landing-cards {
+        @apply mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3;
+    }
+
+    .template-landing-card {
+        @apply rounded-2xl p-6 md:p-7;
+    }
+
+    .template-page--legal .template-legal-hero {
+        @apply mb-8 rounded-2xl p-6 md:p-8;
+        background-color: var(--color-safehouse-modal);
+        border: 1px solid var(--safehouse-glass-border);
+    }
+
+    .template-page--legal .template-legal-doc {
+        @apply mx-auto max-w-3xl rounded-2xl p-8 text-base leading-8 md:p-10 md:text-[1.05rem] md:leading-9;
+    }
+
+    .template-page--legal .template-legal-chips {
+        @apply mt-5 flex flex-wrap gap-2;
+    }
+
+    .template-legal-chip {
+        @apply inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold tracking-wide text-safehouse-text;
+        border-color: var(--safehouse-glass-border);
+        background-color: color-mix(in srgb, var(--color-safehouse-page) 40%, transparent);
     }
 
     .template-legal-measurement-status {
-        @apply mb-6 text-sm leading-relaxed text-safehouse-muted;
+        @apply mt-4 text-sm leading-relaxed text-safehouse-text;
+    }
+
+    .template-contact-seat {
+        @apply mb-6 space-y-1 text-sm leading-relaxed text-safehouse-text;
+    }
+
+    .template-contact-faq {
+        @apply mt-6;
+    }
+
+    .socio-dialog {
+        @apply relative m-auto w-[min(44rem,calc(100vw-1.5rem))] max-h-[min(90vh,52rem)] overflow-y-auto rounded-3xl border p-0 text-safehouse-text;
+        background-color: var(--color-safehouse-modal);
+        border-color: var(--safehouse-glass-border);
+    }
+
+    .socio-dialog::backdrop {
+        background: rgb(0 0 0 / 62%);
+    }
+
+    .socio-dialog__inner {
+        @apply p-6 md:p-8;
+    }
+
+    .socio-dialog__close {
+        @apply inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent text-xl leading-none text-safehouse-muted hover:bg-white/10 hover:text-safehouse-text;
+    }
+
+    .socio-dialog__grid {
+        @apply grid gap-4 sm:grid-cols-2;
+    }
+
+    .socio-dialog__grid .template-contact-form__field--full {
+        @apply sm:col-span-2;
     }
 
     .template-page--contact .template-contact-info {
@@ -956,7 +1028,7 @@ html[data-theme='light'] {
     }
 
     .cookie-consent {
-        @apply pointer-events-none fixed inset-x-0 bottom-8 z-[9999] flex justify-center px-4 md:bottom-14;
+        @apply pointer-events-none fixed inset-x-0 bottom-8 z-[9999] flex justify-center px-4 md:bottom-12;
     }
 
     .cookie-consent.is-hidden {
@@ -964,11 +1036,13 @@ html[data-theme='light'] {
     }
 
     .cookie-consent__shell {
-        @apply pointer-events-auto mx-auto w-full max-w-lg;
+        @apply pointer-events-auto mx-auto w-full max-w-5xl;
     }
 
     .cookie-consent__card {
-        @apply relative overflow-hidden rounded-3xl border border-white/15 shadow-[0_16px_48px_rgb(0_0_0_/_55%)];
+        @apply relative overflow-hidden rounded-2xl border shadow-[0_16px_48px_rgb(0_0_0_/_45%)];
+        background-color: var(--color-safehouse-modal);
+        border-color: var(--safehouse-glass-border);
         border-top: 3px solid var(--color-safehouse-primary);
     }
 
@@ -977,7 +1051,7 @@ html[data-theme='light'] {
     }
 
     .cookie-consent__main {
-        @apply grid gap-4 p-5 md:p-6;
+        @apply grid gap-4 p-4 md:grid-cols-[auto_1fr_auto] md:items-center md:gap-6 md:p-5;
     }
 
     .cookie-consent__badge {
@@ -989,11 +1063,11 @@ html[data-theme='light'] {
     }
 
     .cookie-consent__title {
-        @apply text-xl font-semibold text-safehouse-text md:text-2xl;
+        @apply text-lg font-bold text-safehouse-text md:text-xl;
     }
 
     .cookie-consent__text {
-        @apply mt-2 text-lg font-semibold leading-snug text-safehouse-text md:text-xl;
+        @apply mt-1 text-sm font-semibold leading-snug text-safehouse-text md:text-base;
     }
 
     .cookie-consent__links {
@@ -1005,7 +1079,7 @@ html[data-theme='light'] {
     }
 
     .cookie-consent__actions {
-        @apply flex flex-col gap-2;
+        @apply flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end;
     }
 
     .cookie-consent__btn {
@@ -1030,7 +1104,9 @@ html[data-theme='light'] {
     }
 
     .cookie-consent__panel {
-        @apply border-t border-white/10 bg-black/30 px-4 py-4 md:px-5 md:py-5;
+        @apply border-t px-4 py-4 md:px-5 md:py-5;
+        border-color: var(--safehouse-glass-border);
+        background-color: var(--color-safehouse-page);
     }
 
     .cookie-consent__panel.is-hidden {
@@ -1046,11 +1122,13 @@ html[data-theme='light'] {
     }
 
     .cookie-consent__options {
-        @apply grid gap-3;
+        @apply grid gap-3 md:grid-cols-2;
     }
 
     .cookie-consent__option {
-        @apply flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-safehouse-muted;
+        @apply flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm text-safehouse-text;
+        border-color: var(--safehouse-glass-border);
+        background-color: color-mix(in srgb, var(--color-safehouse-modal) 80%, var(--color-safehouse-page));
     }
 
     .cookie-consent__option input {
@@ -1058,7 +1136,7 @@ html[data-theme='light'] {
     }
 
     .cookie-consent__option-note {
-        @apply mt-1 block text-xs leading-relaxed text-safehouse-muted;
+        @apply mt-1 block text-xs leading-relaxed text-safehouse-text;
     }
 
     .cookie-consent__panel-actions {
@@ -1074,7 +1152,7 @@ html[data-theme='light'] {
     }
 
     .cookie-page-reopen__note {
-        @apply max-w-xl text-sm text-safehouse-muted;
+        @apply max-w-xl text-sm font-medium text-safehouse-text;
     }
 
     .donation-form {

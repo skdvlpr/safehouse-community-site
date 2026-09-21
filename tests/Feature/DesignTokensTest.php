@@ -15,13 +15,16 @@ class DesignTokensTest extends TestCase
         $this->assertStringContainsString('--color-safehouse-primary: #dc2626', $css);
         $this->assertStringContainsString('--safehouse-glass-bg:', $css);
         $this->assertStringContainsString('--safehouse-divider:', $css);
-        $this->assertStringContainsString("font-family: 'JetBrains Sans'", $css);
+        $this->assertStringContainsString("font-family: 'Nunito Sans'", $css);
+        $this->assertStringNotContainsString("font-family: 'JetBrains Sans'", $css);
         $this->assertStringContainsString("url('/images/bg.svg')", $css);
         $this->assertStringContainsString("url('/images/bg-light.svg')", $css);
         $this->assertFileExists(public_path('images/bg-photo.jpg'));
         $this->assertStringContainsString('.safehouse-accent-panel', $css);
         $this->assertStringContainsString('.template-services-grid', $css);
         $this->assertStringContainsString('.nav-dropdown__panel', $css);
+        $this->assertStringContainsString('max-w-5xl', $css);
+        $this->assertStringContainsString('md:grid-cols-[auto_1fr_auto]', $css);
         $this->assertStringContainsString('bg-safehouse-page/90', $css);
         $this->assertStringNotContainsString('bg-[#050505]/98', $css);
     }
@@ -32,8 +35,8 @@ class DesignTokensTest extends TestCase
         $this->assertFileExists(public_path('images/bg-light.svg'));
     }
 
-    public function test_jetbrains_sans_font_is_available(): void
+    public function test_nunito_sans_font_is_available(): void
     {
-        $this->assertFileExists(public_path('fonts/JetBrainsSans[wght].woff2'));
+        $this->assertFileExists(public_path('fonts/NunitoSans[wght].woff2'));
     }
 }

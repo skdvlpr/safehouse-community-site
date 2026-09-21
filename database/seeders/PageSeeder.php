@@ -250,6 +250,46 @@ class PageSeeder extends Seeder
         Page::query()->where('key', 'demo-news')->delete();
 
         Page::query()->updateOrCreate(
+            ['key' => 'faq'],
+            [
+                'template' => 'default',
+                'is_published' => true,
+                'title' => [
+                    'it' => 'Domande frequenti',
+                    'en' => 'Frequently asked questions',
+                ],
+                'slug' => [
+                    'it' => 'domande-frequenti-faq',
+                    'en' => 'frequently-asked-questions',
+                ],
+                'body' => [
+                    'it' => '<p>Risposte alle domande più comuni su Safe House ETS.</p>',
+                    'en' => '<p>Answers to common questions about Safe House ETS.</p>',
+                ],
+            ],
+        );
+
+        Page::query()->updateOrCreate(
+            ['key' => 'diventa-socio'],
+            [
+                'template' => 'landing',
+                'is_published' => true,
+                'title' => [
+                    'it' => 'Diventa socio',
+                    'en' => 'Become a member',
+                ],
+                'slug' => [
+                    'it' => 'diventa-socio',
+                    'en' => 'diventa-socio',
+                ],
+                'body' => [
+                    'it' => '<h2>Insieme costruiamo una comunità più solidale</h2><p>Ogni cambiamento nasce dalle persone.</p><hr><h3>Diventa protagonista del cambiamento</h3><p>Con il tuo contributo puoi sostenere i progetti dell\'Associazione.</p>',
+                    'en' => '<h2>Together we build a more solidary community</h2><p>Every change starts with people.</p><hr><h3>Be part of the change</h3><p>Your contribution supports the association\'s projects.</p>',
+                ],
+            ],
+        );
+
+        Page::query()->updateOrCreate(
             ['key' => 'trasparenza'],
             [
                 'template' => 'legal',

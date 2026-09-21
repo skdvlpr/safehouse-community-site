@@ -18,7 +18,7 @@
     data-store-url="{{ route('cookie-consent.store', ['locale' => $locale]) }}"
 >
     <div class="cookie-consent__shell">
-        <div class="cookie-consent__card safehouse-glass">
+        <div class="cookie-consent__card">
             <button
                 type="button"
                 class="cookie-consent__dismiss"

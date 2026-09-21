@@ -6,6 +6,7 @@ use App\Http\Controllers\DonationCampaignController;
 use App\Http\Controllers\EditorialArticleController;
 use App\Http\Controllers\GdprConsentController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MembershipApplicationController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\VolunteerController;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +54,10 @@ Route::prefix('{locale}')
         Route::post('/volunteers', [VolunteerController::class, 'store'])
             ->middleware('throttle:volunteers')
             ->name('volunteers.store');
+
+        Route::post('/membership-application', [MembershipApplicationController::class, 'store'])
+            ->middleware('throttle:membership')
+            ->name('membership.store');
 
         Route::get('/{pageSlug}', [PageController::class, 'show'])->name('pages.show');
     });
