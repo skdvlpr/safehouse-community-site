@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-template-shell :page="$page">
-        <div class="template-legal-hero">
+        <div class="template-legal-hero template-legal-column safehouse-glass">
             @include('pages.partials.section-label', [
                 'page' => $page,
                 'locale' => $locale,
@@ -19,6 +19,13 @@
                 <span class="template-legal-chip">C.F. 96629270586</span>
             </div>
 
+            <p class="template-legal-locale">
+                @include('layouts.partials.locale-switch', [
+                    'variant' => 'text',
+                    'linkClass' => 'template-legal-locale__link',
+                ])
+            </p>
+
             @include('layouts.partials.measurement-status')
 
             @if ($page->key === 'cookie')
@@ -31,7 +38,7 @@
             @endif
         </div>
 
-        <article class="template-legal-doc safehouse-glass safehouse-prose">
+        <article class="template-legal-doc template-legal-column safehouse-glass safehouse-prose">
             {!! \App\Support\CmsHtml::render($body) !!}
         </article>
     </x-page-template-shell>

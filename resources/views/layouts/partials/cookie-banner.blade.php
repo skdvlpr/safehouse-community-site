@@ -35,6 +35,7 @@
                 </div>
 
                 <div class="cookie-consent__copy">
+                    @include('layouts.partials.locale-switch', ['variant' => 'banner'])
                     <p id="cookie-consent-title" class="cookie-consent__title">{{ __('site.cookie.title') }}</p>
                     <p class="cookie-consent__text">{{ __($measurementBootable ? 'site.cookie.message_bootable' : 'site.cookie.message') }}</p>
                     @if ($cookiePolicyUrl || $privacyUrl)

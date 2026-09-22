@@ -7,9 +7,12 @@ Cite: [Laravel Artisan](https://laravel.com/docs/13.x/artisan); implementation `
 
 **Production (this feature only)**:
 
-1. Add `deploy/sync-legal-pages-once.sh` that `cd`s to `DEPLOY_PATH`, runs the command with `--force`, then self-deletes on success (same pattern as other `deploy/*-once.sh`).
-2. `deploy/post-deploy.sh` invokes that script **if the file exists**. After the first successful deploy the file is gone, so later pushes do not overwrite CMS legal HTML.
+1. `deploy/sync-legal-pages-once.sh` `cd`s to `DEPLOY_PATH` and runs the command with `--force`.
+2. After success it writes `storage/app/legal-pages-synced-0025`. Later deploys still rsync the script (it stays in git) but skip the artisan command while that marker exists — so staff CMS edits are not overwritten.
+3. `deploy/post-deploy.sh` invokes the script **if the file exists**.
+
+Self-deleting the git-tracked script is not enough: the next authorised rsync would restore it and clobber CMS again.
 
 **Copy change in `LegalPagesContent`**: remove the instruction to reopen preferences from the footer; keep the cookie-page button.
 
-**Must not**: run on every future deploy; author a DPA; publish `/ru`.
+**Must not**: run the overwrite on every future deploy; author a DPA; publish `/ru`.

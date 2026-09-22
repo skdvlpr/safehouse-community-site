@@ -26,10 +26,17 @@ class CookieConsentTest extends TestCase
             ->assertOk()
             ->assertSee('id="cookie-consent-banner"', false)
             ->assertSee('data-cookie-dismiss', false)
-            ->assertSee('data-cookie-reopen', false)
+            ->assertDontSee('data-cookie-reopen', false)
+            ->assertSee(__('site.locale.english_version'), false)
+            ->assertSee('cookie-consent__lang', false)
             ->assertSee(__('site.cookie.accept_all'), false)
             ->assertSee('data-cookie-analytics', false)
             ->assertSee('cookie-consent__main', false);
+
+        $this->get('/en')
+            ->assertOk()
+            ->assertSee(__('site.locale.italian_version', [], 'en'), false)
+            ->assertDontSee(__('site.locale.english_version', [], 'en'), false);
     }
 
     public function test_cookie_policy_page_has_preferences_reopen_button(): void

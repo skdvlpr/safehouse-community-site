@@ -54,6 +54,11 @@ fix_runtime_permissions
 
 php artisan migrate --force --no-interaction
 
+LEGAL_ONCE="${DEPLOY_PATH}/deploy/sync-legal-pages-once.sh"
+if [ -f "$LEGAL_ONCE" ]; then
+    DEPLOY_PATH="$DEPLOY_PATH" bash "$LEGAL_ONCE"
+fi
+
 php artisan optimize:clear --no-interaction
 
 # Ensure CMS roles exist when new roles are added in code (firstOrCreate — safe to repeat).

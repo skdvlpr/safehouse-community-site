@@ -18,7 +18,7 @@
 
 ## Desktop Contattaci filler
 
-**Decision**: From `md`/`lg`, split the red band: keep title, lead, Compila domanda, sede; add larger square social buttons (`SocialLinksSettings::filled()`, same icons as footer) and text links Statuto / FAQ / Donazioni / Volontariato. Phone (`max-md`) CSS hides that filler so the compact band stays.
+**Decision**: From `lg` (1024px), split the red band: keep title, lead, Compila domanda, sede; add larger square social buttons (`SocialLinksSettings::filled()`, same icons as footer) and text links Statuto / FAQ / Donazioni / Volontariato. Below `lg` CSS/Tailwind hides that filler so the compact phone band stays (including landscape phones under 1024px). Visual work in the implementing chat (requested Grok 4.7 Extra High subagent is not an allowed slug).
 
 **Rationale**: Owner: fill PC emptiness; do not spoil phone.
 

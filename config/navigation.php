@@ -16,8 +16,8 @@ return [
 
     'footer' => [
         ['label' => 'site.nav.privacy', 'page_key' => 'privacy'],
-        ['label' => 'site.nav.contact', 'page_key' => 'contact'],
         ['label' => 'site.nav.cookie', 'page_key' => 'cookie'],
+        ['label' => 'site.nav.contact', 'page_key' => 'contact'],
     ],
 
     /*

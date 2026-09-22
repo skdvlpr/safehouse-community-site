@@ -24,28 +24,20 @@
             <x-social-links />
         </div>
 
-        @if ($footerItems !== [])
-            <nav class="site-footer__legal" aria-label="Footer">
-                @foreach ($footerItems as $index => $item)
-                    @if ($index > 0)
-                        <span class="site-footer__legal-sep" aria-hidden="true">|</span>
-                    @endif
-                    <a href="{{ Navigation::url($item, $locale) }}" class="site-footer__legal-link">
-                        {{ __($item['label']) }}
-                    </a>
-                @endforeach
+        <nav class="site-footer__legal" aria-label="Footer">
+            @foreach ($footerItems as $index => $item)
+                @if ($index > 0)
+                    <span class="site-footer__legal-sep" aria-hidden="true">|</span>
+                @endif
+                <a href="{{ Navigation::url($item, $locale) }}" class="site-footer__legal-link">
+                    {{ __($item['label']) }}
+                </a>
+            @endforeach
+            @if ($footerItems !== [])
                 <span class="site-footer__legal-sep" aria-hidden="true">|</span>
-                <button type="button" class="site-footer__legal-link" data-cookie-reopen>
-                    {{ __('site.cookie.reopen') }}
-                </button>
-            </nav>
-        @else
-            <nav class="site-footer__legal" aria-label="Footer">
-                <button type="button" class="site-footer__legal-link" data-cookie-reopen>
-                    {{ __('site.cookie.reopen') }}
-                </button>
-            </nav>
-        @endif
+            @endif
+            @include('layouts.partials.locale-switch', ['variant' => 'text'])
+        </nav>
 
         <p class="site-footer__copy">
             {{ __('site.footer.rights', ['year' => now()->year]) }}

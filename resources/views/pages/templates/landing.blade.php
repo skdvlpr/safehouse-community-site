@@ -6,9 +6,12 @@
 
 @section('content')
     @php
+        $pages = app(\App\Services\PageService::class);
         $layout = \App\Support\LandingContent::fromPage($page, $locale, $body);
         $isMembership = $page->key === 'diventa-socio';
-        $contactUrl = app(\App\Services\PageService::class)->urlForKey('contact', $locale);
+        $contactUrl = $pages->urlForKey('contact', $locale);
+        $faqUrl = $pages->urlForKey('faq', $locale);
+        $statutoUrl = $faqUrl;
         $hasVisual = count(\App\Support\PageCarousel::slides($page->meta ?? null, $locale)) > 0;
         $contactHeading = $layout->contactHeading !== ''
             ? $layout->contactHeading
@@ -22,26 +25,18 @@
                     <p class="landing-marquee__kicker">{{ __('site.membership.values_label') }}</p>
                     <div class="landing-marquee__viewport">
                         <div class="landing-marquee__track">
-                            @foreach ([1, 2] as $copy)
-                                <div class="landing-marquee__group" @if ($copy === 2) aria-hidden="true" @endif>
-                                    @foreach ($layout->values as $value)
-                                        <span class="landing-marquee__item">{{ $value }}</span>
-                                        <span class="landing-marquee__dot" aria-hidden="true">·</span>
-                                    @endforeach
-                                </div>
-                            @endforeach
+                            <div class="landing-marquee__group" data-marquee-source>
+                                <span class="landing-marquee__mobile-label">
+                                    <span class="landing-marquee__item landing-marquee__item--label">{{ __('site.membership.values_label') }}</span>
+                                    <span class="landing-marquee__dot" aria-hidden="true">·</span>
+                                </span>
+                                @foreach ($layout->values as $value)
+                                    <span class="landing-marquee__item">{{ $value }}</span>
+                                    <span class="landing-marquee__dot" aria-hidden="true">·</span>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
-                    <button
-                        type="button"
-                        class="landing-marquee__toggle"
-                        data-marquee-toggle
-                        data-pause-label="{{ __('site.membership.marquee_pause') }}"
-                        data-play-label="{{ __('site.membership.marquee_play') }}"
-                        aria-pressed="false"
-                    >
-                        {{ __('site.membership.marquee_pause') }}
-                    </button>
                 </div>
             </section>
         @endif
@@ -92,6 +87,11 @@
         </section>
 
         @if ($layout->cards !== [])
+            <p class="landing-swipe" aria-hidden="true">
+                <span class="landing-swipe__label">{{ __('site.membership.swipe_hint') }}</span>
+                <span class="landing-swipe__arrow">↓</span>
+            </p>
+
             <div class="template-landing-cards">
                 @foreach ($layout->cards as $index => $card)
                     {{-- Outer element stays in the grid flow so IntersectionObserver sees it; the inner card is what slides in from off-screen. --}}
@@ -107,11 +107,25 @@
         @if ($isMembership)
             <section class="landing-contact landing-reveal" data-reveal-from="up">
                 <div class="landing-contact__inner">
-                    <h2 class="landing-contact__title">{{ $contactHeading }}</h2>
-                    <p class="landing-contact__lead">{{ __('site.membership.contact_lead') }}</p>
-                    <button type="button" class="safehouse-btn-primary" data-socio-open>
-                        {{ __('site.membership.apply') }}
-                    </button>
+                    <div class="landing-contact__main">
+                        <h2 class="landing-contact__title">{{ $contactHeading }}</h2>
+                        <p class="landing-contact__lead">{{ __('site.membership.contact_lead') }}</p>
+                        <button type="button" class="safehouse-btn-primary" data-socio-open>
+                            {{ __('site.membership.apply') }}
+                        </button>
+                    </div>
+
+                    <nav class="landing-contact__links" aria-label="{{ $contactHeading }}">
+                        @if ($statutoUrl)
+                            <a class="landing-contact__link" href="{{ $statutoUrl }}">{{ __('site.membership.statuto') }}</a>
+                        @endif
+                        @if ($faqUrl)
+                            <a class="landing-contact__link" href="{{ $faqUrl }}">{{ __('site.membership.faq') }}</a>
+                        @endif
+                        <a class="landing-contact__link" href="{{ route('donations.index', ['locale' => $locale]) }}">{{ __('site.membership.link_donate') }}</a>
+                        <a class="landing-contact__link" href="{{ route('volunteers.show', ['locale' => $locale]) }}">{{ __('site.membership.link_volunteer') }}</a>
+                    </nav>
+
                     <div class="landing-seat">
                         <p><strong>{{ __('site.org.legal_seat_label') }}</strong><br>{{ __('site.org.legal_seat') }}</p>
                         <p>{{ __('site.org.runts') }}</p>

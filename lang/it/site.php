@@ -41,6 +41,11 @@ return [
     'social' => [
         'nav_label' => 'Social',
     ],
+    'locale' => [
+        'english_version' => 'English version',
+        'italian_version' => 'Versione italiana',
+        'banner' => 'Lingua',
+    ],
     'theme' => [
         'label' => 'Tema',
         'dark' => 'Scuro',
@@ -57,6 +62,7 @@ return [
         'lead' => 'Accoglienza, formazione e sostegno per chi costruisce un futuro migliore.',
         'cta_donate' => 'Sostieni una raccolta',
         'cta_volunteer' => 'Diventa volontario',
+        'cta_member' => 'Diventa socio',
         'cta_contact' => 'Contattaci',
         'independence' => [
             'title' => 'Indipendenza',
@@ -162,6 +168,11 @@ return [
         'values_label' => 'I nostri valori',
         'contact_heading' => 'Contattaci',
         'contact_lead' => 'Compila la domanda di ammissione. Il Consiglio Direttivo la esaminerà.',
+        'swipe_hint' => 'Scorri in basso',
+        'statuto' => 'Statuto',
+        'faq' => 'FAQ',
+        'link_donate' => 'Donazioni',
+        'link_volunteer' => 'Diventa volontario',
         'marquee_pause' => 'Pausa',
         'marquee_play' => 'Riprendi',
         'mail' => [

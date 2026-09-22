@@ -275,7 +275,7 @@ HTML;
 </ul>
 <p><strong>Fino a <em>Accetta tutti</em> o <em>Salva preferenze</em> gli strumenti di misurazione non vengono caricati.</strong> Lo scorrimento della pagina non registra una scelta.</p>
 <p>La scelta è salvata (cookie e memoria locale <code>sh_cookie_consent</code>) e annotata in un registro di audit (hash di IP e user-agent). Resta valida finché non la cambi o non cancelli i cookie del sito.</p>
-<p>Puoi riaprire lo stesso pannello dal pulsante in questa pagina e dal link «Preferenze cookie» nel footer.</p>
+<p>Puoi riaprire lo stesso pannello dal pulsante in questa pagina.</p>
 <p>I cookie necessari partono automaticamente. Google Analytics 4, tramite Google Tag Manager, si carica solo dopo il consenso analitico. L’associazione non conserva l’indirizzo IP grezzo del visitatore per questa misurazione.</p>
 
 <h2>3. Cookie usati sul sito pubblico</h2>
@@ -295,7 +295,7 @@ HTML;
 </table>
 
 <h2>4. Come modificare le preferenze</h2>
-<p>Usa il pulsante in questa pagina, il link nel footer, oppure cancella i cookie del sito dal browser. Per domande: <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>
+<p>Usa il pulsante in questa pagina, oppure cancella i cookie del sito dal browser. Per domande: <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>
 HTML;
     }
 
@@ -317,7 +317,7 @@ HTML;
 </ul>
 <p><strong>Until you choose <em>Accept all</em> or <em>Save preferences</em>, measurement tools are not loaded.</strong> Scrolling does not store a choice.</p>
 <p>Your choice is stored (<code>sh_cookie_consent</code> cookie and local storage) and logged for audit (hashed IP and user-agent). It stays until you change it or clear this site’s cookies.</p>
-<p>You can reopen the same panel from the button on this page and from the «Cookie preferences» link in the footer.</p>
+<p>You can reopen the same panel from the button on this page.</p>
 <p>Necessary cookies run automatically. Google Analytics 4, via Google Tag Manager, loads only after analytics consent. The association does not store the visitor’s raw IP for this measurement.</p>
 
 <h2>3. Cookies on the public website</h2>
@@ -337,7 +337,7 @@ HTML;
 </table>
 
 <h2>4. Changing preferences</h2>
-<p>Use the button on this page, the footer link, or clear this site’s cookies in your browser. Questions: <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>
+<p>Use the button on this page, or clear this site’s cookies in your browser. Questions: <a href="mailto:info@safehouse.community">info@safehouse.community</a>.</p>
 HTML;
     }
 

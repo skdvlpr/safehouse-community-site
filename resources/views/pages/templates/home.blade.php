@@ -10,9 +10,12 @@
             ?: __('site.home.cta_donate');
         $ctaVolunteer = $pages->localizedMeta($page->meta, 'cta_volunteer', $locale)
             ?: __('site.home.cta_volunteer');
+        $ctaMember = $pages->localizedMeta($page->meta, 'cta_member', $locale)
+            ?: __('site.home.cta_member');
         $ctaContact = $pages->localizedMeta($page->meta, 'cta_contact', $locale)
             ?: __('site.home.cta_contact');
         $contactUrl = \App\Support\Navigation::url(['page_key' => 'contact'], $locale);
+        $memberUrl = $pages->urlForKey('diventa-socio', $locale);
         $communityTagline = __('site.footer.tagline');
     @endphp
 
@@ -43,6 +46,11 @@
                 <a href="{{ route('volunteers.show', ['locale' => $locale]) }}" class="safehouse-btn-secondary">
                     {{ $ctaVolunteer }}
                 </a>
+                @if ($memberUrl)
+                    <a href="{{ $memberUrl }}" class="safehouse-btn-secondary">
+                        {{ $ctaMember }}
+                    </a>
+                @endif
                 <a href="{{ $contactUrl }}" class="safehouse-btn-secondary">
                     {{ $ctaContact }}
                 </a>

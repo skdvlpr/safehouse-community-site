@@ -158,7 +158,11 @@ class CmsPagesTest extends TestCase
             ->assertSee(__('site.measurement.status_off', [], 'it'), false)
             ->assertDontSee('Laravel', false)
             ->assertDontSee('crm.safehouse.community', false)
-            ->assertDontSee('contact_success', false);
+            ->assertDontSee('contact_success', false)
+            ->assertSee('template-legal-column', false)
+            ->assertSee('template-legal-locale__link', false)
+            ->assertSee(__('site.locale.english_version', [], 'it'), false)
+            ->assertDontSee('nel footer', false);
     }
 
     public function test_cookie_and_privacy_copy_name_ga4_when_measurement_is_bootable(): void

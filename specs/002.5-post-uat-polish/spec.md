@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-21
 
-**Status**: Draft (specify + plan; implement waits for owner yes)
+**Status**: Implement (owner yes 2026-09-21; Home US6 added)
 
 **Queue**: Owner UAT repair of `002.4`. Amendment `002.5` before `003`. Does **not** start S03 banners or `007`.
 
@@ -82,6 +82,22 @@ The footer no longer has **Preferenze cookie**. In its place is **English versio
 
 ---
 
+### User Story 6 - Home: Diventa socio and quote hover (Priority: P1)
+
+The Home hero CTAs include **Diventa socio** (EN: Become a member) next to donate / volunteer / contact, opening the membership landing. Hovering the manifesto quote on a pointer device plays a short, restrained animation. Reduced-motion visitors get no extra motion.
+
+**Why this priority**: Owner UAT of Home after 002.4: missing membership CTA and a dead quote.
+
+**Independent Test**: `/it` and `/en` Home, pointer hover, plus membership URL.
+
+**Acceptance Scenarios**:
+
+1. **Given** Home, **When** the hero CTAs are visible, **Then** Diventa socio (IT) / Become a member (EN) links to the membership landing.
+2. **Given** a pointer device that is not reduced-motion, **When** the visitor hovers the quote, **Then** the quote reacts (scale/letter-spacing/mark color) and returns on mouse-out.
+3. **Given** reduced motion, **When** the quote is hovered, **Then** there is no extra animation.
+
+---
+
 ### User Story 5 - Production cookie and privacy documents match the September operational text (Priority: P1)
 
 The next authorised push **does** publish the current operational cookie/privacy bodies (Aruba VPS Italy, Google Workspace, Turnstile, Anzio seat, no advertising of name/phone/email). After that push, production pages are no longer the August HTML. The copy no longer tells people to reopen preferences from the footer.
@@ -121,6 +137,8 @@ The next authorised push **does** publish the current operational cookie/privacy
 - **FR-009**: No public `/ru`. CMS path stays `/cms-safehouse`. Consent gate (necessary always; analytics after Accetta tutti / Salva) MUST NOT change.
 - **FR-010**: This feature’s authorised production deploy MUST run `site:sync-legal-pages --force` once so live cookie/privacy match `LegalPagesContent`. Future deploys MUST NOT keep overwriting CMS legal HTML unless the owner later asks. Copy MUST drop the “reopen from the footer” sentence.
 - **FR-011**: MUST NOT start S03, volunteer→Lead Volontario, or `007` motion inventory. MUST NOT write `nonprofit-espocrm`. MUST NOT author a DPA.
+- **FR-012**: Home MUST show a Diventa socio / Become a member CTA to the membership landing (`diventa-socio`).
+- **FR-013**: The Home manifesto quote MUST have a hover animation gated by `hover: hover` and `prefers-reduced-motion: reduce`.
 
 ### Key Entities
 
@@ -138,6 +156,7 @@ The next authorised push **does** publish the current operational cookie/privacy
 - **SC-004**: On a laptop, cookie and privacy are one even column, not a T, and the header is not a solid slab against a glass paper.
 - **SC-005**: Footer has English/Italian version and no cookie-preferences control; cookie page still reopens preferences; banner IT/EN is readable without opening the header gear.
 - **SC-006**: After the authorised push, production cookie and privacy show the September operational document (Anzio seat, named processors), not August HTML.
+- **SC-007**: Home shows Diventa socio; the quote visibly reacts on hover without extra motion for reduced-motion visitors.
 
 ## Assumptions
 
@@ -149,8 +168,9 @@ The next authorised push **does** publish the current operational cookie/privacy
 - Banner IT/EN switches the **site locale** (same helper as the header), not a banner-only translation overlay.
 - Footer control on `/en/…` is “Versione italiana”; on `/it/…` is “English version”.
 - Production legal sync is **once** for this feature (self-deleting once-script or equivalent), not every future deploy.
-- Implement starts only after the owner says an explicit **yes** to the task list (and Launch vs Replace for any advanced model).
+- Implement starts only after the owner says an explicit **yes** to the task list (and Launch vs Replace for any advanced model). Owner yes 2026-09-21; T006 on current Grok Extra High (requested Grok 4.7 Extra High is not in the allowed subagent slug list).
 
 ## Changelog
 
 - 2026-09-21: Initial post-UAT polish specification after accepted `002.4` landing.
+- 2026-09-21: US6 Home Diventa socio + quote hover; footer EN = Versione italiana (already assumed); implement authorised.

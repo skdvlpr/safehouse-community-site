@@ -6,7 +6,11 @@
         </div>
 
         <blockquote id="home-manifesto-quote" class="home-manifesto__quote">
-            {!! nl2br(e(__('site.home.manifesto.quote'))) !!}
+            @foreach (preg_split('/\R/u', (string) __('site.home.manifesto.quote')) as $line)
+                @if (trim($line) !== '')
+                    <span class="home-manifesto__line">{{ $line }}</span>
+                @endif
+            @endforeach
         </blockquote>
 
         <p class="home-manifesto__author">

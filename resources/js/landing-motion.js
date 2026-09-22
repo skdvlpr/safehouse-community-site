@@ -2,12 +2,13 @@
  * Membership landing motion.
  *
  * - Values ticker: CSS animation, constant speed (px/s) regardless of how many
- *   values the CMS provides; pause/resume control required by WCAG 2.2.2
+ *   values the CMS provides. On-page pause was removed (owner UAT). Reduced-motion
+ *   still keeps the track still.
  *   https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html
  * - Card entrance: IntersectionObserver adds `.is-inview`; cards that enter in the
  *   same frame get a short stagger.
  *   https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
- * - prefers-reduced-motion: ticker starts paused, nothing slides, all content shown.
+ * - prefers-reduced-motion: ticker stays paused, nothing slides, all content shown.
  *   https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion
  */
 
@@ -25,69 +26,101 @@ function revealAll() {
     });
 }
 
-function setupMarquee(control) {
-    if (!(control instanceof HTMLButtonElement)) {
-        return;
-    }
-
-    const marquee = control.closest('.landing-marquee');
-
+function setupMarquee(marquee) {
     if (!(marquee instanceof HTMLElement)) {
         return;
     }
 
-    const pauseLabel = control.dataset.pauseLabel ?? control.textContent ?? '';
-    const playLabel = control.dataset.playLabel ?? 'Play';
+    const viewport = marquee.querySelector('.landing-marquee__viewport');
+    const track = marquee.querySelector('.landing-marquee__track');
+    const source = marquee.querySelector('[data-marquee-source]');
 
-    const setPaused = (paused) => {
-        marquee.classList.toggle('is-paused', paused);
-        // `.is-playing` marks an explicit user choice; under prefers-reduced-motion the
-        // CSS keeps the ticker still until this class is present.
-        marquee.classList.toggle('is-playing', ! paused);
-        control.setAttribute('aria-pressed', paused ? 'true' : 'false');
-        control.textContent = paused ? playLabel : pauseLabel;
-    };
-
-    control.addEventListener('click', () => {
-        setPaused(! marquee.classList.contains('is-paused'));
-    });
-
-    if (reducedMotion.matches) {
-        setPaused(true);
-    }
-
-    reducedMotion.addEventListener('change', (event) => {
-        if (event.matches) {
-            setPaused(true);
-        }
-    });
-
-    // Constant scrolling speed: duration = distance of one group / px per second.
-    const group = marquee.querySelector('.landing-marquee__group');
-
-    if (!(group instanceof HTMLElement)) {
+    if (!(viewport instanceof HTMLElement) || !(track instanceof HTMLElement) || !(source instanceof HTMLElement)) {
         return;
     }
 
-    const syncDuration = () => {
-        const width = group.getBoundingClientRect().width;
+    const applyMotion = () => {
+        const paused = reducedMotion.matches;
+        marquee.classList.toggle('is-paused', paused);
+        marquee.classList.toggle('is-playing', ! paused);
+    };
 
-        if (width <= 0) {
+    applyMotion();
+    reducedMotion.addEventListener('change', applyMotion);
+
+    const fill = () => {
+        track.querySelectorAll('[data-marquee-clone]').forEach((node) => node.remove());
+
+        const groupWidth = source.getBoundingClientRect().width;
+        const viewWidth = viewport.getBoundingClientRect().width;
+
+        if (groupWidth < 1 || viewWidth < 1) {
             return;
         }
 
-        const seconds = Math.max(MARQUEE_MIN_DURATION_S, width / MARQUEE_SPEED_PX_PER_S);
+        const perHalf = Math.max(1, Math.ceil(viewWidth / groupWidth));
+
+        for (let index = 1; index < perHalf * 2; index += 1) {
+            const clone = source.cloneNode(true);
+
+            if (clone instanceof HTMLElement) {
+                clone.setAttribute('aria-hidden', 'true');
+                clone.dataset.marqueeClone = '1';
+                track.appendChild(clone);
+            }
+        }
+
+        const seconds = Math.max(MARQUEE_MIN_DURATION_S, (groupWidth * perHalf) / MARQUEE_SPEED_PX_PER_S);
         marquee.style.setProperty('--landing-marquee-duration', `${seconds.toFixed(2)}s`);
     };
 
-    syncDuration();
+    fill();
 
     if ('ResizeObserver' in window) {
-        // Also fires when Nunito Sans swaps in and the track re-measures.
-        new ResizeObserver(syncDuration).observe(group);
+        const observer = new ResizeObserver(fill);
+        observer.observe(viewport);
+        observer.observe(source);
     } else {
-        window.addEventListener('resize', syncDuration, { passive: true });
+        window.addEventListener('resize', fill, { passive: true });
     }
+}
+
+function setupSwipeHint() {
+    const hint = document.querySelector('.landing-swipe');
+
+    if (!(hint instanceof HTMLElement)) {
+        return;
+    }
+
+    let lastY = window.scrollY;
+
+    const update = () => {
+        const y = window.scrollY;
+        const delta = y - lastY;
+
+        if (y < 12) {
+            hint.classList.remove('is-away');
+        } else if (delta > 2) {
+            hint.classList.add('is-away');
+        } else if (delta < -2) {
+            hint.classList.remove('is-away');
+        }
+
+        lastY = y;
+    };
+
+    let frame = 0;
+
+    window.addEventListener('scroll', () => {
+        if (frame !== 0) {
+            return;
+        }
+
+        frame = window.requestAnimationFrame(() => {
+            frame = 0;
+            update();
+        });
+    }, { passive: true });
 }
 
 function setupReveal() {
@@ -110,12 +143,8 @@ function setupReveal() {
     });
 
     targets.forEach((el) => {
-        // The observed element stays in flow; the part that actually moves is the
-        // inner target when present (cards) or the element itself (closing CTA).
         const moving = el.querySelector(':scope > .landing-reveal__target') ?? el;
 
-        // Once the entrance transition finishes, drop the stagger so later
-        // transitions (hover, theme switch) are immediate.
         moving.addEventListener(
             'transitionend',
             (event) => {
@@ -149,6 +178,7 @@ function setupReveal() {
 
 export function initLandingMotion() {
     document.documentElement.classList.add('has-js');
-    document.querySelectorAll('[data-marquee-toggle]').forEach(setupMarquee);
+    document.querySelectorAll('.landing-marquee').forEach(setupMarquee);
+    setupSwipeHint();
     setupReveal();
 }

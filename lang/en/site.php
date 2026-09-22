@@ -41,6 +41,11 @@ return [
     'social' => [
         'nav_label' => 'Social',
     ],
+    'locale' => [
+        'english_version' => 'English version',
+        'italian_version' => 'Versione italiana',
+        'banner' => 'Language',
+    ],
     'theme' => [
         'label' => 'Theme',
         'dark' => 'Dark',
@@ -57,6 +62,7 @@ return [
         'lead' => 'Welcome, training, and support for those building a better future.',
         'cta_donate' => 'Support a campaign',
         'cta_volunteer' => 'Become a volunteer',
+        'cta_member' => 'Become a member',
         'cta_contact' => 'Contact us',
         'independence' => [
             'title' => 'Independence',
@@ -162,6 +168,11 @@ return [
         'values_label' => 'Our values',
         'contact_heading' => 'Contact us',
         'contact_lead' => 'Fill in the membership application. The Board will review it.',
+        'swipe_hint' => 'Swipe down',
+        'statuto' => 'Statute',
+        'faq' => 'FAQ',
+        'link_donate' => 'Donations',
+        'link_volunteer' => 'Become a volunteer',
         'marquee_pause' => 'Pause',
         'marquee_play' => 'Play',
         'mail' => [

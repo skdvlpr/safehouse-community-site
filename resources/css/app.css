@@ -649,8 +649,8 @@ html[data-theme='light'] {
      *   (Tailwind exposes the same query as `motion-reduce:` —
      *   https://tailwindcss.com/docs/hover-focus-and-other-states#prefers-reduced-motion —
      *   we centralise it in the global @media block near the end of this file.)
-     * - The values ticker auto-plays for longer than five seconds, so it ships a
-     *   pause/resume control (WCAG 2.2.2 Pause, Stop, Hide):
+     * - The values ticker fills the bar by repeating its group (landing-motion.js).
+     *   Reduced motion keeps it still. There is no on-page pause control (owner UAT).
      *   https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html
      */
     .template-page--landing {
@@ -769,14 +769,14 @@ html[data-theme='light'] {
 
     /* ---------- Values ticker ---------- */
     .landing-marquee {
-        @apply mb-4 overflow-hidden rounded-2xl border md:mb-6 md:rounded-full;
+        @apply mb-4 w-full overflow-hidden rounded-2xl border md:mb-6 md:rounded-full;
         background-color: var(--safehouse-glass-bg);
         border-color: var(--safehouse-glass-border);
         backdrop-filter: blur(12px);
     }
 
     .landing-marquee__bar {
-        @apply flex items-center gap-2 py-1.5 pl-4 pr-1.5 sm:gap-4 sm:pl-6 sm:pr-2;
+        @apply flex w-full min-h-14 items-center gap-3 py-3 pl-4 pr-4 sm:gap-4 sm:pl-6 sm:pr-6;
     }
 
     .landing-marquee__kicker {
@@ -807,21 +807,19 @@ html[data-theme='light'] {
         @apply px-1 text-[0.8rem] font-bold tracking-[0.14em] whitespace-nowrap text-safehouse-text uppercase sm:text-sm;
     }
 
+    .landing-marquee__item--label {
+        @apply text-safehouse-primary;
+    }
+
+    .landing-marquee__mobile-label {
+        @apply inline-flex items-center md:hidden;
+    }
+
     /* Rendered as a brand dot; the "·" glyph stays in the DOM (aria-hidden) but is collapsed. */
     .landing-marquee__dot {
         @apply mx-3 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-safehouse-primary sm:mx-4;
         font-size: 0;
         line-height: 0;
-    }
-
-    .landing-marquee__toggle {
-        @apply inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full border px-4 text-xs font-bold text-safehouse-text transition-colors hover:border-safehouse-primary hover:text-safehouse-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-safehouse-primary;
-        border-color: var(--safehouse-control-border);
-        background-color: var(--color-safehouse-modal);
-    }
-
-    .landing-marquee__toggle[aria-pressed='true'] {
-        @apply border-safehouse-primary text-safehouse-primary;
     }
 
     /* ---------- Modular cards ---------- */
@@ -960,31 +958,98 @@ html[data-theme='light'] {
 
     /* ---------- Closing CTA + sede ---------- */
     .landing-contact {
-        @apply relative mt-4 overflow-hidden rounded-2xl border p-5 sm:p-7 md:mt-6 md:rounded-3xl md:p-10;
+        @apply relative mt-4 overflow-hidden rounded-2xl border p-5 sm:p-7 md:mt-6 md:rounded-3xl md:p-10 lg:p-14;
         background: var(--safehouse-accent-panel-bg);
         border-color: var(--safehouse-accent-panel-border);
         backdrop-filter: blur(14px);
     }
 
     .landing-contact__inner {
-        @apply mx-auto flex max-w-2xl flex-col items-stretch gap-4 sm:items-start;
+        @apply mx-auto flex w-full flex-col items-stretch gap-8;
     }
 
-    .landing-contact__title {
-        @apply text-2xl font-bold tracking-tight text-balance md:text-4xl;
+    .landing-contact__main {
+        @apply flex w-full flex-col items-stretch gap-4 sm:items-start;
     }
 
-    .landing-contact__lead {
-        @apply text-base leading-relaxed text-safehouse-text md:text-lg;
-    }
-
-    .landing-contact__inner > .safehouse-btn-primary {
-        @apply mt-1 min-h-12 px-6 text-base;
+    .landing-contact__links {
+        @apply flex w-full flex-col items-start gap-3 border-t pt-6;
+        border-color: var(--safehouse-divider);
     }
 
     .landing-seat {
-        @apply mt-4 grid w-full gap-x-6 gap-y-1.5 border-t pt-4 text-xs leading-relaxed text-safehouse-muted sm:grid-cols-2 sm:text-sm;
+        @apply grid w-full gap-x-6 gap-y-1.5 border-t pt-4 text-xs leading-relaxed text-safehouse-muted sm:grid-cols-2 sm:text-sm;
         border-color: var(--safehouse-divider);
+    }
+
+    @media (min-width: 64rem) {
+        .landing-contact__inner {
+            display: grid;
+            grid-template-columns: minmax(0, 1.6fr) minmax(16rem, 24rem);
+            grid-template-areas:
+                "copy links"
+                "seat links";
+            align-items: center;
+            column-gap: 4rem;
+            row-gap: 2rem;
+        }
+
+        .landing-contact__main {
+            grid-area: copy;
+        }
+
+        .landing-contact__links {
+            grid-area: links;
+            justify-content: center;
+            gap: 1.25rem;
+            border-top: 0;
+            border-left: 1px solid var(--safehouse-divider);
+            padding-top: 0;
+            padding-left: 2.5rem;
+        }
+
+        .landing-seat {
+            grid-area: seat;
+            border-top: 0;
+            padding-top: 0;
+            font-size: 1rem;
+        }
+    }
+
+    .landing-contact__title {
+        @apply text-2xl font-bold tracking-tight text-balance md:text-4xl lg:text-5xl;
+    }
+
+    .landing-contact__lead {
+        @apply max-w-3xl text-base leading-relaxed text-safehouse-text md:text-lg lg:text-xl;
+    }
+
+    .landing-contact__main > .safehouse-btn-primary {
+        @apply mt-1 min-h-12 px-6 text-base lg:min-h-14 lg:px-8 lg:text-lg;
+    }
+
+    .landing-contact__link {
+        @apply text-lg font-bold tracking-tight text-safehouse-text underline-offset-4 hover:text-safehouse-primary hover:underline lg:text-2xl;
+    }
+
+    .landing-swipe {
+        @apply mt-4 mb-1 flex flex-col items-center gap-1 text-safehouse-muted md:hidden;
+        transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease;
+    }
+
+    .landing-swipe.is-away {
+        visibility: hidden;
+        opacity: 0;
+        transform: translateY(-0.4rem);
+    }
+
+    .landing-swipe__label {
+        @apply text-[0.7rem] font-extrabold tracking-[0.2em] uppercase;
+    }
+
+    .landing-swipe__arrow {
+        @apply text-lg leading-none text-safehouse-primary;
+        animation: landing-swipe-nudge 1.6s ease-in-out infinite;
     }
 
     .landing-seat :where(p) {
@@ -1017,18 +1082,39 @@ html[data-theme='light'] {
         }
     }
 
+    @keyframes landing-swipe-nudge {
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(0.28rem);
+        }
+    }
+
+    .template-page--legal .template-legal-column {
+        @apply mx-auto w-full max-w-none rounded-2xl;
+    }
+
     .template-page--legal .template-legal-hero {
-        @apply mb-8 rounded-2xl p-6 md:p-8;
-        background-color: var(--color-safehouse-modal);
-        border: 1px solid var(--safehouse-glass-border);
+        @apply mb-8 p-6 md:mb-10 md:p-10 lg:p-12;
     }
 
     .template-page--legal .template-legal-doc {
-        @apply mx-auto max-w-3xl rounded-2xl p-8 text-base leading-8 md:p-10 md:text-[1.05rem] md:leading-9;
+        @apply p-8 text-base leading-8 md:p-10 md:text-[1.05rem] md:leading-9;
     }
 
     .template-page--legal .template-legal-chips {
         @apply mt-5 flex flex-wrap gap-2;
+    }
+
+    .template-legal-locale {
+        @apply mt-6;
+    }
+
+    .template-legal-locale__link {
+        @apply text-sm font-semibold text-safehouse-link underline-offset-2 hover:text-safehouse-link-hover hover:underline;
     }
 
     .template-legal-chip {
@@ -1038,7 +1124,7 @@ html[data-theme='light'] {
     }
 
     .template-legal-measurement-status {
-        @apply mt-4 text-sm leading-relaxed text-safehouse-text;
+        @apply mt-6 text-sm leading-relaxed text-safehouse-text;
     }
 
     .template-contact-seat {
@@ -1409,6 +1495,24 @@ html[data-theme='light'] {
         @apply text-lg font-bold text-safehouse-text md:text-xl;
     }
 
+    .cookie-consent__langs {
+        @apply mb-2 flex gap-2;
+    }
+
+    .cookie-consent__lang {
+        @apply inline-flex min-h-10 min-w-12 items-center justify-center rounded-lg border px-3 text-sm font-extrabold tracking-wider text-safehouse-text;
+        border-color: var(--safehouse-control-border);
+        background-color: transparent;
+    }
+
+    .cookie-consent__lang[aria-current='true'] {
+        @apply border-transparent bg-safehouse-primary text-white;
+    }
+
+    a.cookie-consent__lang:hover {
+        @apply border-safehouse-primary text-safehouse-primary;
+    }
+
     .cookie-consent__text {
         @apply mt-1 text-sm font-semibold leading-snug text-safehouse-text md:text-base;
     }
@@ -1491,7 +1595,7 @@ html[data-theme='light'] {
     }
 
     .cookie-page-reopen {
-        @apply mb-6 flex flex-col items-start gap-2;
+        @apply mt-8 mb-2 flex flex-col items-start gap-3 md:mt-10;
     }
 
     .cookie-page-reopen__note {
@@ -1941,8 +2045,13 @@ html[data-theme='light'] {
     }
 
     .home-manifesto__quote {
-        @apply mx-auto mb-4 max-w-3xl text-[0.8rem] font-semibold uppercase leading-snug tracking-wide text-safehouse-text sm:text-sm md:mb-10 md:text-2xl md:leading-relaxed md:tracking-wider lg:text-[1.75rem];
+        @apply mx-auto mb-4 max-w-4xl text-[0.8rem] font-semibold uppercase leading-snug tracking-wide text-safehouse-text sm:text-sm md:mb-10 md:text-2xl md:leading-relaxed md:tracking-wider lg:text-[1.75rem];
         animation: home-manifesto-rise 0.85s ease-out 0.12s both;
+    }
+
+    .home-manifesto__line {
+        @apply block;
+        transition: color 0.28s ease, letter-spacing 0.35s ease, transform 0.35s ease;
     }
 
     .home-manifesto__author {
@@ -2050,15 +2159,27 @@ html[data-theme='light'] {
     }
 }
 
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .home-manifesto__line:hover {
+        color: var(--color-safehouse-primary);
+        letter-spacing: 0.08em;
+        transform: translateX(0.45rem);
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .home-manifesto__quote-mark,
     .home-manifesto__quote,
+    .home-manifesto__line,
     .home-manifesto__author,
     .home-manifesto__divider,
     .home-manifesto__slogan,
     .home-manifesto__emails,
-    .home-manifesto__brand {
+    .home-manifesto__brand,
+    .landing-swipe,
+    .landing-swipe__arrow {
         animation: none !important;
+        transition: none !important;
     }
 
     /*
@@ -2076,7 +2197,7 @@ html[data-theme='light'] {
         transform: none !important;
     }
 
-    /* Ticker stays still unless the person presses "Riprendi" (explicit opt-in adds .is-playing). */
+    /* Ticker stays still (no on-page play control). */
     .landing-marquee:not(.is-playing) .landing-marquee__track {
         animation-play-state: paused !important;
     }
@@ -2137,6 +2258,7 @@ html[data-theme='light'] .template-page--services .template-services-banner,
 html[data-theme='light'] .template-page--services .template-service-card,
 html[data-theme='light'] .template-page--article .template-article-body,
 html[data-theme='light'] .template-page--legal .template-legal-doc,
+html[data-theme='light'] .template-page--legal .template-legal-hero,
 html[data-theme='light'] .template-page--landing .template-landing-hero,
 html[data-theme='light'] .template-contact-aside,
 html[data-theme='light'] .template-page--contact .template-contact-info,
