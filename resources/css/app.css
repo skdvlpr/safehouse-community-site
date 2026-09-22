@@ -139,6 +139,13 @@ html[data-theme='light'] {
 
     .brand-wordmark--header {
         @apply hidden text-xl font-bold whitespace-nowrap min-[400px]:inline sm:text-2xl;
+        font-weight: 760;
+    }
+
+    .site-header nav a,
+    .site-header .nav-dropdown__trigger,
+    .site-header__menu-panel a {
+        font-weight: 680;
     }
 
     .site-header {
