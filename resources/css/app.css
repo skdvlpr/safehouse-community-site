@@ -978,8 +978,16 @@ html[data-theme='light'] {
     }
 
     .landing-seat {
-        @apply grid w-full gap-x-6 gap-y-1.5 border-t pt-4 text-xs leading-relaxed text-safehouse-muted sm:grid-cols-2 sm:text-sm;
+        @apply grid w-full items-start gap-x-8 gap-y-3 border-t pt-4 text-xs leading-relaxed text-safehouse-muted sm:grid-cols-2 sm:items-end sm:text-sm;
         border-color: var(--safehouse-divider);
+    }
+
+    .landing-seat__places {
+        @apply grid gap-y-1.5;
+    }
+
+    .landing-seat__runts {
+        @apply m-0 text-sm font-medium leading-snug text-safehouse-text sm:text-base;
     }
 
     @media (min-width: 64rem) {
@@ -1013,6 +1021,11 @@ html[data-theme='light'] {
             border-top: 0;
             padding-top: 0;
             font-size: 1rem;
+        }
+
+        .landing-seat__runts {
+            font-size: 1.2rem;
+            line-height: 1.35;
         }
     }
 
@@ -2006,8 +2019,50 @@ html[data-theme='light'] {
         @apply font-bold text-safehouse-text;
     }
 
+    .home-independence__title + .home-independence__body::before {
+        content: ' ';
+    }
+
     .home-independence__body {
         @apply text-safehouse-muted;
+    }
+
+    /* Wide screens: the sentence was capped at max-w-4xl inside a full-width frame. */
+    @media (min-width: 64rem) {
+        .home-independence__panel.safehouse-glass {
+            padding: 1.85rem 2.75rem;
+        }
+
+        .home-independence__text {
+            max-width: none;
+            display: grid;
+            grid-template-columns: max-content minmax(0, 1fr);
+            align-items: center;
+            column-gap: 2.25rem;
+        }
+
+        .home-independence__title {
+            padding-right: 2.25rem;
+            border-right: 2px solid var(--color-safehouse-primary);
+            font-size: 2rem;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+        }
+
+        .home-independence__colon,
+        .home-independence__title + .home-independence__body::before {
+            display: none;
+            content: none;
+        }
+
+        .home-independence__body {
+            font-size: 1.35rem;
+            line-height: 1.45;
+        }
+
+        .home-independence__body::first-letter {
+            text-transform: uppercase;
+        }
     }
 
     .home-manifesto {

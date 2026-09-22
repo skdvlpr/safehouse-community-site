@@ -127,10 +127,12 @@
                     </nav>
 
                     <div class="landing-seat">
-                        <p><strong>{{ __('site.org.legal_seat_label') }}</strong><br>{{ __('site.org.legal_seat') }}</p>
-                        <p>{{ __('site.org.runts') }}</p>
-                        <p>{{ __('site.org.fiscal_code') }}</p>
-                        <p><strong>{{ __('site.org.operative_seat_label') }}</strong> {{ __('site.org.operative_seat') }}</p>
+                        <div class="landing-seat__places">
+                            <p><strong>{{ __('site.org.legal_seat_label') }}</strong><br>{{ __('site.org.legal_seat') }}</p>
+                            <p><strong>{{ __('site.org.operative_seat_label') }}</strong> {{ __('site.org.operative_seat') }}</p>
+                            <p>{{ __('site.org.fiscal_code') }}</p>
+                        </div>
+                        <p class="landing-seat__runts">{{ __('site.org.runts') }}</p>
                     </div>
                 </div>
             </section>

@@ -9,7 +9,7 @@
         <div class="home-independence__panel safehouse-glass">
             <p class="home-independence__text">
                 @if ($title !== '')
-                    <strong class="home-independence__title">{{ $title }}:</strong>{{ $body !== '' ? ' ' : '' }}
+                    <strong class="home-independence__title">{{ $title }}<span class="home-independence__colon">:</span></strong>
                 @endif
                 @if ($body !== '')
                     <span class="home-independence__body">{{ $body }}</span>
