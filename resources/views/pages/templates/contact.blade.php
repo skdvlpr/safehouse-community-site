@@ -5,6 +5,24 @@
 @section('content')
     @php
         $faqUrl = app(\App\Services\PageService::class)->urlForKey('faq', $locale);
+        $contactBody = $body;
+        if (is_string($contactBody)) {
+            $contactBody = preg_replace(
+                '#<a\b[^>]*href=(["\'])[^"\']*(?:domande-frequenti|frequently-asked)[^"\']*\1[^>]*>.*?</a>#is',
+                '',
+                $contactBody
+            ) ?? $contactBody;
+            $contactBody = preg_replace(
+                '#https?://\S*(?:domande-frequenti|frequently-asked)\S*#i',
+                '',
+                $contactBody
+            ) ?? $contactBody;
+            $contactBody = preg_replace(
+                '#<p>\s*(?:<strong>\s*)?(?:Domande frequenti|Frequently asked questions)\s*:?\s*(?:</strong>)?\s*(?:<br\s*/?>\s*)?</p>#iu',
+                '',
+                $contactBody
+            ) ?? $contactBody;
+        }
     @endphp
 
     <x-page-template-shell :page="$page">
@@ -18,7 +36,7 @@
 
         <div class="grid gap-8 lg:grid-cols-2">
             <article class="template-contact-info safehouse-glass safehouse-prose">
-                {!! \App\Support\CmsHtml::render($body) !!}
+                {!! \App\Support\CmsHtml::render(is_string($contactBody) ? $contactBody : $body) !!}
 
                 <div class="template-contact-seat">
                     <p><strong>{{ __('site.org.legal_seat_label') }}</strong><br>{{ __('site.org.legal_seat') }}</p>
@@ -29,7 +47,7 @@
 
                 @if ($faqUrl)
                     <p class="template-contact-faq">
-                        <a href="{{ $faqUrl }}" class="safehouse-btn-primary">{{ __('site.pages.contact_faq') }}</a>
+                        <a href="{{ $faqUrl }}" class="safehouse-btn-primary template-contact-faq__btn">{{ __('site.pages.contact_faq') }}</a>
                     </p>
                 @endif
             </article>

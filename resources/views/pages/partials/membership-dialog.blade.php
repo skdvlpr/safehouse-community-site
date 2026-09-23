@@ -87,7 +87,7 @@
                     <input id="socio-phone" type="tel" name="phone" value="{{ old('phone') }}" required maxlength="50">
                     @error('phone')<p class="template-contact-form__error">{{ $message }}</p>@enderror
                 </div>
-                <div class="template-contact-form__field template-contact-form__field--full">
+                <div class="template-contact-form__field socio-dialog__span-2">
                     <label for="socio-email">{{ __('site.membership.email') }}</label>
                     <input id="socio-email" type="email" name="email" value="{{ old('email') }}" required maxlength="255">
                     @error('email')<p class="template-contact-form__error">{{ $message }}</p>@enderror
@@ -114,7 +114,7 @@
                 </label>
             </div>
 
-            <fieldset class="template-contact-form__field">
+            <fieldset class="template-contact-form__field socio-dialog__newsletter">
                 <legend class="mb-1.5 block text-sm font-medium">{{ __('site.membership.newsletter_legend') }}</legend>
                 <label class="template-contact-form__checkbox">
                     <input type="radio" name="newsletter_consent" value="1" @checked(old('newsletter_consent') === '1') required>

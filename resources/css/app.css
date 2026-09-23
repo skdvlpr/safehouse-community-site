@@ -1155,8 +1155,19 @@ html[data-theme='light'] {
         @apply mt-6;
     }
 
+    .template-contact-faq__btn {
+        @apply min-h-12 px-7 text-base text-white;
+        color: #fff;
+    }
+
+    .safehouse-prose .template-contact-faq__btn,
+    .safehouse-prose .template-contact-faq__btn:hover {
+        @apply text-white no-underline;
+        color: #fff;
+    }
+
     .socio-dialog {
-        @apply relative m-auto w-[min(44rem,calc(100vw-1.5rem))] max-h-[min(90vh,52rem)] overflow-y-auto rounded-3xl border p-0 text-safehouse-text;
+        @apply relative m-auto w-[min(100%,calc(100vw-1.25rem))] max-h-[92vh] overflow-y-auto rounded-3xl border p-0 text-safehouse-text;
         background-color: var(--color-safehouse-modal);
         border-color: var(--safehouse-glass-border);
     }
@@ -1166,7 +1177,7 @@ html[data-theme='light'] {
     }
 
     .socio-dialog__inner {
-        @apply p-6 md:p-8;
+        @apply p-4 sm:p-6 lg:px-8 lg:py-3;
     }
 
     .socio-dialog__close {
@@ -1174,11 +1185,85 @@ html[data-theme='light'] {
     }
 
     .socio-dialog__grid {
-        @apply grid gap-4 sm:grid-cols-2;
+        @apply grid grid-cols-1 gap-3;
     }
 
     .socio-dialog__grid .template-contact-form__field--full {
-        @apply sm:col-span-2;
+        @apply col-span-1;
+    }
+
+    @media (min-width: 30rem) {
+        .socio-dialog__grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            column-gap: 1rem;
+        }
+
+        .socio-dialog__grid .template-contact-form__field--full {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (min-width: 64rem) {
+        .socio-dialog {
+            width: min(72rem, calc(100vw - 3rem));
+            max-height: 94vh;
+        }
+
+        .socio-dialog__grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.4rem 1rem;
+        }
+
+        .socio-dialog .template-contact-form__field label,
+        .socio-dialog__newsletter legend {
+            margin-bottom: 0.2rem;
+        }
+
+        .socio-dialog .template-contact-form > * + * {
+            margin-top: 0.65rem;
+        }
+
+        .socio-dialog .template-contact-form {
+            row-gap: 0.65rem;
+        }
+
+        .socio-dialog .template-contact-form__field input {
+            padding-top: 0.55rem;
+            padding-bottom: 0.55rem;
+        }
+
+        .socio-dialog .template-contact-form__checkbox {
+            padding-top: 0.4rem;
+            padding-bottom: 0.4rem;
+        }
+
+        .socio-dialog__newsletter {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.65rem 1rem;
+            border: 0;
+            padding: 0;
+            margin: 0;
+        }
+
+        .socio-dialog__newsletter legend {
+            grid-column: 1 / -1;
+            margin-bottom: 0;
+        }
+
+        .socio-dialog__inner > .mb-6 {
+            margin-bottom: 0.75rem;
+        }
+    }
+
+    .socio-dialog__span-2 {
+        grid-column: span 1;
+    }
+
+    @media (min-width: 30rem) {
+        .socio-dialog__span-2 {
+            grid-column: span 2;
+        }
     }
 
     .template-page--contact .template-contact-info {

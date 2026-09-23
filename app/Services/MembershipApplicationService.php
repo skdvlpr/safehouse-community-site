@@ -81,9 +81,14 @@ class MembershipApplicationService
                     'Statuto accettato: sì.',
                     'Mission accettata: sì.',
                     'Quota: impegno al versamento.',
-                    'Newsletter: '.(($data['newsletter_consent'] ?? '0') === '1' ? 'acconsente' : 'non acconsente'),
                 ]),
             ];
+
+            $consent = $data['newsletter_consent'] ?? null;
+
+            if ($consent === '1' || $consent === '0') {
+                $payload['newsletterConsent'] = $consent === '1' ? 'Yes' : 'No';
+            }
 
             $assignedUserId = app(EspoCrmAssignedUserResolver::class)->resolveUsing($client);
 

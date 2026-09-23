@@ -51,9 +51,26 @@ class CmsPagesTest extends TestCase
             ->assertSee('Via Delleani 26, 00042 Anzio (RM)', false)
             ->assertSee(__('site.pages.contact_faq', [], 'it'), false)
             ->assertSee('safehouse-btn-primary', false)
+            ->assertSee('template-contact-faq__btn', false)
             ->assertDontSee('https://safehouse.community/it/domande-frequenti-faq', false);
+
         $this->get('/it/privacy-policy')->assertOk()->assertSee('data-page-template="legal"', false);
         $this->get('/it/cookie-policy')->assertOk();
+    }
+
+    public function test_contact_page_drops_a_cms_faq_url_that_duplicates_the_button(): void
+    {
+        Page::query()->where('key', 'contact')->update([
+            'body' => [
+                'it' => '<p>Scrivici usando il modulo in questa pagina.</p><p><strong>Domande frequenti:</strong><br><a href="https://safehouse.community/it/domande-frequenti-faq">https://safehouse.community/it/domande-frequenti-faq</a></p>',
+            ],
+        ]);
+
+        $this->get('/it/contact')
+            ->assertOk()
+            ->assertSee('Scrivici usando il modulo', false)
+            ->assertSee('template-contact-faq__btn', false)
+            ->assertDontSee('domande-frequenti-faq', false);
     }
 
     public function test_demo_landing_is_not_public(): void

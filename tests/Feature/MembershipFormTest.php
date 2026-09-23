@@ -8,6 +8,8 @@ use App\Models\Page;
 use App\Services\SiteSettingsService;
 use Database\Seeders\PageSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Tests\TestCase;
@@ -109,6 +111,82 @@ class MembershipFormTest extends TestCase
         });
 
         Mail::assertSentCount(2);
+    }
+
+    public function test_membership_lead_payload_matches_crm_contract_and_mail_survives_crm_error(): void
+    {
+        Mail::fake();
+        $this->configureSmtp();
+        config()->set('espocrm.base_url', 'https://crm.test');
+        config()->set('espocrm.api_key', 'test-espo-key');
+        config()->set('espocrm.assigned_user_id', '');
+
+        Http::fake([
+            'https://crm.test/api/v1/Lead' => Http::response(['id' => 'lead-1'], 200),
+        ]);
+
+        $this->post('/it/membership-application', $this->validPayload())
+            ->assertRedirect('/it/diventa-socio')
+            ->assertSessionHas('membership_success');
+
+        Http::assertSent(function (Request $request): bool {
+            if ($request->method() !== 'POST' || ! str_ends_with($request->url(), '/api/v1/Lead')) {
+                return false;
+            }
+
+            $body = $request->data();
+
+            $this->assertSame(['MemberContact'], $body['contactType']);
+            $this->assertSame('Yes', $body['newsletterConsent']);
+            $this->assertSame('Italy', $body['addressCountry']);
+            $this->assertSame('Web Site', $body['source']);
+            $this->assertSame('New', $body['status']);
+            $this->assertSame('RSSMRA90E52H501X', $body['taxCode']);
+            $this->assertSame('1990-05-12', $body['birthDate']);
+            $this->assertStringNotContainsString('Newsletter', $body['description']);
+            $this->assertStringNotContainsString('acconsente', $body['description']);
+
+            foreach ([
+                'admissionBoardDate',
+                'admissionOutcome',
+                'memberBookNumber',
+                'admissionFeePaid',
+                'admissionReceiptNumber',
+                'admissionForm',
+                'contractType',
+                'personnelStatus',
+            ] as $forbidden) {
+                $this->assertArrayNotHasKey($forbidden, $body);
+            }
+
+            return true;
+        });
+
+        Http::assertNotSent(fn (Request $request): bool => str_contains($request->url(), '/api/v1/Contact'));
+
+        Mail::assertSentCount(2);
+
+        Http::fake([
+            'https://crm.test/api/v1/Lead' => Http::response(['message' => 'no'], 422),
+        ]);
+
+        $payload = $this->validPayload();
+        $payload['email'] = 'other@example.com';
+        $payload['newsletter_consent'] = '0';
+
+        $this->post('/it/membership-application', $payload)
+            ->assertRedirect('/it/diventa-socio')
+            ->assertSessionHas('membership_success');
+
+        Http::assertSent(function (Request $request): bool {
+            if (! str_ends_with($request->url(), '/api/v1/Lead')) {
+                return false;
+            }
+
+            return ($request->data()['newsletterConsent'] ?? null) === 'No';
+        });
+
+        Mail::assertSentCount(4);
     }
 
     public function test_english_membership_submit_keeps_staff_italian_and_applicant_english(): void
