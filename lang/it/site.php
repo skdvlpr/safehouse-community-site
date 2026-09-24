@@ -203,6 +203,8 @@ return [
     'pages' => [
         'about_values_heading' => 'I nostri valori',
         'services_tagline' => 'Interveniamo con servizi integrati per rispondere alle emergenze e accompagnare percorsi di autonomia e dignità.',
+        'faq_title' => 'Domande frequenti',
+        'faq_tagline' => 'Risposte a tutte le domande frequenti, raccolte qui.',
         'legal_lead' => 'Informativa Safe House ETS (GDPR / ePrivacy).',
         'legal_document' => 'Documento legale',
         'legal_updated' => 'Aggiornato: :date',

@@ -6,7 +6,7 @@
 
 **Status**: Draft. Specified only. Implement one spec at a time and stop for owner testing. Diventa socio is out of scope.
 
-**Input**: Owner 2026-09-25. The FAQ page heading becomes Domande frequenti | Risposte alle domande più comuni. The public title is Domande frequenti, not FAQ. The red label above the title is removed. Existing answers stay.
+**Input**: Owner 2026-09-25. The FAQ page heading becomes Domande frequenti | Risposte a tutte le domande frequenti, raccolte qui. The public title on this page is Domande frequenti, not FAQ. The red label above the title is removed. Existing answers stay. English uses the same shape with the same meaning, long enough to fill the line. Diventa socio is not changed, including its FAQ link.
 
 ## User Scenarios & Testing *(mandatory)*
 

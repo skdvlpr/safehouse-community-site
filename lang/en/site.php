@@ -203,6 +203,8 @@ return [
     'pages' => [
         'about_values_heading' => 'Our values',
         'services_tagline' => 'We step in with integrated services to meet emergencies and support paths of autonomy and dignity.',
+        'faq_title' => 'Frequently asked questions',
+        'faq_tagline' => 'Answers to all the questions people ask most often, gathered here.',
         'legal_lead' => 'Notice for Safe House ETS (GDPR / ePrivacy).',
         'legal_document' => 'Legal document',
         'legal_updated' => 'Updated: :date',
