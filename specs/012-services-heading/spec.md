@@ -6,7 +6,7 @@
 
 **Status**: Draft. Specified only. Implement one spec at a time and stop for owner testing. Diventa socio is out of scope.
 
-**Input**: Owner 2026-09-25. Servizi uses the Chi siamo heading: Servizi | Griglia servizi. The red label above the title is removed. Existing body text stays. Diventa socio is not changed.
+**Input**: Owner 2026-09-25, wording confirmed the same day. Servizi uses the Chi siamo heading. Title: Servizi. Tagline: Interveniamo con servizi integrati per rispondere alle emergenze e accompagnare percorsi di autonomia e dignità. The red label and the red panel behind the title are removed. The title sits outside that panel. The rest of the page, including other pages' red labels, stays. Service cards enter the same way as the membership cards: they slide in from the left and the right as they come into view. People who prefer less motion see the cards already in place. Diventa socio is not changed. English uses the same shape with the same meaning.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -28,7 +28,7 @@ A visitor on the Italian page, and the English page when it exists, sees the hea
 
 - English uses the same structure with an English tagline of the same meaning.
 - Sentences the owner did not mention stay on the page.
-- Reduced motion does not hide the heading.
+- Reduced motion does not hide the heading or the service cards.
 
 ## Requirements *(mandatory)*
 
@@ -38,6 +38,7 @@ A visitor on the Italian page, and the English page when it exists, sees the hea
 - **FR-002**: The page MUST keep every sentence the owner did not ask to replace.
 - **FR-003**: Any layout change in the input MUST apply on a wide screen and MUST remain usable on a phone.
 - **FR-004**: Diventa socio MUST NOT change.
+- **FR-005**: Service cards MUST slide in from alternating sides as they enter view, the same entrance as the membership cards. Visitors who prefer reduced motion MUST see every card in place and readable.
 
 ## Success Criteria *(mandatory)*
 

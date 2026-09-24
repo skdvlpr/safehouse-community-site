@@ -722,20 +722,25 @@ html[data-theme='light'] {
         backdrop-filter: blur(14px);
     }
 
+    .template-page--services {
+        --landing-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
     .template-services-grid {
         @apply grid gap-6 md:grid-cols-2;
+        overflow: clip;
     }
 
     .template-page--services .template-service-card {
         @apply relative overflow-hidden rounded-2xl border p-6 backdrop-blur-md md:p-8;
     }
 
-    .template-page--services .template-service-card:nth-child(odd) {
+    .template-page--services .landing-reveal:nth-child(odd) .template-service-card {
         background: var(--safehouse-accent-panel-bg);
         border-color: var(--safehouse-accent-panel-border);
     }
 
-    .template-page--services .template-service-card:nth-child(even) {
+    .template-page--services .landing-reveal:nth-child(even) .template-service-card {
         background-color: var(--safehouse-glass-bg);
         border-color: var(--safehouse-glass-border);
     }
