@@ -6,6 +6,7 @@ use App\Filament\Resources\PageResource\Actions\PreviewPageAction;
 use App\Filament\Resources\PageResource\Pages;
 use App\Filament\Resources\PageResource\Support\PageTemplateFormFields;
 use App\Filament\Support\CarouselFormFields;
+use App\Filament\Support\SeoFields;
 use App\Filament\Support\CmsLocaleTabs;
 use App\Models\Page;
 use App\Models\User;
@@ -97,6 +98,8 @@ class PageResource extends Resource
                 Toggle::make('is_published')
                     ->label(__('cms.fields.published'))
                     ->default(true),
+
+                SeoFields::pageSection(),
 
                 Section::make(__('cms.sections.hero_carousel'))
                     ->description(__('cms.helpers.hero_carousel'))

@@ -78,6 +78,8 @@ return [
         'value' => 'Value',
         'label_locale' => 'Label (:locale)',
         'title_locale' => 'Title (:locale)',
+        'seo_title' => 'Search title (:locale)',
+        'seo_description' => 'Search description (:locale)',
         'body_locale' => 'Body (:locale)',
         'stats_locale' => 'Stats line (:locale)',
         'cards' => 'Cards',
@@ -189,6 +191,7 @@ return [
     ],
     'sections' => [
         'translations' => 'Translations',
+        'search' => 'Search',
         'photo_carousel' => 'Photo carousel',
         'hero_carousel' => 'Hero carousel',
         'service_cards' => 'Service cards',

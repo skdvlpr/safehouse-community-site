@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Concerns;
 
 use App\Enums\ArticleSection;
 use App\Filament\Support\CarouselFormFields;
+use App\Filament\Support\SeoFields;
 use App\Filament\Support\CmsLocaleTabs;
 use App\Models\ArticleCategory;
 use Filament\Forms\Components\DateTimePicker;
@@ -97,6 +98,8 @@ trait ConfiguresArticleResourceForm
                 )
                 ->columnSpanFull()
                 ->collapsed(),
+
+            SeoFields::section('seo'),
 
             Tabs::make(__('cms.sections.translations'))
                 ->tabs($tabs)

@@ -1,7 +1,7 @@
-# Specification Quality Checklist: Public SEO foundation
+# Specification Quality Checklist: Public RUNTS registry copy
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 2026-09-13
+**Created**: 2026-09-24
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -31,5 +31,6 @@
 
 ## Notes
 
-- Validation 2026-09-13: pass. Discovery metadata only; landing copy stays in 004.
-- 2026-09-24: Owner closed the previous-queue UAT. `/speckit-plan` is allowed. Plan notes live in [research.md](../research.md).
+- Validation passed on the first pass (2026-09-24).
+- Signed containers and rotated statute pages are recorded as source constraints and a visitor-facing readability outcome. Preparation method is left to planning.
+- Spec only. Planning and implementation wait for the owner.

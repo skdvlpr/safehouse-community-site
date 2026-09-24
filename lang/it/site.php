@@ -25,6 +25,14 @@ return [
     'layout' => [
         'title_suffix' => '— Safe House',
     ],
+    'discovery' => [
+        'donations_title' => 'Donazioni',
+        'donations_description' => 'Sostieni i progetti con una donazione online o il 5 per mille.',
+        'five_per_mille_title' => '5 per mille',
+        'five_per_mille_description' => 'Dona il 5 per mille a Safe House ETS. Codice fiscale 96629270586.',
+        'volunteer_title' => 'Diventa volontario',
+        'volunteer_description' => 'Unisciti come volontario. Leggi cosa serve e invia la domanda.',
+    ],
     'org' => [
         'legal_seat_label' => 'Sede legale',
         'legal_seat' => 'Via Delleani 26, 00042 Anzio (RM)',

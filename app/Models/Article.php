@@ -38,6 +38,7 @@ class Article extends Model
         'excerpt',
         'body',
         'meta',
+        'seo',
         'is_published',
         'published_at',
     ];
@@ -53,6 +54,7 @@ class Article extends Model
             'show_author' => 'boolean',
             'published_at' => 'datetime',
             'meta' => 'array',
+            'seo' => 'array',
         ];
     }
 

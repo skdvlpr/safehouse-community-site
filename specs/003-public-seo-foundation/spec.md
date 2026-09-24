@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-13
 
-**Status**: Draft
+**Status**: Planned (2026-09-24). Design is in [plan.md](./plan.md). Implement waits for tasks and an owner yes.
 
 **Queue**: S02b (split from constitution S02)
 
@@ -107,3 +107,4 @@ Italian and English versions of the same content declare themselves as language 
 
 - 2026-09-13: Initial specification (S02 split; discovery only).
 - 2026-09-13: 001.1 remap — public locales it+en only.
+- 2026-09-24: Plan. Thank-you stays out of the index; campaign privacy is indexed only while the campaign is active. Search text never falls back to the other locale. See [research.md](./research.md).

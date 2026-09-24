@@ -25,6 +25,14 @@ return [
     'layout' => [
         'title_suffix' => '— Safe House',
     ],
+    'discovery' => [
+        'donations_title' => 'Donations',
+        'donations_description' => 'Support the projects with an online donation or the 5 per mille.',
+        'five_per_mille_title' => '5 per mille',
+        'five_per_mille_description' => 'Give your 5 per mille to Safe House ETS. Fiscal code 96629270586.',
+        'volunteer_title' => 'Become a volunteer',
+        'volunteer_description' => 'Join as a volunteer. See what is involved and send your application.',
+    ],
     'org' => [
         'legal_seat_label' => 'Registered office',
         'legal_seat' => 'Via Delleani 26, 00042 Anzio (RM)',

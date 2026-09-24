@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\DonationCampaignResource\Pages;
 use App\Filament\Support\CmsLocaleTabs;
+use App\Filament\Support\SeoFields;
 use App\Models\DonationCampaign;
 use App\Models\User;
 use BackedEnum;
@@ -91,6 +92,7 @@ class DonationCampaignResource extends Resource
 
         return $schema->schema([
             Tabs::make(__('cms.sections.translations'))->tabs($tabs)->columnSpanFull(),
+            SeoFields::section('seo'),
             TagsInput::make('preset_amounts')
                 ->label(__('cms.fields.preset_amounts'))
                 ->placeholder('5, 10, 25, 50')

@@ -44,6 +44,7 @@ class DonationCampaign extends Model
         'espocrm_finanziamento_name',
         'is_active',
         'sort_order',
+        'seo',
     ];
 
     /**
@@ -56,6 +57,7 @@ class DonationCampaign extends Model
             'allow_custom_amount' => 'boolean',
             'allows_recurring' => 'boolean',
             'is_active' => 'boolean',
+            'seo' => 'array',
         ];
     }
 

@@ -82,6 +82,8 @@ return [
         'value' => 'Valore',
         'label_locale' => 'Etichetta (:locale)',
         'title_locale' => 'Titolo (:locale)',
+        'seo_title' => 'Titolo per la ricerca (:locale)',
+        'seo_description' => 'Descrizione per la ricerca (:locale)',
         'body_locale' => 'Testo (:locale)',
         'stats_locale' => 'Riga statistiche (:locale)',
         'cards' => 'Schede',
@@ -195,6 +197,7 @@ return [
 
     'sections' => [
         'translations' => 'Traduzioni',
+        'search' => 'Ricerca',
         'photo_carousel' => 'Carosello foto',
         'hero_carousel' => 'Carosello hero',
         'service_cards' => 'Schede servizi',
