@@ -3,7 +3,7 @@
 @section('title', $title)
 
 @section('content')
-    <x-page-template-shell :page="$page">
+    <x-page-template-shell :page="$page" class="motion-enter">
         <div class="template-legal-hero template-legal-column safehouse-glass">
             @include('pages.partials.section-label', [
                 'page' => $page,

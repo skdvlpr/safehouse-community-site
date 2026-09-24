@@ -160,6 +160,28 @@ function bindCookieConsent() {
             return;
         }
 
+        const bannerLang = target.closest('[data-banner-lang]');
+
+        if (bannerLang) {
+            event.preventDefault();
+            const lang = bannerLang.getAttribute('data-banner-lang');
+            banner.querySelectorAll('[data-banner-text]').forEach((node) => {
+                const next = node.getAttribute(`data-text-${lang}`);
+                if (typeof next === 'string') {
+                    node.textContent = next;
+                }
+            });
+            banner.querySelectorAll('[data-banner-lang]').forEach((button) => {
+                if (button.getAttribute('data-banner-lang') === lang) {
+                    button.setAttribute('aria-current', 'true');
+                } else {
+                    button.removeAttribute('aria-current');
+                }
+            });
+
+            return;
+        }
+
         const dismiss = target.closest('[data-cookie-dismiss]');
         const acceptAll = target.closest('[data-cookie-accept-all]');
         const essentialOnly = target.closest('[data-cookie-essential-only]');

@@ -1,4 +1,4 @@
-<section class="home-manifesto mb-6 md:mb-10" aria-labelledby="home-manifesto-quote">
+<section class="home-manifesto mb-4 md:mb-6" aria-labelledby="home-manifesto-quote">
     <div class="home-manifesto__inner">
         <div class="home-manifesto__quotes" aria-hidden="true">
             <span class="home-manifesto__quote-mark home-manifesto__quote-mark--open">&ldquo;</span>

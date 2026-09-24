@@ -21,7 +21,11 @@ final class CmsHtml
 
         // TipTap / RichEditor already stores HTML tags.
         if (preg_match('/<[a-z!][\s\S]*>/i', $trimmed) === 1) {
-            return $content;
+            return (string) preg_replace(
+                '/<table\b[^>]*>.*?<\/table>/is',
+                '<div class="prose-table-scroll">$0</div>',
+                $content,
+            );
         }
 
         return nl2br(e($content));

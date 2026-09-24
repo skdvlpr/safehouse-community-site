@@ -3,13 +3,10 @@
 return [
 
     'header' => [
-        ['label' => 'site.nav.home', 'route' => 'home'],
         ['label' => 'site.nav.about', 'page_key' => 'about'],
         ['label' => 'site.nav.services', 'page_key' => 'services'],
-        ['label' => 'site.nav.news', 'route' => 'articles.index'],
-        ['label' => 'site.nav.editorial', 'route' => 'editorial-articles.index'],
-        ['label' => 'site.nav.five_per_mille', 'route' => 'donations.five-per-mille', 'highlight' => true],
-        ['label' => 'site.nav.donations', 'route' => 'donations.index'],
+        ['label' => 'site.home.cta_member', 'page_key' => 'diventa-socio'],
+        ['label' => 'site.volunteer.title', 'route' => 'volunteers.show'],
         ['label' => 'site.nav.contact_us', 'page_key' => 'contact'],
         ['label' => 'site.nav.other_pages', 'type' => 'pages_dropdown'],
     ],
@@ -32,6 +29,7 @@ return [
         'privacy',
         'contact',
         'cookie',
+        'diventa-socio',
     ],
 
 ];

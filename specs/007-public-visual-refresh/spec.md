@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-14
 
-**Status**: Draft
+**Status**: Superseded for public motion and layout by `010-ads-ready-refresh` (2026-09-24). Do not implement `007` separately. The public typeface change already shipped in `002.4`.
 
 **Queue**: After S04 (`006-gdpr-operational-alignment`). Do **not** implement while `001.2` or `002`–`006` are open.
 

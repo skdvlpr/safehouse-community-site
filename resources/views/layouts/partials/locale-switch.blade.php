@@ -8,11 +8,13 @@
 @if ($variant === 'banner')
     <nav class="cookie-consent__langs" aria-label="{{ __('site.locale.banner') }}">
         @foreach (['it', 'en'] as $code)
-            @if ($code === $current)
-                <span class="cookie-consent__lang" aria-current="true">{{ strtoupper($code) }}</span>
-            @else
-                <a class="cookie-consent__lang" href="{{ LocalizedUrl::forLocale($code) }}" hreflang="{{ $code }}" lang="{{ $code }}">{{ strtoupper($code) }}</a>
-            @endif
+            <button
+                type="button"
+                class="cookie-consent__lang"
+                data-banner-lang="{{ $code }}"
+                @if ($code === $current) aria-current="true" @endif
+                lang="{{ $code }}"
+            >{{ strtoupper($code) }}</button>
         @endforeach
     </nav>
 @else

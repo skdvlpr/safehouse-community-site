@@ -62,6 +62,22 @@ class NavigationMenuTest extends TestCase
             ->assertSee('/it/become-a-volunteer', false);
     }
 
+    public function test_header_is_short_and_five_banner_skips_its_own_page(): void
+    {
+        $home = $this->get('/it')->assertOk();
+        $home->assertSee('five-banner', false);
+        $home->assertSee('data-copy-codice', false);
+        $home->assertSee(__('site.home.cta_member', [], 'it'), false);
+
+        $this->get('/it/donations/5-per-thousand')
+            ->assertOk()
+            ->assertSee('five-banner', false);
+
+        $this->get('/it/diventa-socio')
+            ->assertOk()
+            ->assertSee('five-banner', false);
+    }
+
     public function test_other_pages_dropdown_is_hidden_when_no_extra_pages_exist(): void
     {
         Page::query()->whereNotIn('key', ['about', 'services', 'privacy', 'contact', 'cookie'])->delete();

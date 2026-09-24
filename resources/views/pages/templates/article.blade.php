@@ -6,7 +6,7 @@
 @section('main_class', 'mx-auto w-full max-w-3xl flex-1 px-4 py-10')
 
 @section('content')
-    <x-page-template-shell :page="$page">
+    <x-page-template-shell :page="$page" class="motion-enter">
         <div class="template-article-rail">
             @include('pages.partials.section-label', [
                 'page' => $page,

@@ -24,7 +24,7 @@
         </h1>
 
         @if ($donationSettings->localized($five, 'lead', $locale) !== '')
-            <p class="mb-8 max-w-2xl text-lg text-safehouse-muted md:text-xl">
+            <p class="mb-8 max-w-none text-lg text-safehouse-muted md:text-xl">
                 {{ $donationSettings->localized($five, 'lead', $locale) }}
             </p>
         @endif

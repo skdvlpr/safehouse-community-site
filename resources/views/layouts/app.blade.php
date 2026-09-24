@@ -34,7 +34,10 @@
         @include('layouts.partials.preview-banner')
     @endif
 
-    @include('layouts.partials.header')
+    <div class="site-top">
+        @include('layouts.partials.header')
+        @include('layouts.partials.five-per-mille-banner')
+    </div>
 
     <main class="@yield('main_class', 'site-content flex-1 py-10')">
         @yield('content')

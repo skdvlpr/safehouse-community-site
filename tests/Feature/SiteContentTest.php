@@ -12,7 +12,7 @@ class SiteContentTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_primary_tagline_is_shown_in_footer_not_as_home_manifesto(): void
+    public function test_primary_tagline_is_on_home_and_footer_keeps_dotted_slogan(): void
     {
         $this->seed(DeploySiteContentSeeder::class);
         $this->seed(PageSeeder::class);
@@ -26,6 +26,11 @@ class SiteContentTest extends TestCase
             ->assertSee($tagline, false)
             ->assertSee(__('site.footer.tagline', [], 'it'), false)
             ->assertSee('Accogliere', false)
+            ->assertSee('INCLUDERE', false);
+
+        $this->get('/it/volunteers')
+            ->assertOk()
+            ->assertDontSee($tagline, false)
             ->assertSee('INCLUDERE', false);
     }
 

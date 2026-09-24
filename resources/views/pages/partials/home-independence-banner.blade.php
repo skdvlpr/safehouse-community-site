@@ -5,7 +5,7 @@
 @endphp
 
 @if ($title !== '' || $body !== '')
-    <aside class="home-independence mb-8 md:mb-10" aria-label="{{ $title !== '' ? $title : __('site.home.independence.title') }}">
+    <aside class="home-independence mb-4 md:mb-6" aria-label="{{ $title !== '' ? $title : __('site.home.independence.title') }}">
         <div class="home-independence__panel safehouse-glass">
             <p class="home-independence__text">
                 @if ($title !== '')

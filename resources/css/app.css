@@ -31,6 +31,18 @@
     --max-width-site-content: 90rem;
 }
 
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(0.75rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
 :root,
 html[data-theme='dark'] {
     color-scheme: dark;
@@ -148,8 +160,13 @@ html[data-theme='light'] {
         font-weight: 680;
     }
 
+    .site-top {
+        @apply sticky top-0 z-50;
+    }
+
     .site-header {
         overflow: visible;
+        @apply relative z-20 border-b border-white/10 bg-safehouse-page/90 backdrop-blur-md;
     }
 
     .site-header__bar {
@@ -252,7 +269,7 @@ html[data-theme='light'] {
     }
 
     .site-footer__tagline {
-        @apply m-0 hidden min-w-0 truncate text-xs text-safehouse-muted xl:block xl:max-w-[16rem] 2xl:max-w-sm xl:text-sm;
+        @apply m-0 hidden min-w-0 whitespace-nowrap text-xs text-safehouse-muted xl:block xl:text-sm;
     }
 
     .site-footer__social {
@@ -293,6 +310,48 @@ html[data-theme='light'] {
     .site-footer__copy {
         @apply m-0 w-full text-center text-[11px] tracking-wide text-safehouse-muted/80;
         @apply md:w-auto md:shrink-0 md:text-xs md:text-end;
+    }
+
+    .site-five {
+        @apply relative z-0 border-b border-white/10 bg-safehouse-modal/25 backdrop-blur-[96px];
+    }
+
+    .site-five__inner {
+        @apply flex flex-wrap items-center justify-center gap-x-3 gap-y-1 py-1.5;
+    }
+
+    .site-five__link {
+        @apply inline-flex max-w-full flex-nowrap items-center gap-2 rounded-md px-1.5 py-0.5 no-underline transition;
+        @apply hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-safehouse-primary;
+    }
+
+    .site-five__mark {
+        @apply grid h-6 w-6 shrink-0 place-items-center rounded-full bg-safehouse-primary text-[10px] font-bold text-white sm:h-7 sm:w-7 sm:text-xs;
+    }
+
+    .site-five__text {
+        @apply m-0 inline-flex min-w-0 flex-wrap items-center gap-x-1.5 text-xs leading-none text-safehouse-muted sm:flex-nowrap sm:text-sm;
+    }
+
+    .site-five__brand {
+        @apply font-semibold text-safehouse-text;
+    }
+
+    .site-five__link:hover .site-five__brand,
+    .site-five__link:hover .site-five__mark {
+        @apply text-safehouse-link;
+    }
+
+    .site-five__link:hover .site-five__mark {
+        @apply bg-safehouse-primary-hover;
+    }
+
+    .site-five__sep {
+        @apply text-safehouse-muted/70;
+    }
+
+    .site-five__copy {
+        @apply shrink-0 cursor-pointer border-0 bg-transparent p-0 text-xs font-semibold text-safehouse-text underline-offset-2 hover:text-safehouse-link hover:underline sm:text-sm;
     }
 
     .site-donated-by {
@@ -529,11 +588,72 @@ html[data-theme='light'] {
     }
 
     .page-title {
-        @apply text-3xl font-bold tracking-tight text-safehouse-text md:text-4xl lg:text-5xl;
+        @apply text-4xl font-bold leading-[1.05] tracking-tight text-safehouse-text md:text-5xl lg:text-6xl xl:text-7xl;
     }
 
     .page-title__lead {
         @apply mt-3 max-w-3xl text-lg text-safehouse-muted;
+    }
+
+    .prose-table-scroll {
+        @apply mb-4 max-w-full overflow-x-auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .prose-table-scroll :where(table) {
+        @apply mb-0 w-max min-w-full;
+    }
+
+    .story-slider {
+        @apply rounded-2xl border border-white/15 bg-black/40 p-4 shadow-lg shadow-black/30 backdrop-blur-md sm:p-6;
+    }
+
+    .story-slider__bar {
+        @apply flex items-center gap-3;
+    }
+
+    .story-slider__viewport {
+        @apply flex min-w-0 flex-1 flex-col overflow-hidden;
+    }
+
+    .story-slider__track {
+        @apply flex gap-4 transition-transform duration-700 ease-out motion-reduce:transition-none;
+    }
+
+    .story-slider__arrow {
+        @apply grid h-12 w-12 shrink-0 place-items-center rounded-full border border-white/20 bg-black/40 text-2xl text-white;
+    }
+
+    .story-slider__links {
+        @apply mt-5 flex w-full flex-wrap items-center justify-center gap-4;
+    }
+
+    .story-slider__links a {
+        @apply min-w-56 justify-center px-8;
+    }
+
+    .story-card {
+        @apply flex h-[13.5rem] w-full shrink-0 gap-4 rounded-2xl p-4 sm:w-[calc(50%-0.5rem)];
+    }
+
+    .story-card__thumb {
+        @apply h-full max-h-40 w-28 shrink-0 rounded-lg object-cover;
+    }
+
+    .story-card__body {
+        @apply flex min-w-0 flex-1 flex-col justify-center gap-2;
+    }
+
+    .story-card__title {
+        @apply text-lg font-semibold leading-snug;
+    }
+
+    .story-card__excerpt {
+        @apply line-clamp-2 text-sm text-safehouse-muted;
+    }
+
+    .motion-enter {
+        @apply motion-safe:animate-[fade-up_0.6s_ease-out_both] motion-reduce:animate-none;
     }
 
     .photo-legible-text {
@@ -1275,7 +1395,21 @@ html[data-theme='light'] {
     }
 
     .template-page--volunteer .volunteer-page {
-        @apply mx-auto max-w-xl;
+        @apply mx-auto w-full max-w-none;
+    }
+
+    .template-page--volunteer .template-contact-form {
+        @apply md:grid md:grid-cols-2 md:gap-x-4;
+    }
+
+    .template-page--volunteer .template-contact-form__field:has(textarea),
+    .template-page--volunteer .template-contact-form__field:has(.template-contact-form__checkbox),
+    .template-page--volunteer .template-contact-form__field:has(.cf-turnstile),
+    .template-page--volunteer .volunteer-page__submit,
+    .template-page--volunteer .template-contact-form__note,
+    .template-page--volunteer .template-contact-form__success,
+    .template-page--volunteer .template-contact-form__error {
+        @apply md:col-span-2;
     }
 
     .template-page--volunteer .volunteer-page__intro {
@@ -2157,6 +2291,15 @@ html[data-theme='light'] {
         }
     }
 
+    .template-page--home .home-manifesto {
+        @apply md:py-8;
+    }
+
+    .template-page--home .story-slider,
+    .template-page--home .home-independence {
+        @apply mb-4 md:mb-6;
+    }
+
     .home-manifesto {
         @apply relative overflow-hidden rounded-2xl px-5 py-7 text-center md:px-14 md:py-20;
         background: var(--safehouse-manifesto-veil);
@@ -2410,6 +2553,7 @@ html[data-theme='light'] .template-page--landing .template-landing-hero,
 html[data-theme='light'] .template-contact-aside,
 html[data-theme='light'] .template-page--contact .template-contact-info,
 html[data-theme='light'] .site-header,
+html[data-theme='light'] .site-five,
 html[data-theme='light'] .site-footer,
 html[data-theme='light'] .social-links__item {
     border-color: var(--safehouse-glass-border);

@@ -8,7 +8,7 @@
 @section('title', $title)
 
 @section('content')
-    <x-page-template-shell :page="$page">
+    <x-page-template-shell :page="$page" class="motion-enter">
         @include('pages.partials.section-label', [
             'page' => $page,
             'locale' => $locale,

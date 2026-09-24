@@ -3,6 +3,7 @@
 @section('title', __('site.donations.index_title'))
 
 @section('content')
+    <div class="motion-enter">
     @php
         $locale = app()->getLocale();
         $five = $donationSettings->fivePerMille();
@@ -72,5 +73,6 @@
         @empty
             <p class="photo-legible-text text-safehouse-muted">{{ __('site.donations.none_active') }}</p>
         @endforelse
+    </div>
     </div>
 @endsection

@@ -25,7 +25,7 @@ class SiteLayoutTest extends TestCase
             ->assertSee('Safe House', false)
             ->assertSee('/en', false)
             ->assertDontSee('/ru', false)
-            ->assertSee(__('site.nav.donations', [], 'it'), false)
+            ->assertSee(__('site.nav.donate', [], 'it'), false)
             ->assertSee(__('site.nav.contact_us', [], 'it'), false)
             ->assertSee('/it/contact', false);
     }
@@ -41,7 +41,8 @@ class SiteLayoutTest extends TestCase
             ->assertOk()
             ->assertSee('images/logo.png', false)
             ->assertSee('Safe House', false)
-            ->assertSee(__('site.footer.tagline', [], 'it'), false);
+            ->assertSee('INCLUDERE', false)
+            ->assertDontSee(__('site.footer.tagline', [], 'it'), false);
     }
 
     public function test_locale_switcher_preserves_path(): void

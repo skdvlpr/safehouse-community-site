@@ -19,15 +19,15 @@
         $communityTagline = __('site.footer.tagline');
     @endphp
 
-    <x-page-template-shell :page="$page">
-        <section class="safehouse-glass mb-10 rounded-2xl p-8 md:p-12">
+    <x-page-template-shell :page="$page" class="motion-enter">
+        <section class="safehouse-glass mb-4 rounded-2xl p-5 md:mb-6 md:p-8 lg:p-10">
             @if ($eyebrow)
                 <p class="mb-3 text-sm font-medium uppercase tracking-wider text-safehouse-primary">
                     {{ $eyebrow }}
                 </p>
             @endif
 
-            <h1 class="mb-3 max-w-3xl text-3xl font-semibold tracking-tight md:text-4xl lg:text-5xl">
+            <h1 class="mb-3 text-3xl font-semibold tracking-tight md:text-5xl lg:text-6xl">
                 {{ $title }}
             </h1>
 
@@ -40,17 +40,17 @@
             @include('pages.partials.page-carousel', ['page' => $page])
 
             <div class="flex flex-wrap items-center gap-3">
-                <a href="{{ route('donations.index', ['locale' => $locale]) }}" class="safehouse-btn-primary">
+                @if ($memberUrl)
+                    <a href="{{ $memberUrl }}" class="safehouse-btn-primary">
+                        {{ $ctaMember }}
+                    </a>
+                @endif
+                <a href="{{ route('donations.index', ['locale' => $locale]) }}" class="safehouse-btn-secondary">
                     {{ $ctaDonate }}
                 </a>
                 <a href="{{ route('volunteers.show', ['locale' => $locale]) }}" class="safehouse-btn-secondary">
                     {{ $ctaVolunteer }}
                 </a>
-                @if ($memberUrl)
-                    <a href="{{ $memberUrl }}" class="safehouse-btn-secondary">
-                        {{ $ctaMember }}
-                    </a>
-                @endif
                 <a href="{{ $contactUrl }}" class="safehouse-btn-secondary">
                     {{ $ctaContact }}
                 </a>
@@ -58,6 +58,8 @@
         </section>
 
         @include('pages.partials.home-manifesto-banner')
+
+        @include('pages.partials.latest-stories', ['latestStories' => $latestStories ?? [], 'locale' => $locale])
 
         @include('pages.partials.home-independence-banner', ['locale' => $locale])
 

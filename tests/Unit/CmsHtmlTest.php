@@ -26,6 +26,14 @@ class CmsHtmlTest extends TestCase
     }
 
     #[Test]
+    public function it_wraps_tables_for_sideways_scroll(): void
+    {
+        $html = '<table><tr><td>Cookie</td></tr></table>';
+
+        $this->assertStringContainsString('prose-table-scroll', CmsHtml::render($html));
+    }
+
+    #[Test]
     public function it_returns_empty_for_blank(): void
     {
         $this->assertSame('', CmsHtml::render(null));

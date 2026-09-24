@@ -3,7 +3,6 @@
 
     $locale = app()->getLocale();
     $footerItems = config('navigation.footer', []);
-    $primaryTagline = app(\App\Services\SiteContentService::class)->primaryTagline($locale);
 @endphp
 
 <footer class="site-footer">
@@ -15,9 +14,15 @@
                 'wordmarkClass' => 'brand-wordmark--footer',
             ])
 
-            @if ($primaryTagline !== '')
-                <p class="site-footer__tagline">{{ $primaryTagline }}</p>
-            @endif
+            <p class="site-footer__tagline">
+                {{ __('site.home.manifesto.slogan.welcome') }}
+                ·
+                <strong>{{ __('site.home.manifesto.slogan.include') }}</strong>
+                ·
+                {{ __('site.home.manifesto.slogan.change') }}
+                ·
+                <strong>{{ __('site.home.manifesto.slogan.smile') }}</strong>
+            </p>
         </div>
 
         <div class="site-footer__social">

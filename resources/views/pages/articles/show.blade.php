@@ -12,7 +12,7 @@
 @section('title', $title)
 
 @section('content')
-    <article class="article-show">
+    <article class="article-show motion-enter">
         <a href="{{ route($indexRoute ?? 'articles.index', ['locale' => $locale]) }}"
            class="article-show__back safehouse-glass mb-6 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition">
             <span aria-hidden="true">←</span>

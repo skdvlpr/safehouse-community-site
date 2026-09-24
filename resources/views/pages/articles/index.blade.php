@@ -3,6 +3,7 @@
 @section('title', __('site.pages.news_title'))
 
 @section('content')
+    <div class="motion-enter">
     @include('pages.partials.page-header', [
         'title' => __('site.pages.news_title'),
         'lead' => __('site.pages.news_lead'),
@@ -46,4 +47,5 @@
             {{ $articles->links() }}
         </div>
     @endif
+    </div>
 @endsection

@@ -5,7 +5,7 @@
     $navItems = config('navigation.header', []);
 @endphp
 
-<header class="site-header sticky top-0 z-50 border-b border-white/10 bg-safehouse-page/90 backdrop-blur-md">
+<header class="site-header">
     <div class="site-content site-header__bar">
         @include('layouts.partials.brand-mark', [
             'locale' => $locale,

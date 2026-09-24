@@ -1,7 +1,7 @@
-# Specification Quality Checklist: Home first screen and shorter menu
+# Specification Quality Checklist: Services heading
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 2026-09-24
+**Created**: 2026-09-25
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -31,4 +31,4 @@
 
 ## Notes
 
-- Specified only. No layout and no video. Do not implement in the `003` deploy.
+- Passed 2026-09-25. One page. Stop after implement for owner test.
