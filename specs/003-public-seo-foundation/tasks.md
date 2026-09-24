@@ -17,7 +17,7 @@
 
 **Purpose**: Staff labels for the new fields
 
-- [ ] T001 [P] Add Italian and English CMS labels for search title (max 70 characters) and search description (max 160 characters) in `lang/it/cms.php` and `lang/en/cms.php`. Cite [Filament text input](https://filamentphp.com/docs/4.x/forms/text-input). (test: no; C2; model: inherit)
+- [x] T001 [P] Add Italian and English CMS labels for search title (max 70 characters) and search description (max 160 characters) in `lang/it/cms.php` and `lang/en/cms.php`. Cite [Filament text input](https://filamentphp.com/docs/4.x/forms/text-input). (test: no; C2; model: inherit)
 
 ---
 
@@ -27,8 +27,8 @@
 
 **⚠️ CRITICAL**: No user story work until this phase is complete
 
-- [ ] T002 Add a nullable JSON `seo` column on `articles` and `donation_campaigns` in `database/migrations/`, and cast `seo` to array on `app/Models/Article.php` and `app/Models/DonationCampaign.php`. Shape: `{"title":{"it":"","en":""},"description":{"it":"","en":""}}`. Cite [laravel-translatable](https://spatie.be/docs/laravel-translatable/v6/introduction). (test: no — exercised by T004/T009; C3; model: inherit)
-- [ ] T003 Implement `app/Support/DiscoveryText.php`. Read only the requested locale. Title: override, else visible title, else the route's existing lang string. Description: override, else excerpt or first plain-text body paragraph, else the existing lead; strip tags; cut at about 160 characters on a word boundary. Never call `PageService::localizedMeta` and never use the other locale. Page overrides live in `meta.seo_title.{locale}` and `meta.seo_description.{locale}` (max 70 / max 160). Article and campaign overrides live in `seo`. (test: yes — T004; C6; model: inherit)
+- [x] T002 Add a nullable JSON `seo` column on `articles` and `donation_campaigns` in `database/migrations/`, and cast `seo` to array on `app/Models/Article.php` and `app/Models/DonationCampaign.php`. Shape: `{"title":{"it":"","en":""},"description":{"it":"","en":""}}`. Cite [laravel-translatable](https://spatie.be/docs/laravel-translatable/v6/introduction). (test: no — exercised by T004/T009; C3; model: inherit)
+- [x] T003 Implement `app/Support/DiscoveryText.php`. Read only the requested locale. Title: override, else visible title, else the route's existing lang string. Description: override, else excerpt or first plain-text body paragraph, else the existing lead; strip tags; cut at about 160 characters on a word boundary. Never call `PageService::localizedMeta` and never use the other locale. Page overrides live in `meta.seo_title.{locale}` and `meta.seo_description.{locale}` (max 70 / max 160). Article and campaign overrides live in `seo`. (test: yes — T004; C6; model: inherit)
 
 **Checkpoint**: Helper returns same-locale text for a page, an article, and a campaign
 
@@ -42,14 +42,14 @@
 
 ### Tests for User Story 1
 
-- [ ] T004 [US1] Write failing feature tests in `tests/Feature/DiscoveryHeadTest.php`: editor override is rendered; empty English description does not contain the Italian override; home and one CMS page do not share the same description. Cite [Laravel testing](https://laravel.com/docs/13.x/testing). (test: yes; C4; model: inherit)
+- [x] T004 [US1] Write failing feature tests in `tests/Feature/DiscoveryHeadTest.php`: editor override is rendered; empty English description does not contain the Italian override; home and one CMS page do not share the same description. Cite [Laravel testing](https://laravel.com/docs/13.x/testing). (test: yes; C4; model: inherit)
 
 ### Implementation for User Story 1
 
-- [ ] T005 [P] [US1] Add Filament `TextInput` fields `meta.seo_title.{locale}` `maxLength(70)` and `meta.seo_description.{locale}` `maxLength(160)` in `app/Filament/Resources/PageResource.php`. Cite [Filament text input](https://filamentphp.com/docs/4.x/forms/text-input). (test: yes — T004; C3; model: inherit)
-- [ ] T006 [P] [US1] Add the same limits on `seo.title.{locale}` and `seo.description.{locale}` in `app/Filament/Resources/ArticleResource.php` and `app/Filament/Resources/EditorialArticleResource.php`. (test: yes — T004; C3; model: inherit)
-- [ ] T007 [P] [US1] Add the same limits on `seo.title.{locale}` and `seo.description.{locale}` in `app/Filament/Resources/DonationCampaignResource.php`. (test: yes — T004; C3; model: inherit)
-- [ ] T008 [US1] Render the discovery title (plus the existing `— Safe House` suffix) and `<meta name="description">` from `resources/views/layouts/partials/discovery-head.blade.php`, included by `resources/views/layouts/app.blade.php` through `@stack('head')`. Cite [Laravel Blade](https://laravel.com/docs/13.x/blade). (test: yes — T004; C4; model: inherit)
+- [x] T005 [P] [US1] Add Filament `TextInput` fields `meta.seo_title.{locale}` `maxLength(70)` and `meta.seo_description.{locale}` `maxLength(160)` in `app/Filament/Resources/PageResource.php`. Cite [Filament text input](https://filamentphp.com/docs/4.x/forms/text-input). (test: yes — T004; C3; model: inherit)
+- [x] T006 [P] [US1] Add the same limits on `seo.title.{locale}` and `seo.description.{locale}` in `app/Filament/Resources/ArticleResource.php` and `app/Filament/Resources/EditorialArticleResource.php`. (test: yes — T004; C3; model: inherit)
+- [x] T007 [P] [US1] Add the same limits on `seo.title.{locale}` and `seo.description.{locale}` in `app/Filament/Resources/DonationCampaignResource.php`. (test: yes — T004; C3; model: inherit)
+- [x] T008 [US1] Render the discovery title (plus the existing `— Safe House` suffix) and `<meta name="description">` from `resources/views/layouts/partials/discovery-head.blade.php`, included by `resources/views/layouts/app.blade.php` through `@stack('head')`. Cite [Laravel Blade](https://laravel.com/docs/13.x/blade). (test: yes — T004; C4; model: inherit)
 
 **Checkpoint**: US1 passes `DiscoveryHeadTest` without alternates or sitemap
 
@@ -63,12 +63,12 @@
 
 ### Tests for User Story 2
 
-- [ ] T009 [US2] Write failing feature tests in `tests/Feature/SitemapTest.php` for those inclusions and exclusions, including campaign privacy only while the campaign is active. Cite [Laravel testing](https://laravel.com/docs/13.x/testing). (test: yes; C4; model: inherit)
+- [x] T009 [US2] Write failing feature tests in `tests/Feature/SitemapTest.php` for those inclusions and exclusions, including campaign privacy only while the campaign is active. Cite [Laravel testing](https://laravel.com/docs/13.x/testing). (test: yes; C4; model: inherit)
 
 ### Implementation for User Story 2
 
-- [ ] T010 [US2] Serve `GET /sitemap.xml` from `app/Http/Controllers/SitemapController.php` and `routes/web.php` (outside the locale prefix). `Content-Type: application/xml; charset=UTF-8`. Include published CMS pages that have that locale's title (membership, cookie, privacy included when published), both locales of home, donations index, 5×1000, volunteer, news index, editorial index, published news and editorial articles, and active campaign plus privacy URLs. `lastmod` from `updated_at` as `Y-m-d` when present. Cite [Laravel routing](https://laravel.com/docs/13.x/routing) and [Laravel responses](https://laravel.com/docs/13.x/responses). (test: yes — T009; C5; model: inherit)
-- [ ] T011 [US2] Replace `public/robots.txt` with `GET /robots.txt` in `app/Http/Controllers/RobotsController.php` and `routes/web.php`. Body allows crawling and prints `Sitemap:` plus the absolute sitemap URL. Cite [Laravel routing](https://laravel.com/docs/13.x/routing). (test: yes — T009; C3; model: inherit)
+- [x] T010 [US2] Serve `GET /sitemap.xml` from `app/Http/Controllers/SitemapController.php` and `routes/web.php` (outside the locale prefix). `Content-Type: application/xml; charset=UTF-8`. Include published CMS pages that have that locale's title (membership, cookie, privacy included when published), both locales of home, donations index, 5×1000, volunteer, news index, editorial index, published news and editorial articles, and active campaign plus privacy URLs. `lastmod` from `updated_at` as `Y-m-d` when present. Cite [Laravel routing](https://laravel.com/docs/13.x/routing) and [Laravel responses](https://laravel.com/docs/13.x/responses). (test: yes — T009; C5; model: inherit)
+- [x] T011 [US2] Replace `public/robots.txt` with `GET /robots.txt` in `app/Http/Controllers/RobotsController.php` and `routes/web.php`. Body allows crawling and prints `Sitemap:` plus the absolute sitemap URL. Cite [Laravel routing](https://laravel.com/docs/13.x/routing). (test: yes — T009; C3; model: inherit)
 
 **Checkpoint**: US2 passes `SitemapTest` without Open Graph
 
@@ -82,13 +82,13 @@
 
 ### Tests for User Story 3
 
-- [ ] T012 [US3] Extend `tests/Feature/DiscoveryHeadTest.php` for canonical, `hreflang` it/en only, no `ru`, `og:title` / `og:description` / `og:locale`, preview `<meta name="robots" content="noindex, nofollow">`, and thank-you noindex. (test: yes; C4; model: inherit)
+- [x] T012 [US3] Extend `tests/Feature/DiscoveryHeadTest.php` for canonical, `hreflang` it/en only, no `ru`, `og:title` / `og:description` / `og:locale`, preview `<meta name="robots" content="noindex, nofollow">`, and thank-you noindex. (test: yes; C4; model: inherit)
 
 ### Implementation for User Story 3
 
-- [ ] T013 [US3] Add canonical, alternate links, and Open Graph tags to `resources/views/layouts/partials/discovery-head.blade.php`. Alternates only when that locale has its own title. `og:image` is the first existing carousel or background image, otherwise `images/logo.png`. `og:locale` is `it_IT` or `en_US`. Cite [Laravel Blade](https://laravel.com/docs/13.x/blade). (test: yes — T012; C4; model: inherit)
-- [ ] T014 [US3] Keep `X-Robots-Tag: noindex, nofollow` and ensure the meta robots tag is present for previews in `app/Http/Controllers/PageController.php`, `app/Http/Controllers/ArticleController.php`, and `app/Http/Controllers/EditorialArticleController.php`. (test: yes — T012; C3; model: inherit)
-- [ ] T015 [US3] Mark donation thank-you `noindex, nofollow` in `app/Http/Controllers/DonationCampaignController.php` and keep it out of the sitemap built in `app/Http/Controllers/SitemapController.php`. (test: yes — T009 and T012; C3; model: inherit)
+- [x] T013 [US3] Add canonical, alternate links, and Open Graph tags to `resources/views/layouts/partials/discovery-head.blade.php`. Alternates only when that locale has its own title. `og:image` is the first existing carousel or background image, otherwise `images/logo.png`. `og:locale` is `it_IT` or `en_US`. Cite [Laravel Blade](https://laravel.com/docs/13.x/blade). (test: yes — T012; C4; model: inherit)
+- [x] T014 [US3] Keep `X-Robots-Tag: noindex, nofollow` and ensure the meta robots tag is present for previews in `app/Http/Controllers/PageController.php`, `app/Http/Controllers/ArticleController.php`, and `app/Http/Controllers/EditorialArticleController.php`. (test: yes — T012; C3; model: inherit)
+- [x] T015 [US3] Mark donation thank-you `noindex, nofollow` in `app/Http/Controllers/DonationCampaignController.php` and keep it out of the sitemap built in `app/Http/Controllers/SitemapController.php`. (test: yes — T009 and T012; C3; model: inherit)
 
 **Checkpoint**: US3 passes the extended head test. Sitemap exclusions from US2 still pass.
 
@@ -96,7 +96,7 @@
 
 ## Phase 6: Polish
 
-- [ ] T016 Run `ddev exec ./vendor/bin/pint --dirty` and `ddev exec php artisan test`. Cite [Laravel Pint](https://laravel.com/docs/13.x/pint) and [Laravel testing](https://laravel.com/docs/13.x/testing). (test: yes; C2; model: inherit)
+- [x] T016 Run `ddev exec ./vendor/bin/pint --dirty` and `ddev exec php artisan test`. Cite [Laravel Pint](https://laravel.com/docs/13.x/pint) and [Laravel testing](https://laravel.com/docs/13.x/testing). (test: yes; C2; model: inherit)
 
 ---
 

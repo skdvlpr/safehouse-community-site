@@ -179,7 +179,7 @@ final class DiscoveryText
 
         $page = $view['page'] ?? null;
         if ($page instanceof Page) {
-            return $this->firstParagraph($this->translation($page, 'body', $locale));
+            return $this->firstParagraph($this->visiblePageHtml($page, $view, $locale));
         }
 
         return '';
@@ -196,8 +196,41 @@ final class DiscoveryText
         return is_string($value) ? trim(html_entity_decode(strip_tags($value))) : '';
     }
 
+    /**
+     * @param  array<string, mixed>  $view
+     */
+    private function visiblePageHtml(Page $page, array $view, string $locale): string
+    {
+        $body = is_string($view['body'] ?? null)
+            ? $view['body']
+            : $this->translation($page, 'body', $locale);
+
+        if (($page->template ?: 'default') === 'landing') {
+            return LandingContent::fromPage($page, $locale, $body)->intro;
+        }
+
+        if (($page->template ?: 'default') === 'contact') {
+            $body = preg_replace(
+                '#<a\b[^>]*href=(["\'])[^"\']*(?:domande-frequenti|frequently-asked)[^"\']*\1[^>]*>.*?</a>#is',
+                '',
+                $body,
+            ) ?? $body;
+            $body = preg_replace(
+                '#https?://\S*(?:domande-frequenti|frequently-asked)\S*#i',
+                '',
+                $body,
+            ) ?? $body;
+        }
+
+        return $body;
+    }
+
     private function firstParagraph(string $html): string
     {
+        if (preg_match('/<p\b[^>]*>(.*?)<\/p>/is', $html, $match) === 1) {
+            $html = $match[1];
+        }
+
         $text = trim(html_entity_decode(strip_tags(str_replace(['</p>', '<br>', '<br/>', '<br />'], "\n", $html))));
         $line = trim(strtok($text, "\n") ?: '');
 
