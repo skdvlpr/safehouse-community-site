@@ -4,8 +4,8 @@ namespace App\Filament\Resources\Concerns;
 
 use App\Enums\ArticleSection;
 use App\Filament\Support\CarouselFormFields;
-use App\Filament\Support\SeoFields;
 use App\Filament\Support\CmsLocaleTabs;
+use App\Filament\Support\SeoFields;
 use App\Models\ArticleCategory;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\RichEditor;

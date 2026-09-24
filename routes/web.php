@@ -8,12 +8,14 @@ use App\Http\Controllers\GdprConsentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MembershipApplicationController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\RobotsController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\VolunteerController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->to('/'.config('locales.default')));
-Route::get('/sitemap.xml', \App\Http\Controllers\SitemapController::class)->name('sitemap');
-Route::get('/robots.txt', \App\Http\Controllers\RobotsController::class)->name('robots');
+Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+Route::get('/robots.txt', RobotsController::class)->name('robots');
 
 Route::prefix('{locale}')
     ->where(['locale' => implode('|', config('locales.available'))])

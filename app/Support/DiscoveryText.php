@@ -5,7 +5,6 @@ namespace App\Support;
 use App\Models\Article;
 use App\Models\DonationCampaign;
 use App\Models\Page;
-use App\Support\PageCarousel;
 
 /**
  * Search and share text for the current public URL.
