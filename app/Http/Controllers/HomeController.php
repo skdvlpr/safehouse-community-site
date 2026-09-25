@@ -6,6 +6,7 @@ use App\Enums\ArticleSection;
 use App\Models\Article;
 use App\Services\PageService;
 use App\Support\PageCarousel;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -40,6 +41,10 @@ class HomeController extends Controller
      */
     private function latestStories(string $locale): array
     {
+        if (! Schema::hasTable('articles')) {
+            return [];
+        }
+
         return Article::query()
             ->with('category')
             ->where('is_published', true)
