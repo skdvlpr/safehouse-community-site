@@ -1,17 +1,35 @@
 @extends('layouts.app')
 
-@section('title', $title)
+@php
+    $isTransparency = ($page->key ?? '') === 'trasparenza';
+@endphp
+
+@section('title', $isTransparency ? __('site.pages.transparency_title') : $title)
 
 @section('content')
     <x-page-template-shell :page="$page" class="motion-enter">
-        <div class="template-legal-hero template-legal-column safehouse-glass">
-            @include('pages.partials.section-label', [
-                'page' => $page,
-                'locale' => $locale,
-                'fallbackKey' => 'site.pages.templates.legal',
+        @if ($isTransparency)
+            @include('pages.partials.page-header', [
+                'title' => __('site.pages.transparency_title'),
+                'lead' => __('site.pages.legal_lead'),
+                'prominent' => true,
             ])
+        @endif
 
-            @include('pages.partials.page-header', ['title' => $title, 'lead' => __('site.pages.legal_lead'), 'page' => $page])
+        <div @class([
+            'template-legal-column safehouse-glass',
+            'template-legal-doc' => $isTransparency,
+            'template-legal-hero' => ! $isTransparency,
+        ])>
+            @unless ($isTransparency)
+                @include('pages.partials.section-label', [
+                    'page' => $page,
+                    'locale' => $locale,
+                    'fallbackKey' => 'site.pages.templates.legal',
+                ])
+
+                @include('pages.partials.page-header', ['title' => $title, 'lead' => __('site.pages.legal_lead'), 'page' => $page])
+            @endunless
 
             <div class="template-legal-chips">
                 <span class="template-legal-chip">{{ __('site.pages.legal_document') }}</span>
@@ -36,10 +54,18 @@
                     <p class="cookie-page-reopen__note">{{ __('site.cookie.reopen_page_note') }}</p>
                 </div>
             @endif
+
+            @if ($isTransparency)
+                <div class="safehouse-prose mt-8">
+                    {!! \App\Support\CmsHtml::render($body) !!}
+                </div>
+            @endif
         </div>
 
-        <article class="template-legal-doc template-legal-column safehouse-glass safehouse-prose">
-            {!! \App\Support\CmsHtml::render($body) !!}
-        </article>
+        @unless ($isTransparency)
+            <article class="template-legal-doc template-legal-column safehouse-glass safehouse-prose">
+                {!! \App\Support\CmsHtml::render($body) !!}
+            </article>
+        @endunless
     </x-page-template-shell>
 @endsection

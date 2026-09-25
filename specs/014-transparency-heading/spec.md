@@ -6,7 +6,7 @@
 
 **Status**: Draft. Specified only. Implement one spec at a time and stop for owner testing. Diventa socio is out of scope.
 
-**Input**: Owner 2026-09-25. Trasparenza heading is Trasparenza | Informativa Safe House ETS (GDPR / ePrivacy), in the Chi siamo bar, outside the glass text block. The two current glass blocks become one block that keeps the remaining information. The red label above the title is removed.
+**Input**: Owner 2026-09-25. Trasparenza heading is Trasparenza | Informativa Safe House ETS (GDPR / ePrivacy), in the Chi siamo bar, outside the glass text block. The two current glass blocks become one block that keeps the remaining information. The red label above the title is removed. Cookie and Privacy keep their current two blocks until their own specs.
 
 ## User Scenarios & Testing *(mandatory)*
 
