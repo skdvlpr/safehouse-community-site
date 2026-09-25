@@ -36,21 +36,40 @@
         <input id="contact-company" type="text" name="company" tabindex="-1" autocomplete="off">
     </div>
 
-    <div class="template-contact-form__field">
-        <label for="contact-name">{{ __('site.pages.contact_name') }}</label>
-        <input
-            id="contact-name"
-            type="text"
-            name="name"
-            value="{{ old('name') }}"
-            required
-            maxlength="255"
-            placeholder="{{ __('site.pages.contact_name_placeholder') }}"
-            @class(['template-contact-form__input--invalid' => $errors->has('name')])
-        >
-        @error('name')
-            <p class="template-contact-form__error">{{ $message }}</p>
-        @enderror
+    <div class="template-contact-form__row">
+        <div class="template-contact-form__field">
+            <label for="contact-name">{{ __('site.pages.contact_name') }}</label>
+            <input
+                id="contact-name"
+                type="text"
+                name="name"
+                value="{{ old('name') }}"
+                required
+                maxlength="255"
+                placeholder="{{ __('site.pages.contact_name_placeholder') }}"
+                @class(['template-contact-form__input--invalid' => $errors->has('name')])
+            >
+            @error('name')
+                <p class="template-contact-form__error">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div class="template-contact-form__field">
+            <label for="contact-last-name">{{ __('site.pages.contact_last_name') }}</label>
+            <input
+                id="contact-last-name"
+                type="text"
+                name="last_name"
+                value="{{ old('last_name') }}"
+                required
+                maxlength="255"
+                placeholder="{{ __('site.pages.contact_last_name_placeholder') }}"
+                @class(['template-contact-form__input--invalid' => $errors->has('last_name')])
+            >
+            @error('last_name')
+                <p class="template-contact-form__error">{{ $message }}</p>
+            @enderror
+        </div>
     </div>
 
     <div class="template-contact-form__field">
@@ -135,7 +154,7 @@
         <textarea
             id="contact-message"
             name="message"
-            rows="5"
+            rows="4"
             required
             maxlength="5000"
             placeholder="{{ __('site.pages.contact_message_placeholder') }}"

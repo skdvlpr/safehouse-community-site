@@ -132,9 +132,9 @@ class RecurringDonationCampaignService
                 'ru' => 'Регулярное пожертвование',
             ],
             'description' => [
-                'it' => '<p>Sostieni Safe House ogni mese con un contributo ricorrente. Puoi interrompere in qualsiasi momento tramite il portale Stripe dedicato ai donatori.</p>',
-                'en' => '<p>Support Safe House every month with a recurring gift. You can cancel anytime via the Stripe donor portal.</p>',
-                'ru' => '<p>Поддерживайте Safe House ежемесячно. Отменить можно в любой момент через портал Stripe для доноров.</p>',
+                'it' => '',
+                'en' => '',
+                'ru' => '',
             ],
             'form_notice' => [
                 'it' => 'Questa campagna accetta donazioni ricorrenti. Prima di confermare ti spiegheremo come disdire.',

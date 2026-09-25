@@ -33,22 +33,53 @@
             'align' => 'center',
         ])
 
-        <div class="grid gap-8 lg:grid-cols-2">
+        <div class="grid items-stretch gap-8 lg:grid-cols-2">
             <article class="template-contact-info safehouse-glass safehouse-prose">
-                {!! \App\Support\CmsHtml::render(is_string($contactBody) ? $contactBody : $body) !!}
-
-                <div class="template-contact-seat">
-                    <p><strong>{{ __('site.org.legal_seat_label') }}</strong><br>{{ __('site.org.legal_seat') }}</p>
-                    <p>{{ __('site.org.runts') }}</p>
-                    <p>{{ __('site.org.fiscal_code') }}</p>
-                    <p><strong>{{ __('site.org.operative_seat_label') }}</strong> {{ __('site.org.operative_seat') }}</p>
+                <div class="template-contact-intro">
+                    {!! \App\Support\CmsHtml::render(is_string($contactBody) ? $contactBody : $body) !!}
                 </div>
 
-                @if ($faqUrl)
-                    <p class="template-contact-faq">
-                        <a href="{{ $faqUrl }}" class="safehouse-btn-primary template-contact-faq__btn">{{ __('site.pages.contact_faq') }}</a>
-                    </p>
-                @endif
+                <section class="template-contact-desks" aria-labelledby="contact-desks-heading">
+                    <h2 id="contact-desks-heading" class="template-contact-desks__title">{{ __('site.pages.contact_desks_heading') }}</h2>
+                    <ul class="template-contact-desks__list">
+                        @foreach (Arr::wrap(__('site.pages.contact_desks_items')) as $desk)
+                            @if (is_array($desk) && isset($desk['name'], $desk['hint']))
+                                <li class="template-contact-desks__item">
+                                    <span class="template-contact-desks__name">{{ $desk['name'] }}</span>
+                                    <span class="template-contact-desks__hint">{{ $desk['hint'] }}</span>
+                                </li>
+                            @endif
+                        @endforeach
+                    </ul>
+                </section>
+
+                <dl class="template-contact-seat">
+                    <div class="template-contact-seat__row">
+                        <dt>{{ __('site.org.legal_seat_label') }}</dt>
+                        <dd>{{ __('site.org.legal_seat') }}</dd>
+                    </div>
+                    <div class="template-contact-seat__row">
+                        <dt>{{ __('site.org.runts_label') }}</dt>
+                        <dd>{{ __('site.org.runts_value') }}</dd>
+                    </div>
+                    <div class="template-contact-seat__row">
+                        <dt>{{ __('site.org.fiscal_code_label') }}</dt>
+                        <dd>{{ __('site.org.fiscal_code_value') }}</dd>
+                    </div>
+                    <div class="template-contact-seat__row">
+                        <dt>{{ __('site.org.operative_seat_label') }}</dt>
+                        <dd>{{ __('site.org.operative_seat') }}</dd>
+                    </div>
+                </dl>
+
+                <div class="template-contact-faq">
+                    <p class="template-contact-faq__lead">{{ __('site.pages.contact_faq_lead') }}</p>
+                    @if ($faqUrl)
+                        <p>
+                            <a href="{{ $faqUrl }}" class="safehouse-btn-primary template-contact-faq__btn">{{ __('site.pages.contact_faq') }}</a>
+                        </p>
+                    @endif
+                </div>
             </article>
 
             <aside class="template-contact-aside safehouse-glass">

@@ -1,7 +1,8 @@
-# Specification Quality Checklist: Donations heading row
+# Specification Quality Checklist: Donations heading family
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-09-25
+**Updated**: 2026-09-25
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -31,4 +32,4 @@
 
 ## Notes
 
-- Passed 2026-09-25. One page. Stop after implement for owner test.
+- Passed 2026-09-25 after owner expanded scope: listing, 5 x 1000 page, one-time payment pages, recurring payment pages. Payment collection, thank-you, payment-privacy, and Diventa socio stay out. Stop after implement for owner test.

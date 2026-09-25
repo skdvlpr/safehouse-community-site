@@ -20,7 +20,7 @@ class ContactSubmissionModelTest extends TestCase
     {
         $columns = Schema::getColumnListing('contact_submissions');
 
-        $this->assertContains('ip_hash', $columns);
+        $this->assertContains('last_name', $columns);
         $this->assertContains('user_agent_hash', $columns);
         $this->assertNotContains('ip', $columns);
         $this->assertNotContains('ip_address', $columns);

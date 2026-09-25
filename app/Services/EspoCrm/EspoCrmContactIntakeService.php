@@ -166,7 +166,19 @@ class EspoCrmContactIntakeService
      */
     public function createLeadFromSubmission(ContactSubmission $submission): array
     {
-        [$firstName, $lastName] = $this->splitName($submission->name);
+        $firstName = trim($submission->name);
+        $lastName = trim((string) $submission->last_name);
+
+        if ($firstName === '') {
+            $firstName = 'Sconosciuto';
+        }
+
+        if ($lastName === '') {
+            [$splitFirst, $splitLast] = $this->splitName($firstName);
+            $firstName = $splitFirst;
+            $lastName = $splitLast;
+        }
+
         $token = (string) $submission->correlation_token;
         $deskLabel = (string) (ContactDeskOptions::deskConfig($submission->desk)['label'] ?? $submission->desk);
 
@@ -210,7 +222,7 @@ class EspoCrmContactIntakeService
         $token = trim((string) $submission->correlation_token);
 
         $metadata = array_filter([
-            'websiteContactName' => trim($submission->name),
+            'websiteContactName' => $submission->fullName(),
             'sportelloDisplayName' => self::sportelloDisplayName($submission),
             'websiteReferenceId' => $token !== '' ? 'SH-'.strtolower($token) : null,
             'type' => $caseType,

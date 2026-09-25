@@ -31,12 +31,12 @@ class ContactSubmissionMail extends Mailable
         return new Envelope(
             subject: $recipients->subject
                 ?? $this->rendered['subject']
-                ?? ('Nuovo messaggio dal modulo contatti — '.$this->submission->name),
+                ?? ('Nuovo messaggio dal modulo contatti — '.$this->submission->fullName()),
             to: $this->addresses($recipients->to),
             cc: $this->addresses($recipients->cc),
             bcc: $this->addresses($recipients->bcc),
             replyTo: $replyTo !== false
-                ? [new Address($replyTo, $this->submission->name)]
+                ? [new Address($replyTo, $this->submission->fullName())]
                 : [],
             using: [
                 function ($message) use ($recipients): void {

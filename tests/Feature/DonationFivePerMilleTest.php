@@ -75,8 +75,58 @@ class DonationFivePerMilleTest extends TestCase
 
         $this->get('/it/donations')
             ->assertOk()
+            ->assertSee('page-hero', false)
+            ->assertSee('page-hero__headline--center', false)
+            ->assertSee('Donazioni', false)
+            ->assertSee('Sostieni Safe House. 5 x 1000 o pagamenti digitali.', false)
+            ->assertSee('donations-index__featured', false)
             ->assertSee('Dona il 5 x 1000', false)
             ->assertSee('Bonifico bancario', false)
             ->assertSee('IT60X0542811101000000123456', false);
+
+        $this->get('/en/donations')
+            ->assertOk()
+            ->assertSee('page-hero', false)
+            ->assertSee('Donations', false)
+            ->assertSee('Support Safe House. 5 x 1000 or digital payments.', false);
+    }
+
+    public function test_five_per_mille_heading_sits_outside_the_card(): void
+    {
+        app(DonationSettingsService::class)->saveFromFormState([
+            'donations' => [
+                'five_per_mille' => [
+                    'enabled' => true,
+                    'codice_fiscale' => '98765432109',
+                    'menu_label' => ['it' => '5 x 1000'],
+                    'heading' => ['it' => 'Dona il 5 x 1000'],
+                    'lead' => ['it' => 'Senza costi aggiuntivi.'],
+                    'body' => ['it' => '<p>Testo introduttivo.</p>'],
+                    'instructions' => ['it' => '<p>Istruzioni.</p>'],
+                    'codice_label' => ['it' => 'Codice fiscale'],
+                ],
+                'bank_transfer' => [
+                    'enabled' => false,
+                    'iban' => '',
+                    'beneficiary' => '',
+                    'heading' => ['it' => 'Bonifico'],
+                    'body' => ['it' => ''],
+                    'iban_label' => ['it' => 'IBAN'],
+                    'beneficiary_label' => ['it' => 'Intestatario'],
+                ],
+            ],
+        ]);
+
+        app(DonationSettingsService::class)->forgetCache();
+
+        $this->get('/it/donations/5-per-thousand')
+            ->assertOk()
+            ->assertSee('page-hero', false)
+            ->assertSee('page-hero__headline--center', false)
+            ->assertSee('Dona il 5 x 1000', false)
+            ->assertSee('Senza costi aggiuntivi.', false)
+            ->assertSee('98765432109', false)
+            ->assertSee('Testo introduttivo.', false)
+            ->assertDontSee('donation-five-per-mille__title', false);
     }
 }

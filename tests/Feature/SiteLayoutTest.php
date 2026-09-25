@@ -26,8 +26,23 @@ class SiteLayoutTest extends TestCase
             ->assertSee('/en', false)
             ->assertDontSee('/ru', false)
             ->assertSee(__('site.nav.donate', [], 'it'), false)
+            ->assertSee(__('site.nav.donate_short', [], 'it'), false)
+            ->assertSee('data-header-drawer-open', false)
+            ->assertSee('data-header-drawer', false)
+            ->assertSee('site-header-drawer', false)
+            ->assertSee(__('site.nav.menu', [], 'it'), false)
+            ->assertSee(__('site.nav.close_menu', [], 'it'), false)
             ->assertSee(__('site.nav.contact_us', [], 'it'), false)
             ->assertSee('/it/contact', false);
+    }
+
+    public function test_english_header_uses_short_donate_label(): void
+    {
+        $this->get('/en')
+            ->assertOk()
+            ->assertSee(__('site.nav.donate_short', [], 'en'), false)
+            ->assertSee(__('site.nav.donate', [], 'en'), false)
+            ->assertSee('data-header-drawer-open', false);
     }
 
     public function test_donation_pages_use_shared_layout(): void

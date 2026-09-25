@@ -7,6 +7,38 @@
     $description = $campaign->getTranslation('description', $locale, false);
     $presets = $campaign->presetAmountCents();
     $isRecurring = $campaign->allowsRecurring();
+    $headingTitle = $isRecurring
+        ? __('site.donations.recurring_heading')
+        : $title;
+    $headingLead = $isRecurring
+        ? __('site.donations.recurring_tagline')
+        : __('site.donations.campaign_tagline');
+    $showDescription = is_string($description) && trim(strip_tags($description)) !== '';
+
+    if ($showDescription && $isRecurring) {
+        $interruptPhrases = [
+            'Puoi interrompere in qualsiasi momento tramite il portale Stripe dedicato ai donatori.',
+            'You can cancel anytime via the Stripe donor portal.',
+        ];
+        $taglines = [
+            __('site.donations.recurring_tagline'),
+            'Sostieni Safe House ogni mese con un contributo ricorrente.',
+            'Support Safe House every month with a recurring contribution.',
+            'Support Safe House every month with a recurring gift.',
+        ];
+
+        foreach ($interruptPhrases as $phrase) {
+            $description = str_ireplace($phrase, '', (string) $description);
+        }
+
+        $plain = trim((string) preg_replace('/\s+/u', ' ', strip_tags($description)));
+
+        foreach ($taglines as $tagline) {
+            $plain = str_ireplace($tagline, '', $plain);
+        }
+
+        $showDescription = trim($plain, " \t\n\r\0\x0B.") !== '';
+    }
 @endphp
 
 @section('title', $title)
@@ -18,24 +50,27 @@
         </p>
     @endif
 
-    <form id="donation-form" class="space-y-6 rounded-3xl border border-white/10 bg-safehouse-modal p-6 shadow-xl sm:p-8"
+    @include('pages.partials.page-header', [
+        'title' => $headingTitle,
+        'lead' => $headingLead,
+        'prominent' => true,
+        'align' => 'center',
+    ])
+
+    <form id="donation-form" class="donation-form mx-auto w-full max-w-2xl space-y-6 rounded-3xl border border-white/10 bg-safehouse-modal p-6 shadow-xl sm:p-8"
           data-recurring="{{ $isRecurring ? '1' : '0' }}">
-        <header class="space-y-3">
-            @if ($isRecurring)
-                <p class="text-sm font-semibold uppercase tracking-wider text-safehouse-primary">
-                    {{ __('site.donations.recurring_frequency_badge') }}
-                </p>
-            @endif
-            <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">{{ $title }}</h1>
-            @if (! empty($fundraisingProgress))
-                @include('donations.partials.fundraising-progress', ['progress' => $fundraisingProgress])
-            @endif
-            @if ($description)
-                <div class="safehouse-prose max-w-none text-base text-safehouse-muted [&_p:last-child]:mb-0">
-                    {!! $description !!}
-                </div>
-            @endif
-        </header>
+        @if (! empty($fundraisingProgress) || $showDescription)
+            <header class="space-y-3">
+                @if (! empty($fundraisingProgress))
+                    @include('donations.partials.fundraising-progress', ['progress' => $fundraisingProgress])
+                @endif
+                @if ($showDescription)
+                    <div class="safehouse-prose max-w-none text-base text-safehouse-muted [&_p:last-child]:mb-0">
+                        {!! $description !!}
+                    </div>
+                @endif
+            </header>
+        @endif
 
         @csrf
 

@@ -43,6 +43,7 @@ class HomePageTest extends TestCase
             ->assertDontSee('locale-switcher', false)
             ->assertSee('site-header__donate', false)
             ->assertSee(__('site.nav.donate', [], 'it'), false)
+            ->assertSee(__('site.nav.donate_short', [], 'it'), false)
             ->assertSee('safehouse.theme', false)
             ->assertSee('>IT</', false)
             ->assertDontSee('>RU</', false)

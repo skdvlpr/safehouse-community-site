@@ -6,6 +6,8 @@
     @php
         $five = $donationSettings->fivePerMille();
         $codice = $donationSettings->codiceFiscale();
+        $fiveHeading = $donationSettings->localized($five, 'heading', $locale);
+        $fiveLead = $donationSettings->localized($five, 'lead', $locale);
     @endphp
 
     <p class="mb-6">
@@ -14,21 +16,14 @@
         </a>
     </p>
 
+    @include('pages.partials.page-header', [
+        'title' => $fiveHeading,
+        'lead' => $fiveLead !== '' ? $fiveLead : null,
+        'prominent' => true,
+        'align' => 'center',
+    ])
+
     <article class="donation-five-per-mille safehouse-glass rounded-2xl p-8 md:p-12">
-        <p class="mb-3 text-sm font-medium uppercase tracking-wider text-safehouse-primary">
-            {{ $donationSettings->localized($five, 'menu_label', $locale) }}
-        </p>
-
-        <h1 class="donation-five-per-mille__title mb-4 text-4xl font-semibold tracking-tight md:text-5xl lg:text-6xl">
-            {{ $donationSettings->localized($five, 'heading', $locale) }}
-        </h1>
-
-        @if ($donationSettings->localized($five, 'lead', $locale) !== '')
-            <p class="mb-8 max-w-none text-lg text-safehouse-muted md:text-xl">
-                {{ $donationSettings->localized($five, 'lead', $locale) }}
-            </p>
-        @endif
-
         @if ($donationSettings->localized($five, 'body', $locale) !== '')
             <div class="safehouse-prose mb-10 max-w-none">
                 {!! $donationSettings->localized($five, 'body', $locale) !!}

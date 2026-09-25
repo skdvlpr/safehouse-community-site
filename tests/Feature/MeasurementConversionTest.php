@@ -45,7 +45,8 @@ class MeasurementConversionTest extends TestCase
     private function validContactPayload(): array
     {
         return [
-            'name' => 'Luca Bianchi',
+            'name' => 'Luca',
+            'last_name' => 'Bianchi',
             'email' => 'luca@example.com',
             'message' => 'Buongiorno, vorrei informazioni.',
             'desk' => 'digital_desk',

@@ -26,6 +26,9 @@ class DonationShowRouteTest extends TestCase
         DonationCampaign::factory()->recurring()->create([
             'slug' => 'recurring-donation',
             'title' => ['it' => 'Donazione ricorrente'],
+            'description' => [
+                'it' => '<p>Sostieni Safe House ogni mese con un contributo ricorrente. Puoi interrompere in qualsiasi momento tramite il portale Stripe dedicato ai donatori.</p>',
+            ],
             'is_active' => true,
         ]);
 
@@ -33,26 +36,39 @@ class DonationShowRouteTest extends TestCase
 
         $this->get('/it/donations/recurring-donation')
             ->assertOk()
-            ->assertSee(__('site.donations.recurring_frequency_badge'), false)
+            ->assertSee('page-hero', false)
+            ->assertSee('page-hero__headline--center', false)
+            ->assertSee('donation-form', false)
+            ->assertSee('max-w-2xl', false)
+            ->assertSee('Donazione ricorrente', false)
+            ->assertSee('Sostieni Safe House ogni mese con un contributo ricorrente.', false)
             ->assertSee(__('site.donations.cancel_notice_title'), false)
             ->assertSee(__('site.donations.cancel_ack_label'), false)
             ->assertSee(__('site.donations.continue_monthly_payment'), false)
             ->assertSee('https://billing.stripe.com/p/login/test_example', false)
             ->assertSee(__('site.donations.cancel_portal_cta'), false)
-            ->assertSee('data-recurring="1"', false);
+            ->assertSee('data-recurring="1"', false)
+            ->assertDontSee('Puoi interrompere in qualsiasi momento tramite il portale Stripe dedicato ai donatori.', false)
+            ->assertDontSee(__('site.donations.recurring_frequency_badge'), false);
     }
 
     public function test_one_time_campaign_hides_recurring_cancel_ux(): void
     {
         DonationCampaign::factory()->create([
             'slug' => 'una-tantum',
-            'title' => ['it' => 'Una tantum'],
+            'title' => ['it' => 'Dona a Safe House'],
             'is_active' => true,
             'allows_recurring' => false,
         ]);
 
         $this->get('/it/donations/una-tantum')
             ->assertOk()
+            ->assertSee('page-hero', false)
+            ->assertSee('page-hero__headline--center', false)
+            ->assertSee('donation-form', false)
+            ->assertSee('max-w-2xl', false)
+            ->assertSee('Dona a Safe House', false)
+            ->assertSee(__('site.donations.campaign_tagline', [], 'it'), false)
             ->assertDontSee(__('site.donations.cancel_notice_title'), false)
             ->assertDontSee(__('site.donations.cancel_ack_label'), false)
             ->assertSee(__('site.donations.continue_payment', [], 'it'), false);

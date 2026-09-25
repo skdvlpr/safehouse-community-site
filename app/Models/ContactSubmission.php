@@ -16,6 +16,7 @@ class ContactSubmission extends Model
      */
     protected $fillable = [
         'name',
+        'last_name',
         'email',
         'desk',
         'subject',
@@ -41,5 +42,10 @@ class ContactSubmission extends Model
             'gdpr_consent_at' => 'datetime',
             'replied_at' => 'datetime',
         ];
+    }
+
+    public function fullName(): string
+    {
+        return trim($this->name.' '.trim((string) $this->last_name));
     }
 }

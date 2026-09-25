@@ -22,6 +22,7 @@ class StoreContactSubmissionRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
             'message' => ['required', 'string', 'max:5000'],
             'desk' => ['required', 'string', Rule::in(ContactDeskOptions::deskKeys())],
@@ -54,6 +55,7 @@ class StoreContactSubmissionRequest extends FormRequest
     {
         return [
             'name' => __('site.pages.contact_name'),
+            'last_name' => __('site.pages.contact_last_name'),
             'email' => __('site.pages.contact_email'),
             'message' => __('site.pages.contact_message'),
             'desk' => __('site.pages.contact_desk'),

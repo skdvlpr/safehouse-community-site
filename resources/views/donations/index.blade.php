@@ -7,30 +7,40 @@
     @php
         $locale = app()->getLocale();
         $five = $donationSettings->fivePerMille();
+        $showFive = $donationSettings->fivePerMilleEnabled();
+        $showBank = $donationSettings->bankTransferEnabled();
     @endphp
 
-    <h1 class="photo-legible-text mb-2 text-3xl font-semibold">{{ __('site.donations.index_title') }}</h1>
-    <p class="photo-legible-text donations-index__lead mb-8 text-safehouse-muted">{{ __('site.donations.index_lead') }}</p>
+    @include('pages.partials.page-header', [
+        'title' => __('site.donations.index_title'),
+        'lead' => __('site.donations.index_lead'),
+        'prominent' => true,
+        'align' => 'center',
+    ])
 
-    @if ($donationSettings->fivePerMilleEnabled())
-        <a href="{{ route('donations.five-per-mille', ['locale' => $locale]) }}"
-           class="donation-feature-card safehouse-accent-panel mb-8 block rounded-2xl p-6 transition md:p-8">
-            <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-safehouse-primary">
-                {{ $donationSettings->localized($five, 'menu_label', $locale) }}
-            </p>
-            <h2 class="mb-3 text-2xl font-semibold md:text-3xl">
-                {{ $donationSettings->localized($five, 'heading', $locale) }}
-            </h2>
-            @if ($donationSettings->localized($five, 'lead', $locale) !== '')
-                <p class="mb-4 max-w-2xl text-safehouse-muted">
-                    {{ $donationSettings->localized($five, 'lead', $locale) }}
-                </p>
+    @if ($showFive || $showBank)
+        <div class="donations-index__featured">
+            @if ($showFive)
+                <a href="{{ route('donations.five-per-mille', ['locale' => $locale]) }}"
+                   class="donation-feature-card safehouse-accent-panel block rounded-2xl p-6 transition md:p-8">
+                    <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-safehouse-primary">
+                        {{ $donationSettings->localized($five, 'menu_label', $locale) }}
+                    </p>
+                    <h2 class="mb-3 text-2xl font-semibold md:text-3xl">
+                        {{ $donationSettings->localized($five, 'heading', $locale) }}
+                    </h2>
+                    @if ($donationSettings->localized($five, 'lead', $locale) !== '')
+                        <p class="mb-4 max-w-2xl text-safehouse-muted">
+                            {{ $donationSettings->localized($five, 'lead', $locale) }}
+                        </p>
+                    @endif
+                    <span class="safehouse-btn-primary inline-flex">{{ __('site.donations.five_per_mille_cta') }}</span>
+                </a>
             @endif
-            <span class="safehouse-btn-primary inline-flex">{{ __('site.donations.five_per_mille_cta') }}</span>
-        </a>
-    @endif
 
-    @include('donations.partials.bank-transfer', ['donationSettings' => $donationSettings])
+            @include('donations.partials.bank-transfer', ['donationSettings' => $donationSettings])
+        </div>
+    @endif
 
     @if ($recurringCampaign)
         @php

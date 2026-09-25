@@ -8,12 +8,13 @@ use Illuminate\Http\Request;
 class ContactSubmissionService
 {
     /**
-     * @param  array{name: string, email: string, message: string, desk: string}  $data
+     * @param  array{name: string, last_name: string, email: string, message: string, desk: string}  $data
      */
     public function store(array $data, Request $request): ContactSubmission
     {
         $submission = ContactSubmission::query()->create([
             'name' => $data['name'],
+            'last_name' => $data['last_name'],
             'email' => $data['email'],
             'desk' => $data['desk'],
             'message' => $data['message'],

@@ -174,6 +174,10 @@ final class DiscoveryText
 
         $campaign = $view['campaign'] ?? null;
         if ($campaign instanceof DonationCampaign) {
+            if ($campaign->allowsRecurring()) {
+                return trim((string) __('site.donations.recurring_tagline', [], $locale));
+            }
+
             return $this->firstParagraph($this->translation($campaign, 'description', $locale));
         }
 

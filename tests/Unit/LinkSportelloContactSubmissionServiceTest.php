@@ -115,4 +115,37 @@ class LinkSportelloContactSubmissionServiceTest extends TestCase
 
         $this->assertSame('case-99', $case['id'] ?? null);
     }
+
+    public function test_lead_create_sends_last_name_to_espocrm(): void
+    {
+        $submission = ContactSubmission::query()->create([
+            'name' => 'Luca',
+            'last_name' => 'Bianchi',
+            'email' => 'luca@example.com',
+            'desk' => 'digital_desk',
+            'message' => 'Test message',
+            'status' => 'new',
+            'correlation_token' => 'lead-name-token',
+            'crm_link_status' => 'pending',
+        ]);
+
+        Http::fake([
+            'https://crm.test/api/v1/Lead' => Http::response(['id' => 'lead-new']),
+        ]);
+
+        $leadId = app(LinkSportelloContactSubmissionService::class)->ensureLead($submission);
+
+        $this->assertSame('lead-new', $leadId);
+
+        Http::assertSent(function ($request): bool {
+            if ($request->method() !== 'POST' || ! str_contains($request->url(), '/Lead')) {
+                return false;
+            }
+
+            $payload = $request->data();
+
+            return ($payload['firstName'] ?? null) === 'Luca'
+                && ($payload['lastName'] ?? null) === 'Bianchi';
+        });
+    }
 }

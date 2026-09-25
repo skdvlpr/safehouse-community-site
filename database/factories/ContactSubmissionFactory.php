@@ -18,7 +18,8 @@ class ContactSubmissionFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            'name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
             'email' => fake()->unique()->safeEmail(),
             'subject' => fake()->optional()->sentence(4),
             'message' => fake()->paragraph(),

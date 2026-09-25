@@ -54,7 +54,8 @@ class ContactSubmissionMailRenderer
             ?? now()->format('d/m/Y H:i');
 
         return [
-            '{{name}}' => trim($submission->name),
+            '{{name}}' => $submission->fullName(),
+            '{{last_name}}' => trim((string) $submission->last_name),
             '{{email}}' => trim($submission->email),
             '{{message}}' => trim($submission->message),
             '{{desk_label}}' => $deskLabel !== '' ? $deskLabel : 'Sportello',
@@ -86,8 +87,10 @@ class ContactSubmissionMailRenderer
         }
 
         $token = trim((string) $submission->correlation_token);
+        $lastName = trim((string) $submission->last_name);
         $lines = array_filter([
-            'Nome: '.trim($submission->name),
+            'Nome: '.$submission->fullName(),
+            $lastName !== '' ? 'Cognome: '.$lastName : null,
             'Email: '.trim($submission->email),
             'Sportello: '.$deskLabel,
             'Tipo segnalazione: '.$caseType,

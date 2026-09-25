@@ -47,7 +47,8 @@ class ContactFormMailTest extends TestCase
         ]);
 
         $this->post('/it/contact', [
-            'name' => 'Luca Bianchi',
+            'name' => 'Luca',
+            'last_name' => 'Bianchi',
             'email' => 'luca@example.com',
             'message' => 'Buongiorno, vorrei informazioni.',
             'desk' => 'digital_desk',
@@ -94,7 +95,8 @@ class ContactFormMailTest extends TestCase
         ]);
 
         $this->post('/it/contact', [
-            'name' => 'Luca Bianchi',
+            'name' => 'Luca',
+            'last_name' => 'Bianchi',
             'email' => 'luca@example.com',
             'message' => 'Buongiorno.',
             'desk' => 'youth_desk',
@@ -133,7 +135,8 @@ class ContactFormMailTest extends TestCase
         ]);
 
         $this->post('/it/contact', [
-            'name' => 'Luca Bianchi',
+            'name' => 'Luca',
+            'last_name' => 'Bianchi',
             'email' => 'luca@example.com',
             'message' => 'Richiesta generica senza CRM.',
             'desk' => 'generic_desk',
@@ -153,7 +156,8 @@ class ContactFormMailTest extends TestCase
         Mail::fake();
 
         $this->post('/it/contact', [
-            'name' => 'Luca Bianchi',
+            'name' => 'Luca',
+            'last_name' => 'Bianchi',
             'email' => 'luca@example.com',
             'message' => 'Buongiorno, vorrei informazioni.',
             'desk' => 'legal_desk',
@@ -166,7 +170,8 @@ class ContactFormMailTest extends TestCase
     public function test_contact_form_requires_sportello_desk(): void
     {
         $this->post('/it/contact', [
-            'name' => 'Luca Bianchi',
+            'name' => 'Luca',
+            'last_name' => 'Bianchi',
             'email' => 'luca@example.com',
             'message' => 'Buongiorno, vorrei informazioni.',
             'gdpr_consent' => '1',

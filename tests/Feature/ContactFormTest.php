@@ -26,7 +26,8 @@ class ContactFormTest extends TestCase
     private function validContactPayload(): array
     {
         return [
-            'name' => 'Luca Bianchi',
+            'name' => 'Luca',
+            'last_name' => 'Bianchi',
             'email' => 'luca@example.com',
             'message' => 'Buongiorno, vorrei informazioni.',
             'desk' => 'digital_desk',
@@ -52,7 +53,8 @@ class ContactFormTest extends TestCase
         $submission = ContactSubmission::query()->first();
 
         $this->assertNotNull($submission);
-        $this->assertSame('Luca Bianchi', $submission->name);
+        $this->assertSame('Luca', $submission->name);
+        $this->assertSame('Bianchi', $submission->last_name);
         $this->assertSame('luca@example.com', $submission->email);
         $this->assertSame('new', $submission->status);
         $this->assertNotNull($submission->gdpr_consent_at);
@@ -73,7 +75,7 @@ class ContactFormTest extends TestCase
 
         $response
             ->assertRedirect('/it/contact')
-            ->assertSessionHasErrors(['name', 'email', 'message', 'gdpr_consent']);
+            ->assertSessionHasErrors(['name', 'last_name', 'email', 'message', 'gdpr_consent']);
 
         $this->assertDatabaseCount('contact_submissions', 0);
     }

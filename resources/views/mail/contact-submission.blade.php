@@ -2,6 +2,9 @@ Nuovo messaggio dal sito Safe House
 ====================================
 
 Nome: {{ $submission->name }}
+@if (trim((string) $submission->last_name) !== '')
+Cognome: {{ $submission->last_name }}
+@endif
 Email: {{ $submission->email }}
 @php($deskLabel = trim((string) (\App\Support\ContactDeskOptions::deskConfig($submission->desk)['label'] ?? '')))
 @php($caseType = trim((string) (\App\Support\ContactDeskOptions::caseTypeForDesk($submission->desk) ?? '')))
