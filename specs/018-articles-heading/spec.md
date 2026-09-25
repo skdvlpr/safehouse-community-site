@@ -6,7 +6,7 @@
 
 **Status**: Draft. Specified only. Implement one spec at a time and stop for owner testing. Diventa socio is out of scope.
 
-**Input**: Owner 2026-09-25. Articoli uses the Chi siamo heading on one line: Articoli | Approfondimenti, testimonianze e contenuti editoriali. The red label above the title is removed. Existing article cards and photos stay.
+**Input**: Owner 2026-09-25. Articoli uses the same listing template as Notizie. Only the words change: Articoli | Approfondimenti, testimonianze e contenuti editoriali. The red label above the title is removed. The filter bar and list cards match Notizie, including the category name on the right edge of each list card.
 
 ## User Scenarios & Testing *(mandatory)*
 

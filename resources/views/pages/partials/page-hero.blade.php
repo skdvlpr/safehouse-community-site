@@ -2,10 +2,11 @@
     'title',
     'tagline' => null,
     'page' => null,
+    'align' => 'end',
 ])
 
 <div class="page-hero mb-10">
-    <div class="page-hero__headline">
+    <div @class(['page-hero__headline', 'page-hero__headline--center' => $align === 'center'])>
         <h1 class="page-hero__title">{{ $title }}</h1>
 
         @if ($tagline)

@@ -3,33 +3,66 @@
     /** @var \Illuminate\Support\Collection<int, \App\Models\ArticleCategory> $categories */
     $articlesService = app(\App\Services\ArticleService::class);
     $indexRoute = $indexRoute ?? 'articles.index';
+    $categoryOptions = [];
+
+    foreach ($categories as $category) {
+        $categorySlug = $articlesService->categorySlug($category, $locale);
+        $categoryName = $articlesService->categoryName($category, $locale);
+
+        if ($categorySlug === null || $categoryName === '') {
+            continue;
+        }
+
+        $toggleFilters = $filters->withCategorySlugs($filters->toggledCategorySlugs($categorySlug));
+        $categoryOptions[] = [
+            'name' => $categoryName,
+            'active' => in_array($categorySlug, $filters->categorySlugs, true),
+            'href' => route($indexRoute, $toggleFilters->routeParameters($locale)),
+        ];
+    }
+
+    $selectedCategories = array_values(array_filter(
+        $categoryOptions,
+        static fn (array $option): bool => $option['active'],
+    ));
+    $selectedCount = count($selectedCategories);
+    $visibleCategories = $selectedCount > 3
+        ? array_slice($selectedCategories, 0, 2)
+        : $selectedCategories;
+    $extraCategories = $selectedCount > 3 ? $selectedCount - 2 : 0;
 @endphp
 
 <section class="news-toolbar safehouse-glass" aria-label="{{ __($filtersLabel ?? 'site.pages.news_filters_label') }}">
     <div class="news-toolbar__row">
-        <div class="news-toolbar__group">
+        <div class="news-toolbar__group news-toolbar__group--categories">
             <span class="news-toolbar__label">{{ __('site.pages.news_categories_label') }}</span>
-            <div class="news-category-chips" role="group" aria-label="{{ __('site.pages.news_categories_label') }}">
-                @forelse ($categories as $category)
-                    @php
-                        $categorySlug = $articlesService->categorySlug($category, $locale);
-                        $categoryName = $articlesService->categoryName($category, $locale);
-                        $isActive = $categorySlug !== null && in_array($categorySlug, $filters->categorySlugs, true);
-                        $toggleFilters = $filters->withCategorySlugs(
-                            $categorySlug !== null ? $filters->toggledCategorySlugs($categorySlug) : $filters->categorySlugs,
-                        );
-                    @endphp
-                    @if ($categorySlug !== null && $categoryName !== '')
-                        <a href="{{ route($indexRoute, $toggleFilters->routeParameters($locale)) }}"
-                           @class(['news-category-chip', 'is-active' => $isActive])
-                           aria-pressed="{{ $isActive ? 'true' : 'false' }}">
-                            {{ $categoryName }}
-                        </a>
-                    @endif
-                @empty
-                    <p class="news-toolbar__hint">{{ __($categoriesEmptyLabel ?? 'site.pages.news_categories_empty') }}</p>
-                @endforelse
-            </div>
+            @if ($categoryOptions === [])
+                <p class="news-toolbar__hint">{{ __($categoriesEmptyLabel ?? 'site.pages.news_categories_empty') }}</p>
+            @else
+                <details class="news-cat-menu">
+                    <summary class="news-cat-menu__summary">
+                        @if ($selectedCount === 0)
+                            <span class="news-cat-menu__face">{{ __('site.pages.news_categories_label') }}</span>
+                        @else
+                            @foreach ($visibleCategories as $selected)
+                                <span class="news-cat-menu__face">{{ $selected['name'] }}</span>
+                            @endforeach
+                            @if ($extraCategories > 0)
+                                <span class="news-cat-menu__face">+{{ $extraCategories }}</span>
+                            @endif
+                        @endif
+                    </summary>
+                    <div class="news-cat-menu__panel" role="group" aria-label="{{ __('site.pages.news_categories_label') }}">
+                        @foreach ($categoryOptions as $option)
+                            <a href="{{ $option['href'] }}"
+                               @class(['news-cat-menu__option', 'is-active' => $option['active']])
+                               aria-pressed="{{ $option['active'] ? 'true' : 'false' }}">
+                                {{ $option['name'] }}
+                            </a>
+                        @endforeach
+                    </div>
+                </details>
+            @endif
         </div>
 
         <div class="news-toolbar__group news-toolbar__group--dates">
@@ -76,12 +109,4 @@
             </div>
         </div>
     </div>
-
-    @if ($filters->hasActiveFilters())
-        <div class="news-toolbar__footer">
-            <a href="{{ route($indexRoute, ['locale' => $locale]) }}" class="news-toolbar__clear">
-                {{ __('site.pages.news_clear_filters') }}
-            </a>
-        </div>
-    @endif
 </section>

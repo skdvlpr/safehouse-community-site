@@ -6,7 +6,7 @@
 
 **Status**: Draft. Specified only. Implement one spec at a time and stop for owner testing. Diventa socio is out of scope.
 
-**Input**: Owner 2026-09-25. Notizie uses the Chi siamo heading: Notizie | Aggiornamenti dall'associazione e dal territorio. The red label above the title is removed. The filter bar becomes about one third of its current width on a wide screen and stays usable on a phone. Existing news cards and photos stay.
+**Input**: Owner 2026-09-25. Notizie uses the Chi siamo heading: Notizie | Aggiornamenti dall'associazione e dal territorio. The red label above the title is removed. The filter bar stays full width and is only as tall as its controls. Categories are a dropdown: one selected name stays visible, and further selections show as a +count until the list is opened. The clear-filters row is not shown. Labels, fields, and switches sit centered, and the controls stretch across the bar.
 
 ## User Scenarios & Testing *(mandatory)*
 

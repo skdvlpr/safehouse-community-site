@@ -20,13 +20,19 @@ class EditorialArticleController extends Controller
         $filters = ArticleListingFilters::fromRequest($request);
         $section = ArticleSection::Editorial;
 
-        return view('pages.editorial-articles.index', [
+        return view('pages.articles.index', [
             'articles' => $this->articles->paginatedListing($filters, $locale, $section),
             'categories' => $this->articles->categoriesForListing($locale, $section),
             'filters' => $filters,
             'locale' => $locale,
             'indexRoute' => $this->articles->indexRouteName($section),
             'showRoute' => $this->articles->showRouteName($section),
+            'titleKey' => 'site.pages.editorial_title',
+            'leadKey' => 'site.pages.editorial_lead',
+            'emptyKey' => 'site.pages.editorial_empty',
+            'emptyFilteredKey' => 'site.pages.editorial_empty_filtered',
+            'filtersLabel' => 'site.pages.editorial_filters_label',
+            'categoriesEmptyLabel' => 'site.pages.editorial_categories_empty',
         ]);
     }
 
@@ -35,9 +41,10 @@ class EditorialArticleController extends Controller
         $section = ArticleSection::Editorial;
         $article = $this->articles->findPublishedBySlug($locale, $articleSlug, $section);
 
-        return view('pages.editorial-articles.show', [
+        return view('pages.articles.show', [
             'article' => $article,
             'indexRoute' => $this->articles->indexRouteName($section),
+            'backLabel' => 'site.pages.editorial_back',
         ]);
     }
 
@@ -47,10 +54,11 @@ class EditorialArticleController extends Controller
         abort_unless($this->articles->hasSlugForLocale($article, $locale), 404);
 
         return response()
-            ->view('pages.editorial-articles.show', [
+            ->view('pages.articles.show', [
                 'article' => $article,
                 'isPreview' => true,
                 'indexRoute' => $this->articles->indexRouteName(ArticleSection::Editorial),
+                'backLabel' => 'site.pages.editorial_back',
             ])
             ->header('X-Robots-Tag', 'noindex, nofollow');
     }

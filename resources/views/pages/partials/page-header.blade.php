@@ -3,6 +3,7 @@
     'lead' => null,
     'page' => null,
     'prominent' => false,
+    'align' => 'end',
 ])
 
 @if ($prominent)
@@ -10,6 +11,7 @@
         'title' => $title,
         'tagline' => $lead,
         'page' => $page,
+        'align' => $align,
     ])
 @else
     <header @class(['mb-8' => ! $page, 'mb-4' => (bool) $page])>

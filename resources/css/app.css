@@ -661,19 +661,27 @@ html[data-theme='light'] {
     }
 
     .page-hero__headline {
-        @apply mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:gap-10;
+        @apply mb-6 flex flex-row items-center gap-3 lg:mb-8 lg:items-end lg:gap-10;
     }
 
     .page-hero__title {
-        @apply text-4xl font-bold leading-[1.05] tracking-tight text-safehouse-text md:text-5xl lg:text-6xl xl:text-7xl;
+        @apply shrink-0 text-3xl font-bold leading-[1.05] tracking-tight text-safehouse-text sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl;
     }
 
     .page-hero__divider {
-        @apply hidden w-px shrink-0 self-stretch bg-white/25 lg:block;
+        @apply block w-px shrink-0 self-stretch bg-white/25;
     }
 
     .page-hero__tagline {
-        @apply max-w-md text-lg font-semibold leading-snug text-safehouse-text md:text-xl lg:pb-2;
+        @apply min-w-0 flex-1 text-sm font-semibold leading-snug text-safehouse-text sm:text-base md:text-lg lg:max-w-md lg:flex-none lg:text-xl lg:pb-2;
+    }
+
+    .page-hero__headline--center {
+        @apply lg:items-center;
+    }
+
+    .page-hero__headline--center .page-hero__tagline {
+        @apply lg:pb-0;
     }
 
     .page-section-band {
@@ -1986,59 +1994,75 @@ html[data-theme='light'] {
     }
 
     .news-toolbar {
-        @apply mb-8 rounded-2xl p-5 md:p-6;
+        @apply mb-8 rounded-2xl px-3 py-1;
     }
 
     .news-toolbar__row {
-        @apply flex flex-col gap-6;
+        @apply flex flex-col items-stretch justify-center gap-2 md:flex-row md:items-center md:gap-3;
     }
 
     .news-toolbar__group {
-        @apply flex flex-col gap-3;
+        @apply flex shrink-0 flex-row flex-nowrap items-center justify-center gap-2;
+    }
+
+    .news-toolbar__group--categories {
+        @apply min-w-0 flex-1;
     }
 
     .news-toolbar__group--dates {
-        @apply lg:max-w-xl;
+        @apply shrink-0;
     }
 
     .news-toolbar__group--layout {
-        @apply lg:items-start;
+        @apply md:max-w-xs;
     }
 
     .news-toolbar__label {
-        @apply text-xs font-semibold uppercase tracking-wide text-safehouse-muted;
+        @apply text-center text-xs font-semibold uppercase tracking-wide text-safehouse-muted;
     }
 
     .news-toolbar__hint {
-        @apply text-sm text-safehouse-muted;
+        @apply text-center text-sm text-safehouse-muted;
     }
 
-    .news-toolbar__footer {
-        @apply mt-5 border-t border-white/10 pt-4;
+    .news-cat-menu {
+        @apply relative min-w-0 w-full flex-1;
     }
 
-    .news-toolbar__clear {
-        @apply text-sm font-medium text-safehouse-link transition hover:text-safehouse-link-hover;
+    .news-cat-menu__summary {
+        @apply flex h-10 w-full cursor-pointer list-none items-center justify-center rounded-xl border border-white/10 bg-safehouse-page/35 px-2 text-center text-sm font-semibold text-safehouse-text;
     }
 
-    .news-category-chips {
-        @apply flex flex-wrap gap-2;
+    .news-cat-menu__summary::-webkit-details-marker {
+        display: none;
     }
 
-    .news-category-chip {
-        @apply rounded-full border border-white/15 bg-safehouse-page/50 px-3 py-1.5 text-sm font-medium text-safehouse-muted transition hover:border-safehouse-primary/30 hover:text-safehouse-text;
+    .news-cat-menu__face {
+        @apply min-w-0 flex-1 truncate px-1 text-center;
     }
 
-    .news-category-chip.is-active {
-        @apply border-safehouse-primary/40 bg-safehouse-primary/10 font-medium text-safehouse-text;
+    .news-cat-menu__panel {
+        @apply absolute top-full left-0 z-30 mt-1 flex w-full min-w-full flex-col overflow-hidden rounded-xl border border-white/10 bg-safehouse-modal shadow-lg;
+    }
+
+    .news-cat-menu__option {
+        @apply px-4 py-2 text-center text-sm font-medium text-safehouse-muted no-underline hover:bg-white/5 hover:text-safehouse-text;
+    }
+
+    .news-cat-menu__option.is-active {
+        @apply bg-safehouse-primary/15 font-semibold text-safehouse-text;
     }
 
     .news-date-filters {
-        @apply flex flex-wrap items-center gap-2;
+        @apply flex shrink-0 flex-nowrap items-center justify-center gap-2;
+    }
+
+    .news-date-filters__field {
+        @apply flex items-center;
     }
 
     .news-date-filters__field input {
-        @apply rounded-xl border border-white/10 bg-safehouse-page px-3 py-2 text-sm text-safehouse-text outline-none transition focus:border-safehouse-primary/60;
+        @apply h-10 rounded-xl border border-white/10 bg-safehouse-page/35 px-3 text-center text-sm text-safehouse-text outline-none transition focus:border-safehouse-primary/60;
     }
 
     .news-date-filters__separator {
@@ -2046,15 +2070,15 @@ html[data-theme='light'] {
     }
 
     .news-date-filters__submit {
-        @apply px-4 py-2 text-sm;
+        @apply inline-flex h-10 min-w-28 items-center justify-center px-6 text-sm;
     }
 
     .news-view-toggle {
-        @apply inline-flex rounded-xl border border-white/10 bg-safehouse-page/60 p-1;
+        @apply inline-flex h-10 min-w-0 flex-1 items-stretch justify-center rounded-xl border border-white/10 bg-safehouse-page/25 p-1;
     }
 
     .news-view-toggle__btn {
-        @apply rounded-lg px-4 py-2 text-sm font-medium text-safehouse-text/75 transition hover:text-safehouse-text;
+        @apply inline-flex flex-1 items-center justify-center rounded-lg px-6 text-sm font-medium text-safehouse-text/75 transition hover:text-safehouse-text;
     }
 
     .news-view-toggle__btn.is-active {
@@ -2094,11 +2118,11 @@ html[data-theme='light'] {
     }
 
     .news-list__item {
-        @apply flex flex-col gap-3 border-b border-white/10 px-5 py-4 last:border-b-0 sm:flex-row sm:items-center sm:gap-4;
+        @apply flex flex-row items-center gap-3 border-b border-white/10 px-5 py-4 last:border-b-0 sm:gap-4;
     }
 
     .news-list__main {
-        @apply min-w-0;
+        @apply min-w-0 flex-1;
     }
 
     .news-list__date {
@@ -2114,7 +2138,7 @@ html[data-theme='light'] {
     }
 
     .news-list__category {
-        @apply shrink-0;
+        @apply ms-auto shrink-0 px-3 py-1 text-base font-semibold sm:text-lg;
     }
 
     .news-pagination {

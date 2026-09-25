@@ -1,51 +1,62 @@
+@php
+    $titleKey = $titleKey ?? 'site.pages.news_title';
+    $leadKey = $leadKey ?? 'site.pages.news_lead';
+    $emptyKey = $emptyKey ?? 'site.pages.news_empty';
+    $emptyFilteredKey = $emptyFilteredKey ?? 'site.pages.news_empty_filtered';
+@endphp
+
 @extends('layouts.app')
 
-@section('title', __('site.pages.news_title'))
+@section('title', __($titleKey))
 
 @section('content')
     <div class="motion-enter">
-    @include('pages.partials.page-header', [
-        'title' => __('site.pages.news_title'),
-        'lead' => __('site.pages.news_lead'),
-    ])
+        @include('pages.partials.page-header', [
+            'title' => __($titleKey),
+            'lead' => __($leadKey),
+            'prominent' => true,
+            'align' => 'center',
+        ])
 
-    @include('pages.articles.partials.listing-toolbar', [
-        'filters' => $filters,
-        'categories' => $categories,
-        'locale' => $locale,
-        'indexRoute' => $indexRoute ?? 'articles.index',
-    ])
+        @include('pages.articles.partials.listing-toolbar', [
+            'filters' => $filters,
+            'categories' => $categories,
+            'locale' => $locale,
+            'indexRoute' => $indexRoute ?? 'articles.index',
+            'filtersLabel' => $filtersLabel ?? 'site.pages.news_filters_label',
+            'categoriesEmptyLabel' => $categoriesEmptyLabel ?? 'site.pages.news_categories_empty',
+        ])
 
-    @if ($articles->isEmpty())
-        <div class="safehouse-glass rounded-2xl p-8 text-center text-safehouse-muted">
-            {{ $filters->hasActiveFilters() ? __('site.pages.news_empty_filtered') : __('site.pages.news_empty') }}
-        </div>
-    @elseif ($filters->layout === 'list')
-        <div class="news-list safehouse-glass">
-            @foreach ($articles as $article)
-                @include('pages.articles.partials.list-item', [
-                    'article' => $article,
-                    'locale' => $locale,
-                    'showRoute' => $showRoute ?? 'articles.show',
-                ])
-            @endforeach
-        </div>
-    @else
-        <div class="news-feed">
-            @foreach ($articles as $article)
-                @include('pages.articles.partials.feed-item', [
-                    'article' => $article,
-                    'locale' => $locale,
-                    'showRoute' => $showRoute ?? 'articles.show',
-                ])
-            @endforeach
-        </div>
-    @endif
+        @if ($articles->isEmpty())
+            <div class="safehouse-glass rounded-2xl p-8 text-center text-safehouse-muted">
+                {{ $filters->hasActiveFilters() ? __($emptyFilteredKey) : __($emptyKey) }}
+            </div>
+        @elseif ($filters->layout === 'list')
+            <div class="news-list safehouse-glass">
+                @foreach ($articles as $article)
+                    @include('pages.articles.partials.list-item', [
+                        'article' => $article,
+                        'locale' => $locale,
+                        'showRoute' => $showRoute ?? 'articles.show',
+                    ])
+                @endforeach
+            </div>
+        @else
+            <div class="news-feed">
+                @foreach ($articles as $article)
+                    @include('pages.articles.partials.feed-item', [
+                        'article' => $article,
+                        'locale' => $locale,
+                        'showRoute' => $showRoute ?? 'articles.show',
+                    ])
+                @endforeach
+            </div>
+        @endif
 
-    @if ($articles->hasPages())
-        <div class="news-pagination">
-            {{ $articles->links() }}
-        </div>
-    @endif
+        @if ($articles->hasPages())
+            <div class="news-pagination">
+                {{ $articles->links() }}
+            </div>
+        @endif
     </div>
 @endsection
