@@ -206,6 +206,8 @@ return [
         'faq_title' => 'Domande frequenti',
         'faq_tagline' => 'Risposte a tutte le domande frequenti, raccolte qui.',
         'transparency_title' => 'Trasparenza',
+        'cookie_title' => 'Cookie',
+        'cookie_tagline' => 'Informativa sui cookie e sul consenso di Safe House ETS.',
         'legal_lead' => 'Informativa Safe House ETS (GDPR / ePrivacy).',
         'legal_document' => 'Documento legale',
         'legal_updated' => 'Aggiornato: :date',

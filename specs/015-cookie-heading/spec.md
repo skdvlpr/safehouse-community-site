@@ -6,7 +6,7 @@
 
 **Status**: Draft. Specified only. Implement one spec at a time and stop for owner testing. Diventa socio is out of scope.
 
-**Input**: Owner 2026-09-25. Cookie uses the same heading treatment as Trasparenza: Cookie | Informativa cookie, in the Chi siamo bar, outside the glass block. The glass areas merge into one block that keeps the cookie information and the reopen control. The red label above the title is removed.
+**Input**: Owner 2026-09-25. Cookie uses the same heading treatment as Trasparenza: Cookie | Informativa sui cookie e sul consenso di Safe House ETS, in the Chi siamo bar, outside the glass block. The short label Informativa cookie is lengthened without changing the meaning. The glass areas merge into one block that keeps the cookie information and the reopen control. The red label above the title is removed. Privacy keeps its current two blocks until its own spec.
 
 ## User Scenarios & Testing *(mandatory)*
 

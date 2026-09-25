@@ -32,7 +32,7 @@ class TransparencyHeadingTest extends TestCase
             ->assertSee('page-hero__tagline', false)
             ->assertSee('Notice for Safe House ETS (GDPR / ePrivacy).', false);
 
-        $this->get('/it/cookie-policy')
+        $this->get('/it/privacy-policy')
             ->assertOk()
             ->assertSee('template-legal-hero', false)
             ->assertSee('template-legal-doc', false);

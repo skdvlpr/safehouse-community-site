@@ -206,6 +206,8 @@ return [
         'faq_title' => 'Frequently asked questions',
         'faq_tagline' => 'Answers to all the questions people ask most often, gathered here.',
         'transparency_title' => 'Transparency',
+        'cookie_title' => 'Cookies',
+        'cookie_tagline' => 'Cookie and consent notice for Safe House ETS.',
         'legal_lead' => 'Notice for Safe House ETS (GDPR / ePrivacy).',
         'legal_document' => 'Legal document',
         'legal_updated' => 'Updated: :date',
