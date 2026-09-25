@@ -82,7 +82,10 @@ class DonationFivePerMilleTest extends TestCase
             ->assertSee('donations-index__featured', false)
             ->assertSee('Dona il 5 x 1000', false)
             ->assertSee('Bonifico bancario', false)
-            ->assertSee('IT60X0542811101000000123456', false);
+            ->assertSee('IT60X0542811101000000123456', false)
+            ->assertSee('data-reveal-from="left"', false)
+            ->assertSee('data-reveal-from="right"', false)
+            ->assertDontSee('data-reveal-from="up"', false);
 
         $this->get('/en/donations')
             ->assertOk()
@@ -127,6 +130,8 @@ class DonationFivePerMilleTest extends TestCase
             ->assertSee('Senza costi aggiuntivi.', false)
             ->assertSee('98765432109', false)
             ->assertSee('Testo introduttivo.', false)
+            ->assertSee('data-reveal-from="left"', false)
+            ->assertDontSee('data-reveal-from="up"', false)
             ->assertDontSee('donation-five-per-mille__title', false);
     }
 }

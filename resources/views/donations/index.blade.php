@@ -3,7 +3,7 @@
 @section('title', __('site.donations.index_title'))
 
 @section('content')
-    <div class="motion-enter">
+    <div class="donations-motion motion-enter">
     @php
         $locale = app()->getLocale();
         $five = $donationSettings->fivePerMille();
@@ -51,7 +51,7 @@
             $recurringDescription = $recurringCampaign->getTranslation('description', $locale, false)
                 ?: $recurringCampaign->getTranslation('description', 'it');
         @endphp
-        <div class="landing-reveal mb-8" data-reveal-from="up">
+        <div class="landing-reveal mb-8" data-reveal-from="left">
         <a href="{{ route('donations.show', ['locale' => $locale, 'campaignSlug' => $recurringCampaign->slug]) }}"
            class="donation-feature-card landing-reveal__target safehouse-accent-panel block rounded-2xl p-6 transition md:p-8">
             <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-safehouse-primary">
@@ -70,9 +70,9 @@
 
     <h2 class="photo-legible-text mb-4 text-xl font-semibold">{{ __('site.donations.online_campaigns_heading') }}</h2>
 
-    <div class="space-y-4">
+    <div class="donations-index__campaigns">
         @forelse ($campaigns as $campaign)
-            <div class="landing-reveal" data-reveal-from="up">
+            <div class="landing-reveal" data-reveal-from="{{ $loop->even ? 'right' : 'left' }}">
             <a href="{{ route('donations.show', ['locale' => $locale, 'campaignSlug' => $campaign->slug]) }}"
                class="landing-reveal__target block rounded-xl border border-white/10 bg-safehouse-modal p-6 transition hover:border-safehouse-primary">
                 <h3 class="text-xl font-medium">{{ $campaign->getTranslation('title', $locale, false) ?: $campaign->getTranslation('title', 'it') }}</h3>

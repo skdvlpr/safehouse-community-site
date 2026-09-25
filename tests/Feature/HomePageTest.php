@@ -57,6 +57,24 @@ class HomePageTest extends TestCase
             ->assertSee('non riceviamo finanziamenti vincolati', false);
     }
 
+    public function test_home_impact_stats_sit_between_hero_and_manifesto(): void
+    {
+        $this->seed(PageSeeder::class);
+        $this->seed(DeploySiteContentSeeder::class);
+
+        $html = $this->get('/it')->assertOk()->getContent();
+
+        $hero = strpos($html, 'md:text-5xl lg:text-6xl');
+        $stats = strpos($html, 'Pasti distribuiti');
+        $quote = strpos($html, 'NESSUN ESSERE UMANO È ILLEGALE');
+
+        $this->assertNotFalse($hero);
+        $this->assertNotFalse($stats);
+        $this->assertNotFalse($quote);
+        $this->assertLessThan($stats, $hero);
+        $this->assertLessThan($quote, $stats);
+    }
+
     public function test_home_impact_stats_use_crm_totals(): void
     {
         $this->seed(PageSeeder::class);

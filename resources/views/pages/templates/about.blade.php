@@ -40,7 +40,7 @@
         </div>
 
         @if ($closing)
-            <div class="landing-reveal" data-reveal-from="up">
+            <div class="landing-reveal" data-reveal-from="left">
                 <blockquote class="template-about-closing landing-reveal__target safehouse-glass safehouse-prose">
                     {!! \App\Support\CmsHtml::render($closing) !!}
                 </blockquote>

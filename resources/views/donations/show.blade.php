@@ -57,8 +57,8 @@
         'align' => 'center',
     ])
 
-    <div class="landing-reveal mx-auto w-full max-w-2xl" data-reveal-from="up">
-    <form id="donation-form" class="donation-form landing-reveal__target mx-auto w-full max-w-2xl space-y-6 rounded-3xl border border-white/10 bg-safehouse-modal p-6 shadow-xl sm:p-8"
+    <div class="landing-reveal mx-auto w-full max-w-2xl lg:max-w-5xl" data-reveal-from="left">
+    <form id="donation-form" class="donation-form landing-reveal__target"
           data-recurring="{{ $isRecurring ? '1' : '0' }}">
         @if (! empty($fundraisingProgress) || $showDescription)
             <header class="space-y-3">
@@ -89,110 +89,116 @@
             </aside>
         @endif
 
-        <div class="space-y-3">
-            <span class="block text-sm font-medium">{{ __('site.donations.donor_type_label') }}</span>
-            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <label class="flex cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-safehouse-page/70 px-4 py-3 text-sm has-[:checked]:border-safehouse-primary has-[:checked]:bg-safehouse-primary/10">
-                    <input type="radio" name="donor_type" value="individual" class="sr-only" checked>
-                    <span>{{ __('site.donations.donor_type_individual') }}</span>
-                </label>
-                <label class="flex cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-safehouse-page/70 px-4 py-3 text-sm has-[:checked]:border-safehouse-primary has-[:checked]:bg-safehouse-primary/10">
-                    <input type="radio" name="donor_type" value="organization" class="sr-only">
-                    <span>{{ __('site.donations.donor_type_organization') }}</span>
-                </label>
-            </div>
-        </div>
-
-        <div class="space-y-2">
-            <label for="donor_name" class="block text-sm font-medium">{{ __('site.donations.donor_name') }}</label>
-            <input id="donor_name" name="donor_name" required maxlength="255"
-                   class="w-full rounded-2xl border border-white/10 bg-safehouse-page px-4 py-3 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
-        </div>
-
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
-            <div class="space-y-2">
-                <label for="donor_email" class="block text-sm font-medium">{{ __('site.donations.donor_email') }}</label>
-                <input id="donor_email" name="donor_email" type="email" maxlength="255" autocomplete="email"
-                       class="donation-form__input min-h-12 w-full">
-            </div>
-            <div class="space-y-2 donation-phone-field">
-                <label for="donor_phone" class="block text-sm font-medium">{{ __('site.donations.donor_phone') }}</label>
-                <input id="donor_phone" name="donor_phone" type="tel" maxlength="50" autocomplete="tel"
-                       class="donation-form__input min-h-12 w-full">
-                <input type="hidden" id="donor_phone_country" name="donor_phone_country" value="">
-            </div>
-        </div>
-        <p class="text-xs text-safehouse-muted">{{ __('site.donations.contact_help') }}</p>
-
-        <div class="space-y-2">
-            <label for="comment" class="block text-sm font-medium">{{ __('site.donations.comment') }}</label>
-            <textarea id="comment" name="comment" rows="3" maxlength="5000"
-                      class="min-h-28 w-full resize-y rounded-2xl border border-white/10 bg-safehouse-page px-4 py-3 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20"></textarea>
-        </div>
-
-        <div class="space-y-3">
-            <span class="block text-sm font-medium">
-                @if ($isRecurring)
-                    {{ __('site.donations.amount_monthly_label') }}
-                @else
-                    {{ __('site.donations.amount') }}
-                @endif
-                ({{ strtoupper($campaign->currency) }})
-            </span>
-
-            @if (count($presets) > 0)
-                <div class="grid grid-cols-2 gap-2 sm:grid-cols-3" id="preset-buttons">
-                    @foreach ($presets as $cents)
-                        <button type="button"
-                                data-cents="{{ $cents }}"
-                                class="preset-btn rounded-2xl border border-white/10 bg-safehouse-page/70 px-3 py-3 text-sm font-semibold transition hover:border-safehouse-primary/40">
-                            {{ $campaign->formatPresetLabel($cents) }}@if ($isRecurring)<span class="ms-1 font-normal text-safehouse-muted">{{ __('site.donations.preset_per_month_suffix') }}</span>@endif
-                        </button>
-                    @endforeach
+        <div class="donation-form__columns">
+            <div class="donation-form__col donation-form__col--identity">
+                <div class="space-y-3">
+                    <span class="block text-sm font-medium">{{ __('site.donations.donor_type_label') }}</span>
+                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        <label class="flex cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-safehouse-page/70 px-4 py-3 text-sm has-[:checked]:border-safehouse-primary has-[:checked]:bg-safehouse-primary/10">
+                            <input type="radio" name="donor_type" value="individual" class="sr-only" checked>
+                            <span>{{ __('site.donations.donor_type_individual') }}</span>
+                        </label>
+                        <label class="flex cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-safehouse-page/70 px-4 py-3 text-sm has-[:checked]:border-safehouse-primary has-[:checked]:bg-safehouse-primary/10">
+                            <input type="radio" name="donor_type" value="organization" class="sr-only">
+                            <span>{{ __('site.donations.donor_type_organization') }}</span>
+                        </label>
+                    </div>
                 </div>
-            @endif
 
-            @if ($campaign->allow_custom_amount)
-                <div class="relative">
-                    <input id="amount_eur"
-                           name="amount_eur"
-                           type="number"
-                           min="{{ number_format($campaign->min_amount_cents / 100, 2, '.', '') }}"
-                           step="0.01"
-                           inputmode="decimal"
-                           aria-label="{{ $isRecurring ? __('site.donations.amount_monthly_label') : __('site.donations.custom_amount') }}"
-                           placeholder="0,00"
-                           class="w-full rounded-2xl border border-white/10 bg-safehouse-page py-3 pe-16 ps-4 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
-                    <span class="pointer-events-none absolute inset-y-0 end-4 flex items-center text-sm font-medium text-safehouse-muted">
-                        {{ strtoupper($campaign->currency) }}
+                <div class="space-y-2">
+                    <label for="donor_name" class="block text-sm font-medium">{{ __('site.donations.donor_name') }}</label>
+                    <input id="donor_name" name="donor_name" required maxlength="255"
+                           class="w-full rounded-2xl border border-white/10 bg-safehouse-page px-4 py-3 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
+                    <div class="space-y-2">
+                        <label for="donor_email" class="block text-sm font-medium">{{ __('site.donations.donor_email') }}</label>
+                        <input id="donor_email" name="donor_email" type="email" maxlength="255" autocomplete="email"
+                               class="donation-form__input min-h-12 w-full">
+                    </div>
+                    <div class="space-y-2 donation-phone-field">
+                        <label for="donor_phone" class="block text-sm font-medium">{{ __('site.donations.donor_phone') }}</label>
+                        <input id="donor_phone" name="donor_phone" type="tel" maxlength="50" autocomplete="tel"
+                               class="donation-form__input min-h-12 w-full">
+                        <input type="hidden" id="donor_phone_country" name="donor_phone_country" value="">
+                    </div>
+                </div>
+                <p class="text-xs text-safehouse-muted">{{ __('site.donations.contact_help') }}</p>
+            </div>
+
+            <div class="donation-form__col donation-form__col--gift">
+                <div class="space-y-2">
+                    <label for="comment" class="block text-sm font-medium">{{ __('site.donations.comment') }}</label>
+                    <textarea id="comment" name="comment" rows="3" maxlength="5000"
+                              class="min-h-28 w-full resize-y rounded-2xl border border-white/10 bg-safehouse-page px-4 py-3 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20"></textarea>
+                </div>
+
+                <div class="space-y-3">
+                    <span class="block text-sm font-medium">
+                        @if ($isRecurring)
+                            {{ __('site.donations.amount_monthly_label') }}
+                        @else
+                            {{ __('site.donations.amount') }}
+                        @endif
+                        ({{ strtoupper($campaign->currency) }})
                     </span>
+
+                    @if (count($presets) > 0)
+                        <div class="grid grid-cols-2 gap-2 sm:grid-cols-3" id="preset-buttons">
+                            @foreach ($presets as $cents)
+                                <button type="button"
+                                        data-cents="{{ $cents }}"
+                                        class="preset-btn rounded-2xl border border-white/10 bg-safehouse-page/70 px-3 py-3 text-sm font-semibold transition hover:border-safehouse-primary/40">
+                                    {{ $campaign->formatPresetLabel($cents) }}@if ($isRecurring)<span class="ms-1 font-normal text-safehouse-muted">{{ __('site.donations.preset_per_month_suffix') }}</span>@endif
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    @if ($campaign->allow_custom_amount)
+                        <div class="relative">
+                            <input id="amount_eur"
+                                   name="amount_eur"
+                                   type="number"
+                                   min="{{ number_format($campaign->min_amount_cents / 100, 2, '.', '') }}"
+                                   step="0.01"
+                                   inputmode="decimal"
+                                   aria-label="{{ $isRecurring ? __('site.donations.amount_monthly_label') : __('site.donations.custom_amount') }}"
+                                   placeholder="0,00"
+                                   class="w-full rounded-2xl border border-white/10 bg-safehouse-page py-3 pe-16 ps-4 outline-none transition focus:border-safehouse-primary/60 focus:ring-2 focus:ring-safehouse-primary/20">
+                            <span class="pointer-events-none absolute inset-y-0 end-4 flex items-center text-sm font-medium text-safehouse-muted">
+                                {{ strtoupper($campaign->currency) }}
+                            </span>
+                        </div>
+                    @endif
+
+                    <p class="text-xs text-safehouse-muted">
+                        {{ __('site.donations.minimum') }}: {{ $campaign->formatPresetLabel($campaign->min_amount_cents) }}@if ($isRecurring) {{ __('site.donations.preset_per_month_suffix') }}@endif
+                    </p>
                 </div>
-            @endif
 
-            <p class="text-xs text-safehouse-muted">
-                {{ __('site.donations.minimum') }}: {{ $campaign->formatPresetLabel($campaign->min_amount_cents) }}@if ($isRecurring) {{ __('site.donations.preset_per_month_suffix') }}@endif
-            </p>
+                @if ($formNotice)
+                    <p class="rounded-2xl border border-white/10 bg-safehouse-page/70 p-4 text-sm text-safehouse-muted">{{ $formNotice }}</p>
+                @endif
+
+                @if ($isRecurring)
+                    <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-safehouse-page/70 p-4 text-sm leading-relaxed">
+                        <input id="recurring_cancel_ack" name="recurring_cancel_ack" type="checkbox" value="1"
+                               class="mt-1 size-4 shrink-0 rounded border-white/20 bg-safehouse-page text-safehouse-primary focus:ring-safehouse-primary/40">
+                        <span>{{ __('site.donations.cancel_ack_label') }}</span>
+                    </label>
+                @endif
+
+                <p class="text-xs leading-relaxed text-safehouse-muted">
+                    {{ __('site.donations.card_not_stored') }}
+                    <a href="{{ route('donations.privacy', ['locale' => $locale, 'campaignSlug' => $campaign->slug]) }}"
+                       class="text-safehouse-link underline underline-offset-2 hover:text-safehouse-link-hover">
+                        {{ __('site.donations.privacy_link') }}
+                    </a>
+                </p>
+            </div>
         </div>
-
-        @if ($formNotice)
-            <p class="rounded-2xl border border-white/10 bg-safehouse-page/70 p-4 text-sm text-safehouse-muted">{{ $formNotice }}</p>
-        @endif
-
-        @if ($isRecurring)
-            <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-safehouse-page/70 p-4 text-sm leading-relaxed">
-                <input id="recurring_cancel_ack" name="recurring_cancel_ack" type="checkbox" value="1"
-                       class="mt-1 size-4 shrink-0 rounded border-white/20 bg-safehouse-page text-safehouse-primary focus:ring-safehouse-primary/40">
-                <span>{{ __('site.donations.cancel_ack_label') }}</span>
-            </label>
-        @endif
-
-        <p class="text-xs leading-relaxed text-safehouse-muted">
-            {{ __('site.donations.card_not_stored') }}
-            <a href="{{ route('donations.privacy', ['locale' => $locale, 'campaignSlug' => $campaign->slug]) }}"
-               class="text-safehouse-link underline underline-offset-2 hover:text-safehouse-link-hover">
-                {{ __('site.donations.privacy_link') }}
-            </a>
-        </p>
 
         @if ($stripeMock && config('app.debug'))
             <p class="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-100">

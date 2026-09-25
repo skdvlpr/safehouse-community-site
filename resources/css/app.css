@@ -547,12 +547,22 @@ html[data-theme='light'] {
     }
 
     .donations-index__featured {
-        @apply mb-8 grid grid-cols-1 gap-8 overflow-x-clip lg:grid-cols-2;
+        @apply mb-8 grid grid-cols-1 gap-8 lg:grid-cols-2;
+        overflow: clip;
     }
 
     .donations-index__featured > .landing-reveal,
     .donations-index__featured > .donation-feature-card {
         @apply mb-0 h-full;
+    }
+
+    .donations-index__campaigns {
+        @apply space-y-4;
+        overflow: clip;
+    }
+
+    .donations-motion {
+        overflow: clip;
     }
 
     .donation-five-per-mille__title {
@@ -783,12 +793,18 @@ html[data-theme='light'] {
         @apply w-full rounded-2xl p-8 md:p-10;
     }
 
+    .template-page--about {
+        --landing-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        overflow: clip;
+    }
+
     .template-page--about .template-about-intro {
         @apply rounded-2xl border border-white/10 p-8 md:p-10;
     }
 
     .template-about-grid {
-        @apply grid gap-8 overflow-x-clip lg:grid-cols-12 lg:gap-10;
+        @apply grid gap-8 lg:grid-cols-12 lg:gap-10;
+        overflow: clip;
     }
 
     .template-page--about .template-about-values {
@@ -1148,6 +1164,7 @@ html[data-theme='light'] {
     .landing-reveal {
         --reveal-x: 0px;
         --reveal-y: 2rem;
+        --landing-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
         @apply flex flex-col;
     }
 
@@ -1161,7 +1178,7 @@ html[data-theme='light'] {
         transform: translate3d(var(--reveal-x), var(--reveal-y), 0);
         transition:
             opacity 0.55s ease-out var(--reveal-delay, 0s),
-            transform 0.9s var(--landing-ease-out) var(--reveal-delay, 0s);
+            transform 0.9s var(--landing-ease-out, cubic-bezier(0.16, 1, 0.3, 1)) var(--reveal-delay, 0s);
     }
 
     /* Off-screen start: a full viewport width away, clipped by .template-landing-cards. */
@@ -2023,7 +2040,15 @@ html[data-theme='light'] {
     }
 
     .donation-form {
-        @apply mx-auto w-full max-w-2xl space-y-6 rounded-3xl border border-white/10 bg-safehouse-modal/95 p-6 shadow-[0_24px_80px_rgb(0_0_0_/_35%)] backdrop-blur-sm sm:p-8;
+        @apply mx-auto w-full max-w-2xl space-y-6 rounded-3xl border border-white/10 bg-safehouse-modal/95 p-6 shadow-[0_24px_80px_rgb(0_0_0_/_35%)] backdrop-blur-sm sm:p-8 lg:max-w-5xl;
+    }
+
+    .donation-form__columns {
+        @apply grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start lg:gap-8;
+    }
+
+    .donation-form__col {
+        @apply space-y-6;
     }
 
     .donation-form__header {

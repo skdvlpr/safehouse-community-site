@@ -27,6 +27,9 @@ class CmsPagesTest extends TestCase
             ->assertSee('Comunità di accoglienza e solidarietà sul territorio', false)
             ->assertSee('data-page-carousel', false)
             ->assertSee('landing-reveal', false)
+            ->assertSee('data-reveal-from="left"', false)
+            ->assertSee('data-reveal-from="right"', false)
+            ->assertDontSee('data-reveal-from="up"', false)
             ->assertSee(__('site.pages.about_values_heading', [], 'it'), false)
             ->assertSee('disobbedienza civile', false)
             ->assertSee('casa sicura che si muove', false);

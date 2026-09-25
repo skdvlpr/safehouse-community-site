@@ -36,7 +36,10 @@ class DonationCampaignRoutesTest extends TestCase
             ->assertSee('Raccolta attiva')
             ->assertDontSee('Raccolta nascosta')
             ->assertSee('Donazione ricorrente')
-            ->assertSee(__('site.donations.recurring_cta'));
+            ->assertSee(__('site.donations.recurring_cta'))
+            ->assertSee('data-reveal-from="left"', false)
+            ->assertSee('data-reveal-from="right"', false)
+            ->assertDontSee('data-reveal-from="up"', false);
     }
 
     public function test_donations_index_hides_disabled_recurring_campaign(): void
