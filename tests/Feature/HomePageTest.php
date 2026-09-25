@@ -42,7 +42,7 @@ class HomePageTest extends TestCase
             ->assertSee('data-theme-option="system"', false)
             ->assertDontSee('locale-switcher', false)
             ->assertSee('site-header__donate', false)
-            ->assertSee('Dona ora', false)
+            ->assertSee(__('site.nav.donate', [], 'it'), false)
             ->assertSee('safehouse.theme', false)
             ->assertSee('>IT</', false)
             ->assertDontSee('>RU</', false)
