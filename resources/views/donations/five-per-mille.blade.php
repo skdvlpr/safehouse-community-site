@@ -23,7 +23,8 @@
         'align' => 'center',
     ])
 
-    <article class="donation-five-per-mille safehouse-glass rounded-2xl p-8 md:p-12">
+    <div class="landing-reveal" data-reveal-from="up">
+    <article class="donation-five-per-mille landing-reveal__target safehouse-glass rounded-2xl p-8 md:p-12">
         @if ($donationSettings->localized($five, 'body', $locale) !== '')
             <div class="safehouse-prose mb-10 max-w-none">
                 {!! $donationSettings->localized($five, 'body', $locale) !!}
@@ -53,6 +54,7 @@
             </section>
         @endif
     </article>
+    </div>
 
     @push('scripts')
         <script>

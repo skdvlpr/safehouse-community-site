@@ -33,8 +33,9 @@
             'align' => 'center',
         ])
 
-        <div class="grid items-stretch gap-8 lg:grid-cols-2">
-            <article class="template-contact-info safehouse-glass safehouse-prose">
+        <div class="grid items-stretch gap-8 overflow-x-clip lg:grid-cols-2">
+            <div class="landing-reveal" data-reveal-from="left">
+            <article class="template-contact-info landing-reveal__target safehouse-glass safehouse-prose">
                 <div class="template-contact-intro">
                     {!! \App\Support\CmsHtml::render(is_string($contactBody) ? $contactBody : $body) !!}
                 </div>
@@ -81,11 +82,14 @@
                     @endif
                 </div>
             </article>
+            </div>
 
-            <aside class="template-contact-aside safehouse-glass">
+            <div class="landing-reveal" data-reveal-from="right">
+            <aside class="template-contact-aside landing-reveal__target safehouse-glass">
                 <h2 class="mb-4 text-lg font-semibold">{{ __('site.pages.contact_form_heading') }}</h2>
                 @include('pages.partials.contact-form-shell')
             </aside>
+            </div>
         </div>
     </x-page-template-shell>
 @endsection

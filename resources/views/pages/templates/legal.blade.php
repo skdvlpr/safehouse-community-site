@@ -28,8 +28,9 @@
             ])
         @endif
 
+        <div class="landing-reveal" data-reveal-from="up">
         <div @class([
-            'template-legal-column safehouse-glass',
+            'template-legal-column landing-reveal__target safehouse-glass',
             'template-legal-doc' => $mergedLegal,
             'template-legal-hero' => ! $mergedLegal,
         ])>
@@ -73,11 +74,14 @@
                 </div>
             @endif
         </div>
+        </div>
 
         @unless ($mergedLegal)
-            <article class="template-legal-doc template-legal-column safehouse-glass safehouse-prose">
+            <div class="landing-reveal" data-reveal-from="up">
+            <article class="template-legal-doc template-legal-column landing-reveal__target safehouse-glass safehouse-prose">
                 {!! \App\Support\CmsHtml::render($body) !!}
             </article>
+            </div>
         @endunless
     </x-page-template-shell>
 @endsection

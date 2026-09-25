@@ -32,8 +32,36 @@ class SiteLayoutTest extends TestCase
             ->assertSee('site-header-drawer', false)
             ->assertSee(__('site.nav.menu', [], 'it'), false)
             ->assertSee(__('site.nav.close_menu', [], 'it'), false)
+            ->assertSee(__('site.nav.drawer_title', [], 'it'), false)
             ->assertSee(__('site.nav.contact_us', [], 'it'), false)
-            ->assertSee('/it/contact', false);
+            ->assertSee('/it/contact', false)
+            ->assertSee('— Safe House ETS', false);
+    }
+
+    public function test_mobile_drawer_is_branded_without_a_home_link(): void
+    {
+        $html = $this->get('/it')->assertOk()->getContent();
+
+        $this->assertTrue((bool) preg_match('/id="site-header-drawer"[\s\S]*?<\/nav>/', $html, $drawer));
+        $this->assertStringContainsString('Safe House ETS', $drawer[0]);
+        $this->assertStringNotContainsString('>Home</', $drawer[0]);
+        $this->assertStringContainsString('aria-label="'.__('site.nav.menu', [], 'it').'"', $html);
+
+        $this->assertTrue((bool) preg_match('/<nav class="hidden items-center[\s\S]*?<\/nav>/', $html, $desktop));
+        $this->assertStringNotContainsString('>Home</', $desktop[0]);
+    }
+
+    public function test_document_title_suffix_is_ets_and_og_title_stays_bare(): void
+    {
+        $html = $this->get('/it')->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression('/<title>[^<]*— Safe House ETS<\/title>/', $html);
+        $this->assertTrue((bool) preg_match('/property="og:title" content="([^"]*)"/', $html, $og));
+        $this->assertStringNotContainsString('— Safe House ETS', $og[1]);
+
+        $this->get('/en/donations')
+            ->assertOk()
+            ->assertSee('— Safe House ETS', false);
     }
 
     public function test_english_header_uses_short_donate_label(): void

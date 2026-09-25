@@ -16,6 +16,7 @@ return [
         'donate' => 'Tutti i modi per donare',
         'donate_short' => 'Dona ora',
         'menu' => 'Menu',
+        'drawer_title' => 'Safe House ETS',
         'close_menu' => 'Chiudi menu',
         'other_pages' => 'Altre Pagine',
         'language' => 'Lingua',
@@ -25,7 +26,7 @@ return [
         'rights' => '© :year Safe House Community',
     ],
     'layout' => [
-        'title_suffix' => '— Safe House',
+        'title_suffix' => '— Safe House ETS',
     ],
     'discovery' => [
         'donations_title' => 'Donazioni',

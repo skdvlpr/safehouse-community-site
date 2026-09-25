@@ -21,6 +21,7 @@ class ServicesHeadingTest extends TestCase
         $this->get('/it/services')
             ->assertOk()
             ->assertSee('page-hero__title', false)
+            ->assertSee('page-hero__headline--center', false)
             ->assertSee('Servizi', false)
             ->assertSee('Interveniamo con servizi integrati per rispondere alle emergenze e accompagnare percorsi di autonomia e dignità.', false)
             ->assertSee('landing-reveal', false)

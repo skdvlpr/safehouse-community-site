@@ -25,8 +25,8 @@
             </span>
 
             <div class="nav-dropdown__panel" role="menu">
-                <a href="{{ route('articles.index', ['locale' => $locale]) }}" role="menuitem" class="nav-dropdown__link">{{ __('site.pages.news_all') }}</a>
-                <a href="{{ route('editorial-articles.index', ['locale' => $locale]) }}" role="menuitem" class="nav-dropdown__link">{{ __('site.pages.editorial_all') }}</a>
+                <a href="{{ route('articles.index', ['locale' => $locale]) }}" role="menuitem" class="nav-dropdown__link">{{ __('site.pages.news_title') }}</a>
+                <a href="{{ route('editorial-articles.index', ['locale' => $locale]) }}" role="menuitem" class="nav-dropdown__link">{{ __('site.pages.editorial_title') }}</a>
                 @foreach ($extraPages as $page)
                     @php
                         $pageUrl = app(\App\Services\PageService::class)->publicUrl($page, $locale);

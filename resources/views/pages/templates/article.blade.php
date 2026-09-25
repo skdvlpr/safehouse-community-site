@@ -26,9 +26,11 @@
 
             @include('pages.partials.page-carousel', ['page' => $page])
 
-            <article class="template-article-body safehouse-glass safehouse-prose">
+            <div class="landing-reveal" data-reveal-from="up">
+            <article class="template-article-body landing-reveal__target safehouse-glass safehouse-prose">
                 {!! \App\Support\CmsHtml::render($body) !!}
             </article>
+            </div>
         </div>
     </x-page-template-shell>
 @endsection

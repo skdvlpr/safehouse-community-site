@@ -19,26 +19,32 @@
         ])
 
         <div class="template-about-grid">
-            <article class="template-about-intro safehouse-glass safehouse-prose">
-                {!! \App\Support\CmsHtml::render($body) !!}
-            </article>
+            <div class="landing-reveal lg:col-span-7" data-reveal-from="left">
+                <article class="template-about-intro landing-reveal__target safehouse-glass safehouse-prose">
+                    {!! \App\Support\CmsHtml::render($body) !!}
+                </article>
+            </div>
 
             @if ($values)
-                <section class="template-about-values" aria-labelledby="about-values-heading">
-                    <h2 id="about-values-heading" class="template-about-values__heading">
-                        {{ __('site.pages.about_values_heading') }}
-                    </h2>
-                    <div class="safehouse-prose template-about-values__body">
-                        {!! \App\Support\CmsHtml::render($values) !!}
-                    </div>
-                </section>
+                <div class="landing-reveal lg:col-span-5" data-reveal-from="right">
+                    <section class="template-about-values landing-reveal__target" aria-labelledby="about-values-heading">
+                        <h2 id="about-values-heading" class="template-about-values__heading">
+                            {{ __('site.pages.about_values_heading') }}
+                        </h2>
+                        <div class="safehouse-prose template-about-values__body">
+                            {!! \App\Support\CmsHtml::render($values) !!}
+                        </div>
+                    </section>
+                </div>
             @endif
         </div>
 
         @if ($closing)
-            <blockquote class="template-about-closing safehouse-glass safehouse-prose">
-                {!! \App\Support\CmsHtml::render($closing) !!}
-            </blockquote>
+            <div class="landing-reveal" data-reveal-from="up">
+                <blockquote class="template-about-closing landing-reveal__target safehouse-glass safehouse-prose">
+                    {!! \App\Support\CmsHtml::render($closing) !!}
+                </blockquote>
+            </div>
         @endif
     </x-page-template-shell>
 @endsection

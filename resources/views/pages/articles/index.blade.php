@@ -28,11 +28,14 @@
         ])
 
         @if ($articles->isEmpty())
-            <div class="safehouse-glass rounded-2xl p-8 text-center text-safehouse-muted">
+            <div class="landing-reveal" data-reveal-from="up">
+            <div class="landing-reveal__target safehouse-glass rounded-2xl p-8 text-center text-safehouse-muted">
                 {{ $filters->hasActiveFilters() ? __($emptyFilteredKey) : __($emptyKey) }}
             </div>
+            </div>
         @elseif ($filters->layout === 'list')
-            <div class="news-list safehouse-glass">
+            <div class="news-list landing-reveal safehouse-glass" data-reveal-from="up">
+                <div class="landing-reveal__target">
                 @foreach ($articles as $article)
                     @include('pages.articles.partials.list-item', [
                         'article' => $article,
@@ -40,6 +43,7 @@
                         'showRoute' => $showRoute ?? 'articles.show',
                     ])
                 @endforeach
+                </div>
             </div>
         @else
             <div class="news-feed">

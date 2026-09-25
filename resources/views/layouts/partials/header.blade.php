@@ -68,7 +68,7 @@
             decoding="async"
         >
         <div class="site-header-drawer__head">
-            <p class="site-header-drawer__title">{{ __('site.nav.menu') }}</p>
+            <p class="site-header-drawer__title">{{ __('site.nav.drawer_title') }}</p>
             <button
                 type="button"
                 class="site-header-drawer__close"

@@ -6,7 +6,8 @@
 @endphp
 
 @if ($donationSettings->bankTransferEnabled() && ($iban !== '' || $beneficiary !== ''))
-    <section class="donation-feature-card safehouse-accent-panel donation-bank-transfer rounded-2xl p-6 transition md:p-8" aria-labelledby="bank-transfer-heading">
+    <div class="landing-reveal" data-reveal-from="right">
+    <section class="donation-feature-card landing-reveal__target safehouse-accent-panel donation-bank-transfer rounded-2xl p-6 transition md:p-8" aria-labelledby="bank-transfer-heading">
         <h2 id="bank-transfer-heading" class="mb-3 text-2xl font-semibold md:text-3xl">
             {{ $donationSettings->localized($bank, 'heading') }}
         </h2>
@@ -38,6 +39,7 @@
             @endif
         </dl>
     </section>
+    </div>
 
     @once
         @push('scripts')

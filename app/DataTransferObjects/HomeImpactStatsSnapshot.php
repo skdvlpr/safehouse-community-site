@@ -40,7 +40,7 @@ readonly class HomeImpactStatsSnapshot
     }
 
     /**
-     * @return list<array{value: string, label: string}>
+     * @return list<array{value: string, label: string, count_to: int|null}>
      */
     public function cards(string $locale): array
     {
@@ -48,14 +48,17 @@ readonly class HomeImpactStatsSnapshot
             [
                 'value' => $this->formatCount($this->distributedMeals),
                 'label' => (string) __('site.home.stats.distributed_meals', [], $locale),
+                'count_to' => $this->distributedMeals,
             ],
             [
                 'value' => $this->formatCount($this->interventions),
                 'label' => (string) __('site.home.stats.interventions', [], $locale),
+                'count_to' => $this->interventions,
             ],
             [
                 'value' => $this->partnersDisplay,
                 'label' => (string) __('site.home.stats.partners', [], $locale),
+                'count_to' => $this->countToFromDisplay($this->partnersDisplay),
             ],
         ];
     }
@@ -67,5 +70,16 @@ readonly class HomeImpactStatsSnapshot
         }
 
         return number_format($value, 0, ',', '.');
+    }
+
+    private function countToFromDisplay(string $display): ?int
+    {
+        if ($display === '—' || $display === '') {
+            return null;
+        }
+
+        $digits = preg_replace('/\D+/', '', $display) ?? '';
+
+        return $digits === '' ? null : (int) $digits;
     }
 }

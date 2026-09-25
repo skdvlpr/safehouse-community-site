@@ -24,7 +24,8 @@ class ContactHeadingTest extends TestCase
             ->assertSee('Contatti', false)
             ->assertSee('Per contattarci compila il modulo e scegli lo sportello più adatto.', false)
             ->assertSee('template-contact-desks', false)
-            ->assertSee('Richiesta generica per ogni altra informazione.', false)
+            ->assertSee('Richiesta generica', false)
+            ->assertSee('Ogni altra informazione', false)
             ->assertDontSee('adatto: Sportello digitale', false)
             ->assertSee('name="last_name"', false)
             ->assertSee(__('site.pages.contact_last_name', [], 'it'), false);
@@ -32,6 +33,7 @@ class ContactHeadingTest extends TestCase
         $this->get('/en/contact')
             ->assertOk()
             ->assertSee('Fill in the form and choose the most suitable desk.', false)
-            ->assertSee('General request for anything else.', false);
+            ->assertSee('General request', false)
+            ->assertSee('Anything else', false);
     }
 }

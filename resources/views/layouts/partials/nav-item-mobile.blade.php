@@ -13,8 +13,8 @@
             <p class="px-3 py-1 text-xs font-semibold uppercase tracking-wide text-safehouse-muted">
                 {{ __($item['label']) }}
             </p>
-            <a href="{{ route('articles.index', ['locale' => $locale]) }}" class="block rounded-md px-3 py-2 text-base font-semibold text-safehouse-muted hover:bg-white/5 hover:text-safehouse-text">{{ __('site.pages.news_all') }}</a>
-            <a href="{{ route('editorial-articles.index', ['locale' => $locale]) }}" class="block rounded-md px-3 py-2 text-base font-semibold text-safehouse-muted hover:bg-white/5 hover:text-safehouse-text">{{ __('site.pages.editorial_all') }}</a>
+            <a href="{{ route('articles.index', ['locale' => $locale]) }}" class="block rounded-md px-3 py-2 text-base font-semibold text-safehouse-muted hover:bg-white/5 hover:text-safehouse-text">{{ __('site.pages.news_title') }}</a>
+            <a href="{{ route('editorial-articles.index', ['locale' => $locale]) }}" class="block rounded-md px-3 py-2 text-base font-semibold text-safehouse-muted hover:bg-white/5 hover:text-safehouse-text">{{ __('site.pages.editorial_title') }}</a>
             @foreach ($extraPages as $page)
                 @php
                     $pageUrl = app(\App\Services\PageService::class)->publicUrl($page, $locale);

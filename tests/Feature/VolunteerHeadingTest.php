@@ -11,6 +11,7 @@ class VolunteerHeadingTest extends TestCase
         $this->get('/it/volunteers')
             ->assertOk()
             ->assertSee('page-hero__title', false)
+            ->assertSee('page-hero__headline--center', false)
             ->assertSee('Volontariato', false)
             ->assertSee('page-hero__tagline', false)
             ->assertSee('Metti a disposizione tempo e competenze per l\'accoglienza e i servizi sul territorio.')

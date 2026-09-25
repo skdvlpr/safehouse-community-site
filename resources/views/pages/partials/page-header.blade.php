@@ -3,7 +3,7 @@
     'lead' => null,
     'page' => null,
     'prominent' => false,
-    'align' => 'end',
+    'align' => 'center',
 ])
 
 @if ($prominent)

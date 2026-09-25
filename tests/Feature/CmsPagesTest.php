@@ -23,8 +23,10 @@ class CmsPagesTest extends TestCase
             ->assertOk()
             ->assertSee('data-page-template="about"', false)
             ->assertSee('page-hero__title', false)
+            ->assertSee('page-hero__headline--center', false)
             ->assertSee('Comunità di accoglienza e solidarietà sul territorio', false)
             ->assertSee('data-page-carousel', false)
+            ->assertSee('landing-reveal', false)
             ->assertSee(__('site.pages.about_values_heading', [], 'it'), false)
             ->assertSee('disobbedienza civile', false)
             ->assertSee('casa sicura che si muove', false);

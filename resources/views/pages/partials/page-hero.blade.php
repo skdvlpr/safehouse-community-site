@@ -2,7 +2,7 @@
     'title',
     'tagline' => null,
     'page' => null,
-    'align' => 'end',
+    'align' => 'center',
 ])
 
 <div class="page-hero mb-10">

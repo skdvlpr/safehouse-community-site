@@ -57,7 +57,8 @@
         'align' => 'center',
     ])
 
-    <form id="donation-form" class="donation-form mx-auto w-full max-w-2xl space-y-6 rounded-3xl border border-white/10 bg-safehouse-modal p-6 shadow-xl sm:p-8"
+    <div class="landing-reveal mx-auto w-full max-w-2xl" data-reveal-from="up">
+    <form id="donation-form" class="donation-form landing-reveal__target mx-auto w-full max-w-2xl space-y-6 rounded-3xl border border-white/10 bg-safehouse-modal p-6 shadow-xl sm:p-8"
           data-recurring="{{ $isRecurring ? '1' : '0' }}">
         @if (! empty($fundraisingProgress) || $showDescription)
             <header class="space-y-3">
@@ -223,6 +224,7 @@
             @endif
         </button>
     </form>
+    </div>
 @endsection
 
 @push('head')

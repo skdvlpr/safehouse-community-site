@@ -20,7 +20,8 @@
     @endphp
 
     <x-page-template-shell :page="$page" class="motion-enter">
-        <section class="safehouse-glass mb-4 rounded-2xl p-5 md:mb-6 md:p-8 lg:p-10">
+        <div class="landing-reveal" data-reveal-from="up">
+        <section class="safehouse-glass landing-reveal__target mb-4 rounded-2xl p-5 md:mb-6 md:p-8 lg:p-10">
             @if ($eyebrow)
                 <p class="mb-3 text-sm font-medium uppercase tracking-wider text-safehouse-primary">
                     {{ $eyebrow }}
@@ -56,6 +57,7 @@
                 </a>
             </div>
         </section>
+        </div>
 
         @include('pages.partials.home-manifesto-banner')
 

@@ -12,10 +12,12 @@
                 ])
             </header>
 
-            <aside class="volunteer-page__panel template-contact-aside safehouse-glass">
+            <div class="landing-reveal" data-reveal-from="up">
+            <aside class="volunteer-page__panel landing-reveal__target template-contact-aside safehouse-glass">
                 <h2 class="volunteer-page__form-heading">{{ __('site.volunteer.form_heading') }}</h2>
                 @include('pages.partials.volunteer-form-shell')
             </aside>
+            </div>
         </section>
     </div>
 @endsection

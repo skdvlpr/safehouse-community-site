@@ -21,8 +21,10 @@
             @include('pages.partials.page-header', ['title' => $title, 'page' => $page])
         @endif
 
-        <article class="template-default-panel safehouse-glass safehouse-prose">
+        <div class="landing-reveal" data-reveal-from="up">
+            <article class="template-default-panel landing-reveal__target safehouse-glass safehouse-prose">
                 {!! \App\Support\CmsHtml::render($body) !!}
-        </article>
+            </article>
+        </div>
     </x-page-template-shell>
 @endsection

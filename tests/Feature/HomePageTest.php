@@ -30,6 +30,7 @@ class HomePageTest extends TestCase
             ->assertSee('Pasti distribuiti', false)
             ->assertSee('Interventi sul territorio', false)
             ->assertSee('I nostri partner', false)
+            ->assertSee('landing-reveal', false)
             ->assertSee(__('site.home.cta_contact', [], 'it'), false)
             ->assertSee('/it/contact', false)
             ->assertSee('favicon.svg', false)
@@ -80,7 +81,9 @@ class HomePageTest extends TestCase
         $this->get('/it')
             ->assertOk()
             ->assertSee('3.149', false)
+            ->assertSee('data-count-to="3149"', false)
             ->assertSee('42', false)
+            ->assertSee('data-count-to="42"', false)
             ->assertSee('—', false);
     }
 
@@ -100,6 +103,7 @@ class HomePageTest extends TestCase
         $this->get('/it')
             ->assertOk()
             ->assertSee('Pasti distribuiti', false)
-            ->assertSee('—', false);
+            ->assertSee('—', false)
+            ->assertDontSee('data-count-to', false);
     }
 }

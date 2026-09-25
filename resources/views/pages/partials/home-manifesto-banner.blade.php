@@ -1,5 +1,5 @@
-<section class="home-manifesto mb-4 md:mb-6" aria-labelledby="home-manifesto-quote">
-    <div class="home-manifesto__inner">
+<section class="home-manifesto landing-reveal mb-4 md:mb-6" aria-labelledby="home-manifesto-quote" data-reveal-from="up">
+    <div class="home-manifesto__inner landing-reveal__target">
         <div class="home-manifesto__quotes" aria-hidden="true">
             <span class="home-manifesto__quote-mark home-manifesto__quote-mark--open">&ldquo;</span>
             <span class="home-manifesto__quote-mark home-manifesto__quote-mark--close">&rdquo;</span>
