@@ -20,7 +20,7 @@
 
 @php
     $deskOptions = \App\Support\ContactDeskOptions::forForm();
-    $selectedDesk = old('desk', array_key_first($deskOptions));
+    $selectedDesk = old('desk', array_key_exists('generic_desk', $deskOptions) ? 'generic_desk' : array_key_first($deskOptions));
 @endphp
 
 <form

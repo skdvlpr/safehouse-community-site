@@ -213,7 +213,7 @@ return [
         'legal_lead' => 'Notice for Safe House ETS (GDPR / ePrivacy).',
         'legal_document' => 'Legal document',
         'legal_updated' => 'Updated: :date',
-        'contact_lead' => 'We are available for questions and partnerships.',
+        'contact_lead' => 'To contact us, fill in the form and choose the most suitable desk: Digital desk for online help, Legal desk for protection and guidance, General request for anything else.',
         'contact_faq' => 'Frequently asked questions',
         'contact_form_heading' => 'Write to us',
         'contact_form_notice' => 'Your message is used only to respond to this request.',

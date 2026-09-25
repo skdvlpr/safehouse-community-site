@@ -26,13 +26,12 @@
     @endphp
 
     <x-page-template-shell :page="$page" class="motion-enter">
-        @include('pages.partials.section-label', [
-            'page' => $page,
-            'locale' => $locale,
-            'fallbackKey' => 'site.pages.templates.contact',
+        @include('pages.partials.page-header', [
+            'title' => $title,
+            'lead' => __('site.pages.contact_lead'),
+            'prominent' => true,
+            'align' => 'center',
         ])
-
-        @include('pages.partials.page-header', ['title' => $title, 'lead' => __('site.pages.contact_lead'), 'page' => $page])
 
         <div class="grid gap-8 lg:grid-cols-2">
             <article class="template-contact-info safehouse-glass safehouse-prose">

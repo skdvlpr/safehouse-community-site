@@ -213,7 +213,7 @@ return [
         'legal_lead' => 'Informativa Safe House ETS (GDPR / ePrivacy).',
         'legal_document' => 'Documento legale',
         'legal_updated' => 'Aggiornato: :date',
-        'contact_lead' => 'Siamo disponibili per informazioni e collaborazioni.',
+        'contact_lead' => 'Per contattarci compila il modulo e scegli lo sportello più adatto: Sportello digitale per l\'assistenza online, Sportello legale per tutela e orientamento, Richiesta generica per ogni altra informazione.',
         'contact_faq' => 'Domande frequenti',
         'contact_form_heading' => 'Scrivici',
         'contact_form_notice' => 'I dati inviati sono trattati solo per rispondere alla richiesta.',

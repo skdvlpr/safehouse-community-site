@@ -6,7 +6,7 @@
 
 **Status**: Draft. Specified only. Implement one spec at a time and stop for owner testing. Diventa socio is out of scope.
 
-**Input**: Owner 2026-09-25. Contatti uses the Chi siamo heading. The red label above Contatti is removed. The line Siamo disponibili per informazioni, collaborazioni e aiuto is replaced by Italian copy that says: to contact us, fill in the form and choose the most suitable desk, with a short description of each desk. The default desk is Richiesta generica. Other unmentioned sentences on the page stay.
+**Input**: Owner 2026-09-25. Contatti uses the Chi siamo heading, and the line after the bar is centered like Notizie. The red label above Contatti is removed. That line says to fill in the form and choose the most suitable desk, with a short description of each desk. The default desk is Richiesta generica. Other unmentioned sentences on the page stay.
 
 ## User Scenarios & Testing *(mandatory)*
 
