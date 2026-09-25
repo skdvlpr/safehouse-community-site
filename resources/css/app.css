@@ -403,11 +403,16 @@ html[data-theme='light'] {
 
     .site-five__link {
         @apply inline-flex max-w-full flex-nowrap items-center justify-center gap-2 rounded-md px-1.5 py-0.5 text-center no-underline transition;
-        @apply hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-safehouse-primary;
+        @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-safehouse-primary;
     }
 
+    .site-five__link:hover {
+        background-color: color-mix(in srgb, var(--color-safehouse-primary) 14%, transparent);
+    }
+
+    /* Rectangle, transparent fill, red stroke — not a filled circle. https://tailwindcss.com/docs/border-radius */
     .site-five__mark {
-        @apply grid h-6 w-6 shrink-0 place-items-center rounded-full bg-safehouse-primary text-[10px] font-bold text-white sm:h-7 sm:w-7 sm:text-xs;
+        @apply grid h-6 shrink-0 place-items-center rounded-sm border border-safehouse-primary bg-transparent px-1.5 text-[10px] font-bold leading-none text-safehouse-primary sm:h-7 sm:px-2 sm:text-xs;
     }
 
     .site-five__text {
@@ -418,13 +423,14 @@ html[data-theme='light'] {
         @apply font-semibold text-safehouse-text;
     }
 
-    .site-five__link:hover .site-five__brand,
-    .site-five__link:hover .site-five__mark {
+    .site-five__link:hover .site-five__brand {
         @apply text-safehouse-link;
     }
 
     .site-five__link:hover .site-five__mark {
-        @apply bg-safehouse-primary-hover;
+        background-color: var(--color-safehouse-primary);
+        border-color: var(--color-safehouse-primary);
+        color: #fff;
     }
 
     .site-five__sep {
@@ -2187,15 +2193,15 @@ html[data-theme='light'] {
     }
 
     .news-toolbar {
-        @apply mb-8 rounded-2xl px-3 py-1;
+        @apply mb-8 overflow-x-clip rounded-2xl px-3 py-2;
     }
 
     .news-toolbar__row {
-        @apply flex flex-col items-stretch justify-center gap-2 md:flex-row md:items-center md:gap-3;
+        @apply flex flex-col items-stretch justify-center gap-3 md:flex-row md:items-center md:gap-3;
     }
 
     .news-toolbar__group {
-        @apply flex shrink-0 flex-row flex-nowrap items-center justify-center gap-2;
+        @apply flex w-full min-w-0 flex-col items-stretch justify-center gap-1 md:w-auto md:flex-row md:flex-nowrap md:items-center md:justify-center md:gap-2;
     }
 
     .news-toolbar__group--categories {
@@ -2203,15 +2209,15 @@ html[data-theme='light'] {
     }
 
     .news-toolbar__group--dates {
-        @apply shrink-0;
+        @apply w-full min-w-0 md:w-auto md:shrink-0;
     }
 
     .news-toolbar__group--layout {
-        @apply md:max-w-xs;
+        @apply w-full md:max-w-xs;
     }
 
     .news-toolbar__label {
-        @apply text-center text-xs font-semibold uppercase tracking-wide text-safehouse-muted;
+        @apply text-xs font-semibold uppercase tracking-wide text-safehouse-muted md:text-center;
     }
 
     .news-toolbar__hint {
@@ -2247,15 +2253,15 @@ html[data-theme='light'] {
     }
 
     .news-date-filters {
-        @apply flex shrink-0 flex-nowrap items-center justify-center gap-2;
+        @apply grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 md:flex md:w-auto md:shrink-0 md:flex-nowrap md:justify-center;
     }
 
     .news-date-filters__field {
-        @apply flex items-center;
+        @apply flex min-w-0 items-center;
     }
 
     .news-date-filters__field input {
-        @apply h-10 rounded-xl border border-white/10 bg-safehouse-page/35 px-3 text-center text-sm text-safehouse-text outline-none transition focus:border-safehouse-primary/60;
+        @apply h-10 w-full min-w-0 max-w-full rounded-xl border border-white/10 bg-safehouse-page/35 px-2 text-center text-sm text-safehouse-text outline-none transition focus:border-safehouse-primary/60 md:px-3;
     }
 
     .news-date-filters__separator {
@@ -2263,7 +2269,7 @@ html[data-theme='light'] {
     }
 
     .news-date-filters__submit {
-        @apply inline-flex h-10 min-w-28 items-center justify-center px-6 text-sm;
+        @apply col-span-3 inline-flex h-10 w-full min-w-0 items-center justify-center px-4 text-sm md:col-auto md:w-auto md:min-w-28 md:px-6;
     }
 
     .news-view-toggle {
@@ -2764,8 +2770,6 @@ html[data-theme='light'] .safehouse-prose :where(th, td) {
 /* @apply border-white/* bakes white into component CSS — force theme token on light */
 html[data-theme='light'] .template-page--default .template-default-panel,
 html[data-theme='light'] .template-page--about .template-about-intro,
-html[data-theme='light'] .template-page--about .template-about-values,
-html[data-theme='light'] .template-page--about .template-about-closing,
 html[data-theme='light'] .template-page--services .template-services-banner,
 html[data-theme='light'] .template-page--services .template-service-card,
 html[data-theme='light'] .template-page--article .template-article-body,
@@ -2781,6 +2785,15 @@ html[data-theme='light'] .social-links__item {
     border-color: var(--safehouse-glass-border);
 }
 
+/* Values + closing keep a red outline on light (do not inherit the glass remap). https://tailwindcss.com/docs/border-color */
+html[data-theme='light'] .template-page--about .template-about-values {
+    border-color: color-mix(in srgb, var(--color-safehouse-primary) 62%, var(--safehouse-glass-border));
+}
+
+html[data-theme='light'] .template-page--about .template-about-closing {
+    border-color: var(--color-safehouse-primary);
+}
+
 html[data-theme='light'] .page-hero__divider,
 html[data-theme='light'] .home-manifesto__divider {
     background-color: var(--safehouse-divider);
@@ -2792,6 +2805,10 @@ html[data-theme='light'] .site-five {
         var(--color-safehouse-primary) 6%,
         color-mix(in srgb, var(--color-safehouse-modal) 18%, transparent)
     );
+}
+
+html[data-theme='light'] .site-five__link:hover {
+    background-color: color-mix(in srgb, var(--color-safehouse-primary) 18%, transparent);
 }
 
 html[data-theme='light'] .bg-white\/5,
@@ -2827,7 +2844,8 @@ html[data-theme='light'] .template-contact-form__field input,
 html[data-theme='light'] .template-contact-form__field textarea,
 html[data-theme='light'] .sportello-select__trigger,
 html[data-theme='light'] .donation-form__input,
-html[data-theme='light'] .news-date-filters__field input {
+html[data-theme='light'] .news-date-filters__field input,
+html[data-theme='light'] .news-cat-menu__summary {
     background-color: rgb(255 255 255 / 92%);
     color: var(--color-safehouse-text);
     border-color: rgb(0 0 0 / 14%);

@@ -32,7 +32,9 @@ class CmsPagesTest extends TestCase
             ->assertDontSee('data-reveal-from="up"', false)
             ->assertSee(__('site.pages.about_values_heading', [], 'it'), false)
             ->assertSee('disobbedienza civile', false)
-            ->assertSee('casa sicura che si muove', false);
+            ->assertSee('casa sicura che si muove', false)
+            ->assertSee('template-about-values', false)
+            ->assertSee('template-about-closing', false);
     }
 
     public function test_services_page_renders_numbered_cards(): void

@@ -1,12 +1,12 @@
 /**
- * Home impact counters: ease from 0 to the CRM total in about two seconds.
+ * Home impact counters: ease from 0 to the CRM total in about 3.5 seconds.
  *
  * Server HTML keeps the formatted final value for no-JS and PHPUnit.
  * https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame
  * https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion
  */
 
-const COUNT_DURATION_MS = 2000;
+const COUNT_DURATION_MS = 3500;
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 

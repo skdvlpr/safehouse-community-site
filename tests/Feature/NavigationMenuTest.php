@@ -66,6 +66,8 @@ class NavigationMenuTest extends TestCase
     {
         $home = $this->get('/it')->assertOk();
         $home->assertSee('five-banner', false);
+        $home->assertSee('site-five__mark', false);
+        $home->assertSee('5×', false);
         $home->assertSee('data-copy-codice', false);
         $home->assertSee(__('site.home.cta_member', [], 'it'), false);
 
