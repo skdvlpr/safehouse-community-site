@@ -2,14 +2,16 @@
 
 @php
     $legalKey = $page->key ?? '';
-    $mergedLegal = in_array($legalKey, ['trasparenza', 'cookie'], true);
+    $mergedLegal = in_array($legalKey, ['trasparenza', 'cookie', 'privacy'], true);
     $headingTitle = match ($legalKey) {
         'trasparenza' => __('site.pages.transparency_title'),
         'cookie' => __('site.pages.cookie_title'),
+        'privacy' => __('site.pages.privacy_title'),
         default => $title,
     };
     $headingLead = match ($legalKey) {
         'cookie' => __('site.pages.cookie_tagline'),
+        'privacy' => __('site.pages.privacy_tagline'),
         default => __('site.pages.legal_lead'),
     };
 @endphp

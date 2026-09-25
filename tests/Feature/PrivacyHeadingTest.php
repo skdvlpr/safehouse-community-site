@@ -6,7 +6,7 @@ use Database\Seeders\PageSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class TransparencyHeadingTest extends TestCase
+class PrivacyHeadingTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -16,20 +16,19 @@ class TransparencyHeadingTest extends TestCase
         $this->seed(PageSeeder::class);
     }
 
-    public function test_transparency_heading_is_outside_one_glass_block(): void
+    public function test_privacy_heading_matches_transparency_layout(): void
     {
-        $this->get('/it/transparency')
+        $this->get('/it/privacy-policy')
             ->assertOk()
             ->assertSee('page-hero__title', false)
-            ->assertSee('Trasparenza', false)
-            ->assertSee('Informativa Safe House ETS (GDPR / ePrivacy).', false)
+            ->assertSee('Privacy', false)
+            ->assertSee('Informativa sul trattamento dei dati personali di Safe House ETS.', false)
             ->assertSee('template-legal-doc', false)
             ->assertDontSee('template-legal-hero', false)
             ->assertDontSee('template-eyebrow', false);
 
-        $this->get('/en/transparency')
+        $this->get('/en/privacy-policy')
             ->assertOk()
-            ->assertSee('page-hero__tagline', false)
-            ->assertSee('Notice for Safe House ETS (GDPR / ePrivacy).', false);
+            ->assertSee('Personal data notice for Safe House ETS.', false);
     }
 }

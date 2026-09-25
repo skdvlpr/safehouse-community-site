@@ -208,6 +208,8 @@ return [
         'transparency_title' => 'Transparency',
         'cookie_title' => 'Cookies',
         'cookie_tagline' => 'Cookie and consent notice for Safe House ETS.',
+        'privacy_title' => 'Privacy',
+        'privacy_tagline' => 'Personal data notice for Safe House ETS.',
         'legal_lead' => 'Notice for Safe House ETS (GDPR / ePrivacy).',
         'legal_document' => 'Legal document',
         'legal_updated' => 'Updated: :date',

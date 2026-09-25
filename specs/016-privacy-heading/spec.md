@@ -6,7 +6,7 @@
 
 **Status**: Draft. Specified only. Implement one spec at a time and stop for owner testing. Diventa socio is out of scope.
 
-**Input**: Owner 2026-09-25. Privacy uses the same heading treatment as Trasparenza: Privacy | Informativa privacy, in the Chi siamo bar, outside the glass block. The glass areas merge into one block that keeps the privacy text. The red label above the title is removed.
+**Input**: Owner 2026-09-25. Privacy uses the same heading treatment as Trasparenza: Privacy | Informativa sul trattamento dei dati personali di Safe House ETS, in the Chi siamo bar, outside the glass block. The short label Informativa privacy is lengthened without changing the meaning. The glass areas merge into one block that keeps the privacy text. The red label above the title is removed.
 
 ## User Scenarios & Testing *(mandatory)*
 
