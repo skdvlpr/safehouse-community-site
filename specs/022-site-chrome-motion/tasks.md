@@ -126,7 +126,7 @@ Each task lists **C** (1–10) and **model** for the owner Launch vs Replace tab
 ## Phase 9: Polish before banner
 
 - [x] T016 Run donation/layout/home tests as needed, `ddev exec -- ./vendor/bin/pint`, `bash bin/dev-rebuild-frontend.sh`. (test: yes; C3; model: inherit)
-- [ ] T017 **Git commit US1–US6 only** (owner already asked for a safety commit before the tint). Do not include banner CSS. (test: no; C2; model: inherit)
+- [x] T017 **Git commit US1–US6 only** (owner already asked for a safety commit before the tint). Do not include banner CSS. (test: no; C2; model: inherit)
 
 ---
 
@@ -136,7 +136,7 @@ Each task lists **C** (1–10) and **model** for the owner Launch vs Replace tab
 
 ### Implementation for User Story 7
 
-- [ ] T018 [US7] After T017, add a light `color-mix` of `--color-safehouse-primary` (~8%) into `.site-five` for dark and light theme in `resources/css/app.css`. Rebuild frontend. Commit this tint alone. (test: no; C2; model: inherit)
+- [x] T018 [US7] After T017, add a light `color-mix` of `--color-safehouse-primary` (~8%) into `.site-five` for dark and light theme in `resources/css/app.css`. Rebuild frontend. Commit this tint alone. (test: no; C2; model: inherit)
 
 ---
 

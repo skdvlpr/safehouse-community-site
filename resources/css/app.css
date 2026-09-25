@@ -389,7 +389,12 @@ html[data-theme='light'] {
     }
 
     .site-five {
-        @apply relative z-0 border-b border-white/10 bg-safehouse-modal/25 backdrop-blur-[96px];
+        @apply relative z-0 border-b border-white/10 backdrop-blur-[96px];
+        background-color: color-mix(
+            in srgb,
+            var(--color-safehouse-primary) 8%,
+            color-mix(in srgb, var(--color-safehouse-modal) 25%, transparent)
+        );
     }
 
     .site-five__inner {
@@ -2754,6 +2759,14 @@ html[data-theme='light'] .social-links__item {
 html[data-theme='light'] .page-hero__divider,
 html[data-theme='light'] .home-manifesto__divider {
     background-color: var(--safehouse-divider);
+}
+
+html[data-theme='light'] .site-five {
+    background-color: color-mix(
+        in srgb,
+        var(--color-safehouse-primary) 6%,
+        color-mix(in srgb, var(--color-safehouse-modal) 18%, transparent)
+    );
 }
 
 html[data-theme='light'] .bg-white\/5,
